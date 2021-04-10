@@ -32,7 +32,7 @@ Download the packages provided in `Prerequisites`.
 
 - Copy MobileNetV1 onnx model and the labels file to `example/image_classification/android/app/src/main/res/raw/`
 
-- Create `/libs` directory under `app/` and copy the AAR file `onnxruntime-release-1.7.0.aar` to `app/libs`
+- Create `/libs` directory under `app/` and copy the AAR file `onnxruntime-release.aar` to `app/libs`
 
 Then open the sample application in Android Studio. To do this, open Android Studio and select `Open an existing project`, browse folders and open the folder `examples/image_classification/android/`.
 
