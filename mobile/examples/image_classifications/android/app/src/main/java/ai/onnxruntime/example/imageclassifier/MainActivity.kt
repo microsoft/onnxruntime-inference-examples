@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+
 package ai.onnxruntime.example.imageclassifier
 
 import ai.onnxruntime.*
