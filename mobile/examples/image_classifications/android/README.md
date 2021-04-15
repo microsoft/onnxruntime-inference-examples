@@ -1,7 +1,7 @@
 # ONNX Runtime Mobile image classification Android sample application
 
 ## Overview
-This is an example application for [ONNX Runtime](https://github.com/microsoft/onnxruntime) on Android. The demo app uses image classfication which is able to continuously classify the objects it sees from the device's camera in real-time and displays the most probable inference result on the screen.
+This is an example application for [ONNX Runtime](https://github.com/microsoft/onnxruntime) on Android. The demo app uses image classification which is able to continuously classify the objects it sees from the device's camera in real-time and displays the most probable inference result on the screen.
 
 This example is loosely based on [Google CodeLabs - Getting Started with CameraX](https://codelabs.developers.google.com/codelabs/camerax-getting-started)
 
@@ -22,7 +22,7 @@ We use classic MobileNetV2(float) model and MobileNetV2 (uint8) in this sample a
 
 The above three files are provided and can be downloaded [here](https://1drv.ms/u/s!Auaxv_56eyubgQX-S_kTP0AP66Km?e=e8YMX1).
 
-[Optional] You can also build your own ONNX Runtime arm64 AAR files for Android. (See [build instructions here](https://www.onnxruntime.ai/docs/how-to/build.html#android) and [Build Android Archive(AAR)](https://www.onnxruntime.ai/docs/how-to/build.html#build-android-archive-aar)). 
+[Optional] You can also build your own ONNX Runtime arm64 AAR files for Android. (See [build instructions here](https://www.onnxruntime.ai/docs/how-to/build.html#android) and [Build Android Archive(AAR)](https://www.onnxruntime.ai/docs/how-to/build.html#build-android-archive-aar)).
 
 
 ### Step 1. Clone the ONNX Runtime Mobile examples source code and download required model files
@@ -54,13 +54,13 @@ Connect your Android Device to the computer and select your device in the top-do
 
 <img width=60% src="images/screenshot_6.png" alt="App Screenshot"/>
 
-Then Select `Run-Run app` and this will prompt the app to be installed on your device. 
+Then Select `Run-Run app` and this will prompt the app to be installed on your device.
 
 Now you can test and try by opening the app `ort_image_classifier` on your device. The app may request your permission for using the camera.
 
 
 #
-Here's an example screenshot of the app. 
+Here's an example screenshot of the app.
 
 <img width=20% src="images/screenshot_2.jpg" alt="App Screenshot" />
 
