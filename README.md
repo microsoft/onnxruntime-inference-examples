@@ -1,14 +1,18 @@
-# Project
+# ONNX Runtime Inference Examples
 
-> This repo has been populated by an initial template to help get you started. Please
-> make sure to update the content to build a great experience for community-building.
+<div align="center">
+  <img src="https://www.onnxruntime.ai/images/ONNX-Runtime-logo.png" /><br /><br />
+</div>
 
-As the maintainer of this project, please make a few updates:
+This repo has examples for using [ONNX Runtime](https://github.com/microsoft/onnxruntime) (ORT) for inference.
 
-- Improving this README.MD file to provide a great experience
-- Updating SUPPORT.MD with content about this project's support experience
-- Understanding the security reporting process in SECURITY.MD
-- Remove this section from the README
+## Examples
+
+Outline the examples in the repository.
+
+| Example           | Description                                |
+|-------------------|--------------------------------------------|
+|[Android Image Classifier](mobile/examples/image_classifications/android)| An example application for ONNX Runtime on Android. The example app uses image classification which is able to continuously classify the objects it sees from the device's camera in real-time and displays the most probable inference result on the screen. |
 
 ## Contributing
 
@@ -26,8 +30,8 @@ contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additio
 
 ## Trademarks
 
-This project may contain trademarks or logos for projects, products, or services. Authorized use of Microsoft 
-trademarks or logos is subject to and must follow 
+This project may contain trademarks or logos for projects, products, or services. Authorized use of Microsoft
+trademarks or logos is subject to and must follow
 [Microsoft's Trademark & Brand Guidelines](https://www.microsoft.com/en-us/legal/intellectualproperty/trademarks/usage/general).
 Use of Microsoft trademarks or logos in modified versions of this project must not cause confusion or imply Microsoft sponsorship.
 Any use of third-party trademarks or logos are subject to those third-party's policies.
