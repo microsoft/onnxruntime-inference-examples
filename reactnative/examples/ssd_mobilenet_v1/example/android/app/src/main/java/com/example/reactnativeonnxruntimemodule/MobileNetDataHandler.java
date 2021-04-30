@@ -1,0 +1,277 @@
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+
+package com.example.reactnativeonnxruntimemodule;
+
+import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Color;
+import android.net.Uri;
+import android.os.Build;
+import android.util.Base64;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
+
+import com.facebook.react.bridge.Arguments;
+import com.facebook.react.bridge.Promise;
+import com.facebook.react.bridge.ReactApplicationContext;
+import com.facebook.react.bridge.ReactContextBaseJavaModule;
+import com.facebook.react.bridge.ReactMethod;
+import com.facebook.react.bridge.ReadableArray;
+import com.facebook.react.bridge.ReadableMap;
+import com.facebook.react.bridge.ReadableType;
+import com.facebook.react.bridge.WritableArray;
+import com.facebook.react.bridge.WritableMap;
+
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.FloatBuffer;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import ai.onnxruntime.reactnative.OnnxruntimeModule;
+import ai.onnxruntime.reactnative.TensorHelper;
+
+import static java.util.stream.Collectors.joining;
+
+@RequiresApi(api = Build.VERSION_CODES.N)
+public class MobileNetDataHandler extends ReactContextBaseJavaModule {
+
+  private static ReactApplicationContext reactContext;
+  private static OnnxruntimeModule onnxruntimeModule;
+  private static String onnxruntimeModuleKey = null;
+
+  MobileNetDataHandler(ReactApplicationContext context) throws Exception {
+    super(context);
+    reactContext = context;
+    onnxruntimeModule = new OnnxruntimeModule(reactContext);
+    onnxruntimeModuleKey = copyFile(reactContext, "ssd_mobilenet_v1.f.onnx");
+  }
+
+  @NonNull
+  @Override
+  public String getName() {
+    return "MobileNetDataHandler";
+  }
+
+  // It returns mode path in app package,
+  // so that onnxruntime is able to load a model using a given path.
+  @ReactMethod
+  public void getLocalModelPath(Promise promise) {
+    try {
+      promise.resolve(onnxruntimeModuleKey);
+    } catch (Exception e) {
+      promise.reject("Can't get a mdoel", e);
+    }
+  }
+
+  // It returns image path in app package.
+  @ReactMethod
+  public void getImagePath(Promise promise) {
+    try {
+      String imageUri = copyFile(reactContext, "mobilenet.jpg");
+      promise.resolve(imageUri);
+    } catch (Exception e) {
+      promise.reject("Can't get a image", e);
+    }
+  }
+
+  // It gets raw input data, which can be uri or byte array and others,
+  // returns cooked data formatted as input of a model by promise.
+  @ReactMethod
+  public void preprocess(String uri, Promise promise) {
+    try {
+      WritableMap inputDataMap = preprocess(uri);
+      promise.resolve(inputDataMap);
+    } catch (Exception e) {
+      promise.reject("Can't process an image", e);
+    }
+  }
+
+  // It gets a result from onnxruntime and a duration of session time for input data,
+  // returns output data formatted as React Native map by promise.
+  @RequiresApi(api = Build.VERSION_CODES.KITKAT)
+  @ReactMethod
+  public void postprocess(ReadableMap result, Promise promise) {
+    try {
+      WritableMap cookedMap = postprocess(result);
+      promise.resolve(cookedMap);
+    } catch (Exception e) {
+      promise.reject("Can't process a inference result", e);
+    }
+  }
+
+  // It gets raw input data, which can be uri or byte array and others,
+  // returns output data formatted as React Native map by promise.
+  @ReactMethod
+  public void run(String uri, ReadableArray output, ReadableMap runOptions, Promise promise) {
+    try {
+      WritableMap inputMap = preprocess(uri);
+      WritableMap resultMap = onnxruntimeModule.run(onnxruntimeModuleKey, inputMap, output, runOptions);
+      WritableMap outputMap = postprocess(resultMap);
+      promise.resolve(outputMap);
+    } catch (Exception e) {
+      promise.reject(e);
+    }
+  }
+
+  private static final Map<Integer, String> CocoClasses = Stream.of(new Object[][]{
+    {1, "person"},
+    {2, "bicycle"},
+    {3, "car"},
+    {4, "motorcycle"},
+    {5, "airplane"},
+    {6, "bus"},
+    {7, "train"},
+    {8, "truck"},
+    {9, "boat"},
+    {10, "traffic light"},
+  }).collect(Collectors.toMap(p -> (Integer)p[0], p -> (String)p[1]));
+
+  private static String getCocoClass(int classId) {
+    if (CocoClasses.containsKey(classId)) {
+      return CocoClasses.get(classId);
+    } else {
+      return new String("(not in category)");
+    }
+  }
+
+  // It gets raw input data, which can be uri or byte array and others,
+  // returns cooked data formatted as input of a model by promise.
+  private WritableMap preprocess(String uri) throws Exception {
+    final int batchSize = 1;
+    final int channelSize = 3;
+
+    InputStream is = MainApplication.getAppContext().getContentResolver().openInputStream(Uri.parse(uri));
+    BufferedInputStream bis = new BufferedInputStream(is);
+    byte[] imageArray = new byte[bis.available()];
+    bis.read(imageArray);
+
+    Bitmap bitmap = BitmapFactory.decodeByteArray(imageArray, 0, imageArray.length);
+    if (bitmap == null) {
+      throw new Exception("Can't decode image: " + uri);
+    }
+
+    final int imageHeight = bitmap.getHeight();
+    final int imageWidth = bitmap.getWidth();
+
+    ByteBuffer imageByteBuffer = ByteBuffer.allocate(imageHeight * imageWidth * channelSize * 4).order(ByteOrder.nativeOrder());
+    FloatBuffer imageFloatBuffer = imageByteBuffer.asFloatBuffer();
+    for (int h = 0; h < imageHeight; ++h) {
+      for (int w = 0; w < imageWidth; ++w) {
+        int pixel = bitmap.getPixel(w, h);
+        imageFloatBuffer.put((float) Color.red(pixel));
+        imageFloatBuffer.put((float) Color.green(pixel));
+        imageFloatBuffer.put((float) Color.blue(pixel));
+      }
+    }
+    imageByteBuffer.rewind();
+
+    WritableMap inputDataMap = Arguments.createMap();
+
+    // dims
+    WritableMap inputTensorMap = Arguments.createMap();
+
+    WritableArray dims = Arguments.createArray();
+    dims.pushInt(batchSize);
+    dims.pushInt(imageHeight);
+    dims.pushInt(imageWidth);
+    dims.pushInt(channelSize);
+    inputTensorMap.putArray("dims", dims);
+
+    // type
+    inputTensorMap.putString("type", TensorHelper.JsTensorTypeFloat);
+
+    // data encoded as Base64
+    imageByteBuffer.rewind();
+    String data = Base64.encodeToString(imageByteBuffer.array(), Base64.DEFAULT);
+    inputTensorMap.putString("data", data);
+
+    inputDataMap.putMap("image_tensor:0", inputTensorMap);
+
+    return inputDataMap;
+  }
+
+  @RequiresApi(api = Build.VERSION_CODES.KITKAT)
+  private WritableMap postprocess(ReadableMap result) throws Exception {
+    String detectionResult = "";
+    int numDetections = 0;
+
+    {
+      ReadableMap outputTensor = result.getMap("num_detections:0");
+
+      String outputData = outputTensor.getString("data");
+      FloatBuffer buffer = ByteBuffer.wrap(Base64.decode(outputData, Base64.DEFAULT))
+                                     .order(ByteOrder.nativeOrder())
+                                     .asFloatBuffer();
+      numDetections = (int) buffer.get(0);
+
+      detectionResult += "Number of detections: " + numDetections + System.lineSeparator();
+    }
+
+    {
+      ReadableMap outputTensor = result.getMap("detection_classes:0");
+      ArrayList<Integer> dataArray = new ArrayList<>();
+
+      String outputData = outputTensor.getString("data");
+      FloatBuffer buffer = ByteBuffer.wrap(Base64.decode(outputData, Base64.DEFAULT))
+                                     .order(ByteOrder.nativeOrder())
+                                     .asFloatBuffer();
+
+      for (int i = 0; i < numDetections; ++i) {
+        dataArray.add((int) buffer.get());
+      }
+
+      Map<String, Integer> detected = new HashMap<>();
+      for (Integer i : dataArray) {
+        String name = getCocoClass(i);
+        if (detected.containsKey(name)) {
+          detected.put(name, detected.get(name) + 1);
+        } else {
+          detected.put(name, 1);
+        }
+      }
+
+      detectionResult += detected.entrySet().stream().map(entry ->
+        entry.getValue() + " " + entry.getKey() + " detected")
+        .collect(joining(System.lineSeparator()));
+      detectionResult += System.lineSeparator();
+    }
+
+    WritableMap cookedMap = Arguments.createMap();
+    cookedMap.putString("result", detectionResult);
+
+    return cookedMap;
+  }
+
+  /*
+    Copy a file from assets to data folder and return an uri for copied file.
+   */
+  private static String copyFile(Context context, String filename) throws Exception {
+    File file = new File(context.getExternalFilesDir(null), filename);
+    if (!file.exists()) {
+      try (InputStream in = context.getAssets().open(filename)) {
+        try (OutputStream out = new FileOutputStream(file)) {
+          byte[] buffer = new byte[1024];
+          int read = in.read(buffer);
+          while (read != -1) {
+            out.write(buffer, 0, read);
+            read = in.read(buffer);
+          }
+        }
+      }
+    }
+
+    return file.toURI().toString();
+  }
+}
