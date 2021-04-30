@@ -1,6 +1,6 @@
 {
-  "name": "react-native-onnxruntime-module-test-example",
-  "description": "Example app for react-native-onnxruntime-module-test",
+  "name": "onnxruntime-reactnative-test-example",
+  "description": "Example app for onnxruntime-reactnative-test",
   "version": "0.0.1",
   "private": true,
   "scripts": {

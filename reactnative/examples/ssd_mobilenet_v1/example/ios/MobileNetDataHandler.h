@@ -1,10 +1,5 @@
-//
-//  MobileNetDataHandler.h
-//  OnnxruntimeReactNativeExample
-//
-//  Created by Sunghoon Choi on 1/15/21.
-//  Copyright © 2021 Facebook. All rights reserved.
-//
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
 
 #ifndef MobileNetDataHandler_h
 #define MobileNetDataHandler_h

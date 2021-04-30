@@ -1,6 +1,6 @@
 //
 //  File.swift
-//  OnnxruntimeModuleExample
+//  OnnxruntimeReactNativeExample
 //
 
 import Foundation

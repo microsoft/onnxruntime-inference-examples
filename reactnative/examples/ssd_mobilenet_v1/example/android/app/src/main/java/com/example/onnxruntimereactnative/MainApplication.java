@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-package com.example.reactnativeonnxruntimemodule;
+package com.example.onnxruntimereactnative;
 
 import android.app.Application;
 import android.content.Context;
