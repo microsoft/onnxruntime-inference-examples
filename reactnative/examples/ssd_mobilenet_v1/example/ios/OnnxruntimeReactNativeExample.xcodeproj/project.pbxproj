@@ -7,10 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		0C77CD0868A37D921A2E22B6 /* libPods-OnnxruntimeReactNativeExample.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 57DF8339340C7B83DE5767D7 /* libPods-OnnxruntimeReactNativeExample.a */; };
 		13B07FBC1A68108700A75B9A /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.m */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
+		4F9B73C218391DF45D71E7F6 /* libPods-OnnxruntimeReactNativeExample.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F9F17C0F497A408A1CC87F8F /* libPods-OnnxruntimeReactNativeExample.a */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
 		DB8FCA1B25C296B100C72F26 /* MobileNetDataHandler.mm in Sources */ = {isa = PBXBuildFile; fileRef = DB8FCA1A25C296B100C72F26 /* MobileNetDataHandler.mm */; };
 		DB8FCE2625C34E7200C72F26 /* mobilenet.jpg in Resources */ = {isa = PBXBuildFile; fileRef = DB8FCE2525C34E7200C72F26 /* mobilenet.jpg */; };
@@ -45,13 +45,6 @@
 			proxyType = 2;
 			remoteGlobalIDString = 3CA7A9404CCDD6BA22C97F8348CE3209;
 			remoteInfo = glog;
-		};
-		DB82582C263CBD020026C53B /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = DB825803263CBD020026C53B /* Pods.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = EEC02E51E659FF91FD5F2729E99D7560;
-			remoteInfo = "onnxruntime-reactnative";
 		};
 		DB82582E263CBD020026C53B /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -186,6 +179,13 @@
 			remoteGlobalIDString = 65D0A19C165FA1126B1360680FE6DB12;
 			remoteInfo = Yoga;
 		};
+		DBE07C92263F8B3000B1D55E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = DB825803263CBD020026C53B /* Pods.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = E352715EBEBD04E9C005BF0BC80AD077;
+			remoteInfo = "onnxruntime-reactnative.iphonesimulator";
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -210,16 +210,15 @@
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = OnnxruntimeReactNativeExample/Info.plist; sourceTree = "<group>"; };
 		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = OnnxruntimeReactNativeExample/main.m; sourceTree = "<group>"; };
 		47F7ED3B7971BE374F7B8635 /* Pods-OnnxruntimeReactNativeExample.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-OnnxruntimeReactNativeExample.debug.xcconfig"; path = "Target Support Files/Pods-OnnxruntimeReactNativeExample/Pods-OnnxruntimeReactNativeExample.debug.xcconfig"; sourceTree = "<group>"; };
-		57DF8339340C7B83DE5767D7 /* libPods-OnnxruntimeReactNativeExample.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-OnnxruntimeReactNativeExample.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = OnnxruntimeReactNativeExample/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		DB825803263CBD020026C53B /* Pods.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = Pods.xcodeproj; path = Pods/Pods.xcodeproj; sourceTree = "<group>"; };
 		DB8FCA1925C296B100C72F26 /* MobileNetDataHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MobileNetDataHandler.h; sourceTree = "<group>"; };
 		DB8FCA1A25C296B100C72F26 /* MobileNetDataHandler.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MobileNetDataHandler.mm; sourceTree = "<group>"; };
-		DB8FCD9E25C340E800C72F26 /* libonnxruntime.1.6.0.iphonesimulator.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libonnxruntime.1.6.0.iphonesimulator.dylib; path = ../../ios/Libraries/onnxruntime/lib/libonnxruntime.1.6.0.iphonesimulator.dylib; sourceTree = "<group>"; };
 		DB8FCE2525C34E7200C72F26 /* mobilenet.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = mobilenet.jpg; path = ../src/mobilenet.jpg; sourceTree = "<group>"; };
 		DB8FCE2925C34E8100C72F26 /* ssd_mobilenet_v1.f.onnx */ = {isa = PBXFileReference; lastKnownFileType = file; name = ssd_mobilenet_v1.f.onnx; path = ../src/ssd_mobilenet_v1.f.onnx; sourceTree = "<group>"; };
 		E00ACF0FDA8BF921659E2F9A /* Pods-OnnxruntimeReactNativeExample.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-OnnxruntimeReactNativeExample.release.xcconfig"; path = "Target Support Files/Pods-OnnxruntimeReactNativeExample/Pods-OnnxruntimeReactNativeExample.release.xcconfig"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
+		F9F17C0F497A408A1CC87F8F /* libPods-OnnxruntimeReactNativeExample.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-OnnxruntimeReactNativeExample.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -227,7 +226,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				0C77CD0868A37D921A2E22B6 /* libPods-OnnxruntimeReactNativeExample.a in Frameworks */,
+				4F9B73C218391DF45D71E7F6 /* libPods-OnnxruntimeReactNativeExample.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -253,9 +252,8 @@
 		2D16E6871FA4F8E400B85C8A /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				DB8FCD9E25C340E800C72F26 /* libonnxruntime.1.6.0.iphonesimulator.dylib */,
 				ED297162215061F000B7C4FE /* JavaScriptCore.framework */,
-				57DF8339340C7B83DE5767D7 /* libPods-OnnxruntimeReactNativeExample.a */,
+				F9F17C0F497A408A1CC87F8F /* libPods-OnnxruntimeReactNativeExample.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -308,7 +306,7 @@
 				DB825827263CBD020026C53B /* libFBReactNativeSpec.a */,
 				DB825829263CBD020026C53B /* libFolly.a */,
 				DB82582B263CBD020026C53B /* libglog.a */,
-				DB82582D263CBD020026C53B /* libonnxruntime-reactnative.a */,
+				DBE07C93263F8B3000B1D55E /* libonnxruntime-reactnative.iphonesimulator.a */,
 				DB82582F263CBD020026C53B /* libPods-OnnxruntimeReactNativeExample.a */,
 				DB825831263CBD020026C53B /* libRCTTypeSafety.a */,
 				DB825833263CBD020026C53B /* libReact-Core.a */,
@@ -423,13 +421,6 @@
 			fileType = archive.ar;
 			path = libglog.a;
 			remoteRef = DB82582A263CBD020026C53B /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		DB82582D263CBD020026C53B /* libonnxruntime-reactnative.a */ = {
-			isa = PBXReferenceProxy;
-			fileType = archive.ar;
-			path = "libonnxruntime-reactnative.a";
-			remoteRef = DB82582C263CBD020026C53B /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 		DB82582F263CBD020026C53B /* libPods-OnnxruntimeReactNativeExample.a */ = {
@@ -565,6 +556,13 @@
 			remoteRef = DB825852263CBD020026C53B /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
+		DBE07C93263F8B3000B1D55E /* libonnxruntime-reactnative.iphonesimulator.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = "libonnxruntime-reactnative.iphonesimulator.a";
+			remoteRef = DBE07C92263F8B3000B1D55E /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
 /* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
@@ -625,7 +623,7 @@
 			);
 			inputPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-OnnxruntimeReactNativeExample/Pods-OnnxruntimeReactNativeExample-frameworks.sh",
-				"${PODS_ROOT}/../../../node_modules/onnxruntime-reactnative/ios/Libraries/onnxruntime/lib/libonnxruntime.1.6.0.dylib",
+				"${PODS_ROOT}/../../../node_modules/onnxruntime-reactnative/ios/Libraries/onnxruntime/lib/iphonesimulator/libonnxruntime.1.6.0.dylib",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
