@@ -1,0 +1,10 @@
+{
+  "name": "api-usage_inference-session",
+  "private": true,
+  "version": "1.0.0",
+  "description": "This example is a demonstration of basic usage of InferenceSession.",
+  "main": "index.js",
+  "dependencies": {
+    "onnxruntime-node": "1.7.0-dev.0"
+  }
+}
