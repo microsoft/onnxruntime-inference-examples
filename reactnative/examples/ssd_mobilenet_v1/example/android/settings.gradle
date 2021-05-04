@@ -3,4 +3,4 @@ apply from: file("../node_modules/@react-native-community/cli-platform-android/n
 include ':app'
 
 include ':onnxruntimereactnative'
-project(':onnxruntimereactnative').projectDir = new File(rootProject.projectDir, '../../node_modules/onnxruntime-reactnative/android')
+project(':onnxruntimereactnative').projectDir = new File(rootProject.projectDir, '../../node_modules/onnxruntime-react-native/android')

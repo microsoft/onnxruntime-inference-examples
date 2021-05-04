@@ -1,5 +1,5 @@
 import { NativeModules } from 'react-native';
-import type { InferenceSession } from 'onnxruntime-reactnative';
+import type { InferenceSession } from 'onnxruntime-react-native';
 
 export interface MobileNetInput {
   [name: string]: {
