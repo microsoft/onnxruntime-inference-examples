@@ -6,7 +6,7 @@ This folder contains several JavaScript examples. Most of the examples, unless r
 
 - [onnxruntime-node](https://github.com/microsoft/onnxruntime/tree/master/js/node): Node.js binding for ONNXRuntime. Can be used in Node.js applications and Node.js compatible environment (eg. Electron.js).
 - [onnxruntime-web](https://github.com/microsoft/onnxruntime/tree/master/js/web): ONNXRuntime on browsers.
-- [onnxruntime-react-native](): TBD
+- [onnxruntime-react-native](https://github.com/microsoft/onnxruntime/tree/master/js/react_native): ONNXRuntime for React Native applications on Android and iOS.
 
 ## Usage
 
