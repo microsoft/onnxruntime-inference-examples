@@ -13,6 +13,7 @@ Outline the examples in the repository.
 | Example           | Description                                |
 |-------------------|--------------------------------------------|
 |[Android Image Classifier](mobile/examples/image_classifications/android)| An example application for ONNX Runtime on Android. The example app uses image classification which is able to continuously classify the objects it sees from the device's camera in real-time and displays the most probable inference result on the screen. |
+|[JavaScript API examples](js)| Examples that demonstrates how to use JavaScript API for ONNX Runtime. |
 
 ## Contributing
 
