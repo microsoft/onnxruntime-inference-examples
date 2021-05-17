@@ -1,0 +1,10 @@
+{
+  "name": "quick-start_onnxruntime-node",
+  "private": true,
+  "version": "1.0.0",
+  "description": "This example is a demonstration of basic usage of ONNX Runtime Node.js binding.",
+  "main": "index.js",
+  "dependencies": {
+    "onnxruntime-node": "^1.8.0"
+  }
+}

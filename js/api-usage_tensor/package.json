@@ -1,0 +1,9 @@
+{
+  "name": "api-usage_create-tensor",
+  "private": true,
+  "version": "1.0.0",
+  "description": "This example is a demonstration of basic usage of Tensor.",
+  "dependencies": {
+    "onnxruntime-node": "^1.8.0"
+  }
+}

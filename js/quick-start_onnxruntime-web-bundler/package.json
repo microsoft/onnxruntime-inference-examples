@@ -1,0 +1,13 @@
+{
+  "name": "quick-start_onnxruntime-web-bundler",
+  "private": true,
+  "version": "1.0.0",
+  "description": "This example is a demonstration of basic usage of ONNX Runtime Web using a bundler.",
+  "dependencies": {
+    "onnxruntime-web": "^1.8.0"
+  },
+  "devDependencies": {
+    "webpack": "^5.36.2",
+    "webpack-cli": "^4.6.0"
+  }
+}
