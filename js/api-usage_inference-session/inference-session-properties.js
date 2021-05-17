@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
 const ort = require('onnxruntime-node');
 
 // following code also works for onnxruntime-web.

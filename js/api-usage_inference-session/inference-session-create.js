@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
 const fs = require('fs');
 const util = require('util');
 const ort = require('onnxruntime-node');

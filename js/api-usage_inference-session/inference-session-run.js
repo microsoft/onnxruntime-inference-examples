@@ -1,5 +1,6 @@
-const fs = require('fs');
-const util = require('util');
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
 const ort = require('onnxruntime-node');
 
 // following code also works for onnxruntime-web.
