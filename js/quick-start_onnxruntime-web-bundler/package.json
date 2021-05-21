@@ -7,6 +7,7 @@
     "onnxruntime-web": "^1.8.0"
   },
   "devDependencies": {
+    "copy-webpack-plugin": "^8.1.1",
     "webpack": "^5.36.2",
     "webpack-cli": "^4.6.0"
   }
