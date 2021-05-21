@@ -8,7 +8,7 @@ Modern browser based applications are usually built by frameworks like [Angular]
 
 This example contians a `package.json` file, which already lists "onnxruntime-web" as dependency and webpack packages as development dependency. To work on your own `package.json`, use command `npm install onnxruntime-web` to install ONNX Runtime Web, and use command `npm install --save-dev webpack webpack-cli` to install webpack as development dependency.
 
-[Webpack](https://webpack.js.org) is a very powerful bundler. This example shows basic usage only. See also [Getting Started](https://webpack.js.org/guides/getting-started/) for more information.
+[Webpack](https://webpack.js.org) is a very powerful bundler. This example uses a simple config file `webpack.config.js` to shows basic usage only. See also Webpack's [Getting Started](https://webpack.js.org/guides/getting-started/) for more information.
 
 In this example, we load onnxruntime, create an inference session with a simple model, feed input, get output as result and write it to the HTML page. All functions are called in their basic form.
 
@@ -21,9 +21,9 @@ In this example, we load onnxruntime, create an inference session with a simple 
 
 2. use webpack to make bundle:
    ```sh
-   npx webpack --mode production --entry ./main.js
+   npx webpack
    ```
-   this generates the bundle file `./dist/main.js`
+   this generates the bundle file `./dist/bundle.min.js`
 
 3. use NPM package `light-server` to serve the current folder at http://localhost:8080/
    ```sh
