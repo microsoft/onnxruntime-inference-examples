@@ -152,6 +152,6 @@
     ]
   },
   "dependencies": {
-    "onnxruntime-react-native": "^1.7.0-dev.0"
+    "onnxruntime-react-native": "^1.8.0"
   }
 }
