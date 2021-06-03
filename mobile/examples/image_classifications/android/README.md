@@ -27,7 +27,7 @@ Note: this step is optional, you can download the FP32 and uint8 ORT models [her
 ### Step 1. Clone the ONNX Runtime Mobile examples source code and download required model files
 Clone this ORT Mobile examples GitHub repository to your computer to get the sample application.
 
-- Download the labels file [here](https://1drv.ms/t/s!Auaxv_56eyubgQhWu6PoDxJUQoAi?e=pKKKUp)
+- Download the labels file [here](https://raw.githubusercontent.com/pytorch/hub/master/imagenet_classes.txt)
 - Copy MobileNetV2 ORT models and the labels file to `example/image_classification/android/app/src/main/res/raw/`
 
 Then open the sample application in Android Studio. To do this, open Android Studio and select `Open an existing project`, browse folders and open the folder `examples/image_classification/android/`.

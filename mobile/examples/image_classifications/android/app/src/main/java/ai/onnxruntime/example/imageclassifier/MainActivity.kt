@@ -151,7 +151,7 @@ class MainActivity : AppCompatActivity() {
 
     // Read MobileNet V2 classification labels
     private fun readLabels(): List<String> {
-        return resources.openRawResource(R.raw.labels).bufferedReader().readLines()
+        return resources.openRawResource(R.raw.imagenet_classes).bufferedReader().readLines()
     }
 
     private fun createOrtSession(): OrtSession? {
