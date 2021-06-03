@@ -6,7 +6,7 @@ This is an example application for [ONNX Runtime](https://github.com/microsoft/o
 This example is loosely based on [Google CodeLabs - Getting Started with CameraX](https://codelabs.developers.google.com/codelabs/camerax-getting-started)
 
 ### Model
-We use classic MobileNetV2(float) model and MobileNetV2 (uint8) in this sample app.
+We use pre-trained [TorchVision MOBILENET V2](https://pytorch.org/hub/pytorch_vision_mobilenet_v2/) in this sample app.
 
 ## Requirements
 - Android Studio 4.1+ (installed on Mac/Windows/Linux)
@@ -18,7 +18,7 @@ We use classic MobileNetV2(float) model and MobileNetV2 (uint8) in this sample a
 
 ### Step 0. [Optional] Prepare the ORT models
 Open [Mobilenet v2 Quantization with ONNX Runtime Notebook](https://github.com/microsoft/onnxruntime/blob/master/onnxruntime/python/tools/quantization/notebooks/imagenet_v2/mobilenet.ipynb), this notebook will demostrate how to,
-1. Export the pretrained MobileNet V2 FP32 model from PyTorch to a FP32 ONNX model
+1. Export the pre-trained MobileNet V2 FP32 model from PyTorch to a FP32 ONNX model
 2. Quantize the FP32 ONNX model to an uint8 ONNX model
 3. Convert both FP32 and uint8 ONNX models to ORT models
 
