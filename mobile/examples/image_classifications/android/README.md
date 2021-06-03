@@ -1,7 +1,7 @@
 # ONNX Runtime Mobile image classification Android sample application
 
 ## Overview
-This is an example application for [ONNX Runtime](https://github.com/microsoft/onnxruntime) on Android. The demo app uses image classification which is able to continuously classify the objects it sees from the device's camera in real-time and displays the most probable inference result on the screen.
+This is an example application for [ONNX Runtime](https://github.com/microsoft/onnxruntime) on Android. The demo app uses image classification which is able to continuously classify the objects it sees from the device's camera in real-time and displays the most probable inference results on the screen.
 
 This example is loosely based on [Google CodeLabs - Getting Started with CameraX](https://codelabs.developers.google.com/codelabs/camerax-getting-started)
 
@@ -15,24 +15,20 @@ We use classic MobileNetV2(float) model and MobileNetV2 (uint8) in this sample a
 - Android device in developer mode and enable USB debugging
 
 ## Build And Run
-### Prerequisites
--  MobileNetV2 ort format model
--  labels text file (used for image classification)
--  Prebuilt ONNX Runtime arm64 Android Archive(AAR) files, which can be directly imported in Android Studio
 
-The above three files are provided and can be downloaded [here](https://1drv.ms/u/s!Auaxv_56eyubgQX-S_kTP0AP66Km?e=e8YMX1).
+### Step 0. [Optional] Prepare the ORT models
+Open [Mobilenet v2 Quantization with ONNX Runtime Notebook](https://github.com/microsoft/onnxruntime/blob/master/onnxruntime/python/tools/quantization/notebooks/imagenet_v2/mobilenet.ipynb), this notebook will demostrate how to,
+1. Export the pretrained MobileNet V2 FP32 model from PyTorch to a FP32 ONNX model
+2. Quantize the FP32 ONNX model to an uint8 ONNX model
+3. Convert both FP32 and uint8 ONNX models to ORT models
 
-[Optional] You can also build your own ONNX Runtime arm64 AAR files for Android. (See [build instructions here](https://www.onnxruntime.ai/docs/how-to/build.html#android) and [Build Android Archive(AAR)](https://www.onnxruntime.ai/docs/how-to/build.html#build-android-archive-aar)).
-
+Note: this step is optional, you can download the FP32 and uint8 ORT models [here](https://1drv.ms/u/s!Auaxv_56eyubgQlfGIBWh-j1wYyl?e=GYKoL7).
 
 ### Step 1. Clone the ONNX Runtime Mobile examples source code and download required model files
 Clone this ORT Mobile examples GitHub repository to your computer to get the sample application.
 
-Download the packages provided in `Prerequisites`.
-
-- Copy MobileNetV1 onnx model and the labels file to `example/image_classification/android/app/src/main/res/raw/`
-
-- Create `/libs` directory under `app/` and copy the AAR file `onnxruntime-release.aar` to `app/libs`
+- Download the labels file [here](https://1drv.ms/t/s!Auaxv_56eyubgQhWu6PoDxJUQoAi?e=pKKKUp)
+- Copy MobileNetV2 ORT models and the labels file to `example/image_classification/android/app/src/main/res/raw/`
 
 Then open the sample application in Android Studio. To do this, open Android Studio and select `Open an existing project`, browse folders and open the folder `examples/image_classification/android/`.
 
