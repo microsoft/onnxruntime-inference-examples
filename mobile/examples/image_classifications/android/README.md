@@ -1,7 +1,7 @@
 # ONNX Runtime Mobile image classification Android sample application
 
 ## Overview
-This is an example application for [ONNX Runtime](https://github.com/microsoft/onnxruntime) on Android. The demo app uses image classification which is able to continuously classifying the objects it sees from the device's camera in real-time and displays the most probable inference results on the screen.
+This is an example application for [ONNX Runtime](https://github.com/microsoft/onnxruntime) on Android. The demo app uses image classification which is able to continuously classify the objects it sees from the device's camera in real-time and displays the most probable inference results on the screen.
 
 This example is loosely based on [Google CodeLabs - Getting Started with CameraX](https://codelabs.developers.google.com/codelabs/camerax-getting-started)
 
