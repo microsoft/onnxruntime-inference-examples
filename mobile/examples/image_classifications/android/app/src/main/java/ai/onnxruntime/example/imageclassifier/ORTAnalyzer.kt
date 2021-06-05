@@ -92,6 +92,7 @@ internal class ORTAnalyzer(
                     val output = ortSession?.run(Collections.singletonMap(inputName, tensor))
                     output.use {
                         result.processTimeMs = SystemClock.uptimeMillis() - startTime
+                        @Suppress("UNCHECKED_CAST")
                         val rawOutput = ((output?.get(0)?.value) as Array<FloatArray>)[0]
                         val probabilities = softMax(rawOutput)
                         result.detectedIndices = getTop3(probabilities)

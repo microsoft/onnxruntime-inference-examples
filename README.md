@@ -4,7 +4,7 @@
   <img src="https://www.onnxruntime.ai/images/ONNX-Runtime-logo.png" /><br /><br />
 </div>
 
-This repo has examples for using [ONNX Runtime](https://github.com/microsoft/onnxruntime) (ORT) for inference.
+This repo has examples that demonstrate the use of [ONNX Runtime](https://github.com/microsoft/onnxruntime) (ORT) for inference.
 
 ## Examples
 
@@ -12,8 +12,8 @@ Outline the examples in the repository.
 
 | Example           | Description                                |
 |-------------------|--------------------------------------------|
-|[Android Image Classifier](mobile/examples/image_classifications/android)| An example application for ONNX Runtime on Android. The example app uses image classification which is able to continuously classify the objects it sees from the device's camera in real-time and displays the most probable inference result on the screen. |
-|[JavaScript API examples](js)| Examples that demonstrates how to use JavaScript API for ONNX Runtime. |
+|[Mobile examples](mobile)| Examples that demonstrate how to use ONNX Runtime Mobile in mobile applications. |
+|[JavaScript API examples](js)| Examples that demonstrate how to use JavaScript API for ONNX Runtime. |
 
 ## Contributing
 
