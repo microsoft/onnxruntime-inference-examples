@@ -15,12 +15,15 @@ import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.coroutines.*
+import java.lang.Runnable
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
 class MainActivity : AppCompatActivity() {
     private val backgroundExecutor: ExecutorService by lazy { Executors.newSingleThreadExecutor() }
     private val labelData: List<String> by lazy { readLabels() }
+    private val scope = CoroutineScope(Job() + Dispatchers.Main)
 
     private var ortEnv: OrtEnvironment? = null
     private var imageCapture: ImageCapture? = null
@@ -42,11 +45,7 @@ class MainActivity : AppCompatActivity() {
 
         enable_quantizedmodel_toggle.setOnCheckedChangeListener { _, isChecked ->
             enableQuantizedModel = isChecked
-            imageAnalysis?.clearAnalyzer()
-            imageAnalysis?.setAnalyzer(
-                    backgroundExecutor,
-                    ORTAnalyzer(createOrtSession(), ::updateUI)
-            )
+            setORTAnalyzer()
         }
     }
 
@@ -73,9 +72,6 @@ class MainActivity : AppCompatActivity() {
             imageAnalysis = ImageAnalysis.Builder()
                     .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
                     .build()
-                    .also {
-                        it.setAnalyzer(backgroundExecutor, ORTAnalyzer(createOrtSession(), ::updateUI))
-                    }
 
             try {
                 cameraProvider.unbindAll()
@@ -86,6 +82,8 @@ class MainActivity : AppCompatActivity() {
             } catch (exc: Exception) {
                 Log.e(TAG, "Use case binding failed", exc)
             }
+
+            setORTAnalyzer()
         }, ContextCompat.getMainExecutor(this))
     }
 
@@ -104,6 +102,7 @@ class MainActivity : AppCompatActivity() {
             permissions: Array<out String>,
             grantResults: IntArray
     ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == REQUEST_CODE_PERMISSIONS) {
             if (allPermissionsGranted()) {
                 startCamera()
@@ -142,20 +141,33 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    // Read ort model into a ByteArray
-    private fun readModel(): ByteArray {
-        val modelID =
-            if (enableQuantizedModel) R.raw.mobilenet_v2_uint8 else R.raw.mobilenet_v2_float
-        return resources.openRawResource(modelID).readBytes()
-    }
-
     // Read MobileNet V2 classification labels
     private fun readLabels(): List<String> {
         return resources.openRawResource(R.raw.imagenet_classes).bufferedReader().readLines()
     }
 
-    private fun createOrtSession(): OrtSession? {
-        return ortEnv?.createSession(readModel())
+    // Read ort model into a ByteArray, run in background
+    private suspend fun readModel(): ByteArray = withContext(Dispatchers.IO) {
+        val modelID =
+            if (enableQuantizedModel) R.raw.mobilenet_v2_uint8 else R.raw.mobilenet_v2_float
+        resources.openRawResource(modelID).readBytes()
+    }
+
+    // Create a new ORT session in background
+    private suspend fun createOrtSession(): OrtSession? = withContext(Dispatchers.Default) {
+        ortEnv?.createSession(readModel())
+    }
+
+    // Create a new ORT session and then change the ImageAnalysis.Analyzer
+    // This part is done in background to avoid blocking the UI
+    private fun setORTAnalyzer(){
+        scope.launch {
+            imageAnalysis?.clearAnalyzer()
+            imageAnalysis?.setAnalyzer(
+                    backgroundExecutor,
+                    ORTAnalyzer(createOrtSession(), ::updateUI)
+            )
+        }
     }
 
     companion object {
