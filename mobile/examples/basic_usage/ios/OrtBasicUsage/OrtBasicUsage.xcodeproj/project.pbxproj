@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		68B15DD1361272E5B9991AE7 /* Pods_OrtBasicUsage.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0DB212899A7692B97124491A /* Pods_OrtBasicUsage.framework */; };
 		EF5AB2D72671366500AA74F4 /* OrtBasicUsageApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF5AB2D62671366500AA74F4 /* OrtBasicUsageApp.swift */; };
 		EF5AB2D92671366500AA74F4 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF5AB2D82671366500AA74F4 /* ContentView.swift */; };
 		EF5AB2DB2671366B00AA74F4 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = EF5AB2DA2671366B00AA74F4 /* Assets.xcassets */; };
@@ -18,9 +17,6 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		0DB212899A7692B97124491A /* Pods_OrtBasicUsage.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_OrtBasicUsage.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		A91561C186F8411E6A8E32BD /* Pods-OrtBasicUsage.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-OrtBasicUsage.release.xcconfig"; path = "Target Support Files/Pods-OrtBasicUsage/Pods-OrtBasicUsage.release.xcconfig"; sourceTree = "<group>"; };
-		E636475F74D829FEC8B80FFF /* Pods-OrtBasicUsage.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-OrtBasicUsage.debug.xcconfig"; path = "Target Support Files/Pods-OrtBasicUsage/Pods-OrtBasicUsage.debug.xcconfig"; sourceTree = "<group>"; };
 		EF5AB2D32671366500AA74F4 /* OrtBasicUsage.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = OrtBasicUsage.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		EF5AB2D62671366500AA74F4 /* OrtBasicUsageApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrtBasicUsageApp.swift; sourceTree = "<group>"; };
 		EF5AB2D82671366500AA74F4 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -39,26 +35,15 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				68B15DD1361272E5B9991AE7 /* Pods_OrtBasicUsage.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		280261965C3F488F60DBF069 /* Frameworks */ = {
-			isa = PBXGroup;
-			children = (
-				0DB212899A7692B97124491A /* Pods_OrtBasicUsage.framework */,
-			);
-			name = Frameworks;
-			sourceTree = "<group>";
-		};
 		336EB213ECB86E9B61F34265 /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				E636475F74D829FEC8B80FFF /* Pods-OrtBasicUsage.debug.xcconfig */,
-				A91561C186F8411E6A8E32BD /* Pods-OrtBasicUsage.release.xcconfig */,
 			);
 			path = Pods;
 			sourceTree = "<group>";
@@ -69,7 +54,6 @@
 				EF5AB2D52671366500AA74F4 /* OrtBasicUsage */,
 				EF5AB2D42671366500AA74F4 /* Products */,
 				336EB213ECB86E9B61F34265 /* Pods */,
-				280261965C3F488F60DBF069 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -113,11 +97,9 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = EF5AB2E22671366B00AA74F4 /* Build configuration list for PBXNativeTarget "OrtBasicUsage" */;
 			buildPhases = (
-				BE831B4C49E300819A5372C0 /* [CP] Check Pods Manifest.lock */,
 				EF5AB2CF2671366500AA74F4 /* Sources */,
 				EF5AB2D02671366500AA74F4 /* Frameworks */,
 				EF5AB2D12671366500AA74F4 /* Resources */,
-				88BD70ACAAA50A79F2118D0B /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -173,48 +155,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
-
-/* Begin PBXShellScriptBuildPhase section */
-		88BD70ACAAA50A79F2118D0B /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-OrtBasicUsage/Pods-OrtBasicUsage-frameworks-${CONFIGURATION}-input-files.xcfilelist",
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-OrtBasicUsage/Pods-OrtBasicUsage-frameworks-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-OrtBasicUsage/Pods-OrtBasicUsage-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		BE831B4C49E300819A5372C0 /* [CP] Check Pods Manifest.lock */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
-				"${PODS_ROOT}/Manifest.lock",
-			);
-			name = "[CP] Check Pods Manifest.lock";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-OrtBasicUsage-checkManifestLockResult.txt",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
-			showEnvVarsInLog = 0;
-		};
-/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		EF5AB2CF2671366500AA74F4 /* Sources */ = {
@@ -349,7 +289,6 @@
 		};
 		EF5AB2E32671366B00AA74F4 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = E636475F74D829FEC8B80FFF /* Pods-OrtBasicUsage.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -374,7 +313,6 @@
 		};
 		EF5AB2E42671366B00AA74F4 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = A91561C186F8411E6A8E32BD /* Pods-OrtBasicUsage.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
