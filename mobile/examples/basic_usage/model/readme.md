@@ -4,22 +4,21 @@
 
 It is a good idea to use a clean Python environment, e.g., a new Conda environment.
 
-From this directory, run:
+Run:
 
 ```bash
-python -m pip install -r requirements.txt
+python -m pip install -r <this directory>/requirements.txt
 ```
 
 ## Run the model generation script
 
-From this directory, run:
+Run:
 
 ```bash
-gen_model.sh <output directory>
+<this directory>/gen_model.sh <output directory>
 ```
 
 The model will be generated in the given output directory.
 
 In particular, .onnx and .ort model files will be generated.
 The .ort model file can be used by ONNX Runtime Mobile.
-
