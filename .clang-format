@@ -1,0 +1,7 @@
+---
+# Defaults for all languages.
+BasedOnStyle:  Google
+
+ColumnLimit: 120
+
+...
