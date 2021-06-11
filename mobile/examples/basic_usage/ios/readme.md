@@ -1,6 +1,8 @@
 # ORT Objective-C Basic Usage Example
 
 This example contains some simple code that uses the Objective-C API.
+- [Swift example code](OrtBasicUsage/SwiftOrtBasicUsage.swift)
+- [Objective-C++ example code](OrtBasicUsage/ObjcOrtBasicUsage.mm)
 
 ## Set up
 
@@ -8,9 +10,9 @@ This example contains some simple code that uses the Objective-C API.
 
 The model should be generated in this location: `<this directory>/OrtBasicUsage/model`
 
-Install dependencies as described [here](../model/readme.md).
+See instructions [here](../model/readme.md) for how to generate the model.
 
-Then, from this directory, run:
+For example, with the model generation script dependencies installed, from this directory, run:
 
 ```bash
 ../model/gen_model.sh ./OrtBasicUsage/model
@@ -26,4 +28,4 @@ pod install
 
 ## Build and run
 
-Open the generated .xcworkspace file in XCode to build and run the example.
+Open the generated .xcworkspace file in Xcode to build and run the example.
