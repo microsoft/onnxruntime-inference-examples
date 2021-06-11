@@ -13,7 +13,7 @@
 		EF5AB2DE2671366B00AA74F4 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = EF5AB2DD2671366B00AA74F4 /* Preview Assets.xcassets */; };
 		EF5AB2F226713DB100AA74F4 /* ObjcOrtBasicUsage.mm in Sources */ = {isa = PBXBuildFile; fileRef = EF5AB2F126713DB100AA74F4 /* ObjcOrtBasicUsage.mm */; };
 		EF6AC21326716929009C1F6B /* SwiftOrtBasicUsage.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF6AC21226716929009C1F6B /* SwiftOrtBasicUsage.swift */; };
-		EF6AC21E2672AF64009C1F6B /* single_add.basic.ort in Resources */ = {isa = PBXBuildFile; fileRef = EF6AC21D2672AF64009C1F6B /* single_add.basic.ort */; };
+		EF6AC21E2672AF64009C1F6B /* single_add.all.ort in Resources */ = {isa = PBXBuildFile; fileRef = EF6AC21D2672AF64009C1F6B /* single_add.all.ort */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -27,7 +27,7 @@
 		EF5AB2F026713DB100AA74F4 /* OrtBasicUsage-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "OrtBasicUsage-Bridging-Header.h"; sourceTree = "<group>"; };
 		EF5AB2F126713DB100AA74F4 /* ObjcOrtBasicUsage.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = ObjcOrtBasicUsage.mm; sourceTree = "<group>"; };
 		EF6AC21226716929009C1F6B /* SwiftOrtBasicUsage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftOrtBasicUsage.swift; sourceTree = "<group>"; };
-		EF6AC21D2672AF64009C1F6B /* single_add.basic.ort */ = {isa = PBXFileReference; lastKnownFileType = file; name = single_add.basic.ort; path = model/single_add.basic.ort; sourceTree = "<group>"; };
+		EF6AC21D2672AF64009C1F6B /* single_add.all.ort */ = {isa = PBXFileReference; lastKnownFileType = file; name = single_add.all.ort; path = model/single_add.all.ort; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -68,7 +68,7 @@
 		EF5AB2D52671366500AA74F4 /* OrtBasicUsage */ = {
 			isa = PBXGroup;
 			children = (
-				EF6AC21D2672AF64009C1F6B /* single_add.basic.ort */,
+				EF6AC21D2672AF64009C1F6B /* single_add.all.ort */,
 				EF5AB2D62671366500AA74F4 /* OrtBasicUsageApp.swift */,
 				EF5AB2D82671366500AA74F4 /* ContentView.swift */,
 				EF5AB2DA2671366B00AA74F4 /* Assets.xcassets */,
@@ -149,7 +149,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				EF5AB2DE2671366B00AA74F4 /* Preview Assets.xcassets in Resources */,
-				EF6AC21E2672AF64009C1F6B /* single_add.basic.ort in Resources */,
+				EF6AC21E2672AF64009C1F6B /* single_add.all.ort in Resources */,
 				EF5AB2DB2671366B00AA74F4 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

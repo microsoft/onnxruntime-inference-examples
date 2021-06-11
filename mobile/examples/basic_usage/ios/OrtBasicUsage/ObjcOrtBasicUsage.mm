@@ -30,7 +30,7 @@ NS_ASSUME_NONNULL_BEGIN
   // We will run a simple model which adds two floats.
   // The inputs are named `A` and `B` and the output is named `C` (A + B = C).
   // All inputs and outputs are float tensors with shape [1].
-  static NSString* const kAddModelPath = [NSBundle.mainBundle pathForResource:@"single_add.basic" ofType:@"ort"];
+  static NSString* const kAddModelPath = [NSBundle.mainBundle pathForResource:@"single_add.all" ofType:@"ort"];
 
   // Regarding error handling:
   // If an error occurs, ORT APIs will return `nil` or `NO` and set the

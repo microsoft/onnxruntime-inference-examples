@@ -29,7 +29,7 @@ func SwiftOrtAdd(_ a: Float, _ b: Float) throws -> Float {
   // All inputs and outputs are float tensors with shape [1].
   guard
     let modelPath = Bundle.main.path(
-      forResource: "single_add.basic",
+      forResource: "single_add.all",
       ofType: "ort")
   else {
     throw SwiftOrtBasicUsageError.error("failed to get model path")
