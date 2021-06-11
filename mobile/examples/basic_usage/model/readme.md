@@ -1,16 +1,24 @@
-# How to generate the model
+# Basic Usage Example Model
 
-## Install the Python requirements
+The basic usage example uses a simple model that adds two floats.
 
-It is a good idea to use a clean Python environment, e.g., a new Conda environment.
+The inputs are named `A` and `B` and the output is named `C` (A + B = C).
+All inputs and outputs are float tensors with shape [1].
+
+## How to generate the model
+
+### Install the Python requirements
+
+It is a good idea to use a separate Python environment instead of the system Python.
+E.g., a new Conda environment.
 
 Run:
 
 ```bash
-python -m pip install -r <this directory>/requirements.txt
+python3 -m pip install -r <this directory>/requirements.txt
 ```
 
-## Run the model generation script
+### Run the model generation script
 
 Run:
 
