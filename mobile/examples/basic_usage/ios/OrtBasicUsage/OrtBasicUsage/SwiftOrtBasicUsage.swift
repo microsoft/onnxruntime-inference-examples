@@ -68,6 +68,13 @@ func SwiftOrtAdd(_ a: Float, _ b: Float) throws -> Float {
   // We use the default options with sessionOptions: nil.
   let session = try ORTSession(env: env, modelPath: modelPath, sessionOptions: nil)
 
+  // A session provides methods to get the model input and output names.
+  // We will confirm that they are what we expect.
+  let inputNames = try session.inputNames()
+  precondition(inputNames.sorted() == ["A", "B"])
+  let outputNames = try session.outputNames()
+  precondition(outputNames.sorted() == ["C"])
+
   // With a session and input values, we have what we need to run the model.
   // We provide a dictionary mapping from input name to value and a set of
   // output names.
@@ -86,11 +93,11 @@ func SwiftOrtAdd(_ a: Float, _ b: Float) throws -> Float {
     throw SwiftOrtBasicUsageError.error("failed to get model output")
   }
 
-  // We query the output value's tensor type and shape.
+  // We will query the output value's tensor type and shape.
   // This method may be called if the value is a tensor. We know it is.
   let cTypeAndShape = try cValue.tensorTypeAndShapeInfo()
 
-  // We confirm that the shape is what we expect.
+  // We will confirm that the shape is what we expect.
   guard cTypeAndShape.shape == [1] else {
     throw SwiftOrtBasicUsageError.error("output does not have expected size")
   }
@@ -100,7 +107,7 @@ func SwiftOrtAdd(_ a: Float, _ b: Float) throws -> Float {
 
   // Since we called run without pre-allocated outputs, ORT owns the output
   // values. We must not access an output value's memory after it is
-  // deinitialized. So, we copy the data here.
+  // deinitialized. So, we will copy the data here.
   guard let cArr: [Float32] = arrayCopiedFromData(cData) else {
     throw SwiftOrtBasicUsageError.error("failed to copy output data")
   }

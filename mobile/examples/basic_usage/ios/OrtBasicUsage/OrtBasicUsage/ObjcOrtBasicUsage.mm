@@ -85,7 +85,7 @@ NS_ASSUME_NONNULL_BEGIN
 
   // Since we called run without pre-allocated outputs, ORT owns the output
   // values. We must not access an output value's memory after it is
-  // deinitialized. So, we copy the data here.
+  // deinitialized. So, we will copy the data here.
   float c;
   memcpy(&c, cData.bytes, sizeof(float));
 
