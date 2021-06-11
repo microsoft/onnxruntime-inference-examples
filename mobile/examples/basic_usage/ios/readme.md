@@ -8,7 +8,7 @@ This example contains some simple code that uses the Objective-C API.
 
 The model should be generated in this location: `<this directory>/OrtBasicUsage/model`
 
-Install dependencies as described [here](../../model/readme.md).
+Install dependencies as described [here](../model/readme.md).
 
 Then, from this directory, run:
 
