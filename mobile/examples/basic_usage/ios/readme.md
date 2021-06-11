@@ -13,7 +13,7 @@ Install dependencies as described [here](../../model/readme.md).
 Then, from this directory, run:
 
 ```bash
-../../model/gen_model.sh ./OrtBasicUsage/model
+../model/gen_model.sh ./OrtBasicUsage/model
 ```
 
 ### Install the Pod dependencies
