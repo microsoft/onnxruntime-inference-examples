@@ -28,4 +28,4 @@ pod install
 
 ## Build and run
 
-Open the generated .xcworkspace file in Xcode to build and run the example.
+Open the generated OrtBasicUsage.xcworkspace file in Xcode to build and run the example.
