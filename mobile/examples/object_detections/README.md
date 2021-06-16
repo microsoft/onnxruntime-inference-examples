@@ -1,4 +1,0 @@
-# ORTObjDetection-iOS-App
-
-
-
