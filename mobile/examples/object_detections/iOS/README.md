@@ -38,8 +38,3 @@ We use pre-trained MobileNet SSD V2 model from TensorFlow in this sample app.
 This app uses [ONNX Runtime Objective-C API](https://www.onnxruntime.ai/docs/reference/api/objectivec-api.html) for performing object detection function.
 
 It is written entirely in Swift and uses a bridgingheader file for the framework to be used in a Swift app.
-
-
-
-
-
