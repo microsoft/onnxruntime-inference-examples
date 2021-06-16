@@ -60,26 +60,23 @@ class InferenceViewController: UIViewController {
     var wantedInputWidth: Int = 0
     var wantedInputHeight: Int = 0
     var resolution: CGSize = CGSize.zero
-    var maxResults: Int = 0
     var threadCountLimit: Int = 0
     var currentThreadCount: Int32 = 0
     private let minThreadCount = 1
     
     var delegate: InferenceViewControllerDelegate?
     
-    
     override func viewDidLoad() {
+
         super.viewDidLoad()
-        
         // Set up stepper
         threadStepper.isUserInteractionEnabled = true
         threadStepper.maximumValue = Double(threadCountLimit)
         threadStepper.minimumValue = Double(minThreadCount)
         threadStepper.value = Double(currentThreadCount)
-        
     }
     
-    ///Delegate the change of number of threads to View Controller and change the stepper display
+    // Delegate the change of number of threads to View Controller and change the stepper display
     @IBAction func onClickThreadStepper(_ sender: Any) {
         
         delegate?.didChangeThreadCount(to: Int32(threadStepper.value))
@@ -107,6 +104,7 @@ extension InferenceViewController: UITableViewDelegate, UITableViewDataSource {
         case .InferenceInfo:
             rowCount = InferenceInfo.allCases.count
         }
+
         return rowCount
     }
     
@@ -122,22 +120,20 @@ extension InferenceViewController: UITableViewDelegate, UITableViewDataSource {
         var info = ""
         
         switch inferenceResults {
-        
         case .InferenceInfo:
             let tuple = displayStringsForInferenceInfo(atRow: indexPath.row)
             fieldName = tuple.0
             info = tuple.1
-            
         }
         cell.fieldNameLabel.font = UIFont.systemFont(ofSize: 14.0, weight: .regular)
         cell.fieldNameLabel.textColor = UIColor.black
         cell.fieldNameLabel.text = fieldName
         cell.infoLabel.text = info
-        
+
         return cell
     }
     
-    /// This method formats the display of additional information relating to the inferences.
+    // This method formats the display of additional information related to the inferences.
     func displayStringsForInferenceInfo(atRow row: Int) -> (String, String) {
         
         var fieldName: String = ""

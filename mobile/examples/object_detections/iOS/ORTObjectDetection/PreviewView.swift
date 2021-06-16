@@ -16,6 +16,8 @@
 import UIKit
 import AVFoundation
 
+// This Preview File is used for displaying the camera frame
+
 class PreviewView: UIView {
     
     var previewLayer: AVCaptureVideoPreviewLayer {

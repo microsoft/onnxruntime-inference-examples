@@ -17,15 +17,16 @@ import UIKit
 import AVFoundation
 
 // MARK: CameraFeedManagerDelegate Declaration
+
 protocol CameraManagerDelegate: AnyObject {
     
-    /// This method delivers the pixel buffer of the current frame seen by the device's camera.
+    // This method delivers the pixel buffer of the current frame seen by the device's camera.
     func didOutput(pixelBuffer: CVPixelBuffer)
     
-    /// This method initimates that the camera permissions have been denied.
+    // This method initimates that the camera permissions have been denied.
     func presentCameraPermissionsDeniedAlert()
     
-    /// This method initimates that there was an error in video configurtion.
+    // This method initimates that there was an error in video configurtion.
     func presentVideoConfigurationErrorAlert()
     
 }
@@ -43,7 +44,7 @@ enum CameraConfiguration {
 
 /**
  This class manages all camera related functionality
- */
+*/
 class CameraManager: NSObject {
     
     // MARK: Camera Related Instance Variables
@@ -86,7 +87,6 @@ class CameraManager: NSObject {
         }
     }
     
-    
     func stopSession() {
         sessionQueue.async {
             if self.session.isRunning {
@@ -102,9 +102,6 @@ class CameraManager: NSObject {
     }
     
     // MARK: Camera permission and configuration handling methods
-    /**
-     This method requests for camera permissions and handles the configuration of the session and stores the result of configuration.
-     */
     private func attemptToConfigureSession() {
         switch AVCaptureDevice.authorizationStatus(for: .video) {
         case .authorized:
@@ -125,7 +122,6 @@ class CameraManager: NSObject {
         }
     }
     
-    
     private func requestCameraAccess(completion: @escaping (Bool) -> ()) {
         AVCaptureDevice.requestAccess(for: .video) { (granted) in
             if !granted {
@@ -138,9 +134,6 @@ class CameraManager: NSObject {
         }
     }
     
-    /**
-     This method handles all the steps to configure an AVCaptureSession.
-     */
     private func configureSession() {
         
         guard cameraConfiguration == .success else {
@@ -164,10 +157,10 @@ class CameraManager: NSObject {
         self.cameraConfiguration = .success
     }
     
-    /**This method tries to an AVCaptureDeviceInput to the current AVCaptureSession.*/
+    // This method tries to an AVCaptureDeviceInput to the current AVCaptureSession.
     private func addVideoDeviceInput() -> Bool {
         
-        /// Default : Get back camara
+        // Get the default back camera
         guard let camera  = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .back) else {
             return false
         }
@@ -187,7 +180,7 @@ class CameraManager: NSObject {
         }
     }
     
-    /**This method tries to an AVCaptureVideoDataOutput to the current AVCaptureSession.*/
+    // This method tries to an AVCaptureVideoDataOutput to the current AVCaptureSession.
     private func addVideoDataOutput() -> Bool {
         
         let sampleBufferQueue = DispatchQueue(label: "sampleBufferQueue")
@@ -205,21 +198,21 @@ class CameraManager: NSObject {
 }
 
 
-/**
+/** 
  Delegate the CVPixelBuffer of the frame seen by the camera currently.
- */
+*/
 extension CameraManager: AVCaptureVideoDataOutputSampleBufferDelegate {
     
     func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
         
-        // Converts the CMSampleBuffer to a CVPixelBuffer.
+        // Convert the CMSampleBuffer to a CVPixelBuffer.
         let pixelBuffer: CVPixelBuffer? = CMSampleBufferGetImageBuffer(sampleBuffer)
         
         guard let imagePixelBuffer = pixelBuffer else {
             return
         }
         
-        // Delegates the pixel buffer to the ViewController.
+        // Delegate the pixel buffer to the ViewController.
         delegate?.didOutput(pixelBuffer: imagePixelBuffer)
     }
 }

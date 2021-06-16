@@ -21,12 +21,13 @@ import Foundation
 import UIKit
 
 
-/**Result struct*/
+// Result struct
 struct Result {
     let processTimeMs: Double
     let inferences: [Inference]
 }
 
+// Inference struct for ssd model
 struct Inference {
     let score: Float
     let className: String
@@ -34,7 +35,7 @@ struct Inference {
     let displayColor: UIColor
 }
 
-/// Information about a model file or labels file.
+// Information about a model file or labels file.
 typealias FileInfo = (name: String, extension: String)
 
 enum OrtModelError : Error {
@@ -70,13 +71,13 @@ class ModelHandler: NSObject {
     private var labels: [String] = []
     
     init?(threadCount: Int32 = 1) {
+
         self.threadCount = threadCount
         
         super.init()
     }
-    /**
-     This methods preprocess the image,  runs the ort inferencesession and processes the result
-     */
+
+    // This methods preprocess the image, runs the ort inferencesession and returns the inference result
     func runModel(onFrame pixelBuffer: CVPixelBuffer, modelFileInfo: FileInfo, labelsFileInfo: FileInfo) throws -> Result? {
         
         let modelFilename = modelFileInfo.name
@@ -102,13 +103,13 @@ class ModelHandler: NSObject {
         let imageWidth = CVPixelBufferGetWidth(pixelBuffer)
         let imageHeight = CVPixelBufferGetHeight(pixelBuffer)
         
-        ///preprocess the image
+        // Preprocess the image
         let scaledSize = CGSize(width: inputWidth, height: inputHeight)
         guard let scaledPixelBuffer = preprocess(ofSize: scaledSize, pixelBuffer) else {
             return nil
         }
         
-        ///Start the ORT inference environment
+        // Start the ORT inference environment
         let env = try ORTEnv(loggingLevel: ORTLoggingLevel.warning)
         let options = try ORTSessionOptions()
         try options.setLogSeverityLevel(ORTLoggingLevel.verbose)
@@ -131,7 +132,7 @@ class ModelHandler: NSObject {
         let inputTensor = try ORTValue(tensorData: NSMutableData(data: rgbData),
                                        elementType: ORTTensorElementDataType.float,
                                        shape: [1, 300, 300, 3])
-        /// Run ORT InferenceSession
+        // Run ORT InferenceSession
         let startDate = Date()
         let outputs = try session.run(withInputs: [inputName: inputTensor],
                                       outputNames: ["TFLite_Detection_PostProcess",
@@ -175,7 +176,7 @@ class ModelHandler: NSObject {
             throw OrtModelError.error("failed to copy output data_3")
         }
         
-        // Output order of ssd mobileNet model: detection boxes/classes/scores/num_detection
+        /// Output order of ssd mobileNet model: detection boxes/classes/scores/num_detection
         let detectionBoxes = outputArr
         let detectionClasses = outputArr_1
         let detectionScores = outputArr_2
@@ -189,6 +190,8 @@ class ModelHandler: NSObject {
     }
     
     // MARK: - Helper Methods
+
+    // This method postprocesses the results including processing bounding boxes, sort detected scores, etc. and returns a result array
     func formatResults(detectionBoxes: [Float32], detectionClasses: [Float32], detectionScores: [Float32], numDetections: Int, width: CGFloat, height: CGFloat) -> [Inference] {
         
         var resultsArray: [Inference] = []
@@ -235,7 +238,7 @@ class ModelHandler: NSObject {
         return resultsArray
     }
     
-    /// Preprocess the image by cropping pixel buffer to biggest square and scaling the cropped image to model dimensions.
+    // This method preprocess the image by cropping pixel buffer to biggest square and scaling the cropped image to model dimensions.
     private func preprocess(
         ofSize size: CGSize,
         _ buffer: CVPixelBuffer
@@ -300,8 +303,8 @@ class ModelHandler: NSObject {
         return scaledPixelBuffer
     }
     
-    
     private func loadLabels(fileInfo: FileInfo) -> [String] {
+
         var labelData: [String] = []
         let filename = fileInfo.name
         let fileExtension = fileInfo.extension
@@ -315,9 +318,9 @@ class ModelHandler: NSObject {
         } catch {
             fatalError("Labels file named \(filename).\(fileExtension) cannot be read.")
         }
+
         return labelData
     }
-    
     
     private func colorForClass(withIndex index: Int) -> UIColor {
         
@@ -335,13 +338,13 @@ class ModelHandler: NSObject {
         return colorToAssign
     }
     
-    
-    /// Return  the RGB data representation of the given image buffer.
+    // Return the RGB data representation of the given image buffer.
     func rgbDataFromBuffer(
         _ buffer: CVPixelBuffer,
         byteCount: Int,
         isModelQuantized: Bool = false
     ) -> Data? {
+
         CVPixelBufferLockBaseAddress(buffer, .readOnly)
         defer {
             CVPixelBufferUnlockBaseAddress(buffer, .readOnly)
@@ -397,13 +400,13 @@ class ModelHandler: NSObject {
         for i in 0..<bytes.count {
             floats.append(Float(bytes[i]) / 255.0)
         }
+
         return Data(copyingBufferOf: floats)
     }
     
 }
 
-
-
+// Helper method to copy values out of a Data instance
 func arrayCopiedFromData<T>(_ data: Data) -> [T]? {
     guard data.count % MemoryLayout<T>.stride == 0 else { return nil }
     
@@ -415,14 +418,14 @@ func arrayCopiedFromData<T>(_ data: Data) -> [T]? {
 
 // MARK: - Extensions
 extension Data {
-    /// Creates a new buffer by copying the buffer pointer of the given array.
+    // Create a new buffer by copying the buffer pointer of the given array.
     init<T>(copyingBufferOf array: [T]) {
         self = array.withUnsafeBufferPointer(Data.init)
     }
 }
 
 extension Array {
-    /// Creates a new array from the bytes of the given unsafe data.
+    // Create a new array from the bytes of the given unsafe data.
     init?(unsafeData: Data) {
         guard unsafeData.count % MemoryLayout<Element>.stride == 0 else { return nil }
         #if swift(>=5.0)
@@ -440,7 +443,7 @@ extension Array {
 
 extension UIColor {
     
-    /**This method returns colors modified by percentage value of color represented by the current object.*/
+    // This method returns colors modified by percentage value of color represented by the current object.
     func getModified(byPercentage percent: CGFloat) -> UIColor? {
         
         var red: CGFloat = 0.0
@@ -452,7 +455,7 @@ extension UIColor {
             return nil
         }
         
-        // Returns the color comprised by percentage r g b values of the original color.
+        // Return the color comprised by percentage r g b values of the original color.
         let colorToReturn = UIColor(displayP3Red: min(red + percent / 100.0, 1.0), green: min(green + percent / 100.0, 1.0), blue: min(blue + percent / 100.0, 1.0), alpha: 1.0)
         
         return colorToReturn

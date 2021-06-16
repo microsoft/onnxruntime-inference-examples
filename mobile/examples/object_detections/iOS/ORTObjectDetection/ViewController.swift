@@ -39,6 +39,7 @@ class ViewController: UIViewController {
     
     // MARK: View Controller Life Cycle
     override func viewDidLoad() {
+
         super.viewDidLoad()
         
         guard modelHandler != nil else {
@@ -49,17 +50,20 @@ class ViewController: UIViewController {
     }
     
     override func viewWillAppear(_ animated: Bool) {
+
         super.viewWillAppear(animated)
         cameraCapture.checkCameraConfigurationAndStartSession()
     }
     
     override func viewWillDisappear(_ animated: Bool) {
+
         super.viewWillDisappear(animated)
         cameraCapture.stopSession()
     }
     
     // MARK: Storyboard Segue Handlers
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+
         super.prepare(for: segue, sender: sender)
         
         if segue.identifier == "EMBED" {
@@ -86,6 +90,7 @@ class ViewController: UIViewController {
 extension ViewController: InferenceViewControllerDelegate {
     
     func didChangeThreadCount(to count: Int32) {
+
         if modelHandler?.threadCount == count { return }
         modelHandler = ModelHandler(threadCount: count)
     }
@@ -95,11 +100,13 @@ extension ViewController: InferenceViewControllerDelegate {
 extension ViewController: CameraManagerDelegate {
     
     func didOutput(pixelBuffer: CVPixelBuffer) {
+
         runModel(onPixelBuffer: pixelBuffer)
     }
     
     // MARK: Session Handling Alerts
     func presentCameraPermissionsDeniedAlert() {
+
         let alertController = UIAlertController(title: "Camera Permissions Denied", message: "Camera permissions have been denied for this app. You can change this by going to Settings", preferredStyle: .alert)
         
         let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
@@ -113,6 +120,7 @@ extension ViewController: CameraManagerDelegate {
     }
     
     func presentVideoConfigurationErrorAlert() {
+
         let alert = UIAlertController(title: "Camera Configuration Failed", message: "There was an error while configuring camera.", preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
         
@@ -120,6 +128,7 @@ extension ViewController: CameraManagerDelegate {
     }
     
     func runModel(onPixelBuffer pixelBuffer: CVPixelBuffer) {
+
         let currentTimeMs = Date().timeIntervalSince1970 * 1000
         guard (currentTimeMs - previousInferenceTimeMs) >= delayBetweenInferencesMs
         else { return }
@@ -160,7 +169,7 @@ extension ViewController: CameraManagerDelegate {
         var objectOverlays: [ObjectOverlay] = []
         
         for inference in inferences {
-            /// Translate the bounding box rectangle to current view
+            // Translate the bounding box rectangle to the current view
             var convertedRect = inference.rect.applying(CGAffineTransform(scaleX: self.overlayView.bounds.size.width / imageSize.width, y: self.overlayView.bounds.size.height / imageSize.height))
             
             if convertedRect.origin.x < 0 {
@@ -190,7 +199,7 @@ extension ViewController: CameraManagerDelegate {
             
         }
         
-        //update overlay view with detected bounding boxes and class names.
+        // Update overlay view with detected bounding boxes and class names.
         self.draw(objectOverlays: objectOverlays)
         
     }
@@ -205,7 +214,7 @@ extension ViewController: CameraManagerDelegate {
 
 extension String {
     
-    /**This method gets size of a string with a particular font.*/
+    /// This method gets size of a string with a particular font.
     func size(usingFont font: UIFont) -> CGSize {
         let attributedString = NSAttributedString(string: self, attributes: [NSAttributedString.Key.font : font])
         return attributedString.size()

@@ -15,7 +15,7 @@
 
 import UIKit
 
-/**This file creates an overlay view to be drawn on a detected object.*/
+// This file creates an overlay view to be drawn on a detected object.
 
 struct ObjectOverlay {
     let name: String
@@ -46,7 +46,6 @@ class OverlayView: UIView {
         }
     }
     
-    
     func drawBorders(of objectOverlay: ObjectOverlay) {
         
         let path = UIBezierPath(rect: objectOverlay.borderRect)
@@ -55,7 +54,6 @@ class OverlayView: UIView {
         
         path.stroke()
     }
-    
     
     func drawBackground(of objectOverlay: ObjectOverlay) {
         
