@@ -1,35 +1,37 @@
-// Copyright (c) Microsoft Corporation. All rights reserved.
-// Licensed under the MIT License.
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//    http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+/**
+ * Copyright 2019 The TensorFlow Authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+// Portions Copyright (c) Microsoft Corporation
 
 import UIKit
 
 // MARK: InferenceViewControllerDelegate Method Declarations
+
 protocol InferenceViewControllerDelegate {
-    
     func didChangeThreadCount(to count: Int32)
-    
 }
 
 class InferenceViewController: UIViewController {
-    
     // MARK: Storyboard Outlets
-    @IBOutlet weak var tableView: UITableView!
-    @IBOutlet weak var threadStepper: UIStepper!
-    @IBOutlet weak var stepperValueLabel: UILabel!
+
+    @IBOutlet var tableView: UITableView!
+    @IBOutlet var threadStepper: UIStepper!
+    @IBOutlet var stepperValueLabel: UILabel!
     
     // MARK: Inference related display results and info
+
     private enum InferenceResults: Int, CaseIterable {
         case InferenceInfo
     }
@@ -40,7 +42,6 @@ class InferenceViewController: UIViewController {
         case InferenceTime
         
         func displayString() -> String {
-            
             var toReturn = ""
             
             switch self {
@@ -50,7 +51,6 @@ class InferenceViewController: UIViewController {
                 toReturn = "Crop"
             case .InferenceTime:
                 toReturn = "Inference Time"
-                
             }
             return toReturn
         }
@@ -59,7 +59,7 @@ class InferenceViewController: UIViewController {
     var inferenceTime: Double = 0
     var wantedInputWidth: Int = 0
     var wantedInputHeight: Int = 0
-    var resolution: CGSize = CGSize.zero
+    var resolution = CGSize.zero
     var threadCountLimit: Int = 0
     var currentThreadCount: Int32 = 0
     private let minThreadCount = 1
@@ -67,7 +67,6 @@ class InferenceViewController: UIViewController {
     var delegate: InferenceViewControllerDelegate?
     
     override func viewDidLoad() {
-
         super.viewDidLoad()
         // Set up stepper
         threadStepper.isUserInteractionEnabled = true
@@ -78,7 +77,6 @@ class InferenceViewController: UIViewController {
     
     // Delegate the change of number of threads to View Controller and change the stepper display
     @IBAction func onClickThreadStepper(_ sender: Any) {
-        
         delegate?.didChangeThreadCount(to: Int32(threadStepper.value))
         currentThreadCount = Int32(threadStepper.value)
         stepperValueLabel.text = "\(currentThreadCount)"
@@ -86,15 +84,13 @@ class InferenceViewController: UIViewController {
 }
 
 // MARK: UITableView Data Source
+
 extension InferenceViewController: UITableViewDelegate, UITableViewDataSource {
-    
     func numberOfSections(in tableView: UITableView) -> Int {
-        
         return InferenceResults.allCases.count
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        
         guard let inferenceResults = InferenceResults(rawValue: section) else {
             return 0
         }
@@ -109,7 +105,6 @@ extension InferenceViewController: UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        
         let cell = tableView.dequeueReusableCell(withIdentifier: "INFO_CELL") as! InfoCell
         
         guard let inferenceResults = InferenceResults(rawValue: indexPath.section) else {
@@ -135,7 +130,6 @@ extension InferenceViewController: UITableViewDelegate, UITableViewDataSource {
     
     // This method formats the display of additional information related to the inferences.
     func displayStringsForInferenceInfo(atRow row: Int) -> (String, String) {
-        
         var fieldName: String = ""
         var info: String = ""
         
@@ -154,6 +148,6 @@ extension InferenceViewController: UITableViewDelegate, UITableViewDataSource {
             info = String(format: "%.2fms", inferenceTime)
         }
         
-        return(fieldName, info)
+        return (fieldName, info)
     }
 }

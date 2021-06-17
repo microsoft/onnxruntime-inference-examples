@@ -1,25 +1,26 @@
-// Copyright (c) Microsoft Corporation. All rights reserved.
-// Licensed under the MIT License.
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//    http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+/**
+ * Copyright 2019 The TensorFlow Authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+// Portions Copyright (c) Microsoft Corporation
 
-import UIKit
 import AVFoundation
+import UIKit
 
 // MARK: CameraFeedManagerDelegate Declaration
 
 protocol CameraManagerDelegate: AnyObject {
-    
     // This method delivers the pixel buffer of the current frame seen by the device's camera.
     func didOutput(pixelBuffer: CVPixelBuffer)
     
@@ -28,15 +29,12 @@ protocol CameraManagerDelegate: AnyObject {
     
     // This method initimates that there was an error in video configurtion.
     func presentVideoConfigurationErrorAlert()
-    
 }
-
 
 /**
  This enum holds the state of the camera initialization.
  */
 enum CameraConfiguration {
-    
     case success
     case failed
     case permissionDenied
@@ -44,11 +42,11 @@ enum CameraConfiguration {
 
 /**
  This class manages all camera related functionality
-*/
+ */
 class CameraManager: NSObject {
-    
     // MARK: Camera Related Instance Variables
-    private let session: AVCaptureSession = AVCaptureSession()
+
+    private let session = AVCaptureSession()
     private let previewView: PreviewView
     private let sessionQueue = DispatchQueue(label: "sessionQueue")
     private var cameraConfiguration: CameraConfiguration = .failed
@@ -66,10 +64,11 @@ class CameraManager: NSObject {
         self.previewView.session = session
         self.previewView.previewLayer.connection?.videoOrientation = .portrait
         self.previewView.previewLayer.videoGravity = .resizeAspectFill
-        self.attemptToConfigureSession()
+        attemptToConfigureSession()
     }
     
     // MARK: Camera Session start and end methods
+
     func checkCameraConfigurationAndStartSession() {
         sessionQueue.async {
             switch self.cameraConfiguration {
@@ -97,33 +96,34 @@ class CameraManager: NSObject {
     }
     
     private func startSession() {
-        self.session.startRunning()
-        self.isSessionRunning = self.session.isRunning
+        session.startRunning()
+        isSessionRunning = session.isRunning
     }
     
     // MARK: Camera permission and configuration handling methods
+
     private func attemptToConfigureSession() {
         switch AVCaptureDevice.authorizationStatus(for: .video) {
         case .authorized:
-            self.cameraConfiguration = .success
+            cameraConfiguration = .success
         case .notDetermined:
-            self.sessionQueue.suspend()
-            self.requestCameraAccess(completion: { (granted) in
+            sessionQueue.suspend()
+            requestCameraAccess(completion: { _ in
                 self.sessionQueue.resume()
             })
         case .denied:
-            self.cameraConfiguration = .permissionDenied
+            cameraConfiguration = .permissionDenied
         default:
             break
         }
         
-        self.sessionQueue.async {
+        sessionQueue.async {
             self.configureSession()
         }
     }
     
     private func requestCameraAccess(completion: @escaping (Bool) -> ()) {
-        AVCaptureDevice.requestAccess(for: .video) { (granted) in
+        AVCaptureDevice.requestAccess(for: .video) { granted in
             if !granted {
                 self.cameraConfiguration = .permissionDenied
             }
@@ -135,33 +135,31 @@ class CameraManager: NSObject {
     }
     
     private func configureSession() {
-        
         guard cameraConfiguration == .success else {
             return
         }
         session.beginConfiguration()
         
         guard addVideoDeviceInput() == true else {
-            self.session.commitConfiguration()
-            self.cameraConfiguration = .failed
+            session.commitConfiguration()
+            cameraConfiguration = .failed
             return
         }
         
         guard addVideoDataOutput() else {
-            self.session.commitConfiguration()
-            self.cameraConfiguration = .failed
+            session.commitConfiguration()
+            cameraConfiguration = .failed
             return
         }
         
         session.commitConfiguration()
-        self.cameraConfiguration = .success
+        cameraConfiguration = .success
     }
     
     // This method tries to an AVCaptureDeviceInput to the current AVCaptureSession.
     private func addVideoDeviceInput() -> Bool {
-        
         // Get the default back camera
-        guard let camera  = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .back) else {
+        guard let camera = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .back) else {
             return false
         }
         
@@ -182,11 +180,10 @@ class CameraManager: NSObject {
     
     // This method tries to an AVCaptureVideoDataOutput to the current AVCaptureSession.
     private func addVideoDataOutput() -> Bool {
-        
         let sampleBufferQueue = DispatchQueue(label: "sampleBufferQueue")
         videoDataOutput.setSampleBufferDelegate(self, queue: sampleBufferQueue)
         videoDataOutput.alwaysDiscardsLateVideoFrames = true
-        videoDataOutput.videoSettings = [ String(kCVPixelBufferPixelFormatTypeKey) : kCMPixelFormat_32BGRA]
+        videoDataOutput.videoSettings = [String(kCVPixelBufferPixelFormatTypeKey): kCMPixelFormat_32BGRA]
         
         if session.canAddOutput(videoDataOutput) {
             session.addOutput(videoDataOutput)
@@ -197,14 +194,11 @@ class CameraManager: NSObject {
     }
 }
 
-
-/** 
+/**
  Delegate the CVPixelBuffer of the frame seen by the camera currently.
-*/
+ */
 extension CameraManager: AVCaptureVideoDataOutputSampleBufferDelegate {
-    
     func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
-        
         // Convert the CMSampleBuffer to a CVPixelBuffer.
         let pixelBuffer: CVPixelBuffer? = CMSampleBufferGetImageBuffer(sampleBuffer)
         

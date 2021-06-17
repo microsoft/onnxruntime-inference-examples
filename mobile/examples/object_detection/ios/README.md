@@ -1,6 +1,6 @@
 # ONNX Runtime Mobile object detection iOS sample application
 
-This is an example app uses object detection which is able to continuously detect the objects in the frames seen by your iOS device's back camera and display the detected object bounding boxes, detected class and corresponding inference confidence on the screen.
+This is an example app using object detection which is able to continuously detect the objects in the frames seen by your iOS device's back camera and display the detected object bounding boxes, detected class and corresponding inference confidence on the screen.
 
 This example is loosely based on [Google Tensorflow lite - Object Detection Examples](https://github.com/tensorflow/examples/)
 
@@ -22,10 +22,10 @@ We use pre-trained MobileNet SSD V2 model from TensorFlow in this sample app.
 
 1. Install CocoaPods. `sudo gem install cocoapods`
 
-2. Run `pod install` to generate the workspace file under `examples/object_detections/ios/`. 
+2. Run `pod install` to generate the workspace file under `<Root Directory>/mobile/examples/object_detections/ios/`. 
 - At the end of this step, you should get a file called `ORTObjectDetection.xcworkspace`.
 
-3. Download and copy the SSDMobileNetV2 ORT model to `examples/object_detections/ios/ORTObjectDetection/ModelsAndData/`. The ORT format ssd model can be downloaded here. 
+3. Download and copy the SSDMobileNetV2 ORT model to `<Root Directory>/mobile/examples/object_detections/ios/ORTObjectDetection/ModelsAndData/`. The ORT format ssd model can be downloaded here. 
 [//]: # (Add the ort format model link here)
 
 4. Open `ORTObjectDetection.xcworkspace` in xcworkspace and make sure to select your corresponding development team under `Target-General-Signing` for a proper codesign procedure to run the app.
@@ -35,11 +35,11 @@ We use pre-trained MobileNet SSD V2 model from TensorFlow in this sample app.
 
 ### iOS App related information
 
-This app uses [ONNX Runtime Objective-C API](https://www.onnxruntime.ai/docs/reference/api/objectivec-api.html) for performing object detection function.
+This app uses [ONNX Runtime Objective-C API](https://www.onnxruntime.ai/docs/reference/api/objectivec-api.html) for performing object detection functionality.
 
 It is written entirely in Swift and uses a bridgingheader file for the framework to be used in a Swift app.
 
 #
 Here's an example screenshot of the app:
 
-<img width=20% src="images/objdetect_screenshot.jpg" alt="App Screenshot" />
+<img width=25% src="images/ios_screenshot_objdetect.jpg" alt="App Screenshot" />

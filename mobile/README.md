@@ -18,4 +18,4 @@ The example app uses image classification which is able to continuously classify
 
 The example app uses object detection which is able to continuously detect the objects in the frames seen by your iOS device's back camera and display the detected object bounding boxes, detected class and corresponding inference confidence on the screen.
 
-- [iOS Object Detector](examples/object_detections/iOS)
+- [iOS Object Detector](examples/object_detections/ios)

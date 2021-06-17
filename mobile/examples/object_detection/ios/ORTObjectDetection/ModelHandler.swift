@@ -1,25 +1,26 @@
-// Copyright (c) Microsoft Corporation. All rights reserved.
-// Licensed under the MIT License.
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//    http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+/**
+ * Copyright 2019 The TensorFlow Authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+// Portions Copyright (c) Microsoft Corporation
 
-import AVFoundation
 import Accelerate
+import AVFoundation
 import CoreImage
 import Darwin
 import Foundation
 import UIKit
-
 
 // Result struct
 struct Result {
@@ -38,18 +39,19 @@ struct Inference {
 // Information about a model file or labels file.
 typealias FileInfo = (name: String, extension: String)
 
-enum OrtModelError : Error {
+enum OrtModelError: Error {
     case error(_ message: String)
 }
 
 class ModelHandler: NSObject {
-    
     // MARK: - Inference Properties
+
     let threadCount: Int32
     let threshold: Float = 0.5
     let threadCountLimit = 10
     
     // MARK: - Model Parameters
+
     let batchSize = 1
     let inputChannels = 3
     let inputWidth = 300
@@ -57,7 +59,7 @@ class ModelHandler: NSObject {
     
     private let colors = [
         UIColor.red,
-        UIColor(displayP3Red: 90.0/255.0, green: 200.0/255.0, blue: 250.0/255.0, alpha: 1.0),
+        UIColor(displayP3Red: 90.0 / 255.0, green: 200.0 / 255.0, blue: 250.0 / 255.0, alpha: 1.0),
         UIColor.green,
         UIColor.orange,
         UIColor.blue,
@@ -71,15 +73,13 @@ class ModelHandler: NSObject {
     private var labels: [String] = []
     
     init?(threadCount: Int32 = 1) {
-
         self.threadCount = threadCount
         
         super.init()
     }
 
-    // This methods preprocess the image, runs the ort inferencesession and returns the inference result
+    // This method preprocesses the image, runs the ort inferencesession and returns the inference result
     func runModel(onFrame pixelBuffer: CVPixelBuffer, modelFileInfo: FileInfo, labelsFileInfo: FileInfo) throws -> Result? {
-        
         let modelFilename = modelFileInfo.name
         
         labels = loadLabels(fileInfo: labelsFileInfo)
@@ -94,8 +94,8 @@ class ModelHandler: NSObject {
         
         let sourcePixelFormat = CVPixelBufferGetPixelFormatType(pixelBuffer)
         assert(sourcePixelFormat == kCVPixelFormatType_32ARGB ||
-                sourcePixelFormat == kCVPixelFormatType_32BGRA ||
-                sourcePixelFormat == kCVPixelFormatType_32RGBA)
+            sourcePixelFormat == kCVPixelFormatType_32BGRA ||
+            sourcePixelFormat == kCVPixelFormatType_32RGBA)
         
         let imageChannels = 4
         assert(imageChannels >= inputChannels)
@@ -113,7 +113,7 @@ class ModelHandler: NSObject {
         let env = try ORTEnv(loggingLevel: ORTLoggingLevel.warning)
         let options = try ORTSessionOptions()
         try options.setLogSeverityLevel(ORTLoggingLevel.verbose)
-        try options.setIntraOpNumThreads(self.threadCount) // TODO: check if calling the right methods
+        try options.setIntraOpNumThreads(threadCount)
         
         let session = try ORTSession(env: env, modelPath: modelPath, sessionOptions: options)
         
@@ -139,7 +139,7 @@ class ModelHandler: NSObject {
                                                     "TFLite_Detection_PostProcess:1",
                                                     "TFLite_Detection_PostProcess:2",
                                                     "TFLite_Detection_PostProcess:3"],
-                                      runOptions: try ORTRunOptions())
+                                      runOptions: nil)
         interval = Date().timeIntervalSince(startDate) * 1000
         
         guard let rawOutputValue = outputs["TFLite_Detection_PostProcess"] else {
@@ -180,7 +180,7 @@ class ModelHandler: NSObject {
         let detectionBoxes = outputArr
         let detectionClasses = outputArr_1
         let detectionScores = outputArr_2
-        let numDetections:Int = Int(outputArr_3[0])
+        let numDetections = Int(outputArr_3[0])
         
         // Format the results
         let resultArray = formatResults(detectionBoxes: detectionBoxes, detectionClasses: detectionClasses, detectionScores: detectionScores, numDetections: numDetections, width: CGFloat(imageWidth), height: CGFloat(imageHeight))
@@ -193,15 +193,13 @@ class ModelHandler: NSObject {
 
     // This method postprocesses the results including processing bounding boxes, sort detected scores, etc. and returns a result array
     func formatResults(detectionBoxes: [Float32], detectionClasses: [Float32], detectionScores: [Float32], numDetections: Int, width: CGFloat, height: CGFloat) -> [Inference] {
-        
         var resultsArray: [Inference] = []
         
-        if (numDetections == 0) {
+        if numDetections == 0 {
             return resultsArray
         }
         
-        for i in 0...numDetections - 1 {
-            
+        for i in 0 ... numDetections - 1 {
             let score = detectionScores[i]
             
             // Filter results with score < threshold.
@@ -212,13 +210,13 @@ class ModelHandler: NSObject {
             let detectionClassIndex = Int(detectionClasses[i])
             let detectionClass = labels[detectionClassIndex + 1]
             
-            var rect: CGRect = CGRect.zero
+            var rect = CGRect.zero
             
             // Translate the detected bounding box to CGRect.
-            rect.origin.y = CGFloat(detectionBoxes[4*i])
-            rect.origin.x = CGFloat(detectionBoxes[4*i+1])
-            rect.size.height = CGFloat(detectionBoxes[4*i+2]) - rect.origin.y
-            rect.size.width = CGFloat(detectionBoxes[4*i+3]) - rect.origin.x
+            rect.origin.y = CGFloat(detectionBoxes[4 * i])
+            rect.origin.x = CGFloat(detectionBoxes[4 * i + 1])
+            rect.size.height = CGFloat(detectionBoxes[4 * i + 2]) - rect.origin.y
+            rect.size.width = CGFloat(detectionBoxes[4 * i + 3]) - rect.origin.x
             
             let newRect = rect.applying(CGAffineTransform(scaleX: width, y: height))
             
@@ -231,25 +229,24 @@ class ModelHandler: NSObject {
         }
         
         // Sort results in descending order of confidence.
-        resultsArray.sort { (first, second) -> Bool in
-            return first.score  > second.score
+        resultsArray.sort { first, second -> Bool in
+            first.score > second.score
         }
         
         return resultsArray
     }
     
-    // This method preprocess the image by cropping pixel buffer to biggest square and scaling the cropped image to model dimensions.
+    // This method preprocesses the image by cropping pixel buffer to biggest square and scaling the cropped image to model dimensions.
     private func preprocess(
         ofSize size: CGSize,
         _ buffer: CVPixelBuffer
     ) -> CVPixelBuffer? {
-        
         let imageWidth = CVPixelBufferGetWidth(buffer)
         let imageHeight = CVPixelBufferGetHeight(buffer)
         let pixelBufferType = CVPixelBufferGetPixelFormatType(buffer)
         
         assert(pixelBufferType == kCVPixelFormatType_32BGRA ||
-                pixelBufferType == kCVPixelFormatType_32ARGB)
+            pixelBufferType == kCVPixelFormatType_32ARGB)
         
         let inputImageRowBytes = CVPixelBufferGetBytesPerRow(buffer)
         let imageChannels = 4
@@ -264,10 +261,11 @@ class ModelHandler: NSObject {
         // Get vImage_buffer
         var inputVImageBuffer = vImage_Buffer(
             data: inputBaseAddress, height: UInt(imageHeight), width: UInt(imageWidth),
-            rowBytes: inputImageRowBytes)
+            rowBytes: inputImageRowBytes
+        )
         
         let scaledRowBytes = Int(size.width) * imageChannels
-        guard  let scaledImageBytes = malloc(Int(size.height) * scaledRowBytes) else {
+        guard let scaledImageBytes = malloc(Int(size.height) * scaledRowBytes) else {
             return nil
         }
         var scaledVImageBuffer = vImage_Buffer(data: scaledImageBytes, height: UInt(size.height), width: UInt(size.width), rowBytes: scaledRowBytes)
@@ -281,7 +279,7 @@ class ModelHandler: NSObject {
             return nil
         }
         
-        let releaseCallBack: CVPixelBufferReleaseBytesCallback = {mutablePointer, pointer in
+        let releaseCallBack: CVPixelBufferReleaseBytesCallback = { _, pointer in
             
             if let pointer = pointer {
                 free(UnsafeMutableRawPointer(mutating: pointer))
@@ -293,7 +291,8 @@ class ModelHandler: NSObject {
         // Convert the scaled vImage buffer to CVPixelBuffer
         let conversionStatus = CVPixelBufferCreateWithBytes(
             nil, Int(size.width), Int(size.height), pixelBufferType, scaledImageBytes,
-            scaledRowBytes, releaseCallBack, nil, nil, &scaledPixelBuffer)
+            scaledRowBytes, releaseCallBack, nil, nil, &scaledPixelBuffer
+        )
         
         guard conversionStatus == kCVReturnSuccess else {
             free(scaledImageBytes)
@@ -304,13 +303,12 @@ class ModelHandler: NSObject {
     }
     
     private func loadLabels(fileInfo: FileInfo) -> [String] {
-
         var labelData: [String] = []
         let filename = fileInfo.name
         let fileExtension = fileInfo.extension
         guard let fileURL = Bundle.main.url(forResource: filename, withExtension: fileExtension) else {
             fatalError("Labels file not found in bundle. Please add a labels file with name " +
-                        "\(filename).\(fileExtension)")
+                "\(filename).\(fileExtension)")
         }
         do {
             let contents = try String(contentsOf: fileURL, encoding: .utf8)
@@ -323,7 +321,6 @@ class ModelHandler: NSObject {
     }
     
     private func colorForClass(withIndex index: Int) -> UIColor {
-        
         // Assign variations to the base colors for each object based on its index.
         let baseColor = colors[index % colors.count]
         
@@ -344,7 +341,6 @@ class ModelHandler: NSObject {
         byteCount: Int,
         isModelQuantized: Bool = false
     ) -> Data? {
-
         CVPixelBufferLockBaseAddress(buffer, .readOnly)
         defer {
             CVPixelBufferUnlockBaseAddress(buffer, .readOnly)
@@ -380,7 +376,7 @@ class ModelHandler: NSObject {
         
         let pixelBufferFormat = CVPixelBufferGetPixelFormatType(buffer)
         
-        switch (pixelBufferFormat) {
+        switch pixelBufferFormat {
         case kCVPixelFormatType_32BGRA:
             vImageConvert_BGRA8888toRGB888(&sourceBuffer, &destinationBuffer, UInt32(kvImageNoFlags))
         case kCVPixelFormatType_32ARGB:
@@ -393,17 +389,18 @@ class ModelHandler: NSObject {
         }
         
         let byteData = Data(bytes: destinationBuffer.data, count: destinationBuffer.rowBytes * height)
+
         // MARK: [TODO] Consider quantized model here
+
         // Not quantized, convert to floats
-        let bytes = Array<UInt8>(unsafeData: byteData)!
+        let bytes = [UInt8](unsafeData: byteData)!
         var floats = [Float]()
-        for i in 0..<bytes.count {
+        for i in 0 ..< bytes.count {
             floats.append(Float(bytes[i]) / 255.0)
         }
 
         return Data(copyingBufferOf: floats)
     }
-    
 }
 
 // Helper method to copy values out of a Data instance
@@ -412,11 +409,12 @@ func arrayCopiedFromData<T>(_ data: Data) -> [T]? {
     
     return data.withUnsafeBytes {
         bytes -> [T] in
-        return Array(bytes.bindMemory(to: T.self))
+        Array(bytes.bindMemory(to: T.self))
     }
 }
 
 // MARK: - Extensions
+
 extension Data {
     // Create a new buffer by copying the buffer pointer of the given array.
     init<T>(copyingBufferOf array: [T]) {
@@ -437,21 +435,19 @@ extension Array {
                 count: unsafeData.count / MemoryLayout<Element>.stride
             ))
         }
-        #endif  // swift(>=5.0)
+        #endif // swift(>=5.0)
     }
 }
 
 extension UIColor {
-    
     // This method returns colors modified by percentage value of color represented by the current object.
     func getModified(byPercentage percent: CGFloat) -> UIColor? {
-        
         var red: CGFloat = 0.0
         var green: CGFloat = 0.0
         var blue: CGFloat = 0.0
         var alpha: CGFloat = 0.0
         
-        guard self.getRed(&red, green: &green, blue: &blue, alpha: &alpha) else {
+        guard getRed(&red, green: &green, blue: &blue, alpha: &alpha) else {
             return nil
         }
         
