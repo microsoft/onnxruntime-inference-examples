@@ -145,35 +145,33 @@ class ModelHandler: NSObject {
         guard let rawOutputValue = outputs["TFLite_Detection_PostProcess"] else {
             throw OrtModelError.error("failed to get model output_0")
         }
-        
         let rawOutputData = try rawOutputValue.tensorData() as Data
-        
-        guard let outputArr: [Float32] = arrayCopiedFromData(rawOutputData) else {
-            throw OrtModelError.error("failed to copy output data_0")
+        guard let outputArr: [Float32] = Array(unsafeData: rawOutputData) else {
+            return nil
         }
         
         guard let rawOutputValue_1 = outputs["TFLite_Detection_PostProcess:1"] else {
             throw OrtModelError.error("failed to get model output_1")
         }
         let rawOutputData_1 = try rawOutputValue_1.tensorData() as Data
-        guard let outputArr_1: [Float32] = arrayCopiedFromData(rawOutputData_1) else {
-            throw OrtModelError.error("failed to copy output data_1")
+        guard let outputArr_1: [Float32] = Array(unsafeData: rawOutputData_1) else {
+            return nil
         }
         
         guard let rawOutputValue_2 = outputs["TFLite_Detection_PostProcess:2"] else {
             throw OrtModelError.error("failed to get model output_2")
         }
         let rawOutputData_2 = try rawOutputValue_2.tensorData() as Data
-        guard let outputArr_2: [Float32] = arrayCopiedFromData(rawOutputData_2) else {
-            throw OrtModelError.error("failed to copy output data_2")
+        guard let outputArr_2: [Float32] = Array(unsafeData: rawOutputData_2) else {
+            return nil
         }
         
         guard let rawOutputValue_3 = outputs["TFLite_Detection_PostProcess:3"] else {
             throw OrtModelError.error("failed to get model output_3")
         }
         let rawOutputData_3 = try rawOutputValue_3.tensorData() as Data
-        guard let outputArr_3: [Float32] = arrayCopiedFromData(rawOutputData_3) else {
-            throw OrtModelError.error("failed to copy output data_3")
+        guard let outputArr_3: [Float32] = Array(unsafeData: rawOutputData_3) else {
+            return nil
         }
         
         /// Output order of ssd mobileNet model: detection boxes/classes/scores/num_detection
@@ -307,14 +305,15 @@ class ModelHandler: NSObject {
         let filename = fileInfo.name
         let fileExtension = fileInfo.extension
         guard let fileURL = Bundle.main.url(forResource: filename, withExtension: fileExtension) else {
-            fatalError("Labels file not found in bundle. Please add a labels file with name " +
+            print("Labels file not found in bundle. Please add a labels file with name " +
                 "\(filename).\(fileExtension)")
+            return labelData
         }
         do {
             let contents = try String(contentsOf: fileURL, encoding: .utf8)
             labelData = contents.components(separatedBy: .newlines)
         } catch {
-            fatalError("Labels file named \(filename).\(fileExtension) cannot be read.")
+            print("Labels file named \(filename).\(fileExtension) cannot be read.")
         }
 
         return labelData
@@ -400,16 +399,6 @@ class ModelHandler: NSObject {
         }
 
         return Data(copyingBufferOf: floats)
-    }
-}
-
-// Helper method to copy values out of a Data instance
-func arrayCopiedFromData<T>(_ data: Data) -> [T]? {
-    guard data.count % MemoryLayout<T>.stride == 0 else { return nil }
-    
-    return data.withUnsafeBytes {
-        bytes -> [T] in
-        Array(bytes.bindMemory(to: T.self))
     }
 }
 
