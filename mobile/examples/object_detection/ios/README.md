@@ -5,8 +5,8 @@ This is an example app using object detection which is able to continuously dete
 This example is loosely based on [Google Tensorflow lite - Object Detection Examples](https://github.com/tensorflow/examples/)
 
 ### Model
-[//]: # (Add the TF mobilenet SSD v2_300 float model link here)
-We use pre-trained MobileNet SSD V2 model from TensorFlow in this sample app. 
+We use pre-trained MobileNet SSD V2 (float) model from TensorFlow in this sample app. 
+[//]: # (Add the TF model link here)
 
 ## Requirements
 - Install Xcode 12.5 and above (preferably latest version)
@@ -18,15 +18,18 @@ We use pre-trained MobileNet SSD V2 model from TensorFlow in this sample app.
 ## Build And Run
 
 0. [Optional] Prepare ORT format model from TF -> ONNX -> ORT
-[//]: # (Add the information from TF->ONNX->ORT here)
+    - Open [Converting SSD Mobilenet from Tensorflow to ONNX](https://github.com/onnx/tensorflow-onnx/blob/master/tutorials/ConvertingSSDMobilenetToONNX.ipynb). This notebook will demostrate you how to convert pre-trained ssd models from TF to onnx.
+    - Once you get the model in onnx format, e.g. `ssd_mobilenet_v2_float.onnx`, you can follow [Convert ONNX models to ORT format](https://www.onnxruntime.ai/docs/how-to/mobile/model-conversion.html#converting-onnx-models-to-ort-format) to get an ORT format model.
+
+    Note: This step is optional. A converted ort format model is provided [here](https://microsoft-my.sharepoint.com/personal/guorachel_microsoft_com/_layouts/15/onedrive.aspx?id=%2Fpersonal%2Fguorachel%5Fmicrosoft%5Fcom%2FDocuments%2FShared%2FPublic) along with an onnx model format file.
+    [//]: # (Add a non-personal link here)
 
 1. Install CocoaPods. `sudo gem install cocoapods`
 
-2. Run `pod install` to generate the workspace file under `<Root Directory>/mobile/examples/object_detections/ios/`. 
+2. Run `pod install` to generate the workspace file under `<ONNXRuntime-inference-example-root>/mobile/examples/object_detections/ios/`. 
 - At the end of this step, you should get a file called `ORTObjectDetection.xcworkspace`.
 
-3. Download and copy the SSDMobileNetV2 ORT model to `<Root Directory>/mobile/examples/object_detections/ios/ORTObjectDetection/ModelsAndData/`. The ORT format ssd model can be downloaded here. 
-[//]: # (Add the ort format model link here)
+3. Download and copy the SSDMobileNetV2 ORT model to `<ONNXRuntime-inference-example-root>/mobile/examples/object_detections/ios/ORTObjectDetection/ModelsAndData/`. The ORT format ssd model can be downloaded [here]https://microsoft-my.sharepoint.com/personal/guorachel_microsoft_com/_layouts/15/onedrive.aspx?id=%2Fpersonal%2Fguorachel%5Fmicrosoft%5Fcom%2FDocuments%2FShared%2FPublic). 
 
 4. Open `ORTObjectDetection.xcworkspace` in xcworkspace and make sure to select your corresponding development team under `Target-General-Signing` for a proper codesign procedure to run the app.
 
