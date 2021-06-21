@@ -12,4 +12,3 @@ cd ${OUTPUT_DIR}
 
 python3 ${DIR}/single_add_gen.py
 python3 -m onnxruntime.tools.convert_onnx_models_to_ort .
-
