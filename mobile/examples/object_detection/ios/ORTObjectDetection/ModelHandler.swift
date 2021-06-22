@@ -197,7 +197,7 @@ class ModelHandler: NSObject {
             return resultsArray
         }
         
-        for i in 0 ... numDetections - 1 {
+        for i in 0 ..< numDetections {
             let score = detectionScores[i]
             
             // Filter results with score < threshold.
@@ -257,23 +257,25 @@ class ModelHandler: NSObject {
         }
         
         // Get vImage_buffer
-        var inputVImageBuffer = vImage_Buffer(
-            data: inputBaseAddress, height: UInt(imageHeight), width: UInt(imageWidth),
-            rowBytes: inputImageRowBytes
-        )
+        var inputVImageBuffer = vImage_Buffer(data: inputBaseAddress,
+                                              height: UInt(imageHeight),
+                                              width: UInt(imageWidth),
+                                              rowBytes: inputImageRowBytes)
         
         let scaledRowBytes = Int(size.width) * imageChannels
         guard let scaledImageBytes = malloc(Int(size.height) * scaledRowBytes) else {
             return nil
         }
+        
         var scaledVImageBuffer = vImage_Buffer(data: scaledImageBytes, height: UInt(size.height), width: UInt(size.width), rowBytes: scaledRowBytes)
         
         // Perform the scale operation on input image buffer and store it in scaled vImage buffer.
         let scaleError = vImageScale_ARGB8888(&inputVImageBuffer, &scaledVImageBuffer, nil, vImage_Flags(0))
         
-        CVPixelBufferUnlockBaseAddress(buffer, CVPixelBufferLockFlags(rawValue: 0))
+        defer { CVPixelBufferUnlockBaseAddress(buffer, CVPixelBufferLockFlags(rawValue: 0)) }
         
         guard scaleError == kvImageNoError else {
+            defer { free(scaledImageBytes) }
             return nil
         }
         
