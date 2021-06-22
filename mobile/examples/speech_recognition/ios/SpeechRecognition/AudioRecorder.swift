@@ -8,7 +8,9 @@ private let kSampleRate: Int = 16000
 private let kRecordingDuration: TimeInterval = 10
 
 class AudioRecorder {
-  typealias RecordingDoneCallback = (Result<Data, Error>) -> Void
+  typealias RecordingBufferAndData = (buffer: AVAudioBuffer, data: Data)
+  typealias RecordResult = Result<RecordingBufferAndData, Error>
+  typealias RecordingDoneCallback = (RecordResult) -> Void
 
   enum AudioRecorderError: Error {
     case Error(message: String)
@@ -73,7 +75,7 @@ class AudioRecorder {
     ) {
       print("audioRecorderDidFinishRecording")
 
-      let recordResult = Result<Data, Error> { () -> Data in
+      let recordResult = RecordResult { () -> RecordingBufferAndData in
         guard flag else {
           throw AudioRecorderError.Error(message: "Recording was unsuccessful.")
         }
@@ -106,10 +108,11 @@ class AudioRecorder {
         }
 
         let recordingData = Data(
-          bytes: recordingFloatChannelData[0],
-          count: Int(recordingBuffer.frameLength) * MemoryLayout<Float>.size)
+          bytesNoCopy: recordingFloatChannelData[0],
+          count: Int(recordingBuffer.frameLength) * MemoryLayout<Float>.size,
+          deallocator: .none)
 
-        return recordingData
+        return (recordingBuffer, recordingData)
       }
 
       callback(recordResult)
