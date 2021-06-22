@@ -13,3 +13,9 @@ The example app shows basic usage of the ORT APIs.
 The example app uses image classification which is able to continuously classify the objects it sees from the device's camera in real-time and displays the most probable inference results on the screen.
 
 - [Android Image Classifier](examples/image_classifications/android)
+
+## Speech recognition
+
+The example app uses speech recognition to transcribe speech from audio recorded by the device.
+
+- [iOS Speech Recognition](examples/speech_recognition/ios)
