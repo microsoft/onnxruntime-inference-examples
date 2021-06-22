@@ -72,7 +72,7 @@ class ModelHandler: NSObject {
     
     private var labels: [String] = []
     
-    init?(threadCount: Int32 = 1) {
+    init(threadCount: Int32 = 1) {
         self.threadCount = threadCount
         
         super.init()
@@ -129,9 +129,10 @@ class ModelHandler: NSObject {
             return nil
         }
         
+        let inputShape: [NSNumber] = [batchSize as NSNumber, inputHeight as NSNumber, inputWidth as NSNumber, inputChannels as NSNumber]
         let inputTensor = try ORTValue(tensorData: NSMutableData(data: rgbData),
                                        elementType: ORTTensorElementDataType.float,
-                                       shape: [1, 300, 300, 3])
+                                       shape: inputShape)
         // Run ORT InferenceSession
         let startDate = Date()
         let outputs = try session.run(withInputs: [inputName: inputTensor],
