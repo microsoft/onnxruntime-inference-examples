@@ -106,9 +106,8 @@ class AudioRecorder {
         }
 
         let recordingData = Data(
-          bytesNoCopy: recordingFloatChannelData[0],
-          count: Int(recordingBuffer.frameLength) * MemoryLayout<Float>.size,
-          deallocator: .none)
+          bytes: recordingFloatChannelData[0],
+          count: Int(recordingBuffer.frameLength) * MemoryLayout<Float>.size)
 
         return recordingData
       }
