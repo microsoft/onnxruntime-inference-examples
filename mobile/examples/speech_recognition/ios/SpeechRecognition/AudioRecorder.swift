@@ -73,8 +73,6 @@ class AudioRecorder {
       _ recorder: AVAudioRecorder,
       successfully flag: Bool
     ) {
-      print("audioRecorderDidFinishRecording")
-
       let recordResult = RecordResult { () -> RecordingBufferAndData in
         guard flag else {
           throw AudioRecorderError.Error(message: "Recording was unsuccessful.")
@@ -122,7 +120,6 @@ class AudioRecorder {
       _ recorder: AVAudioRecorder,
       error: Error?
     ) {
-      print("audioRecorderEncodeErrorDidOccur")
       if let error = error {
         callback(.failure(error))
       } else {

@@ -14,10 +14,8 @@ struct ContentView: View {
 
   private func recordAndRecognize() {
     audioRecorder.record { recordResult in
-      let recognizeResult = Result<String, Error> { () -> String in
-        let recordingBufferAndData = try recordResult.get()
-        let transcription = try speechRecognizer.evaluate(inputData: recordingBufferAndData.data)
-        return transcription
+      let recognizeResult = recordResult.flatMap { recordingBufferAndData in
+        return speechRecognizer.evaluate(inputData: recordingBufferAndData.data)
       }
       endRecordAndRecognize(recognizeResult)
     }
