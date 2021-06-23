@@ -10,6 +10,12 @@ The application lets the user make an audio recording, then recognizes the speec
 
 ## Set up
 
+### Prerequisites
+
+See the general prerequisites [here](../../../README.md#General-Prerequisites).
+
+Additionally, you will need to be able to record audio, either on a simulator or a device.
+
 ### Generate the model
 
 The model should be generated in this location: `<this directory>/SpeechRecognition/model`
