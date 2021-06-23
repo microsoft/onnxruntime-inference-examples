@@ -26,5 +26,6 @@ jobs:
     inputs:
       actions: 'build'
       xcWorkspacePath: 'mobile/examples/basic_usage/ios/OrtBasicUsage.xcworkspace'
+      scheme: 'OrtBasicUsage'
       xcodeVersion: '12'
       packageApp: false
