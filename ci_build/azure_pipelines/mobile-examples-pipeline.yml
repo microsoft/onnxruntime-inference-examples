@@ -25,7 +25,10 @@ jobs:
   - task: Xcode@5
     inputs:
       actions: 'build'
+      configuration: 'Release'
+      sdk: 'iphonesimulator14.4'
       xcWorkspacePath: 'mobile/examples/basic_usage/ios/OrtBasicUsage.xcworkspace'
       scheme: 'OrtBasicUsage'
-      xcodeVersion: '12'
+      xcodeVersion: 'specifyPath'
+      xcodeDeveloperDir: '/Applications/Xcode_12.4.app/Contents/Developer'
       packageApp: false
