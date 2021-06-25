@@ -7,31 +7,52 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		EF5AB2D72671366500AA74F4 /* OrtBasicUsageApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF5AB2D62671366500AA74F4 /* OrtBasicUsageApp.swift */; };
-		EF5AB2D92671366500AA74F4 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF5AB2D82671366500AA74F4 /* ContentView.swift */; };
-		EF5AB2DB2671366B00AA74F4 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = EF5AB2DA2671366B00AA74F4 /* Assets.xcassets */; };
-		EF5AB2DE2671366B00AA74F4 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = EF5AB2DD2671366B00AA74F4 /* Preview Assets.xcassets */; };
-		EF5AB2F226713DB100AA74F4 /* ObjcOrtBasicUsage.mm in Sources */ = {isa = PBXBuildFile; fileRef = EF5AB2F126713DB100AA74F4 /* ObjcOrtBasicUsage.mm */; };
-		EF6AC21326716929009C1F6B /* SwiftOrtBasicUsage.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF6AC21226716929009C1F6B /* SwiftOrtBasicUsage.swift */; };
-		EF6AC21E2672AF64009C1F6B /* single_add.all.ort in Resources */ = {isa = PBXBuildFile; fileRef = EF6AC21D2672AF64009C1F6B /* single_add.all.ort */; };
+		EFE2379726841B8D00234E2C /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFE2379626841B8D00234E2C /* ContentView.swift */; };
+		EFE2379926841B8E00234E2C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = EFE2379826841B8E00234E2C /* Assets.xcassets */; };
+		EFE2379C26841B8E00234E2C /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = EFE2379B26841B8E00234E2C /* Preview Assets.xcassets */; };
+		EFE237A726841B8F00234E2C /* OrtBasicUsageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFE237A626841B8F00234E2C /* OrtBasicUsageTests.swift */; };
+		EFE237C426841D2C00234E2C /* ObjcOrtBasicUsage.mm in Sources */ = {isa = PBXBuildFile; fileRef = EFE237C126841D2C00234E2C /* ObjcOrtBasicUsage.mm */; };
+		EFE237C526841D2C00234E2C /* OrtBasicUsageApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFE237C226841D2C00234E2C /* OrtBasicUsageApp.swift */; };
+		EFE237C726841D5A00234E2C /* SwiftOrtBasicUsage.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFE237C626841D5A00234E2C /* SwiftOrtBasicUsage.swift */; };
+		EFE237C926841F4A00234E2C /* single_add.all.ort in Resources */ = {isa = PBXBuildFile; fileRef = EFE237C826841F4A00234E2C /* single_add.all.ort */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		EFE237A326841B8F00234E2C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = EFE2378926841B8D00234E2C /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = EFE2379026841B8D00234E2C;
+			remoteInfo = OrtBasicUsage;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
-		EF5AB2D32671366500AA74F4 /* OrtBasicUsage.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = OrtBasicUsage.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		EF5AB2D62671366500AA74F4 /* OrtBasicUsageApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrtBasicUsageApp.swift; sourceTree = "<group>"; };
-		EF5AB2D82671366500AA74F4 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
-		EF5AB2DA2671366B00AA74F4 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		EF5AB2DD2671366B00AA74F4 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
-		EF5AB2DF2671366B00AA74F4 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		EF5AB2EF26713D0E00AA74F4 /* ObjcOrtBasicUsage.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ObjcOrtBasicUsage.h; sourceTree = "<group>"; };
-		EF5AB2F026713DB100AA74F4 /* OrtBasicUsage-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "OrtBasicUsage-Bridging-Header.h"; sourceTree = "<group>"; };
-		EF5AB2F126713DB100AA74F4 /* ObjcOrtBasicUsage.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = ObjcOrtBasicUsage.mm; sourceTree = "<group>"; };
-		EF6AC21226716929009C1F6B /* SwiftOrtBasicUsage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftOrtBasicUsage.swift; sourceTree = "<group>"; };
-		EF6AC21D2672AF64009C1F6B /* single_add.all.ort */ = {isa = PBXFileReference; lastKnownFileType = file; name = single_add.all.ort; path = model/single_add.all.ort; sourceTree = "<group>"; };
+		EFE2379126841B8D00234E2C /* OrtBasicUsage.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = OrtBasicUsage.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		EFE2379626841B8D00234E2C /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		EFE2379826841B8E00234E2C /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		EFE2379B26841B8E00234E2C /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		EFE2379D26841B8E00234E2C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		EFE237A226841B8F00234E2C /* OrtBasicUsageTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = OrtBasicUsageTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		EFE237A626841B8F00234E2C /* OrtBasicUsageTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrtBasicUsageTests.swift; sourceTree = "<group>"; };
+		EFE237A826841B8F00234E2C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		EFE237BF26841D2B00234E2C /* OrtBasicUsage-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "OrtBasicUsage-Bridging-Header.h"; sourceTree = "<group>"; };
+		EFE237C126841D2C00234E2C /* ObjcOrtBasicUsage.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ObjcOrtBasicUsage.mm; sourceTree = "<group>"; };
+		EFE237C226841D2C00234E2C /* OrtBasicUsageApp.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OrtBasicUsageApp.swift; sourceTree = "<group>"; };
+		EFE237C326841D2C00234E2C /* ObjcOrtBasicUsage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ObjcOrtBasicUsage.h; sourceTree = "<group>"; };
+		EFE237C626841D5A00234E2C /* SwiftOrtBasicUsage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwiftOrtBasicUsage.swift; sourceTree = "<group>"; };
+		EFE237C826841F4A00234E2C /* single_add.all.ort */ = {isa = PBXFileReference; lastKnownFileType = file; name = single_add.all.ort; path = model/single_add.all.ort; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		EF5AB2D02671366500AA74F4 /* Frameworks */ = {
+		EFE2378E26841B8D00234E2C /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		EFE2379F26841B8F00234E2C /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -41,65 +62,76 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		336EB213ECB86E9B61F34265 /* Pods */ = {
+		1562EC039D3BF6370E7491C7 /* Pods */ = {
 			isa = PBXGroup;
 			children = (
 			);
 			path = Pods;
 			sourceTree = "<group>";
 		};
-		EF5AB2CA2671366500AA74F4 = {
+		EFE2378826841B8D00234E2C = {
 			isa = PBXGroup;
 			children = (
-				EF5AB2D52671366500AA74F4 /* OrtBasicUsage */,
-				EF5AB2D42671366500AA74F4 /* Products */,
-				336EB213ECB86E9B61F34265 /* Pods */,
+				EFE2379326841B8D00234E2C /* OrtBasicUsage */,
+				EFE237A526841B8F00234E2C /* OrtBasicUsageTests */,
+				EFE2379226841B8D00234E2C /* Products */,
+				1562EC039D3BF6370E7491C7 /* Pods */,
 			);
 			sourceTree = "<group>";
 		};
-		EF5AB2D42671366500AA74F4 /* Products */ = {
+		EFE2379226841B8D00234E2C /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				EF5AB2D32671366500AA74F4 /* OrtBasicUsage.app */,
+				EFE2379126841B8D00234E2C /* OrtBasicUsage.app */,
+				EFE237A226841B8F00234E2C /* OrtBasicUsageTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
 		};
-		EF5AB2D52671366500AA74F4 /* OrtBasicUsage */ = {
+		EFE2379326841B8D00234E2C /* OrtBasicUsage */ = {
 			isa = PBXGroup;
 			children = (
-				EF6AC21D2672AF64009C1F6B /* single_add.all.ort */,
-				EF5AB2D62671366500AA74F4 /* OrtBasicUsageApp.swift */,
-				EF5AB2D82671366500AA74F4 /* ContentView.swift */,
-				EF5AB2DA2671366B00AA74F4 /* Assets.xcassets */,
-				EF5AB2DF2671366B00AA74F4 /* Info.plist */,
-				EF5AB2DC2671366B00AA74F4 /* Preview Content */,
-				EF5AB2EF26713D0E00AA74F4 /* ObjcOrtBasicUsage.h */,
-				EF5AB2F126713DB100AA74F4 /* ObjcOrtBasicUsage.mm */,
-				EF5AB2F026713DB100AA74F4 /* OrtBasicUsage-Bridging-Header.h */,
-				EF6AC21226716929009C1F6B /* SwiftOrtBasicUsage.swift */,
+				EFE237C826841F4A00234E2C /* single_add.all.ort */,
+				EFE237C626841D5A00234E2C /* SwiftOrtBasicUsage.swift */,
+				EFE237C326841D2C00234E2C /* ObjcOrtBasicUsage.h */,
+				EFE237C126841D2C00234E2C /* ObjcOrtBasicUsage.mm */,
+				EFE237C226841D2C00234E2C /* OrtBasicUsageApp.swift */,
+				EFE2379626841B8D00234E2C /* ContentView.swift */,
+				EFE2379826841B8E00234E2C /* Assets.xcassets */,
+				EFE2379D26841B8E00234E2C /* Info.plist */,
+				EFE2379A26841B8E00234E2C /* Preview Content */,
+				EFE237BF26841D2B00234E2C /* OrtBasicUsage-Bridging-Header.h */,
 			);
 			path = OrtBasicUsage;
 			sourceTree = "<group>";
 		};
-		EF5AB2DC2671366B00AA74F4 /* Preview Content */ = {
+		EFE2379A26841B8E00234E2C /* Preview Content */ = {
 			isa = PBXGroup;
 			children = (
-				EF5AB2DD2671366B00AA74F4 /* Preview Assets.xcassets */,
+				EFE2379B26841B8E00234E2C /* Preview Assets.xcassets */,
 			);
 			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+		EFE237A526841B8F00234E2C /* OrtBasicUsageTests */ = {
+			isa = PBXGroup;
+			children = (
+				EFE237A626841B8F00234E2C /* OrtBasicUsageTests.swift */,
+				EFE237A826841B8F00234E2C /* Info.plist */,
+			);
+			path = OrtBasicUsageTests;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		EF5AB2D22671366500AA74F4 /* OrtBasicUsage */ = {
+		EFE2379026841B8D00234E2C /* OrtBasicUsage */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = EF5AB2E22671366B00AA74F4 /* Build configuration list for PBXNativeTarget "OrtBasicUsage" */;
+			buildConfigurationList = EFE237B626841B8F00234E2C /* Build configuration list for PBXNativeTarget "OrtBasicUsage" */;
 			buildPhases = (
-				EF5AB2CF2671366500AA74F4 /* Sources */,
-				EF5AB2D02671366500AA74F4 /* Frameworks */,
-				EF5AB2D12671366500AA74F4 /* Resources */,
+				EFE2378D26841B8D00234E2C /* Sources */,
+				EFE2378E26841B8D00234E2C /* Frameworks */,
+				EFE2378F26841B8D00234E2C /* Resources */,
 			);
 			buildRules = (
 			);
@@ -107,25 +139,47 @@
 			);
 			name = OrtBasicUsage;
 			productName = OrtBasicUsage;
-			productReference = EF5AB2D32671366500AA74F4 /* OrtBasicUsage.app */;
+			productReference = EFE2379126841B8D00234E2C /* OrtBasicUsage.app */;
 			productType = "com.apple.product-type.application";
+		};
+		EFE237A126841B8F00234E2C /* OrtBasicUsageTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = EFE237B926841B8F00234E2C /* Build configuration list for PBXNativeTarget "OrtBasicUsageTests" */;
+			buildPhases = (
+				EFE2379E26841B8F00234E2C /* Sources */,
+				EFE2379F26841B8F00234E2C /* Frameworks */,
+				EFE237A026841B8F00234E2C /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				EFE237A426841B8F00234E2C /* PBXTargetDependency */,
+			);
+			name = OrtBasicUsageTests;
+			productName = OrtBasicUsageTests;
+			productReference = EFE237A226841B8F00234E2C /* OrtBasicUsageTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
 		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
-		EF5AB2CB2671366500AA74F4 /* Project object */ = {
+		EFE2378926841B8D00234E2C /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastSwiftUpdateCheck = 1220;
-				LastUpgradeCheck = 1220;
+				LastSwiftUpdateCheck = 1250;
+				LastUpgradeCheck = 1250;
 				TargetAttributes = {
-					EF5AB2D22671366500AA74F4 = {
-						CreatedOnToolsVersion = 12.2;
-						LastSwiftMigration = 1220;
+					EFE2379026841B8D00234E2C = {
+						CreatedOnToolsVersion = 12.5.1;
+						LastSwiftMigration = 1250;
+					};
+					EFE237A126841B8F00234E2C = {
+						CreatedOnToolsVersion = 12.5.1;
+						TestTargetID = EFE2379026841B8D00234E2C;
 					};
 				};
 			};
-			buildConfigurationList = EF5AB2CE2671366500AA74F4 /* Build configuration list for PBXProject "OrtBasicUsage" */;
+			buildConfigurationList = EFE2378C26841B8D00234E2C /* Build configuration list for PBXProject "OrtBasicUsage" */;
 			compatibilityVersion = "Xcode 9.3";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -133,45 +187,69 @@
 				en,
 				Base,
 			);
-			mainGroup = EF5AB2CA2671366500AA74F4;
-			productRefGroup = EF5AB2D42671366500AA74F4 /* Products */;
+			mainGroup = EFE2378826841B8D00234E2C;
+			productRefGroup = EFE2379226841B8D00234E2C /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				EF5AB2D22671366500AA74F4 /* OrtBasicUsage */,
+				EFE2379026841B8D00234E2C /* OrtBasicUsage */,
+				EFE237A126841B8F00234E2C /* OrtBasicUsageTests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
-		EF5AB2D12671366500AA74F4 /* Resources */ = {
+		EFE2378F26841B8D00234E2C /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				EF5AB2DE2671366B00AA74F4 /* Preview Assets.xcassets in Resources */,
-				EF6AC21E2672AF64009C1F6B /* single_add.all.ort in Resources */,
-				EF5AB2DB2671366B00AA74F4 /* Assets.xcassets in Resources */,
+				EFE237C926841F4A00234E2C /* single_add.all.ort in Resources */,
+				EFE2379C26841B8E00234E2C /* Preview Assets.xcassets in Resources */,
+				EFE2379926841B8E00234E2C /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		EFE237A026841B8F00234E2C /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		EF5AB2CF2671366500AA74F4 /* Sources */ = {
+		EFE2378D26841B8D00234E2C /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				EF5AB2D92671366500AA74F4 /* ContentView.swift in Sources */,
-				EF5AB2D72671366500AA74F4 /* OrtBasicUsageApp.swift in Sources */,
-				EF5AB2F226713DB100AA74F4 /* ObjcOrtBasicUsage.mm in Sources */,
-				EF6AC21326716929009C1F6B /* SwiftOrtBasicUsage.swift in Sources */,
+				EFE237C726841D5A00234E2C /* SwiftOrtBasicUsage.swift in Sources */,
+				EFE237C426841D2C00234E2C /* ObjcOrtBasicUsage.mm in Sources */,
+				EFE237C526841D2C00234E2C /* OrtBasicUsageApp.swift in Sources */,
+				EFE2379726841B8D00234E2C /* ContentView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		EFE2379E26841B8F00234E2C /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				EFE237A726841B8F00234E2C /* OrtBasicUsageTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
+/* Begin PBXTargetDependency section */
+		EFE237A426841B8F00234E2C /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = EFE2379026841B8D00234E2C /* OrtBasicUsage */;
+			targetProxy = EFE237A326841B8F00234E2C /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
 /* Begin XCBuildConfiguration section */
-		EF5AB2E02671366B00AA74F4 /* Debug */ = {
+		EFE237B426841B8F00234E2C /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -222,7 +300,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 14.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.5;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -232,7 +310,7 @@
 			};
 			name = Debug;
 		};
-		EF5AB2E12671366B00AA74F4 /* Release */ = {
+		EFE237B526841B8F00234E2C /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -277,7 +355,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 14.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.5;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
@@ -287,7 +365,7 @@
 			};
 			name = Release;
 		};
-		EF5AB2E32671366B00AA74F4 /* Debug */ = {
+		EFE237B726841B8F00234E2C /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
@@ -307,11 +385,11 @@
 				SWIFT_OBJC_BRIDGING_HEADER = "OrtBasicUsage/OrtBasicUsage-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 1;
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
 		};
-		EF5AB2E42671366B00AA74F4 /* Release */ = {
+		EFE237B826841B8F00234E2C /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
@@ -330,32 +408,83 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "OrtBasicUsage/OrtBasicUsage-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 1;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		EFE237BA26841B8F00234E2C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				INFOPLIST_FILE = OrtBasicUsageTests/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.onnxruntime.OrtBasicUsageTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/OrtBasicUsage.app/OrtBasicUsage";
+			};
+			name = Debug;
+		};
+		EFE237BB26841B8F00234E2C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				INFOPLIST_FILE = OrtBasicUsageTests/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.onnxruntime.OrtBasicUsageTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/OrtBasicUsage.app/OrtBasicUsage";
 			};
 			name = Release;
 		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		EF5AB2CE2671366500AA74F4 /* Build configuration list for PBXProject "OrtBasicUsage" */ = {
+		EFE2378C26841B8D00234E2C /* Build configuration list for PBXProject "OrtBasicUsage" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				EF5AB2E02671366B00AA74F4 /* Debug */,
-				EF5AB2E12671366B00AA74F4 /* Release */,
+				EFE237B426841B8F00234E2C /* Debug */,
+				EFE237B526841B8F00234E2C /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		EF5AB2E22671366B00AA74F4 /* Build configuration list for PBXNativeTarget "OrtBasicUsage" */ = {
+		EFE237B626841B8F00234E2C /* Build configuration list for PBXNativeTarget "OrtBasicUsage" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				EF5AB2E32671366B00AA74F4 /* Debug */,
-				EF5AB2E42671366B00AA74F4 /* Release */,
+				EFE237B726841B8F00234E2C /* Debug */,
+				EFE237B826841B8F00234E2C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		EFE237B926841B8F00234E2C /* Build configuration list for PBXNativeTarget "OrtBasicUsageTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				EFE237BA26841B8F00234E2C /* Debug */,
+				EFE237BB26841B8F00234E2C /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
-	rootObject = EF5AB2CB2671366500AA74F4 /* Project object */;
+	rootObject = EFE2378926841B8D00234E2C /* Project object */;
 }

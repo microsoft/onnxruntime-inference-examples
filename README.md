@@ -10,10 +10,10 @@ This repo has examples that demonstrate the use of [ONNX Runtime](https://github
 
 Outline the examples in the repository.
 
-| Example           | Description                                |
-|-------------------|--------------------------------------------|
-|[Mobile examples](mobile)| Examples that demonstrate how to use ONNX Runtime Mobile in mobile applications. |
-|[JavaScript API examples](js)| Examples that demonstrate how to use JavaScript API for ONNX Runtime. |
+| Example | Description | Pipeline Status |
+|-|-|-|
+| [Mobile examples](mobile) | Examples that demonstrate how to use ONNX Runtime Mobile in mobile applications. | [![Build Status](https://dev.azure.com/onnxruntime/onnxruntime/_apis/build/status/171)](https://dev.azure.com/onnxruntime/onnxruntime/_build/latest?definitionId=171) |
+| [JavaScript API examples](js) | Examples that demonstrate how to use JavaScript API for ONNX Runtime. | |
 
 ## Contributing
 
