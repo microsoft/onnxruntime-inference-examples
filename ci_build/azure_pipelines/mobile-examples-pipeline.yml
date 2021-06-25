@@ -1,0 +1,37 @@
+jobs:
+- job: BasicUsageIos
+  pool:
+    vmImage: "macOS-10.15"
+    
+  steps:
+  - task: UsePythonVersion@0
+    inputs:
+      versionSpec: '3.6'
+      addToPath: true
+      architecture: 'x64'
+
+  - script: |
+      set -e
+      pip install -r ../model/requirements.txt
+      ../model/gen_model.sh ./OrtBasicUsage/model
+    workingDirectory: mobile/examples/basic_usage/ios
+    displayName: "Generate model"
+
+  - task: CocoaPods@0
+    inputs:
+      workingDirectory: 'mobile/examples/basic_usage/ios'
+      forceRepoUpdate: false
+
+  - task: Xcode@5
+    inputs:
+      actions: 'test'
+      configuration: 'Debug'
+      sdk: 'iphonesimulator'
+      xcWorkspacePath: 'mobile/examples/basic_usage/ios/OrtBasicUsage.xcworkspace'
+      scheme: 'OrtBasicUsage'
+      xcodeVersion: 'specifyPath'
+      xcodeDeveloperDir: '/Applications/Xcode_12.4.app/Contents/Developer'
+      packageApp: false
+      destinationPlatformOption: 'iOS'
+      destinationTypeOption: 'simulators'
+      destinationSimulators: 'iPhone 8'
