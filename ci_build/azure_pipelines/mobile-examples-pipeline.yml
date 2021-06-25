@@ -24,7 +24,7 @@ jobs:
 
   - task: Xcode@5
     inputs:
-      actions: 'build test'
+      actions: 'test'
       configuration: 'Debug'
       sdk: 'iphonesimulator'
       xcWorkspacePath: 'mobile/examples/basic_usage/ios/OrtBasicUsage.xcworkspace'
