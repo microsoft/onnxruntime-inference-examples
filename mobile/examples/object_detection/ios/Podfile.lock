@@ -1,12 +1,12 @@
 PODS:
-  - onnxruntime-mobile-c (1.8.0)
-  - onnxruntime-mobile-objc (1.8.0-preview):
-    - onnxruntime-mobile-objc/Core (= 1.8.0-preview)
-  - onnxruntime-mobile-objc/Core (1.8.0-preview):
-    - onnxruntime-mobile-c (= 1.8.0)
+  - onnxruntime-mobile-c (1.8.1)
+  - onnxruntime-mobile-objc (1.8.1):
+    - onnxruntime-mobile-objc/Core (= 1.8.1)
+  - onnxruntime-mobile-objc/Core (1.8.1):
+    - onnxruntime-mobile-c (= 1.8.1)
 
 DEPENDENCIES:
-  - onnxruntime-mobile-objc (= 1.8.0-preview)
+  - onnxruntime-mobile-objc (= 1.8.1)
 
 SPEC REPOS:
   https://github.com/CocoaPods/Specs.git:
@@ -14,9 +14,9 @@ SPEC REPOS:
     - onnxruntime-mobile-objc
 
 SPEC CHECKSUMS:
-  onnxruntime-mobile-c: bdefcdbeb53e1e4862dd4b354da0f155fd29c4b9
-  onnxruntime-mobile-objc: 891138f1cb242c83eca3725aab0aa095c1f50571
+  onnxruntime-mobile-c: a81344d2eca1e10fb95c5ea3b0e5e7ecabe110d7
+  onnxruntime-mobile-objc: 36049ed81d009bc5b554f97101dfc0da98f1fe4a
 
-PODFILE CHECKSUM: d465c2a323f60c3af7e191b4d6da845adea0cfbb
+PODFILE CHECKSUM: 71bf0f7e174288f375d8a538d6270d568d8af292
 
 COCOAPODS: 1.10.1
