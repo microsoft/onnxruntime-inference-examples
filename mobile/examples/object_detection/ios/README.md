@@ -26,6 +26,8 @@ The original `ssd_mobilenet_v1.tflite` model can be downloaded [here](https://ww
 3. Run download script `download.sh` under `<ONNXRuntime-inference-example-root>/mobile/examples/object_detections/ios/ORTObjectDetection/`. The script will download an original tf model along with the model metadata `labelmap.txt` and convert the model to onnx and then further convert it to ort format model (the format can be executed on mobile applications).
 - At the end of this step, you should get a directory `ModelsAndData` which contains the ort format model `ssd_mobilenet_v1.all.ort` and model label data file `labelmap.txt`.
 
+    Note: The model generated might need to be copied to app bundle. i.e. In Xcode, `Build phases-Expand Copy Bundle Resources-Click '+' and select model file name ssd_mobilenet_v1.all.ort`.
+
 4. Open `ORTObjectDetection.xcworkspace` in xcworkspace and make sure to select your corresponding development team under `Target-General-Signing` for a proper codesign procedure to run the app.
 
 5. Connect your iOS device, build and run the app. You'll have to grant permissions for the app to use the device's camera.
