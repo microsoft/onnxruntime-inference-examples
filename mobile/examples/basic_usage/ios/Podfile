@@ -3,7 +3,7 @@ platform :ios, '11.0'
 target 'OrtBasicUsage' do
   use_frameworks!
 
-  pod 'onnxruntime-mobile-objc', '1.8.0-preview'
+  pod 'onnxruntime-mobile-objc'
 
   target 'OrtBasicUsageTests' do
     inherit! :search_paths
