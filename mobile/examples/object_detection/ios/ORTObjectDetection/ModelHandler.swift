@@ -131,7 +131,7 @@ class ModelHandler: NSObject {
         
         let inputShape: [NSNumber] = [batchSize as NSNumber, inputHeight as NSNumber, inputWidth as NSNumber, inputChannels as NSNumber]
         let inputTensor = try ORTValue(tensorData: NSMutableData(data: rgbData),
-                                       elementType: ORTTensorElementDataType.float,
+                                       elementType: ORTTensorElementDataType.uInt8,
                                        shape: inputShape)
         // Run ORT InferenceSession
         let startDate = Date()
@@ -341,7 +341,7 @@ class ModelHandler: NSObject {
     func rgbDataFromBuffer(
         _ buffer: CVPixelBuffer,
         byteCount: Int,
-        isModelQuantized: Bool = false
+        isModelQuantized: Bool = true
     ) -> Data? {
         CVPixelBufferLockBaseAddress(buffer, .readOnly)
         defer {
@@ -391,17 +391,8 @@ class ModelHandler: NSObject {
         }
         
         let byteData = Data(bytes: destinationBuffer.data, count: destinationBuffer.rowBytes * height)
-
-        // MARK: [TODO] Consider quantized model here
-
-        // Not quantized, convert to floats
-        let bytes = [UInt8](unsafeData: byteData)!
-        var floats = [Float]()
-        for i in 0 ..< bytes.count {
-            floats.append(Float(bytes[i]) / 255.0)
-        }
-
-        return Data(copyingBufferOf: floats)
+        
+        return byteData
     }
 }
 

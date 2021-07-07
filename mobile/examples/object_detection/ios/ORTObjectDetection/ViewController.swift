@@ -128,7 +128,7 @@ extension ViewController: CameraManagerDelegate {
         else { return }
         previousInferenceTimeMs = currentTimeMs
         
-        result = try! modelHandler?.runModel(onFrame: pixelBuffer, modelFileInfo: (name: "ssd_mobilenet_v2_300_float.all", extension: "ort"), labelsFileInfo: (name: "labelmap", extension: "txt"))
+        result = try! modelHandler?.runModel(onFrame: pixelBuffer, modelFileInfo: (name: "ssd_mobilenet_v1.all", extension: "ort"), labelsFileInfo: (name: "labelmap", extension: "txt"))
         
         guard let displayResult = result else {
             return
