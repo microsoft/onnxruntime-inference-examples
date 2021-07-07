@@ -12,7 +12,7 @@ mkdir -p "${SCRIPT_DIR}/ModelsAndData"
 
 DOWNLOAD_DIR="${SCRIPT_DIR}/ModelsAndData"
 
-#Download source tflite model
+#Download source tflite model file
 curl -L ${MODELS_URL} >${DOWNLOAD_DIR}/ssd_mobilenet_v1_1_metadata_1.tflite
 
 #Unzip and get model metadata
