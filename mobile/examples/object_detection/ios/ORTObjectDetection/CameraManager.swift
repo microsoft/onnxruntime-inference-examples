@@ -24,10 +24,10 @@ protocol CameraManagerDelegate: AnyObject {
     // This method delivers the pixel buffer of the current frame seen by the device's camera.
     func didOutput(pixelBuffer: CVPixelBuffer)
     
-    // This method initimates that the camera permissions have been denied.
+    // This method indicates that the camera permissions have been denied.
     func presentCameraPermissionsDeniedAlert()
     
-    // This method initimates that there was an error in video configurtion.
+    // This method indicates that there was an error in video configurtion.
     func presentVideoConfigurationErrorAlert()
 }
 
