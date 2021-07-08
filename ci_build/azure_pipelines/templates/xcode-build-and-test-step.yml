@@ -1,0 +1,21 @@
+parameters:
+- name: xcWorkspacePath
+  type: string
+- name: scheme
+  type: string
+
+steps:
+- task: Xcode@5
+  inputs:
+    actions: 'test'
+    configuration: 'Debug'
+    sdk: 'iphonesimulator'
+    xcWorkspacePath: '${{ parameters.xcWorkspacePath }}'
+    scheme: '${{ parameters.scheme }}'
+    xcodeVersion: 'specifyPath'
+    xcodeDeveloperDir: '/Applications/Xcode_12.4.app/Contents/Developer'
+    packageApp: false
+    destinationPlatformOption: 'iOS'
+    destinationTypeOption: 'simulators'
+    destinationSimulators: 'iPhone 8'
+  displayName: "Xcode build and test"

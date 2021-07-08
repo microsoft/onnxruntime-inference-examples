@@ -1,11 +1,11 @@
 platform :ios, '11.0'
 
-target 'OrtBasicUsage' do
+target 'SpeechRecognition' do
   use_frameworks!
 
   pod 'onnxruntime-mobile-objc'
 
-  target 'OrtBasicUsageTests' do
+  target 'SpeechRecognitionTests' do
     inherit! :search_paths
   end
 
