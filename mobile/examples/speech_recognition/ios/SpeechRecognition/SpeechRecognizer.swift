@@ -3,7 +3,10 @@
 
 import Foundation
 
-private let kTokens = [
+// these labels correspond to the model's output values
+// the labels and postprocessing logic were copied and adapted from:
+// https://github.com/pytorch/ios-demo-app/blob/f2b9aa196821c136d3299b99c5dd592de1fa1776/SpeechRecognition/create_wav2vec2.py#L10
+private let kLabels = [
   "<s>", "<pad>", "</s>", "<unk>", "|", "E", "T", "A", "O", "N", "I", "H", "S", "R", "D", "L", "U", "M", "W", "C", "F",
   "G", "Y", "P", "B", "V", "K", "'", "X", "J", "Q", "Z",
 ]
@@ -35,30 +38,30 @@ class SpeechRecognizer {
       return max?.idx
     }
 
-    func tokenIndexToOutput(_ index: Int) -> String {
+    func labelIndexToOutput(_ index: Int) -> String {
       if index == 4 {
         return " "
-      } else if index > 4 && index < kTokens.count {
-        return kTokens[index]
+      } else if index > 4 && index < kLabels.count {
+        return kLabels[index]
       }
       return ""
     }
 
-    precondition(modelOutput.count % kTokens.count == 0)
-    let n = modelOutput.count / kTokens.count
-    var resultTokenIndices: [Int] = []
+    precondition(modelOutput.count % kLabels.count == 0)
+    let n = modelOutput.count / kLabels.count
+    var resultLabelIndices: [Int] = []
 
     for i in 0..<n {
-      let tokenValues = modelOutput[i * kTokens.count..<(i + 1) * kTokens.count]
-      if let tokenIndex = maxIndex(tokenValues) {
+      let labelValues = modelOutput[i * kLabels.count..<(i + 1) * kLabels.count]
+      if let labelIndex = maxIndex(labelValues) {
         // append without consecutive duplicates
-        if tokenIndex != resultTokenIndices.last {
-          resultTokenIndices.append(tokenIndex)
+        if labelIndex != resultLabelIndices.last {
+          resultLabelIndices.append(labelIndex)
         }
       }
     }
 
-    return resultTokenIndices.map(tokenIndexToOutput).joined()
+    return resultLabelIndices.map(labelIndexToOutput).joined()
   }
 
   func evaluate(inputData: Data) -> Result<String, Error> {
