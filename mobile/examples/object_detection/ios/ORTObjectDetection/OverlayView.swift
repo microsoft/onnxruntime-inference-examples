@@ -53,7 +53,9 @@ class OverlayView: UIView {
     }
     
     func drawBackground(of objectOverlay: ObjectOverlay) {
-        let stringBgRect = CGRect(x: objectOverlay.borderRect.origin.x, y: objectOverlay.borderRect.origin.y, width: 2 * stringHorizontalSpacing + objectOverlay.nameStringSize.width, height: 2 * stringVerticalSpacing + objectOverlay.nameStringSize.height)
+        let stringBgRect = CGRect(x: objectOverlay.borderRect.origin.x, y: objectOverlay.borderRect.origin.y,
+                                  width: 2 * stringHorizontalSpacing + objectOverlay.nameStringSize.width,
+                                  height: 2 * stringVerticalSpacing + objectOverlay.nameStringSize.height)
         
         let stringBgPath = UIBezierPath(rect: stringBgRect)
         objectOverlay.color.withAlphaComponent(stringBgAlpha).setFill()
@@ -61,9 +63,16 @@ class OverlayView: UIView {
     }
     
     func drawName(of objectOverlay: ObjectOverlay) {
-        let stringRect = CGRect(x: objectOverlay.borderRect.origin.x + stringHorizontalSpacing, y: objectOverlay.borderRect.origin.y + stringVerticalSpacing, width: objectOverlay.nameStringSize.width, height: objectOverlay.nameStringSize.height)
+        let stringRect = CGRect(x: objectOverlay.borderRect.origin.x + stringHorizontalSpacing,
+                                y: objectOverlay.borderRect.origin.y + stringVerticalSpacing,
+                                width: objectOverlay.nameStringSize.width,
+                                height: objectOverlay.nameStringSize.height)
         
-        let attributedString = NSAttributedString(string: objectOverlay.name, attributes: [NSAttributedString.Key.foregroundColor: stringFontColor, NSAttributedString.Key.font: objectOverlay.font])
+        let attributedString = NSAttributedString(string: objectOverlay.name,
+                                                  attributes: [
+                                                      NSAttributedString.Key.foregroundColor: stringFontColor,
+                                                      NSAttributedString.Key.font: objectOverlay.font,
+                                                  ])
         attributedString.draw(in: stringRect)
     }
 }

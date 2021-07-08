@@ -79,7 +79,9 @@ class ModelHandler: NSObject {
     }
 
     // This method preprocesses the image, runs the ort inferencesession and returns the inference result
-    func runModel(onFrame pixelBuffer: CVPixelBuffer, modelFileInfo: FileInfo, labelsFileInfo: FileInfo) throws -> Result? {
+    func runModel(onFrame pixelBuffer: CVPixelBuffer, modelFileInfo: FileInfo, labelsFileInfo: FileInfo)
+        throws -> Result?
+    {
         let modelFilename = modelFileInfo.name
         
         labels = loadLabels(fileInfo: labelsFileInfo)
@@ -129,7 +131,10 @@ class ModelHandler: NSObject {
             return nil
         }
         
-        let inputShape: [NSNumber] = [batchSize as NSNumber, inputHeight as NSNumber, inputWidth as NSNumber, inputChannels as NSNumber]
+        let inputShape: [NSNumber] = [batchSize as NSNumber,
+                                      inputHeight as NSNumber,
+                                      inputWidth as NSNumber,
+                                      inputChannels as NSNumber]
         let inputTensor = try ORTValue(tensorData: NSMutableData(data: rgbData),
                                        elementType: ORTTensorElementDataType.uInt8,
                                        shape: inputShape)
@@ -182,7 +187,12 @@ class ModelHandler: NSObject {
         let numDetections = Int(outputArr_3[0])
         
         // Format the results
-        let resultArray = formatResults(detectionBoxes: detectionBoxes, detectionClasses: detectionClasses, detectionScores: detectionScores, numDetections: numDetections, width: CGFloat(imageWidth), height: CGFloat(imageHeight))
+        let resultArray = formatResults(detectionBoxes: detectionBoxes,
+                                        detectionClasses: detectionClasses,
+                                        detectionScores: detectionScores,
+                                        numDetections: numDetections,
+                                        width: CGFloat(imageWidth),
+                                        height: CGFloat(imageHeight))
         
         // Return ORT SessionRun result
         return Result(processTimeMs: interval, inferences: resultArray)
@@ -190,8 +200,10 @@ class ModelHandler: NSObject {
     
     // MARK: - Helper Methods
 
-    // This method postprocesses the results including processing bounding boxes, sort detected scores, etc. and returns a result array
-    func formatResults(detectionBoxes: [Float32], detectionClasses: [Float32], detectionScores: [Float32], numDetections: Int, width: CGFloat, height: CGFloat) -> [Inference] {
+    // This method postprocesses the results including processing bounding boxes, sort detected scores, etc.
+    func formatResults(detectionBoxes: [Float32], detectionClasses: [Float32], detectionScores: [Float32],
+                       numDetections: Int, width: CGFloat, height: CGFloat) -> [Inference]
+    {
         var resultsArray: [Inference] = []
         
         if numDetections == 0 {
@@ -235,7 +247,8 @@ class ModelHandler: NSObject {
         return resultsArray
     }
     
-    // This method preprocesses the image by cropping pixel buffer to biggest square and scaling the cropped image to model dimensions.
+    // This method preprocesses the image by cropping pixel buffer to biggest square
+    // and scaling the cropped image to model dimensions.
     private func preprocess(
         ofSize size: CGSize,
         _ buffer: CVPixelBuffer
@@ -270,7 +283,10 @@ class ModelHandler: NSObject {
             return nil
         }
                 
-        var scaledVImageBuffer = vImage_Buffer(data: scaledImageBytes, height: UInt(size.height), width: UInt(size.width), rowBytes: scaledRowBytes)
+        var scaledVImageBuffer = vImage_Buffer(data: scaledImageBytes,
+                                               height: UInt(size.height),
+                                               width: UInt(size.width),
+                                               rowBytes: scaledRowBytes)
         
         // Perform the scale operation on input image buffer and store it in scaled vImage buffer.
         let scaleError = vImageScale_ARGB8888(&inputVImageBuffer, &scaledVImageBuffer, nil, vImage_Flags(0))
@@ -435,7 +451,10 @@ extension UIColor {
         }
         
         // Return the color comprised by percentage r g b values of the original color.
-        let colorToReturn = UIColor(displayP3Red: min(red + percent / 100.0, 1.0), green: min(green + percent / 100.0, 1.0), blue: min(blue + percent / 100.0, 1.0), alpha: 1.0)
+        let colorToReturn = UIColor(displayP3Red: min(red + percent / 100.0, 1.0),
+                                    green: min(green + percent / 100.0, 1.0),
+                                    blue: min(blue + percent / 100.0, 1.0),
+                                    alpha: 1.0)
         
         return colorToReturn
     }

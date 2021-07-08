@@ -198,7 +198,10 @@ class CameraManager: NSObject {
  Delegate the CVPixelBuffer of the frame seen by the camera currently.
  */
 extension CameraManager: AVCaptureVideoDataOutputSampleBufferDelegate {
-    func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
+    func captureOutput(_ output: AVCaptureOutput,
+                       didOutput sampleBuffer: CMSampleBuffer,
+                       from connection: AVCaptureConnection)
+    {
         // Convert the CMSampleBuffer to a CVPixelBuffer.
         let pixelBuffer: CVPixelBuffer? = CMSampleBufferGetImageBuffer(sampleBuffer)
         

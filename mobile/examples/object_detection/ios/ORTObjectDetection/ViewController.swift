@@ -103,11 +103,15 @@ extension ViewController: CameraManagerDelegate {
     // MARK: Session Handling Alerts
 
     func presentCameraPermissionsDeniedAlert() {
-        let alertController = UIAlertController(title: "Camera Permissions Denied", message: "Camera permissions have been denied for this app. You can change this by going to Settings", preferredStyle: .alert)
+        let alertController = UIAlertController(title: "Camera Permissions Denied",
+                                                message: "Camera permissions have been denied for this app.",
+                                                preferredStyle: .alert)
         
         let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
         let settingsAction = UIAlertAction(title: "Settings", style: .default) { _ in
-            UIApplication.shared.open(URL(string: UIApplication.openSettingsURLString)!, options: [:], completionHandler: nil)
+            UIApplication.shared.open(URL(string: UIApplication.openSettingsURLString)!,
+                                      options: [:],
+                                      completionHandler: nil)
         }
         alertController.addAction(cancelAction)
         alertController.addAction(settingsAction)
@@ -116,7 +120,9 @@ extension ViewController: CameraManagerDelegate {
     }
     
     func presentVideoConfigurationErrorAlert() {
-        let alert = UIAlertController(title: "Camera Configuration Failed", message: "There was an error while configuring camera.", preferredStyle: .alert)
+        let alert = UIAlertController(title: "Camera Configuration Failed",
+                                      message: "There was an error while configuring camera.",
+                                      preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
         
         present(alert, animated: true)
@@ -128,7 +134,9 @@ extension ViewController: CameraManagerDelegate {
         else { return }
         previousInferenceTimeMs = currentTimeMs
         
-        result = try! modelHandler?.runModel(onFrame: pixelBuffer, modelFileInfo: (name: "ssd_mobilenet_v1.all", extension: "ort"), labelsFileInfo: (name: "labelmap", extension: "txt"))
+        result = try! modelHandler?.runModel(onFrame: pixelBuffer,
+                                             modelFileInfo: (name: "ssd_mobilenet_v1.all", extension: "ort"),
+                                             labelsFileInfo: (name: "labelmap", extension: "txt"))
         
         guard let displayResult = result else {
             return
@@ -136,7 +144,8 @@ extension ViewController: CameraManagerDelegate {
         
         // Display results by the `InferenceViewController`.
         DispatchQueue.main.async {
-            let resolution = CGSize(width: CVPixelBufferGetWidth(pixelBuffer), height: CVPixelBufferGetHeight(pixelBuffer))
+            let resolution = CGSize(width: CVPixelBufferGetWidth(pixelBuffer),
+                                    height: CVPixelBufferGetHeight(pixelBuffer))
             self.inferenceViewController?.resolution = resolution
             
             var inferenceTime: Double = 0
@@ -147,7 +156,9 @@ extension ViewController: CameraManagerDelegate {
             self.inferenceViewController?.tableView.reloadData()
             
             // Draw bounding boxes and compute the inference score
-            self.drawBoundingBoxesAndCalculate(onInferences: displayResult.inferences, withImageSize: CGSize(width: CVPixelBufferGetWidth(pixelBuffer), height: CVPixelBufferGetHeight(pixelBuffer)))
+            self.drawBoundingBoxesAndCalculate(onInferences: displayResult.inferences,
+                                               withImageSize: CGSize(width: CVPixelBufferGetWidth(pixelBuffer),
+                                                                     height: CVPixelBufferGetHeight(pixelBuffer)))
         }
     }
     
@@ -163,7 +174,10 @@ extension ViewController: CameraManagerDelegate {
         
         for inference in inferences {
             // Translate the bounding box rectangle to the current view
-            var convertedRect = inference.rect.applying(CGAffineTransform(scaleX: overlayView.bounds.size.width / imageSize.width, y: overlayView.bounds.size.height / imageSize.height))
+            var convertedRect = inference.rect.applying(
+                CGAffineTransform(
+                    scaleX: overlayView.bounds.size.width / imageSize.width,
+                    y: overlayView.bounds.size.height / imageSize.height))
             
             if convertedRect.origin.x < 0 {
                 convertedRect.origin.x = edgeOffset
@@ -186,7 +200,11 @@ extension ViewController: CameraManagerDelegate {
             
             let nameStringsize = string.size(usingFont: displayFont)
             
-            let objectOverlay = ObjectOverlay(name: string, borderRect: convertedRect, nameStringSize: nameStringsize, color: inference.displayColor, font: displayFont)
+            let objectOverlay = ObjectOverlay(name: string,
+                                              borderRect: convertedRect,
+                                              nameStringSize: nameStringsize,
+                                              color: inference.displayColor,
+                                              font: displayFont)
             
             objectOverlays.append(objectOverlay)
         }
