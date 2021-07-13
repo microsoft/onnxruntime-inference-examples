@@ -13,6 +13,7 @@ Outline the examples in the repository.
 | Example | Description | Pipeline Status |
 |-|-|-|
 | [Mobile examples](mobile) | Examples that demonstrate how to use ONNX Runtime Mobile in mobile applications. | [![Build Status](https://dev.azure.com/onnxruntime/onnxruntime/_apis/build/status/171)](https://dev.azure.com/onnxruntime/onnxruntime/_build/latest?definitionId=171) |
+| [C/C++ examples](c_cxx) | Examples that demonstrate how to use C/C++ API for ONNX Runtime.	 |  |
 | [JavaScript API examples](js) | Examples that demonstrate how to use JavaScript API for ONNX Runtime. | |
 
 ## Contributing
