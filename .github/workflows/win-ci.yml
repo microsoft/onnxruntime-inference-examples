@@ -10,8 +10,9 @@ jobs:
         run: |
           choco install aria2 -y
           aria2c -q -d $Env:RUNNER_TEMP -o onnxruntime.zip https://github.com/microsoft/onnxruntime/releases/download/v1.8.1/onnxruntime-win-x64-1.8.1.zip
-          7z x -o$Env:RUNNER_TEMP $Env:RUNNER_TEMP/onnxruntime.zip
-          move $Env:RUNNER_TEMP\onnxruntime-win-x64-1.8.1 onnxruntimebin
+          cd $Env:RUNNER_TEMP
+          7z x $Env:RUNNER_TEMP/onnxruntime.zip
+          move onnxruntime-win-x64-1.8.1 onnxruntimebin
       - name: Run cmake
         run: |
           cd $Env:RUNNER_TEMP
