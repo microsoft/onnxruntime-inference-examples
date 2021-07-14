@@ -1,0 +1,14 @@
+name: GitHub Actions Demo
+on: [push]
+jobs:
+  Explore-GitHub-Actions:
+    runs-on: windows-2019
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v2
+      - name: Download onnxruntime binary
+        run: |
+          choco install aria2 -y
+          aria2c -q -d %RUNNER_TEMP% -o onnxruntime.zip https://github.com/microsoft/onnxruntime/releases/download/v1.8.1/onnxruntime-win-x64-1.8.1.zip
+          7z x -o%RUNNER_TEMP% %RUNNER_TEMP%/onnxruntime.zip
+          dir %RUNNER_TEMP%      
