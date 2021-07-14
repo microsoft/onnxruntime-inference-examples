@@ -13,6 +13,10 @@ jobs:
           cd $Env:RUNNER_TEMP
           7z x $Env:RUNNER_TEMP/onnxruntime.zip
           move onnxruntime-win-x64-1.8.1 onnxruntimebin
+      - name: Add msbuild to PATH
+        uses: microsoft/setup-msbuild@v1.0.2
+        with:
+          vs-version: '[16.10,)'
       - name: Run cmake
         run: |
           cd $Env:RUNNER_TEMP
