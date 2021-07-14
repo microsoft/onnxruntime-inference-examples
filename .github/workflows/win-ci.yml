@@ -23,4 +23,6 @@ jobs:
           mkdir build
           cd build
           cmake $Env:GITHUB_WORKSPACE\c_cxx -A x64 -T host=x64 -DONNXRUNTIME_ROOTDIR=$Env:RUNNER_TEMP\onnxruntimebin
+      - name: Build
+        run: msbuild $Env:RUNNER_TEMP\build\onnxruntime_samples.sln /nologo /p:platform="x64" /p:configuration="Release" /p:VisualStudioVersion="16.0" /m 
 
