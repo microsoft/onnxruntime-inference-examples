@@ -8,7 +8,7 @@
 #include "cached_interpolation.h"
 #include "sync_api.h"
 #include "data_processing.h"
-#include <onnxruntime/core/session/onnxruntime_c_api.h>
+#include <onnxruntime_c_api.h>
 
 template <typename T>
 void ResizeImageInMemory(const T* input_data, float* output_data, int in_height, int in_width, int out_height,

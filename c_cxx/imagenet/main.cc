@@ -17,7 +17,7 @@
 #include "local_filesystem.h"
 #include "sync_api.h"
 
-#include <onnxruntime/core/session/onnxruntime_cxx_api.h>
+#include <onnxruntime_cxx_api.h>
 
 #include "image_loader.h"
 #include "async_ring_buffer.h"

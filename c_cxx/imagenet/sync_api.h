@@ -8,8 +8,8 @@
 #else
 #include <vector>
 #endif
-#include <onnxruntime/core/session/onnxruntime_c_api.h>
-#include <onnxruntime/core/session/onnxruntime_cxx_api.h>
+#include <onnxruntime_c_api.h>
+#include <onnxruntime_cxx_api.h>
 
 #ifdef _WIN32
 #define my_strtol wcstol

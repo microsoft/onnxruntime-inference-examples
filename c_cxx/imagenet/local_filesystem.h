@@ -19,7 +19,7 @@
 #include <unistd.h>
 #include <sys/mman.h>
 #endif
-#include <onnxruntime/core/session/onnxruntime_c_api.h>
+#include <onnxruntime_c_api.h>
 void ReadFileAsString(const ORTCHAR_T* fname, void*& p, size_t& len);
 
 enum class OrtFileType { TYPE_BLK, TYPE_CHR, TYPE_DIR, TYPE_FIFO, TYPE_LNK, TYPE_REG, TYPE_SOCK, TYPE_UNKNOWN };

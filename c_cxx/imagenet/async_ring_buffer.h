@@ -6,7 +6,7 @@
 #include <cstddef>
 #include <mutex>
 #include "controller.h"
-#include "onnxruntime/core/session/onnxruntime_cxx_api.h"
+#include "onnxruntime_cxx_api.h"
 #include "single_consumer.h"
 #include "runnable_task.h"
 

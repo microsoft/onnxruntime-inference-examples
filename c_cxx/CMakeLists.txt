@@ -79,4 +79,5 @@ endif()
 if(PNG_FOUND)
   add_subdirectory(fns_candy_style_transfer)
 endif()
-add_subdirectory(model-explorer)
+#missing experimental_onnxruntime_cxx_api.h
+#add_subdirectory(model-explorer)
