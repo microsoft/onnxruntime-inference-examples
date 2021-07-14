@@ -50,5 +50,5 @@ the model's best guess.
 The MNIST structure uses std::max_element to do this and stores it in
 result_:
 
-https://github.com/microsoft/onnxruntime/blob/521dc757984fbf9770d0051997178fbb9565cd52/samples/c_cxx/MNIST/MNIST.cpp#L31
+https://github.com/microsoft/onnxruntime-inference-examples/blob/master/c_cxx/MNIST/MNIST.cpp#L31
 
