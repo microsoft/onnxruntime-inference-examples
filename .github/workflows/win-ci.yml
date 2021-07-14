@@ -9,6 +9,13 @@ jobs:
       - name: Download onnxruntime binary
         run: |
           choco install aria2 -y
-          aria2c -q -d %RUNNER_TEMP% -o onnxruntime.zip https://github.com/microsoft/onnxruntime/releases/download/v1.8.1/onnxruntime-win-x64-1.8.1.zip
-          7z x -o%RUNNER_TEMP% %RUNNER_TEMP%/onnxruntime.zip
-          dir %RUNNER_TEMP%      
+          aria2c -q -d $Env:RUNNER_TEMP -o onnxruntime.zip https://github.com/microsoft/onnxruntime/releases/download/v1.8.1/onnxruntime-win-x64-1.8.1.zip
+          7z x -o$Env:RUNNER_TEMP $Env:RUNNER_TEMP/onnxruntime.zip
+          move $Env:RUNNER_TEMP\onnxruntime-win-x64-1.8.1 onnxruntimebin
+      - name: Run cmake
+        run: |
+          cd $Env:RUNNER_TEMP
+          mkdir build
+          cd build
+          cmake $Env:GITHUB_WORKSPACE\c_cxx -A x64 -T host=x64 -DONNXRUNTIME_ROOTDIR=$Env:RUNNER_TEMP\onnxruntimebin
+
