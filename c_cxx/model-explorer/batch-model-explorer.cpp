@@ -130,4 +130,5 @@ int main(int argc, char** argv) {
     }
   }
   cout << "\nDone" << endl;
+  return 0;
 }
