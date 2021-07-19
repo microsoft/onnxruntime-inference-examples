@@ -1,0 +1,28 @@
+name: Windows-CPU
+on: [push]
+jobs:
+  Windows-CPU-CI:
+    runs-on: windows-2019
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v2
+      - name: Download onnxruntime binary
+        run: |
+          choco install aria2 -y
+          aria2c -q -d $Env:RUNNER_TEMP -o onnxruntime.zip https://github.com/microsoft/onnxruntime/releases/download/v1.8.1/onnxruntime-win-x64-1.8.1.zip
+          cd $Env:RUNNER_TEMP
+          7z x $Env:RUNNER_TEMP/onnxruntime.zip
+          move onnxruntime-win-x64-1.8.1 onnxruntimebin
+      - name: Add msbuild to PATH
+        uses: microsoft/setup-msbuild@v1.0.2
+        with:
+          vs-version: '[16.10,)'
+      - name: Run cmake
+        run: |
+          cd $Env:RUNNER_TEMP
+          mkdir build
+          cd build
+          cmake $Env:GITHUB_WORKSPACE\c_cxx -A x64 -T host=x64 "-DONNXRUNTIME_ROOTDIR=$Env:RUNNER_TEMP\onnxruntimebin"
+      - name: Build
+        run: msbuild $Env:RUNNER_TEMP\build\onnxruntime_samples.sln /nologo /p:platform="x64" /p:configuration="Release" /p:VisualStudioVersion="16.0" /m 
+
