@@ -72,19 +72,12 @@ class ModelHandler: NSObject {
     
     private var labels: [String] = []
     
-    init(threadCount: Int32 = 1) {
-        self.threadCount = threadCount
-        
-        super.init()
-    }
-
-    // This method preprocesses the image, runs the ort inferencesession and returns the inference result
-    func runModel(onFrame pixelBuffer: CVPixelBuffer, modelFileInfo: FileInfo, labelsFileInfo: FileInfo)
-        throws -> Result?
-    {
+    /// ORT Inference Session object for performing inference on the given ssd model
+    private var session: ORTSession
+    private var options: ORTSessionOptions
+    
+    init?(modelFileInfo: FileInfo, labelsFileInfo: FileInfo, threadCount: Int32 = 1) {
         let modelFilename = modelFileInfo.name
-        
-        labels = loadLabels(fileInfo: labelsFileInfo)
         
         guard let modelPath = Bundle.main.path(
             forResource: modelFilename,
@@ -94,6 +87,27 @@ class ModelHandler: NSObject {
             return nil
         }
         
+        self.threadCount = threadCount
+        do {
+            // Start the ORT inference environment and specify the options for session
+            let env = try ORTEnv(loggingLevel: ORTLoggingLevel.warning)
+            options = try ORTSessionOptions()
+            try options.setLogSeverityLevel(ORTLoggingLevel.verbose)
+            try options.setIntraOpNumThreads(threadCount)
+            // Create the ORTSession
+            session = try ORTSession(env: env, modelPath: modelPath, sessionOptions: options)
+        } catch {
+            print("Failed to create ORTSession.")
+            return nil
+        }
+       
+        super.init()
+        
+        labels = loadLabels(fileInfo: labelsFileInfo)
+    }
+
+    // This method preprocesses the image, runs the ort inferencesession and returns the inference result
+    func runModel(onFrame pixelBuffer: CVPixelBuffer) throws -> Result? {
         let sourcePixelFormat = CVPixelBufferGetPixelFormatType(pixelBuffer)
         assert(sourcePixelFormat == kCVPixelFormatType_32ARGB ||
             sourcePixelFormat == kCVPixelFormatType_32BGRA ||
@@ -111,14 +125,6 @@ class ModelHandler: NSObject {
             return nil
         }
         
-        // Start the ORT inference environment
-        let env = try ORTEnv(loggingLevel: ORTLoggingLevel.warning)
-        let options = try ORTSessionOptions()
-        try options.setLogSeverityLevel(ORTLoggingLevel.verbose)
-        try options.setIntraOpNumThreads(threadCount)
-        
-        let session = try ORTSession(env: env, modelPath: modelPath, sessionOptions: options)
-        
         let interval: TimeInterval
         
         let inputName = "normalized_input_image_tensor"
@@ -135,6 +141,7 @@ class ModelHandler: NSObject {
                                       inputHeight as NSNumber,
                                       inputWidth as NSNumber,
                                       inputChannels as NSNumber]
+        
         let inputTensor = try ORTValue(tensorData: NSMutableData(data: rgbData),
                                        elementType: ORTTensorElementDataType.uInt8,
                                        shape: inputShape)
