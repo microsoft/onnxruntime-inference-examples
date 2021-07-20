@@ -4,6 +4,8 @@ This sample uses the MNIST model from the Model Zoo: https://github.com/onnx/mod
 
 ![Screenshot](Screenshot.png)
 
+(TODO: add a CI build for this sample)
+
 ## Requirements
 
 * MacOS Catalina
