@@ -6,6 +6,7 @@ jobs:
     steps:
       - name: Check out repository code
         uses: actions/checkout@v2
+      - run: C:\vcpkg\vcpkg.exe install turbo-jpeg zlib libpng
       - name: Download onnxruntime binary
         run: |
           choco install aria2 -y
@@ -30,6 +31,7 @@ jobs:
     steps:
       - name: Check out repository code
         uses: actions/checkout@v2
+      - run: C:\vcpkg\vcpkg.exe install turbo-jpeg zlib libpng
       - name: Download onnxruntime binary
         run: |
           choco install aria2 -y
@@ -48,4 +50,5 @@ jobs:
           cd build
           cmake $Env:GITHUB_WORKSPACE\c_cxx -A Win32 -T host=x64 "-DONNXRUNTIME_ROOTDIR=$Env:RUNNER_TEMP\onnxruntimebin"
       - name: Build
-        run: msbuild $Env:RUNNER_TEMP\build\onnxruntime_samples.sln /nologo /p:platform="Win32" /p:configuration="Release" /p:VisualStudioVersion="16.0" /m 
+        run: msbuild $Env:RUNNER_TEMP\build\onnxruntime_samples.sln /nologo /p:platform="Win32" /p:configuration="Release" /p:VisualStudioVersion="16.0" /m
+  
