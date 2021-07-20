@@ -6,7 +6,7 @@ jobs:
     steps:
       - name: Check out repository code
         uses: actions/checkout@v2
-      - run: C:\vcpkg\vcpkg.exe install turbo-jpeg zlib libpng
+      - run: C:\vcpkg\vcpkg.exe install libjpeg-turbo zlib libpng
       - name: Download onnxruntime binary
         run: |
           choco install aria2 -y
@@ -31,7 +31,7 @@ jobs:
     steps:
       - name: Check out repository code
         uses: actions/checkout@v2
-      - run: C:\vcpkg\vcpkg.exe install turbo-jpeg zlib libpng
+      - run: C:\vcpkg\vcpkg.exe install libjpeg-turbo zlib libpng
       - name: Download onnxruntime binary
         run: |
           choco install aria2 -y
