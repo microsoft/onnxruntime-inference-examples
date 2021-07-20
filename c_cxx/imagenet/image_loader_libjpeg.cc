@@ -35,13 +35,13 @@ OrtStatus* LoadImageFromFileAndCrop(void*, const ORTCHAR_T* filename, double cen
   if (decompressed_image == nullptr) {
     std::ostringstream oss;
     oss << "decompress '" << filename << "' failed";
-    return OrtCreateStatus(ORT_FAIL, oss.str().c_str());
+    return Ort::GetApi().CreateStatus(ORT_FAIL, oss.str().c_str());
   }
 
   if (channels != channels_) {
     std::ostringstream oss;
     oss << "input format error, expect 3 channels, got " << channels;
-    return OrtCreateStatus(ORT_FAIL, oss.str().c_str());
+    return Ort::GetApi().CreateStatus(ORT_FAIL, oss.str().c_str());
   }
 
   // cast uint8 to float
@@ -60,7 +60,7 @@ OrtStatus* LoadImageFromFileAndCrop(void*, const ORTCHAR_T* filename, double cen
   const size_t ele_count = bbox_h_size * bbox_w_size * channels;
   float* float_file_data = (float*)malloc(ele_count * sizeof(float));
   if (float_file_data == nullptr) {
-    return OrtCreateStatus(ORT_FAIL, "out of memory");
+    return Ort::GetApi().CreateStatus(ORT_FAIL, "out of memory");
   }
 
   {
