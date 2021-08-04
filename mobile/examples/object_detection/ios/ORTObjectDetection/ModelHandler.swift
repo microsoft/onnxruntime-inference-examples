@@ -72,10 +72,11 @@ class ModelHandler: NSObject {
     
     private var labels: [String] = []
     
-    /// ORT Inference Session object for performing inference on the given ssd model
+    /// ORT inference session and environment object for performing inference on the given ssd model
     private var session: ORTSession
-    private var options: ORTSessionOptions
+    private var env: ORTEnv
     
+    // MARK: - Initialization of ModelHandler
     init?(modelFileInfo: FileInfo, labelsFileInfo: FileInfo, threadCount: Int32 = 1) {
         let modelFilename = modelFileInfo.name
         
@@ -90,8 +91,8 @@ class ModelHandler: NSObject {
         self.threadCount = threadCount
         do {
             // Start the ORT inference environment and specify the options for session
-            let env = try ORTEnv(loggingLevel: ORTLoggingLevel.warning)
-            options = try ORTSessionOptions()
+            env = try ORTEnv(loggingLevel: ORTLoggingLevel.verbose)
+            let options = try ORTSessionOptions()
             try options.setLogSeverityLevel(ORTLoggingLevel.verbose)
             try options.setIntraOpNumThreads(threadCount)
             // Create the ORTSession
