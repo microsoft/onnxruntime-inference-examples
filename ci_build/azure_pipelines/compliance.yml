@@ -5,7 +5,7 @@ jobs:
     vmImage: "windows-2019"
   steps:
   - task: UsePythonVersion@0
-    displayName: 'Use Python 3.x'
+    displayName: 'Use Python 3.8.x'
 
   - powershell: |
      pip --disable-pip-version-check install -r $(Build.SourcesDirectory)\mobile\examples\speech_recognition\model\requirements.txt
