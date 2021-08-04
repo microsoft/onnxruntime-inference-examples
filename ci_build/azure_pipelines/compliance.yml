@@ -1,9 +1,8 @@
-pool:
-  name: Azure Pipelines
-  demands: npm
 jobs:
 
 - job: compliance
+  pool:
+    vmImage: "windows-2019"
   steps:
   - task: UsePythonVersion@0
     displayName: 'Use Python 3.x'
