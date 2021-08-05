@@ -36,7 +36,9 @@ class ViewController: UIViewController {
     private var inferenceViewController: InferenceViewController?
     
     // Handle all model and data preprocessing and run inference
-    private var modelHandler: ModelHandler? = ModelHandler()
+    private var modelHandler: ModelHandler? = ModelHandler(
+        modelFileInfo: (name: "ssd_mobilenet_v1.all", extension: "ort"),
+        labelsFileInfo: (name: "labelmap", extension: "txt"))
     
     // MARK: View Controller Life Cycle
 
@@ -89,7 +91,9 @@ class ViewController: UIViewController {
 extension ViewController: InferenceViewControllerDelegate {
     func didChangeThreadCount(to count: Int32) {
         if modelHandler?.threadCount == count { return }
-        modelHandler = ModelHandler(threadCount: count)
+        modelHandler = ModelHandler(modelFileInfo: (name: "ssd_mobilenet_v1.all", extension: "ort"),
+                                    labelsFileInfo: (name: "labelmap", extension: "txt"),
+                                    threadCount: count)
     }
 }
 
@@ -134,9 +138,7 @@ extension ViewController: CameraManagerDelegate {
         else { return }
         previousInferenceTimeMs = currentTimeMs
         
-        result = try! modelHandler?.runModel(onFrame: pixelBuffer,
-                                             modelFileInfo: (name: "ssd_mobilenet_v1.all", extension: "ort"),
-                                             labelsFileInfo: (name: "labelmap", extension: "txt"))
+        result = try! self.modelHandler?.runModel(onFrame: pixelBuffer)
         
         guard let displayResult = result else {
             return
