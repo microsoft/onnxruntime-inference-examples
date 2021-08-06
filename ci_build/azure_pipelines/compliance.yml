@@ -1,0 +1,50 @@
+jobs:
+
+- job: compliance
+  pool:
+    vmImage: "windows-2019"
+  steps:
+  - task: UsePythonVersion@0
+    displayName: 'Use Python 3.8.x'
+    inputs:
+      versionSpec: 3.8.x
+
+  - powershell: |    
+     python -m pip --disable-pip-version-check install -r $(Build.SourcesDirectory)\mobile\examples\speech_recognition\model\requirements.txt
+
+    displayName: 'Install python packages'
+
+  - task: PoliCheck@2
+    displayName: 'Run Global Readiness Check tool'
+    inputs:
+      targetType: F
+      result: PoliCheck.xml
+      optionsUEPATH: '$(Build.SourcesDirectory)\ci_build\policheck_exclusions.xml'
+
+
+  - task: Semmle@1
+    displayName: 'Run CodeQL (Semmle) (python)'
+    inputs:
+      language: python
+
+  - task: SdtReport@2
+    displayName: 'Create Security Analysis Report'
+    inputs:
+      GdnExportAllTools: false
+      GdnExportGdnToolPoliCheck: true
+      GdnExportGdnToolSemmle: true
+
+  - task: PublishSecurityAnalysisLogs@3
+    displayName: 'Publish Guardian Artifacts'
+
+  - task: PostAnalysis@2
+    displayName: 'Guardian Break'
+    inputs:
+      GdnBreakGdnToolSDLNativeRulesSeverity: Warning
+
+  - task: TSAUpload@2
+    displayName: 'TSA upload'
+    condition: and (succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
+    inputs:
+      GdnPublishTsaOnboard: false
+      GdnPublishTsaConfigFile: '$(Build.SourcesDirectory)\.gdn\.gdntsa'
