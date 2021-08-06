@@ -23,7 +23,8 @@ The original `ssd_mobilenet_v1.tflite` model can be downloaded [here](https://ww
 2. In terminal, run `pod install` under `<ONNXRuntime-inference-example-root>/mobile/examples/object_detections/ios/` to generate the workspace file. 
 - At the end of this step, you should get a file called `ORTObjectDetection.xcworkspace`.
 
-3. In terminal, run download script `./download.sh` or `bash download.sh` under `<ONNXRuntime-inference-example-root>/mobile/examples/object_detections/ios/ORTObjectDetection/`. The script will download an original tflite model along with the model metadata `labelmap.txt` and convert it to onnx model and then further convert it to ort format model (this is the format can be executed on mobile applications).
+3. In terminal, run the script for preparing model.
+- Run `./prepare_model.sh` or `bash prepare_model.sh` under `<ONNXRuntime-inference-example-root>/mobile/examples/object_detections/ios/ORTObjectDetection/`. The script will download an original tflite model along with the model metadata `labelmap.txt` and convert it to onnx model and then further convert it to ort format model (this is the format can be executed on mobile applications).
 - At the end of this step, you should get a directory `ModelsAndData` which contains the ort format model `ssd_mobilenet_v1.all.ort` and model label data file `labelmap.txt`.
 
     Note: The model and data files generated might need to be copied to app bundle. i.e. In Xcode, `Build phases-Expand Copy Bundle Resources-Click '+' and select model file name "ssd_mobilenet_v1.all.ort" and select label data file "labelmap.txt"`.
