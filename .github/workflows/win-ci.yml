@@ -1,5 +1,5 @@
 name: Windows-CPU
-on: [push]
+on: [push, pull_request]
 jobs:
   Windows-CPU-CI-x64:
     runs-on: windows-2019
