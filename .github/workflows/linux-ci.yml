@@ -1,5 +1,11 @@
 name: Linux-CPU
-on: [push, pull_request]
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
 jobs:
   Linux-CPU-CI-x64:
     runs-on: ubuntu-latest

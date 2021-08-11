@@ -1,5 +1,11 @@
 name: Windows-CPU
-on: [push, pull_request]
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
 jobs:
   Windows-CPU-CI-x64:
     runs-on: windows-2019
