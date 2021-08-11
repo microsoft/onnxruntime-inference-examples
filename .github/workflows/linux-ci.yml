@@ -1,0 +1,34 @@
+name: Linux-CPU
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+jobs:
+  Linux-CPU-CI-x64:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        gcc: [9, 10]
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v2
+      - name: Download onnxruntime binary
+        run: |          
+          aria2c -q -d $RUNNER_TEMP https://github.com/microsoft/onnxruntime/releases/download/v1.8.1/onnxruntime-linux-x64-1.8.1.tgz
+          cd $RUNNER_TEMP
+          mkdir onnxruntimebin
+          cd onnxruntimebin
+          tar --strip=1 -zxvf $RUNNER_TEMP/onnxruntime-linux-x64-1.8.1.tgz
+      - name: Build
+        env:
+            CC: gcc-${{ matrix.gcc }}
+            CXX: g++-${{ matrix.gcc }}
+        run: |
+          cd $RUNNER_TEMP
+          mkdir build
+          cd build
+          cmake $GITHUB_WORKSPACE/c_cxx -DONNXRUNTIME_ROOTDIR=$RUNNER_TEMP/onnxruntimebin
+          make -j$(nproc) 
