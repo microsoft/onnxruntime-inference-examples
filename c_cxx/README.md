@@ -1,9 +1,11 @@
 This directory contains a few C/C++ sample applications for demoing onnxruntime usage:
 
-1. (Windows only) fns_candy_style_transfer: A C application that uses the FNS-Candy style transfer model to re-style images. 
+1. (Windows and Linux) fns_candy_style_transfer: A C application that uses the FNS-Candy style transfer model to re-style images. It is written purely in C, no C++.
 2. (Windows only) MNIST: A windows GUI application for doing handwriting recognition
 3. (Windows only) imagenet: An end-to-end sample for the [ImageNet Large Scale Visual Recognition Challenge 2012](http://www.image-net.org/challenges/LSVRC/2012/) - requires ATL libraries to be installed as a part of the VS Studio installation.
-4. model-explorer: A commandline C++ application that generates random data and performs model inference. A second C++ application demonstrates how to perform batch processing.
+4. model-explorer: A commandline C++ application that generates random data and performs model inference. A second C++ application demonstrates how to perform batch processing. (TODO: Add CI build for it)
+5. OpenVINO_EP: Using OpenVino execution provider on the squeezenet model (TODO: Add CI build for it)
+6. opschema_lib_use (TODO: Add CI build for it)
 
 # How to build
 
@@ -15,8 +17,12 @@ This directory contains a few C/C++ sample applications for demoing onnxruntime 
 You may get a precompiled libpng library from [https://onnxruntimetestdata.blob.core.windows.net/models/libpng.zip](https://onnxruntimetestdata.blob.core.windows.net/models/libpng.zip)
 
 ## Install ONNX Runtime
-You may either get a prebuit onnxruntime from nuget.org, or build it from source by following the [build instructions](https://www.onnxruntime.ai/docs/how-to/build.html).
-If you build it by yourself, you must append the "--build_shared_lib" flag to your build command. 
+### Option 1: download a prebuilt package
+You may either get a prebuit onnxruntime from https://github.com/microsoft/onnxruntime/releases/. For example, you may download onnxruntime-win-x64-\*\*\*.zip and unzip it to any folder. 
+
+### Option 2: build from source
+If you'd like to build it by yourself, [build instructions are here](https://www.onnxruntime.ai/docs/how-to/build.html). Please note you need to add the "--build_shared_lib" flag to your build command. Like this:
+
 Open Developer Command Prompt for Visual Studio version you are going to use. This will setup necessary environment for the compiler and other things to be found.
 ```
 build.bat --config RelWithDebInfo --build_shared_lib --parallel 
