@@ -12,7 +12,7 @@ Outline the examples in the repository.
 
 | Example | Description | Pipeline Status |
 |-|-|-|
-| [Mobile examples](mobile) | Examples that demonstrate how to use ONNX Runtime Mobile in mobile applications. | [![Build Status](https://dev.azure.com/aiinfra/Lotus/_apis/build/status/996)](https://dev.azure.com/aiinfra/Lotus/_build/latest?definitionId=996) |
+| [Mobile examples](mobile) | Examples that demonstrate how to use ONNX Runtime Mobile in mobile applications. | [![Build Status](https://dev.azure.com/ms/onnxruntime-inference-examples/_apis/build/status/mobile-examples-ci-pipeline?branchName=main)](https://dev.azure.com/ms/onnxruntime-inference-examples/_build/latest?definitionId=506&branchName=main) |
 | [JavaScript API examples](js) | Examples that demonstrate how to use JavaScript API for ONNX Runtime. | |
 
 ## Contributing
