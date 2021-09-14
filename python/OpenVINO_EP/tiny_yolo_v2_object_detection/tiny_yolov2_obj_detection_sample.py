@@ -58,15 +58,13 @@ model_file_path = "tiny_yolo_v2_zoo_model.onnx"
 # Validate model file path
 checkModelExtension(model_file_path)
 
-# Load the model
-sess = rt.InferenceSession(model_file_path)
+device = 'CPU_FP32'
+# Set OpenVINO as the Execution provider to infer this model and load the model
+sess = rt.InferenceSession(model_file_path, providers=['OpenVINOExecutionProvider'], provider_options=[{'device_type' : device}])
 
 # Get the input name of the model
 input_name = sess.get_inputs()[0].name
 
-device = 'CPU_FP32'
-# Set OpenVINO as the Execution provider to infer this model
-sess.set_providers(['OpenVINOExecutionProvider'], [{'device_type' : device}])
 '''
 other 'device_type' options are: (Any hardware target can be assigned if you have the access to it)
 
