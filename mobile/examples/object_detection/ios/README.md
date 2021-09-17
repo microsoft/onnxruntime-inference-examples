@@ -35,14 +35,14 @@ The original `ssd_mobilenet_v1.tflite` model can be downloaded [here](https://ww
 
 ### iOS App related information
 
-This app uses [ONNX Runtime Objective-C API](https://www.onnxruntime.ai/docs/reference/api/objectivec-api.html) for performing object detection functionality.
+This app uses [ONNX Runtime Objective-C API](https://onnxruntime.ai/docs/api/objectivec-api.html) for performing object detection functionality.
 
 It is written entirely in Swift and uses a bridgingheader file for the framework to be used in a Swift app.
 
 ### Related Resources
 - [Converting TFlite models to ONNX](https://github.com/onnx/tensorflow-onnx#getting-started)
 
-- [Convert ONNX models to ORT format](https://www.onnxruntime.ai/docs/how-to/mobile/model-conversion.html#converting-onnx-models-to-ort-format)
+- [Convert ONNX models to ORT format](https://onnxruntime.ai/docs/tutorials/mobile/model-conversion.html)
 
 #
 Here's an example screenshot of the app:

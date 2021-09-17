@@ -21,7 +21,7 @@ You may get a precompiled libpng library from [https://onnxruntimetestdata.blob.
 You may either get a prebuit onnxruntime from https://github.com/microsoft/onnxruntime/releases/. For example, you may download onnxruntime-win-x64-\*\*\*.zip and unzip it to any folder. 
 
 ### Option 2: build from source
-If you'd like to build it by yourself, [build instructions are here](https://www.onnxruntime.ai/docs/how-to/build.html). Please note you need to add the "--build_shared_lib" flag to your build command. Like this:
+If you'd like to build it by yourself, [build instructions are here](https://www.onnxruntime.ai/docs/build/). Please note you need to add the "--build_shared_lib" flag to your build command. Like this:
 
 Open Developer Command Prompt for Visual Studio version you are going to use. This will setup necessary environment for the compiler and other things to be found.
 ```
