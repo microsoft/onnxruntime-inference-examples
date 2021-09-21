@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 51;
+	objectVersion = 50;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -20,13 +20,10 @@
 		51A25D64266EA7460087C801 /* ModelHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51A25D63266EA7460087C801 /* ModelHandler.swift */; };
 		51A25D66266EA7AE0087C801 /* CameraManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51A25D65266EA7AE0087C801 /* CameraManager.swift */; };
 		51A25D6926715ECD0087C801 /* OverlayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51A25D6826715ECD0087C801 /* OverlayView.swift */; };
-		51A25D742672DEA00087C801 /* ssd_mobilenet_v2_300_float.all.ort in Resources */ = {isa = PBXBuildFile; fileRef = 51A25D722672C03B0087C801 /* ssd_mobilenet_v2_300_float.all.ort */; };
-		CBBE72F3C4E4661F5E91AD5A /* Pods_ORTObjectDetection.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EC48FE3E50BB57A755D0B43F /* Pods_ORTObjectDetection.framework */; };
+		EF2E2B1626FAA092005C8A04 /* ssd_mobilenet_v1.all.ort in Resources */ = {isa = PBXBuildFile; fileRef = EF2E2B1526FAA092005C8A04 /* ssd_mobilenet_v1.all.ort */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		207572E1A0C62F80678ACE74 /* Pods-ORTObjectDetection.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ORTObjectDetection.debug.xcconfig"; path = "Target Support Files/Pods-ORTObjectDetection/Pods-ORTObjectDetection.debug.xcconfig"; sourceTree = "<group>"; };
-		479BB25C4D6AECA290B9701E /* Pods-ORTObjectDetection.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ORTObjectDetection.release.xcconfig"; path = "Target Support Files/Pods-ORTObjectDetection/Pods-ORTObjectDetection.release.xcconfig"; sourceTree = "<group>"; };
 		5182220726793930003B00DB /* Main.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Main.storyboard; sourceTree = "<group>"; };
 		518222092679440B003B00DB /* labelmap.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = labelmap.txt; sourceTree = "<group>"; };
 		5182220B26795576003B00DB /* SceneDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -43,8 +40,7 @@
 		51A25D65266EA7AE0087C801 /* CameraManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CameraManager.swift; sourceTree = "<group>"; };
 		51A25D67267137B70087C801 /* BridgingHeader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BridgingHeader.h; sourceTree = "<group>"; };
 		51A25D6826715ECD0087C801 /* OverlayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverlayView.swift; sourceTree = "<group>"; };
-		51A25D722672C03B0087C801 /* ssd_mobilenet_v2_300_float.all.ort */ = {isa = PBXFileReference; lastKnownFileType = file; path = ssd_mobilenet_v2_300_float.all.ort; sourceTree = "<group>"; };
-		EC48FE3E50BB57A755D0B43F /* Pods_ORTObjectDetection.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_ORTObjectDetection.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		EF2E2B1526FAA092005C8A04 /* ssd_mobilenet_v1.all.ort */ = {isa = PBXFileReference; lastKnownFileType = file; path = ssd_mobilenet_v1.all.ort; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -52,7 +48,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				CBBE72F3C4E4661F5E91AD5A /* Pods_ORTObjectDetection.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -64,8 +59,7 @@
 			children = (
 				51A25D42266E9C3C0087C801 /* ORTObjectDetection */,
 				51A25D41266E9C3C0087C801 /* Products */,
-				F8B6C805D58B7014F58635B4 /* Pods */,
-				913E02FF397026826E6AC49A /* Frameworks */,
+				ADE614CCAFBAB253A7AF155D /* Pods */,
 			);
 			sourceTree = "<group>";
 		};
@@ -110,27 +104,16 @@
 		51A25D5C266EA0030087C801 /* ModelsAndData */ = {
 			isa = PBXGroup;
 			children = (
-				51A25D722672C03B0087C801 /* ssd_mobilenet_v2_300_float.all.ort */,
+				EF2E2B1526FAA092005C8A04 /* ssd_mobilenet_v1.all.ort */,
 				518222092679440B003B00DB /* labelmap.txt */,
 			);
 			path = ModelsAndData;
 			sourceTree = "<group>";
 		};
-		913E02FF397026826E6AC49A /* Frameworks */ = {
+		ADE614CCAFBAB253A7AF155D /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				EC48FE3E50BB57A755D0B43F /* Pods_ORTObjectDetection.framework */,
 			);
-			name = Frameworks;
-			sourceTree = "<group>";
-		};
-		F8B6C805D58B7014F58635B4 /* Pods */ = {
-			isa = PBXGroup;
-			children = (
-				207572E1A0C62F80678ACE74 /* Pods-ORTObjectDetection.debug.xcconfig */,
-				479BB25C4D6AECA290B9701E /* Pods-ORTObjectDetection.release.xcconfig */,
-			);
-			name = Pods;
 			path = Pods;
 			sourceTree = "<group>";
 		};
@@ -141,11 +124,9 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 51A25D54266E9C3E0087C801 /* Build configuration list for PBXNativeTarget "ORTObjectDetection" */;
 			buildPhases = (
-				002DE07A15B3B1FEE7BEF8F3 /* [CP] Check Pods Manifest.lock */,
 				51A25D3C266E9C3C0087C801 /* Sources */,
 				51A25D3D266E9C3C0087C801 /* Frameworks */,
 				51A25D3E266E9C3C0087C801 /* Resources */,
-				77A8FE53A438F83BB70206A3 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -193,57 +174,15 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				51A25D742672DEA00087C801 /* ssd_mobilenet_v2_300_float.all.ort in Resources */,
 				51A25D5A266E9CA60087C801 /* LaunchScreen.storyboard in Resources */,
 				5182220A2679440C003B00DB /* labelmap.txt in Resources */,
+				EF2E2B1626FAA092005C8A04 /* ssd_mobilenet_v1.all.ort in Resources */,
 				5182220826793930003B00DB /* Main.storyboard in Resources */,
 				51A25D4D266E9C3E0087C801 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
-
-/* Begin PBXShellScriptBuildPhase section */
-		002DE07A15B3B1FEE7BEF8F3 /* [CP] Check Pods Manifest.lock */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
-				"${PODS_ROOT}/Manifest.lock",
-			);
-			name = "[CP] Check Pods Manifest.lock";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-ORTObjectDetection-checkManifestLockResult.txt",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
-			showEnvVarsInLog = 0;
-		};
-		77A8FE53A438F83BB70206A3 /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-ORTObjectDetection/Pods-ORTObjectDetection-frameworks-${CONFIGURATION}-input-files.xcfilelist",
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-ORTObjectDetection/Pods-ORTObjectDetection-frameworks-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-ORTObjectDetection/Pods-ORTObjectDetection-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		51A25D3C266E9C3C0087C801 /* Sources */ = {
@@ -383,7 +322,6 @@
 		};
 		51A25D55266E9C3E0087C801 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 207572E1A0C62F80678ACE74 /* Pods-ORTObjectDetection.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -404,7 +342,6 @@
 		};
 		51A25D56266E9C3E0087C801 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 479BB25C4D6AECA290B9701E /* Pods-ORTObjectDetection.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
