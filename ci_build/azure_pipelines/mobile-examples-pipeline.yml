@@ -3,7 +3,7 @@ jobs:
 # mobile/examples/basic_usage/ios
 - job: BasicUsageIos
   pool:
-    vmImage: "macOS-10.15"
+    vmImage: "macOS-11"
 
   steps:
   - template: templates/use-python-step.yml
@@ -27,7 +27,7 @@ jobs:
 # mobile/examples/speech_recognition/ios
 - job: SpeechRecognitionIos
   pool:
-    vmImage: "macOS-10.15"
+    vmImage: "macOS-11"
 
   steps:
   - template: templates/use-python-step.yml
@@ -47,3 +47,27 @@ jobs:
     parameters:
       xcWorkspacePath: 'mobile/examples/speech_recognition/ios/SpeechRecognition.xcworkspace'
       scheme: 'SpeechRecognition'
+
+# mobile/examples/object_detection/ios
+- job: ObjectDetectionIos
+  pool:
+    vmImage: "macOS-11"
+
+  steps:
+  - template: templates/use-python-step.yml
+
+  - bash: |
+      set -e
+      pip install -r ./prepare_model.requirements.txt
+      ./prepare_model.sh
+    workingDirectory: mobile/examples/object_detection/ios/ORTObjectDetection
+    displayName: "Generate model"
+
+  - script: pod install
+    workingDirectory: 'mobile/examples/object_detection/ios'
+    displayName: "Install CocoaPods pods"
+
+  - template: templates/xcode-build-and-test-step.yml
+    parameters:
+      xcWorkspacePath: 'mobile/examples/object_detection/ios/ORTObjectDetection.xcworkspace'
+      scheme: 'ORTObjectDetection'
