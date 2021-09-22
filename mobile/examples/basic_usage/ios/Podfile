@@ -8,5 +8,4 @@ target 'OrtBasicUsage' do
   target 'OrtBasicUsageTests' do
     inherit! :search_paths
   end
-
 end

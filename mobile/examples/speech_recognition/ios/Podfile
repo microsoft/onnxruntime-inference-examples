@@ -8,5 +8,4 @@ target 'SpeechRecognition' do
   target 'SpeechRecognitionTests' do
     inherit! :search_paths
   end
-
 end
