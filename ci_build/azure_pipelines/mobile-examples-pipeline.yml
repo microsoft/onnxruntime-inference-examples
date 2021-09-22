@@ -1,52 +1,52 @@
 jobs:
 
-# # mobile/examples/basic_usage/ios
-# - job: BasicUsageIos
-#   pool:
-#     vmImage: "macOS-10.15"
+# mobile/examples/basic_usage/ios
+- job: BasicUsageIos
+  pool:
+    vmImage: "macOS-11"
 
-#   steps:
-#   - template: templates/use-python-step.yml
+  steps:
+  - template: templates/use-python-step.yml
 
-#   - bash: |
-#       set -e
-#       pip install -r ../model/requirements.txt
-#       ../model/gen_model.sh ./OrtBasicUsage/model
-#     workingDirectory: mobile/examples/basic_usage/ios
-#     displayName: "Generate model"
+  - bash: |
+      set -e
+      pip install -r ../model/requirements.txt
+      ../model/gen_model.sh ./OrtBasicUsage/model
+    workingDirectory: mobile/examples/basic_usage/ios
+    displayName: "Generate model"
 
-#   - script: pod install
-#     workingDirectory: 'mobile/examples/basic_usage/ios'
-#     displayName: "Install CocoaPods pods"
+  - script: pod install
+    workingDirectory: 'mobile/examples/basic_usage/ios'
+    displayName: "Install CocoaPods pods"
 
-#   - template: templates/xcode-build-and-test-step.yml
-#     parameters:
-#       xcWorkspacePath: 'mobile/examples/basic_usage/ios/OrtBasicUsage.xcworkspace'
-#       scheme: 'OrtBasicUsage'
+  - template: templates/xcode-build-and-test-step.yml
+    parameters:
+      xcWorkspacePath: 'mobile/examples/basic_usage/ios/OrtBasicUsage.xcworkspace'
+      scheme: 'OrtBasicUsage'
 
-# # mobile/examples/speech_recognition/ios
-# - job: SpeechRecognitionIos
-#   pool:
-#     vmImage: "macOS-10.15"
+# mobile/examples/speech_recognition/ios
+- job: SpeechRecognitionIos
+  pool:
+    vmImage: "macOS-11"
 
-#   steps:
-#   - template: templates/use-python-step.yml
+  steps:
+  - template: templates/use-python-step.yml
 
-#   - bash: |
-#       set -e
-#       pip install -r ../model/requirements.txt
-#       ../model/gen_model.sh ./SpeechRecognition/model
-#     workingDirectory: mobile/examples/speech_recognition/ios
-#     displayName: "Generate model"
+  - bash: |
+      set -e
+      pip install -r ../model/requirements.txt
+      ../model/gen_model.sh ./SpeechRecognition/model
+    workingDirectory: mobile/examples/speech_recognition/ios
+    displayName: "Generate model"
 
-#   - script: pod install
-#     workingDirectory: 'mobile/examples/speech_recognition/ios'
-#     displayName: "Install CocoaPods pods"
+  - script: pod install
+    workingDirectory: 'mobile/examples/speech_recognition/ios'
+    displayName: "Install CocoaPods pods"
 
-#   - template: templates/xcode-build-and-test-step.yml
-#     parameters:
-#       xcWorkspacePath: 'mobile/examples/speech_recognition/ios/SpeechRecognition.xcworkspace'
-#       scheme: 'SpeechRecognition'
+  - template: templates/xcode-build-and-test-step.yml
+    parameters:
+      xcWorkspacePath: 'mobile/examples/speech_recognition/ios/SpeechRecognition.xcworkspace'
+      scheme: 'SpeechRecognition'
 
 # mobile/examples/object_detection/ios
 - job: ObjectDetectionIos
