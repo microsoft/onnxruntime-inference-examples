@@ -18,7 +18,7 @@ git clone https://github.com/microsoft/onnxruntime-inference-examples.git
 
 ### iOS Example Prerequisites
 
-- Xcode 12.4+
+- Xcode 12.5+
 - CocoaPods
 - A valid Apple Developer ID if you want to run the example on a device
 
