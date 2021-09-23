@@ -71,3 +71,35 @@ jobs:
     parameters:
       xcWorkspacePath: 'mobile/examples/object_detection/ios/ORTObjectDetection.xcworkspace'
       scheme: 'ORTObjectDetection'
+
+# mobile/examples/image_classification/android
+- job: ImageClassificationAndroid
+  pool:
+    vmImage: "macOS-11"
+
+  steps:
+  - template: templates/use-python-step.yml
+
+  - bash: ./download_model_files.sh
+    workingDirectory: mobile/examples/image_classification/android
+    displayName: "Download model files"
+
+  - script: |
+      python ci_build/python/run_android_emulator.py \
+        --android-sdk-root ${ANDROID_SDK_ROOT} \
+        --create-avd --system-image "system-images;android-30;google_apis;x86_64" \
+        --start --emulator-extra-args="-partition-size 4096" \
+        --emulator-pid-file $(Build.BinariesDirectory)/emulator.pid
+    displayName: "Start Android emulator"
+
+  - bash: ./gradlew testDebugUnitTest connectedDebugAndroidTest
+    workingDirectory: mobile/examples/image_classification/android
+    displayName: "Build and run tests"
+
+  - script: |
+      python3 ci_build/python/run_android_emulator.py \
+        --android-sdk-root ${ANDROID_SDK_ROOT} \
+        --stop \
+        --emulator-pid-file $(Build.BinariesDirectory)/emulator.pid
+    displayName: "Stop Android emulator"
+    condition: always()
