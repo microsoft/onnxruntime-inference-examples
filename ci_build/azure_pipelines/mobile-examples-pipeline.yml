@@ -85,7 +85,7 @@ jobs:
     displayName: "Download model files"
 
   - script: |
-      python ci_build/python/run_android_emulator.py \
+      python3 ./ci_build/python/run_android_emulator.py \
         --android-sdk-root ${ANDROID_SDK_ROOT} \
         --create-avd --system-image "system-images;android-30;google_apis;x86_64" \
         --start --emulator-extra-args="-partition-size 4096" \
@@ -97,7 +97,7 @@ jobs:
     displayName: "Build and run tests"
 
   - script: |
-      python3 ci_build/python/run_android_emulator.py \
+      python3 ./ci_build/python/run_android_emulator.py \
         --android-sdk-root ${ANDROID_SDK_ROOT} \
         --stop \
         --emulator-pid-file $(Build.BinariesDirectory)/emulator.pid
