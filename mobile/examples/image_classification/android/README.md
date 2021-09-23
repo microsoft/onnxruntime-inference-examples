@@ -17,12 +17,12 @@ We use pre-trained [TorchVision MOBILENET V2](https://pytorch.org/hub/pytorch_vi
 ## Build And Run
 
 ### Step 0. [Optional] Prepare the ORT models
-Open [Mobilenet v2 Quantization with ONNX Runtime Notebook](https://github.com/microsoft/onnxruntime/blob/master/onnxruntime/python/tools/quantization/notebooks/imagenet_v2/mobilenet.ipynb), this notebook will demostrate how to,
+Open [Mobilenet v2 Quantization with ONNX Runtime Notebook](https://github.com/microsoft/onnxruntime-inference-examples/blob/main/quantization/notebooks/imagenet_v2/mobilenet.ipynb), this notebook will demonstrate how to,
 1. Export the pre-trained MobileNet V2 FP32 model from PyTorch to a FP32 ONNX model
 2. Quantize the FP32 ONNX model to an uint8 ONNX model
 3. Convert both FP32 and uint8 ONNX models to ORT models
 
-Note: this step is optional, you can download the FP32 and uint8 ORT models [here](https://1drv.ms/u/s!Auaxv_56eyubgQlfGIBWh-j1wYyl?e=GYKoL7).
+Note: this step is optional, you can download the FP32 and uint8 ORT models [here](https://onnxruntimeexamplesdata.blob.core.windows.net/examplesdata/mobilenet_v2_ort_models.zip).
 
 ### Step 1. Clone the ONNX Runtime Mobile examples source code and download required model files
 Clone this ORT Mobile examples GitHub repository to your computer to get the sample application.
