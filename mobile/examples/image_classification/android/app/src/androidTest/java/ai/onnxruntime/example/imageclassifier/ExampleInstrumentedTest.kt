@@ -1,8 +1,10 @@
 package ai.onnxruntime.example.imageclassifier
 
+import ai.onnxruntime.OrtEnvironment
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -18,5 +20,18 @@ class ExampleInstrumentedTest {
         // Context of the app under test.
         val appContext = InstrumentationRegistry.getInstrumentation().targetContext
         assertEquals("ai.onnxruntime.example.imageclassifier", appContext.packageName)
+    }
+
+    @Test
+    fun loadModel() {
+        // Context of the app under test.
+        val appContext = InstrumentationRegistry.getInstrumentation().targetContext
+        val resources = appContext.getResources()
+        val modelBytes = resources.openRawResource(R.raw.mobilenet_v2_float).readBytes()
+        val env = OrtEnvironment.getEnvironment()
+        val session = env?.createSession(modelBytes)
+        assertNotNull(session)
+        session?.close()
+        env?.close()
     }
 }
