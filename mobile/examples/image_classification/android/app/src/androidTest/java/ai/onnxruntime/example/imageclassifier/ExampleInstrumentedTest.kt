@@ -29,9 +29,12 @@ class ExampleInstrumentedTest {
         val resources = appContext.getResources()
         val modelBytes = resources.openRawResource(R.raw.mobilenet_v2_float).readBytes()
         val env = OrtEnvironment.getEnvironment()
-        val session = env?.createSession(modelBytes)
-        assertNotNull(session)
-        session?.close()
-        env?.close()
+        env.use {
+            assertNotNull(env)
+            val session = env.createSession(modelBytes)
+            session.use {
+                assertNotNull(session)
+            }
+        }
     }
 }
