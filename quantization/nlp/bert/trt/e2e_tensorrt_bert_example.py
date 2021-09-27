@@ -11,10 +11,12 @@ import six
 import unicodedata
 import onnx
 import onnxruntime
+import sys
 import data_processing as dp
 import tokenization
 from pathlib import Path
 from onnxruntime.quantization import CalibrationDataReader, create_calibrator, write_calibration_table, QuantType, QuantizationMode, QLinearOpsRegistry, QDQQuantizer
+from squad.evaluate_v1_1 import evaluate 
 
 class BertDataReader(CalibrationDataReader):
     def __init__(self, model_path, squad_json, vocab_file, batch_size, max_seq_length, num_inputs):
@@ -23,7 +25,7 @@ class BertDataReader(CalibrationDataReader):
         self.max_seq_length = max_seq_length
         self.batch_size = batch_size
         self.current_index = 0
-        self.num_inputs = num_inputs
+        self.num_inputs = min(num_inputs, len(self.data))
         self.tokenizer = tokenization.BertTokenizer(vocab_file=vocab_file, do_lower_case=True)
         self.doc_stride = 128
         self.max_query_length = 64
@@ -63,10 +65,47 @@ class BertDataReader(CalibrationDataReader):
                 input_ids = np.expand_dims(features[0].input_ids, axis=0)
                 input_mask = np.expand_dims(features[0].input_mask, axis=0)
                 segment_ids = np.expand_dims(features[0].segment_ids, axis=0)
-        data = [{"input_ids": input_ids, "input_mask": input_mask, "segment_ids":segment_ids}]
+        data = [{"input_ids": input_ids, "attention_mask": input_mask, "token_type_ids":segment_ids}]
         self.current_index += self.batch_size
         self.enum_data_dicts = iter(data)
         return next(self.enum_data_dicts, None)
+
+def inference(ort_session, features, example):
+
+    _NetworkOutput = collections.namedtuple(  # pylint: disable=invalid-name
+            "NetworkOutput",
+            ["start_logits", "end_logits", "feature_index"])
+    networkOutputs = []
+
+    for i, feature in enumerate(features):
+        input_ids = np.expand_dims(features[i].input_ids, axis=0)
+        input_mask = np.expand_dims(features[i].input_mask, axis=0)
+        segment_ids = np.expand_dims(features[i].segment_ids, axis=0)
+
+        data = {"input_ids": input_ids, "attention_mask": input_mask, "token_type_ids":segment_ids}
+        output = ort_session.run(["start_logits","end_logits"], data)
+
+        start_logits = output[0][0]
+        end_logits = output[1][0]
+
+        networkOutputs.append(_NetworkOutput(
+            start_logits = start_logits,
+            end_logits = end_logits,
+            feature_index = i 
+            ))
+
+    # Total number of n-best predictions to generate in the nbest_predictions.json output file
+    n_best_size = 20
+
+    # The maximum length of an answer that can be generated. This is needed
+    # because the start and end predictions are not conditioned on one another
+    max_answer_length = 30
+
+    prediction, nbest_json, scores_diff_json = dp.get_predictions(example.doc_tokens, features,
+            networkOutputs, n_best_size, max_answer_length)
+    
+    return prediction
+
 
 if __name__ == '__main__':
     '''
@@ -79,7 +118,7 @@ if __name__ == '__main__':
     The onnx model used in the script is converted from Hugging Face BERT model,
     https://huggingface.co/transformers/serialization.html#converting-an-onnx-model-using-the-transformers-onnx-package
 
-    Some utility functions for dataset processing and data reader are from Nvidia TensorRT demo BERT repo,
+    Some utility functions for dataset processing, data reader and evaluation are from Nvidia TensorRT demo BERT repo,
     https://github.com/NVIDIA/TensorRT/tree/master/demo/BERT
     '''
 
@@ -125,4 +164,42 @@ if __name__ == '__main__':
     quantizer.quantize_model()
     quantizer.model.save_model_to_file(qdq_model_path, False)
     print("QDQ model is saved to ", qdq_model_path)
-    
+
+    # QDQ model inference and get SQUAD prediction 
+    session = onnxruntime.InferenceSession(qdq_model_path, providers=["TensorrtExecutionProvider", "CUDAExecutionProvider"])
+
+    examples = dp.read_squad_json(squad_json)
+    tokenizer = tokenization.BertTokenizer(vocab_file=vocab_file, do_lower_case=True)
+    all_predictions = collections.OrderedDict()
+
+    max_seq_length = sequence_lengths[-1] 
+    doc_stride = 128
+    max_query_length = 64
+    for i, example in enumerate(examples):
+        features = dp.convert_example_to_features(example.doc_tokens, example.question_text, tokenizer, max_seq_length, doc_stride, max_query_length)
+        prediction = inference(session, features, example)
+        all_predictions[example.id] = prediction
+
+    prediction_file = "./prediction.json"
+    with open(prediction_file, "w") as f:
+        f.write(json.dumps(all_predictions, indent=4))
+        print("\nOutput dump to {}".format(prediction_file))
+
+
+    # Evaluate QDQ model for SQUAD
+    # exact match and F1 metrics will be calculated 
+    expected_version = "1.1"
+    dataset_file = squad_json 
+    f1_acc = 90 # Reference Accuracy 
+
+    with open(dataset_file) as f:
+        dataset_json = json.load(f)
+        if (dataset_json['version'] != expected_version):
+            print('Evaluation expects v-' + expected_version +
+                  ', but got dataset with v-' + dataset_json['version'],
+                  file=sys.stderr)
+        dataset = dataset_json['data']
+    with open(prediction_file) as f:
+        predictions = json.load(f)
+        f1_acc = float(f1_acc)
+    print(json.dumps(evaluate(dataset, predictions, f1_acc)))
