@@ -166,12 +166,13 @@ if __name__ == '__main__':
     print("QDQ model is saved to ", qdq_model_path)
 
     # QDQ model inference and get SQUAD prediction 
+    os.environ["ORT_TENSORRT_FP16_ENABLE"] = "1"  # Enable TRT FP16 precision
+    os.environ["ORT_TENSORRT_INT8_ENABLE"] = "1"  # Enable TRT INT8 precision
     session = onnxruntime.InferenceSession(qdq_model_path, providers=["TensorrtExecutionProvider", "CUDAExecutionProvider"])
 
     examples = dp.read_squad_json(squad_json)
     tokenizer = tokenization.BertTokenizer(vocab_file=vocab_file, do_lower_case=True)
     all_predictions = collections.OrderedDict()
-
     max_seq_length = sequence_lengths[-1] 
     doc_stride = 128
     max_query_length = 64
