@@ -248,6 +248,7 @@ if __name__ == '__main__':
     os.environ["ORT_TENSORRT_FP16_ENABLE"] = "1"  # Enable TRT FP16 precision
     os.environ["ORT_TENSORRT_INT8_ENABLE"] = "1"  # Enable TRT INT8 precision
     os.environ["ORT_TENSORRT_ENGINE_CACHE_ENABLE"] = "1"  # Enable TRT INT8 precision
+    batch_size = 1
     data_reader = BertDataReader(qdq_model_path, squad_json, vocab_file, batch_size, sequence_lengths[-1])
     sess_options = onnxruntime.SessionOptions()
     sess_options.graph_optimization_level = onnxruntime.GraphOptimizationLevel.ORT_DISABLE_ALL
