@@ -16,7 +16,6 @@ import data_processing as dp
 import tokenization
 from pathlib import Path
 from onnxruntime.quantization import CalibrationDataReader, create_calibrator, write_calibration_table, QuantType, QuantizationMode, QLinearOpsRegistry, QDQQuantizer
-from squad.evaluate_v1_1 import evaluate 
 
 class BertDataReader(CalibrationDataReader):
     def __init__(self, model_path, squad_json, vocab_file, batch_size, max_seq_length, num_inputs=None):
@@ -55,7 +54,7 @@ class BertDataReader(CalibrationDataReader):
             print("Reading example index {:}, batch {:}, containing {:} sentences".format(self.current_example_index, current_batch, self.batch_size))
 
         # example could have more than one feature
-        # we colloct all the features of examples and process them in one example stride
+        # we collect all the features of examples and process them in one example stride
         features_in_current_stride = []
         for i in range(self.example_stride):
             example = self.data[self.current_example_index+ i]
@@ -68,7 +67,7 @@ class BertDataReader(CalibrationDataReader):
         self.current_feature_index+= len(features_in_current_stride)
 
 
-        # following layout is showing three examples as example stride with batch size 2:
+        # following layout shows three examples as example stride with batch size 2:
         # 
         # start of new example stride 
         # |
@@ -203,6 +202,7 @@ if __name__ == '__main__':
     # Model, dataset and quantization settings
     model_path = "./model.onnx"
     squad_json = "./squad/dev-v1.1.json"
+    # squad_json = "./squad/dev-v2.0.json" # uncomment it if you want to use squad v2.0 as dataset
     vocab_file = "./squad/vocab.txt"
     augmented_model_path = "./augmented_model.onnx"
     qdq_model_path = "./qdq_model.onnx"
@@ -248,7 +248,7 @@ if __name__ == '__main__':
     os.environ["ORT_TENSORRT_FP16_ENABLE"] = "1"  # Enable TRT FP16 precision
     os.environ["ORT_TENSORRT_INT8_ENABLE"] = "1"  # Enable TRT INT8 precision
     os.environ["ORT_TENSORRT_ENGINE_CACHE_ENABLE"] = "1"  # Enable TRT INT8 precision
-    batch_size = 1 # When batch size greate than 1, TensorRT EP might encounter "Myelin graph with multiple dynamic values may have poor performance if they differ"   
+    batch_size = 1 
     data_reader = BertDataReader(qdq_model_path, squad_json, vocab_file, batch_size, sequence_lengths[-1])
     sess_options = onnxruntime.SessionOptions()
     sess_options.graph_optimization_level = onnxruntime.GraphOptimizationLevel.ORT_DISABLE_ALL
@@ -260,20 +260,15 @@ if __name__ == '__main__':
         f.write(json.dumps(all_predictions, indent=4))
         print("\nOutput dump to {}".format(prediction_file))
 
-    # Evaluate QDQ model for SQUAD
+    # Evaluate QDQ model for SQUAD v1.1
     # exact match and F1 metrics will be calculated 
-    expected_version = "1.1"
-    dataset_file = squad_json 
-    f1_acc = 90 # Reference Accuracy 
+    # 
+    # please run following script:
+    # python3 ./squad/evaluate-v1.1.py ./squad/dev-v1.1.json ./prediction.json 90 
 
-    with open(dataset_file) as f:
-        dataset_json = json.load(f)
-        if (dataset_json['version'] != expected_version):
-            print('Evaluation expects v-' + expected_version +
-                  ', but got dataset with v-' + dataset_json['version'],
-                  file=sys.stderr)
-        dataset = dataset_json['data']
-    with open(prediction_file) as f:
-        predictions = json.load(f)
-        f1_acc = float(f1_acc)
-    print(json.dumps(evaluate(dataset, predictions, f1_acc)))
+
+    # Evaluate QDQ model for SQUAD v2.0
+    # exact match and F1 metrics with has-answer/no-answer respectively will be calculated 
+    #
+    # please run following script:
+    # python3 ./squad/evaluate-v2.0.py ./squad/dev-v2.0.json ./prediction.json
