@@ -1,9 +1,4 @@
----
-nav_exclude: true
----
-
 # Image classification with Squeezenet in CPP using OpenVINO Execution Provider:
-{: .no_toc }
 
 1. The image classification uses a Squeezenet Deep Learning ONNX Model from the ONNX Model Zoo. Currently this sample is only supported on Linux platforms.
 

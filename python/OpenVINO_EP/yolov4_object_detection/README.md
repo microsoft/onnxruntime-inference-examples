@@ -1,9 +1,4 @@
----
-nav_exclude: true
----
-
 # Object detection with YOLOv4 in Python using OpenVINO Execution Provider:
-{: .no_toc }
 
 1. The Object detection sample uses a YOLOv4 Deep Learning ONNX Model from the ONNX Model Zoo.
 
