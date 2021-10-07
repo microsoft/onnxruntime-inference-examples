@@ -15,6 +15,7 @@ import sys
 import data_processing as dp
 import tokenization
 from pathlib import Path
+import subprocess
 from onnxruntime.quantization import CalibrationDataReader, create_calibrator, write_calibration_table, QuantType, QuantizationMode, QLinearOpsRegistry, QDQQuantizer
 
 class BertDataReader(CalibrationDataReader):
@@ -209,7 +210,7 @@ if __name__ == '__main__':
     sequence_lengths = [384]
     calib_num = 100
     op_types_to_quantize = ['MatMul', 'Transpose', 'Add']
-    batch_size = 2
+    batch_size = 1
 
     # Generate INT8 calibration cache
     print("Calibration starts ...")
@@ -247,7 +248,6 @@ if __name__ == '__main__':
     # QDQ model inference and get SQUAD prediction 
     os.environ["ORT_TENSORRT_FP16_ENABLE"] = "1"  # Enable TRT FP16 precision
     os.environ["ORT_TENSORRT_INT8_ENABLE"] = "1"  # Enable TRT INT8 precision
-    os.environ["ORT_TENSORRT_ENGINE_CACHE_ENABLE"] = "1"  # Enable TRT INT8 precision
     batch_size = 1 
     data_reader = BertDataReader(qdq_model_path, squad_json, vocab_file, batch_size, sequence_lengths[-1])
     sess_options = onnxruntime.SessionOptions()
@@ -260,15 +260,11 @@ if __name__ == '__main__':
         f.write(json.dumps(all_predictions, indent=4))
         print("\nOutput dump to {}".format(prediction_file))
 
-    # Evaluate QDQ model for SQUAD v1.1
-    # exact match and F1 metrics will be calculated 
-    # 
-    # please run following script:
-    # python3 ./squad/evaluate-v1.1.py ./squad/dev-v1.1.json ./prediction.json 90 
+    print("Evaluate QDQ model for SQUAD v1.1")
+    subprocess.call(['python', './squad/evaluate-v1.1.py', './squad/dev-v1.1.json', './prediction.json', '90'])
 
-
-    # Evaluate QDQ model for SQUAD v2.0
-    # exact match and F1 metrics with has-answer/no-answer respectively will be calculated 
+    # uncomment following code if you want to evaluate on SQUAD v2.0
+    # you also need to re-run QDQ model inference to get prediction based on dev-v2.0.json
     #
-    # please run following script:
-    # python3 ./squad/evaluate-v2.0.py ./squad/dev-v2.0.json ./prediction.json
+    # print("Evaluate QDQ model for SQUAD v2.0")
+    # subprocess.call(['python', './squad/evaluate-v2.0.py', './squad/dev-v2.0.json', './prediction.json'])
