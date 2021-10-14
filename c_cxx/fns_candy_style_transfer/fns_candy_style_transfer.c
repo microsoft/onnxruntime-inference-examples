@@ -1,18 +1,21 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
-#include "onnxruntime_c_api.h"
-#include "providers.h"
-#include <stdio.h>
 #include <assert.h>
 #include <png.h>
+#include <stdio.h>
+
+#include "onnxruntime_c_api.h"
 #ifdef _WIN32
+#ifdef USE_DML
+#include "providers.h"
+#endif
 #include <objbase.h>
 #endif
 
 #ifdef _WIN32
-  #define tcscmp wcscmp
+#define tcscmp wcscmp
 #else
-  #define tcscmp strcmp
+#define tcscmp strcmp
 #endif
 
 const OrtApi* g_ort = NULL;
@@ -163,11 +166,11 @@ int run_inference(OrtSession* session, const ORTCHAR_T* input_file, const ORTCHA
   float* model_input;
   size_t model_input_ele_count;
 #ifdef _WIN32
-  char* output_file_p = convert_string(output_file);
-  char* input_file_p = convert_string(input_file);
+  const char* output_file_p = convert_string(output_file);
+  const char* input_file_p = convert_string(input_file);
 #else
-  char* output_file_p = output_file;
-  char* input_file_p = input_file;
+  const char* output_file_p = output_file;
+  const char* input_file_p = input_file;
 #endif
   if (read_png_file(input_file_p, &input_height, &input_width, &model_input, &model_input_ele_count) != 0) {
     return -1;
@@ -195,8 +198,8 @@ int run_inference(OrtSession* session, const ORTCHAR_T* input_file, const ORTCHA
   const char* input_names[] = {"inputImage"};
   const char* output_names[] = {"outputImage"};
   OrtValue* output_tensor = NULL;
-  ORT_ABORT_ON_ERROR(
-      g_ort->Run(session, NULL, input_names, (const OrtValue* const*)&input_tensor, 1, output_names, 1, &output_tensor));
+  ORT_ABORT_ON_ERROR(g_ort->Run(session, NULL, input_names, (const OrtValue* const*)&input_tensor, 1, output_names, 1,
+                                &output_tensor));
   assert(output_tensor != NULL);
   ORT_ABORT_ON_ERROR(g_ort->IsTensor(output_tensor, &is_tensor));
   assert(is_tensor);
@@ -222,11 +225,24 @@ void verify_input_output_count(OrtSession* session) {
   assert(count == 1);
 }
 
-#ifdef USE_CUDA
-void enable_cuda(OrtSessionOptions* session_options) {
-  ORT_ABORT_ON_ERROR(OrtSessionOptionsAppendExecutionProvider_CUDA(session_options, 0));
+int enable_cuda(OrtSessionOptions* session_options) {
+  // OrtCUDAProviderOptions is a C struct. C programming language doesn't have constructors/destructors.
+  OrtCUDAProviderOptions o;
+  // Here we use memset to initialize every field of the above data struct to zero.
+  memset(&o, 0, sizeof(o));
+  // But is zero a valid value for every variable? Not quite. It is not guaranteed. In the other words: does every enum
+  // type contain zero? The following line can be omitted because EXHAUSTIVE is mapped to zero in onnxruntime_c_api.h.
+  o.cudnn_conv_algo_search = EXHAUSTIVE;
+  o.gpu_mem_limit = SIZE_MAX;
+  OrtStatus* onnx_status = g_ort->SessionOptionsAppendExecutionProvider_CUDA(session_options, &o);
+  if (onnx_status != NULL) {
+    const char* msg = g_ort->GetErrorMessage(onnx_status);
+    fprintf(stderr, "%s\n", msg);
+    g_ort->ReleaseStatus(onnx_status);
+    return -1;
+  }
+  return 0;
 }
-#endif
 
 #ifdef USE_DML
 void enable_dml(OrtSessionOptions* session_options) {
@@ -245,49 +261,57 @@ int main(int argc, char* argv[]) {
   }
 
   g_ort = OrtGetApiBase()->GetApi(ORT_API_VERSION);
+  if (!g_ort) {
+    fprintf(stderr, "Failed to init ONNX Runtime engine.\n");
+    return -1;
+  }
 #ifdef _WIN32
-  //CoInitializeEx is only needed if Windows Image Component will be used in this program for image loading/saving.
+  // CoInitializeEx is only needed if Windows Image Component will be used in this program for image loading/saving.
   HRESULT hr = CoInitializeEx(NULL, COINIT_MULTITHREADED);
   if (!SUCCEEDED(hr)) return -1;
 #endif
   ORTCHAR_T* model_path = argv[1];
   ORTCHAR_T* input_file = argv[2];
   ORTCHAR_T* output_file = argv[3];
+  // By default it will try CUDA first. If CUDA is not available, it will run all the things on CPU.
+  // But you can also explicitly set it to DML(directml) or CPU(which means cpu-only).
   ORTCHAR_T* execution_provider = (argc >= 5) ? argv[4] : NULL;
   OrtEnv* env;
   ORT_ABORT_ON_ERROR(g_ort->CreateEnv(ORT_LOGGING_LEVEL_WARNING, "test", &env));
+  assert(env != NULL);
+  int ret = 0;
   OrtSessionOptions* session_options;
   ORT_ABORT_ON_ERROR(g_ort->CreateSessionOptions(&session_options));
 
-  if (execution_provider)
-  {
+  if (execution_provider) {
     if (tcscmp(execution_provider, ORT_TSTR("cpu")) == 0) {
       // Nothing; this is the default
-    } else if (tcscmp(execution_provider, ORT_TSTR("cuda")) == 0) {
-    #ifdef USE_CUDA
-      enable_cuda(session_options);
-    #else
-      puts("CUDA is not enabled in this build.");
-      return -1;
-    #endif
     } else if (tcscmp(execution_provider, ORT_TSTR("dml")) == 0) {
-    #ifdef USE_DML
+#ifdef USE_DML
       enable_dml(session_options);
-    #else
+#else
       puts("DirectML is not enabled in this build.");
       return -1;
-    #endif
+#endif
     } else {
       usage();
       puts("Invalid execution provider option.");
       return -1;
+    }
+  } else {
+    printf("Try to enable CUDA first\n");
+    ret = enable_cuda(session_options);
+    if (ret) {
+      fprintf(stderr, "CUDA is not available\n");
+    } else {
+      printf("CUDA is enabled\n");
     }
   }
 
   OrtSession* session;
   ORT_ABORT_ON_ERROR(g_ort->CreateSession(env, model_path, session_options, &session));
   verify_input_output_count(session);
-  int ret = run_inference(session, input_file, output_file);
+  ret = run_inference(session, input_file, output_file);
   g_ort->ReleaseSessionOptions(session_options);
   g_ort->ReleaseSession(session);
   g_ort->ReleaseEnv(env);
