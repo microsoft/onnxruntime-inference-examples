@@ -14,63 +14,77 @@ const mySession = await InferenceSession.create(..., mySessionOptions);
 
 An [execution provider](https://onnxruntime.ai/docs/reference/execution-providers/) (EP) defines how operators get resolved to specific kernel implementation. Following is a table of supported EP in different environments:
 
-| EP name | Hardware              | available in                      |
-| ------- | --------------------- | --------------------------------- |
-| `cpu`   | CPU (default CPU)     | onnxruntime-node                  |
-| `cuda`  | GPU (NVIDIA CUDA)     | onnxruntime-node                  |
-| `dml`   | GPU (Direct ML)       | onnxruntime-node (Windows)        |
-| `wasm`  | CPU (WebAssembly)     | onnxruntime-web, onnxruntime-node |
-| `webgl` | GPU (WebGL)           | onnxruntime-web                   |
+| EP name | Hardware          | available in                      |
+| ------- | ----------------- | --------------------------------- |
+| `cpu`   | CPU (default CPU) | onnxruntime-node                  |
+| `cuda`  | GPU (NVIDIA CUDA) | onnxruntime-node                  |
+| `dml`   | GPU (Direct ML)   | onnxruntime-node (Windows)        |
+| `wasm`  | CPU (WebAssembly) | onnxruntime-web, onnxruntime-node |
+| `webgl` | GPU (WebGL)       | onnxruntime-web                   |
 
 Execution provider is specified by `sessionOptions.executionProviders`. Multiple EPs can be specified and the first available one will be used.
 
-Following are some examples:
+Following are some example code snippets:
 
 ```js
 // [Node.js binding example] Use CPU EP.
-const sessionOption1 = { executionProviders: ['cpu'] };
+const sessionOption = { executionProviders: ['cpu'] };
+```
 
+```js
 // [Node.js binding example] Use CUDA EP.
-const sessionOption2 = { executionProviders: ['cuda'] };
+const sessionOption = { executionProviders: ['cuda'] };
+```
 
+```js
 // [Node.js binding example] Use CUDA EP, specifying device ID.
-const sessionOption2_1 = {
-    executionProviders: [{
-        name: 'cuda',
-        deviceId: 0
-    }],
+const sessionOption = {
+  executionProviders: [
+    {
+      name: 'cuda',
+      deviceId: 0
+    }
+  ]
 };
+```
 
+```js
 // [Node.js binding example] Try multiple EPs using an execution provider list.
 // The first successfully initialized one will be used. Use CUDA EP if it is available, otherwise fallback to CPU EP.
-const sessionOption3 = { executionProviders: ['cuda', 'cpu'] };
+const sessionOption = { executionProviders: ['cuda', 'cpu'] };
+```
 
+```js
 // [ONNX Runtime Web example] Use WebAssembly (CPU) EP.
-const sessionOption11 = { executionProviders: ['wasm'] };
+const sessionOption = { executionProviders: ['wasm'] };
+```
 
+```js
 // [ONNX Runtime Web example] Use WebGL EP.
-const sessionOption12 = { executionProviders: ['webgl'] };
+const sessionOption = { executionProviders: ['webgl'] };
 ```
 
 ### other common options
 
 There are also some other options available for all EPs.
 
-Following are some examples:
+Following are some example code snippets:
 
 ```js
 // [Node.js binding example] Use CPU EP with single-thread and enable verbose logging.
-const sessionOption101 = {
-    executionProviders: ['cpu'],
-    interOpNumThreads: 1,
-    intraOpNumThreads: 1,
-    logSeverityLevel: 0
+const sessionOption = {
+  executionProviders: ['cpu'],
+  interOpNumThreads: 1,
+  intraOpNumThreads: 1,
+  logSeverityLevel: 0
 };
+```
 
+```js
 // [ONNX Runtime Web example] Use WebAssembly EP and enable profiling.
-const sessionOptions111 = {
-    executionProviders: ['wasm'],
-    enableProfiling: true
+const sessionOptions = {
+  executionProviders: ['wasm'],
+  enableProfiling: true
 };
 ```
 
