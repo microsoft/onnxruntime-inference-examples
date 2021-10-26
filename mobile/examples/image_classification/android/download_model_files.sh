@@ -13,7 +13,7 @@ RESOURCES_DIR="${DIR}/app/src/main/res/raw"
 curl https://raw.githubusercontent.com/pytorch/hub/master/imagenet_classes.txt \
   --output "${RESOURCES_DIR}/imagenet_classes.txt"
 
-curl https://onnxruntimeexamplesdata.blob.core.windows.net/examplesdata/mobilenet_v2_ort_models.zip \
+curl https://onnxruntimeexamplesdata.z13.web.core.windows.net/mobilenet_v2_ort_models.zip \
   --output "${RESOURCES_DIR}/models.zip" \
   --retry 3
 
