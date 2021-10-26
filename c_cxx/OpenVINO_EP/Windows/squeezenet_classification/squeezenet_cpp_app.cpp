@@ -130,9 +130,9 @@ float division(float num, float den){
 
 void printHelp() {
     std::cout << "To run the model, use the following command:\n";
-    std::cout << "Example: ./run_squeezenet --use_openvino <path_to_the_model> <path_to_the_image> <path_to_the_classes_file>" << std::endl;
-    std::cout << "\n To Run using OpenVINO EP.\nExample: ./run_squeezenet --use_openvino squeezenet1.1-7.onnx demo.jpeg synset.txt \n" << std::endl;
-    std::cout << "\n To Run on Default CPU.\n Example: ./run_squeezenet --use_cpu squeezenet1.1-7.onnx demo.jpeg synset.txt \n" << std::endl;
+    std::cout << "Example: run_squeezenet --use_openvino <path_to_the_model> <path_to_the_image> <path_to_the_classes_file>" << std::endl;
+    std::cout << "\n To Run using OpenVINO EP.\nExample: run_squeezenet --use_openvino squeezenet1.1-7.onnx demo.jpeg synset.txt \n" << std::endl;
+    std::cout << "\n To Run on Default CPU.\n Example: run_squeezenet --use_cpu squeezenet1.1-7.onnx demo.jpeg synset.txt \n" << std::endl;
 }
 
 int main(int argc, char* argv[])
@@ -209,7 +209,7 @@ int main(int argc, char* argv[])
     if (useOPENVINO) {
         // Using OPENVINO backend
         OrtOpenVINOProviderOptions options;
-        options.device_type = "GPU_FP32"; //Other options are: GPU_FP32, GPU_FP16, MYRIAD_FP16
+        options.device_type = "CPU_FP32"; //Other options are: GPU_FP32, GPU_FP16, MYRIAD_FP16
         std::cout << "OpenVINO device type is set to: " << options.device_type << std::endl;
         sessionOptions.AppendExecutionProvider_OpenVINO(options);
     }
