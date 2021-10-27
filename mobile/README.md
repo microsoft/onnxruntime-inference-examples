@@ -18,7 +18,7 @@ git clone https://github.com/microsoft/onnxruntime-inference-examples.git
 
 ### iOS Example Prerequisites
 
-- Xcode 12.4+
+- Xcode 12.5+
 - CocoaPods
 - A valid Apple Developer ID if you want to run the example on a device
 
@@ -34,7 +34,7 @@ The example app shows basic usage of the ORT APIs.
 
 The example app uses image classification which is able to continuously classify the objects it sees from the device's camera in real-time and displays the most probable inference results on the screen.
 
-- [Android Image Classifier](examples/image_classifications/android)
+- [Android Image Classifier](examples/image_classification/android)
 
 ### Speech Recognition
 

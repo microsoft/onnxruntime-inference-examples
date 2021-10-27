@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 51;
+	objectVersion = 50;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -20,13 +20,21 @@
 		51A25D64266EA7460087C801 /* ModelHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51A25D63266EA7460087C801 /* ModelHandler.swift */; };
 		51A25D66266EA7AE0087C801 /* CameraManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51A25D65266EA7AE0087C801 /* CameraManager.swift */; };
 		51A25D6926715ECD0087C801 /* OverlayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51A25D6826715ECD0087C801 /* OverlayView.swift */; };
-		51A25D742672DEA00087C801 /* ssd_mobilenet_v2_300_float.all.ort in Resources */ = {isa = PBXBuildFile; fileRef = 51A25D722672C03B0087C801 /* ssd_mobilenet_v2_300_float.all.ort */; };
-		CBBE72F3C4E4661F5E91AD5A /* Pods_ORTObjectDetection.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EC48FE3E50BB57A755D0B43F /* Pods_ORTObjectDetection.framework */; };
+		EF2E2B1626FAA092005C8A04 /* ssd_mobilenet_v1.all.ort in Resources */ = {isa = PBXBuildFile; fileRef = EF2E2B1526FAA092005C8A04 /* ssd_mobilenet_v1.all.ort */; };
+		EF2E2B1E26FAAD93005C8A04 /* ORTObjectDetectionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF2E2B1D26FAAD93005C8A04 /* ORTObjectDetectionTests.swift */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		EF2E2B2026FAAD93005C8A04 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 51A25D38266E9C3C0087C801 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 51A25D3F266E9C3C0087C801;
+			remoteInfo = ORTObjectDetection;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
-		207572E1A0C62F80678ACE74 /* Pods-ORTObjectDetection.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ORTObjectDetection.debug.xcconfig"; path = "Target Support Files/Pods-ORTObjectDetection/Pods-ORTObjectDetection.debug.xcconfig"; sourceTree = "<group>"; };
-		479BB25C4D6AECA290B9701E /* Pods-ORTObjectDetection.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ORTObjectDetection.release.xcconfig"; path = "Target Support Files/Pods-ORTObjectDetection/Pods-ORTObjectDetection.release.xcconfig"; sourceTree = "<group>"; };
 		5182220726793930003B00DB /* Main.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Main.storyboard; sourceTree = "<group>"; };
 		518222092679440B003B00DB /* labelmap.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = labelmap.txt; sourceTree = "<group>"; };
 		5182220B26795576003B00DB /* SceneDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -43,8 +51,10 @@
 		51A25D65266EA7AE0087C801 /* CameraManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CameraManager.swift; sourceTree = "<group>"; };
 		51A25D67267137B70087C801 /* BridgingHeader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BridgingHeader.h; sourceTree = "<group>"; };
 		51A25D6826715ECD0087C801 /* OverlayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverlayView.swift; sourceTree = "<group>"; };
-		51A25D722672C03B0087C801 /* ssd_mobilenet_v2_300_float.all.ort */ = {isa = PBXFileReference; lastKnownFileType = file; path = ssd_mobilenet_v2_300_float.all.ort; sourceTree = "<group>"; };
-		EC48FE3E50BB57A755D0B43F /* Pods_ORTObjectDetection.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_ORTObjectDetection.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		EF2E2B1526FAA092005C8A04 /* ssd_mobilenet_v1.all.ort */ = {isa = PBXFileReference; lastKnownFileType = file; path = ssd_mobilenet_v1.all.ort; sourceTree = "<group>"; };
+		EF2E2B1B26FAAD93005C8A04 /* ORTObjectDetectionTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ORTObjectDetectionTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		EF2E2B1D26FAAD93005C8A04 /* ORTObjectDetectionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ORTObjectDetectionTests.swift; sourceTree = "<group>"; };
+		EF2E2B1F26FAAD93005C8A04 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -52,7 +62,13 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				CBBE72F3C4E4661F5E91AD5A /* Pods_ORTObjectDetection.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		EF2E2B1826FAAD93005C8A04 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -63,9 +79,9 @@
 			isa = PBXGroup;
 			children = (
 				51A25D42266E9C3C0087C801 /* ORTObjectDetection */,
+				EF2E2B1C26FAAD93005C8A04 /* ORTObjectDetectionTests */,
 				51A25D41266E9C3C0087C801 /* Products */,
-				F8B6C805D58B7014F58635B4 /* Pods */,
-				913E02FF397026826E6AC49A /* Frameworks */,
+				ADE614CCAFBAB253A7AF155D /* Pods */,
 			);
 			sourceTree = "<group>";
 		};
@@ -73,6 +89,7 @@
 			isa = PBXGroup;
 			children = (
 				51A25D40266E9C3C0087C801 /* ORTObjectDetection.app */,
+				EF2E2B1B26FAAD93005C8A04 /* ORTObjectDetectionTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -110,28 +127,26 @@
 		51A25D5C266EA0030087C801 /* ModelsAndData */ = {
 			isa = PBXGroup;
 			children = (
-				51A25D722672C03B0087C801 /* ssd_mobilenet_v2_300_float.all.ort */,
+				EF2E2B1526FAA092005C8A04 /* ssd_mobilenet_v1.all.ort */,
 				518222092679440B003B00DB /* labelmap.txt */,
 			);
 			path = ModelsAndData;
 			sourceTree = "<group>";
 		};
-		913E02FF397026826E6AC49A /* Frameworks */ = {
+		ADE614CCAFBAB253A7AF155D /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				EC48FE3E50BB57A755D0B43F /* Pods_ORTObjectDetection.framework */,
 			);
-			name = Frameworks;
+			path = Pods;
 			sourceTree = "<group>";
 		};
-		F8B6C805D58B7014F58635B4 /* Pods */ = {
+		EF2E2B1C26FAAD93005C8A04 /* ORTObjectDetectionTests */ = {
 			isa = PBXGroup;
 			children = (
-				207572E1A0C62F80678ACE74 /* Pods-ORTObjectDetection.debug.xcconfig */,
-				479BB25C4D6AECA290B9701E /* Pods-ORTObjectDetection.release.xcconfig */,
+				EF2E2B1D26FAAD93005C8A04 /* ORTObjectDetectionTests.swift */,
+				EF2E2B1F26FAAD93005C8A04 /* Info.plist */,
 			);
-			name = Pods;
-			path = Pods;
+			path = ORTObjectDetectionTests;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -141,11 +156,9 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 51A25D54266E9C3E0087C801 /* Build configuration list for PBXNativeTarget "ORTObjectDetection" */;
 			buildPhases = (
-				002DE07A15B3B1FEE7BEF8F3 /* [CP] Check Pods Manifest.lock */,
 				51A25D3C266E9C3C0087C801 /* Sources */,
 				51A25D3D266E9C3C0087C801 /* Frameworks */,
 				51A25D3E266E9C3C0087C801 /* Resources */,
-				77A8FE53A438F83BB70206A3 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -155,6 +168,24 @@
 			productName = ORTObjectDetection;
 			productReference = 51A25D40266E9C3C0087C801 /* ORTObjectDetection.app */;
 			productType = "com.apple.product-type.application";
+		};
+		EF2E2B1A26FAAD93005C8A04 /* ORTObjectDetectionTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = EF2E2B2426FAAD93005C8A04 /* Build configuration list for PBXNativeTarget "ORTObjectDetectionTests" */;
+			buildPhases = (
+				EF2E2B1726FAAD93005C8A04 /* Sources */,
+				EF2E2B1826FAAD93005C8A04 /* Frameworks */,
+				EF2E2B1926FAAD93005C8A04 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				EF2E2B2126FAAD93005C8A04 /* PBXTargetDependency */,
+			);
+			name = ORTObjectDetectionTests;
+			productName = ORTObjectDetectionTests;
+			productReference = EF2E2B1B26FAAD93005C8A04 /* ORTObjectDetectionTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
 		};
 /* End PBXNativeTarget section */
 
@@ -167,6 +198,10 @@
 				TargetAttributes = {
 					51A25D3F266E9C3C0087C801 = {
 						CreatedOnToolsVersion = 12.5;
+					};
+					EF2E2B1A26FAAD93005C8A04 = {
+						CreatedOnToolsVersion = 12.5.1;
+						TestTargetID = 51A25D3F266E9C3C0087C801;
 					};
 				};
 			};
@@ -184,6 +219,7 @@
 			projectRoot = "";
 			targets = (
 				51A25D3F266E9C3C0087C801 /* ORTObjectDetection */,
+				EF2E2B1A26FAAD93005C8A04 /* ORTObjectDetectionTests */,
 			);
 		};
 /* End PBXProject section */
@@ -193,57 +229,22 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				51A25D742672DEA00087C801 /* ssd_mobilenet_v2_300_float.all.ort in Resources */,
 				51A25D5A266E9CA60087C801 /* LaunchScreen.storyboard in Resources */,
 				5182220A2679440C003B00DB /* labelmap.txt in Resources */,
+				EF2E2B1626FAA092005C8A04 /* ssd_mobilenet_v1.all.ort in Resources */,
 				5182220826793930003B00DB /* Main.storyboard in Resources */,
 				51A25D4D266E9C3E0087C801 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		EF2E2B1926FAAD93005C8A04 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXResourcesBuildPhase section */
-
-/* Begin PBXShellScriptBuildPhase section */
-		002DE07A15B3B1FEE7BEF8F3 /* [CP] Check Pods Manifest.lock */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
-				"${PODS_ROOT}/Manifest.lock",
-			);
-			name = "[CP] Check Pods Manifest.lock";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-ORTObjectDetection-checkManifestLockResult.txt",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
-			showEnvVarsInLog = 0;
-		};
-		77A8FE53A438F83BB70206A3 /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-ORTObjectDetection/Pods-ORTObjectDetection-frameworks-${CONFIGURATION}-input-files.xcfilelist",
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-ORTObjectDetection/Pods-ORTObjectDetection-frameworks-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-ORTObjectDetection/Pods-ORTObjectDetection-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		51A25D3C266E9C3C0087C801 /* Sources */ = {
@@ -262,7 +263,23 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		EF2E2B1726FAAD93005C8A04 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				EF2E2B1E26FAAD93005C8A04 /* ORTObjectDetectionTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		EF2E2B2126FAAD93005C8A04 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 51A25D3F266E9C3C0087C801 /* ORTObjectDetection */;
+			targetProxy = EF2E2B2026FAAD93005C8A04 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		51A25D52266E9C3E0087C801 /* Debug */ = {
@@ -383,7 +400,6 @@
 		};
 		51A25D55266E9C3E0087C801 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 207572E1A0C62F80678ACE74 /* Pods-ORTObjectDetection.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -404,7 +420,6 @@
 		};
 		51A25D56266E9C3E0087C801 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 479BB25C4D6AECA290B9701E /* Pods-ORTObjectDetection.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -420,6 +435,46 @@
 				SWIFT_OBJC_BRIDGING_HEADER = "$(SRCROOT)/ORTObjectDetection/BridgingHeader.h";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		EF2E2B2226FAAD93005C8A04 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				INFOPLIST_FILE = ORTObjectDetectionTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.onnxruntime.ORTObjectDetectionTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "$(SRCROOT)/ORTObjectDetection/BridgingHeader.h";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/ORTObjectDetection.app/ORTObjectDetection";
+			};
+			name = Debug;
+		};
+		EF2E2B2326FAAD93005C8A04 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				INFOPLIST_FILE = ORTObjectDetectionTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.onnxruntime.ORTObjectDetectionTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "$(SRCROOT)/ORTObjectDetection/BridgingHeader.h";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/ORTObjectDetection.app/ORTObjectDetection";
 			};
 			name = Release;
 		};
@@ -440,6 +495,15 @@
 			buildConfigurations = (
 				51A25D55266E9C3E0087C801 /* Debug */,
 				51A25D56266E9C3E0087C801 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		EF2E2B2426FAAD93005C8A04 /* Build configuration list for PBXNativeTarget "ORTObjectDetectionTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				EF2E2B2226FAAD93005C8A04 /* Debug */,
+				EF2E2B2326FAAD93005C8A04 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
