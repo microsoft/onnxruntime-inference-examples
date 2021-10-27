@@ -168,18 +168,18 @@ int main(int argc, char* argv[])
 
     std::string instanceName{"image-classification-inference"};
 	
-	#ifdef _WIN32
-      std::string str_arg2 = argv[2];
-      std::wstring wide_string_arg2 = std::wstring(str_arg2.begin(), str_arg2.end());
-      std::basic_string<ORTCHAR_T> modelFilepath = std::basic_string<ORTCHAR_T>(wide_string_arg2);
+    #ifdef _WIN32
+        std::string str_arg2 = argv[2];
+        std::wstring wide_string_arg2 = std::wstring(str_arg2.begin(), str_arg2.end());
+        std::basic_string<ORTCHAR_T> modelFilepath = std::basic_string<ORTCHAR_T>(wide_string_arg2);
     #else
-      std::string modelFilepath = argv[2]; // .onnx file
-      //validate ModelFilePath
-      checkModelExtension(modelFilepath);
-      if(!checkModelExtension(modelFilepath)) {
-          throw std::runtime_error("[ ERROR ] The ModelFilepath is not correct. Make sure you are setting the path to an onnx model file (.onnx)");
-      }
-	#endif
+        std::string modelFilepath = argv[2]; // .onnx file
+        //validate ModelFilePath
+        checkModelExtension(modelFilepath);
+        if(!checkModelExtension(modelFilepath)) {
+            throw std::runtime_error("[ ERROR ] The ModelFilepath is not correct. Make sure you are setting the path to an onnx model file (.onnx)");
+        }
+    #endif
     std::string imageFilepath = argv[3];
 
     // Validate ImageFilePath
