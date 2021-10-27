@@ -11,7 +11,7 @@ Open x64 Native Tools Command Prompt for VS 2019.
 build.bat --config RelWithDebInfo --use_openvino CPU_FP32 --build_shared_lib --parallel --cmake_extra_defines CMAKE_INSTALL_PREFIX=c:\dev\ort_install
 ```
 
-By default products of the build on Windows go to build\Windows\_config_ folder. In the case above it would be build\Windows\RelWithDebInfo.
+By default products of the build on Windows go to build\Windows\config folder. In the case above it would be build\Windows\RelWithDebInfo.
 Run the following commands.
 
 ```
