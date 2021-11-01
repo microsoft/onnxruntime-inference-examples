@@ -1,17 +1,9 @@
 import os
 import onnx
-import glob
-import scipy.io
+import onnxruntime
 import numpy as np
-import logging
-from PIL import Image
 import json
 import collections
-import six
-import unicodedata
-import onnx
-import onnxruntime
-import sys
 import data_processing as dp
 import tokenization
 from pathlib import Path
@@ -215,9 +207,9 @@ if __name__ == '__main__':
     vocab_file = "./squad/vocab.txt"
     augmented_model_path = "./augmented_model.onnx"
     qdq_model_path = "./qdq_model.onnx"
-    sequence_lengths = [384]
-    calib_num = 100
-    op_types_to_quantize = ['MatMul', 'Transpose', 'Add']
+    sequence_lengths = [128]
+    calib_num = 10
+    op_types_to_quantize = ['MatMul', 'Add']
     batch_size = 1
 
     # Generate INT8 calibration cache
@@ -231,7 +223,7 @@ if __name__ == '__main__':
     '''
     We can use one data reader to do data pre-processing, however,
     some machines don't have sufficient memory to hold all dataset and all intermediate output,
-    especially using 'Entropy' or 'Percentile' calibrator which collects histogram or each tensor.
+    especially using 'Entropy' or 'Percentile' calibrator which collects histogram for tensors.
     So let multiple data readers to handle different stride of dataset to avoid OOM.
     '''
     stride = 10
@@ -259,7 +251,7 @@ if __name__ == '__main__':
         [], #nodes_to_quantize
         [], #nodes_to_exclude
         op_types_to_quantize,
-        {'ActivationSymmetric' : True}) #extra_options
+        {'ActivationSymmetric' : True, 'ForceQDQAppearAsPair' : True, 'DisableQDQForNodeOutput' : True}) #extra_options
     quantizer.quantize_model()
     quantizer.model.save_model_to_file(qdq_model_path, False)
     print("QDQ model is saved to ", qdq_model_path)
