@@ -46,7 +46,7 @@ using namespace std;
 
 int main(int argc, char** argv) {
   if (argc != 2) {
-    cout << "Usage: ./onnx-api-example <onnx_model.onnx>" << endl;
+    cout << "Usage: onnx-api-example.exe <onnx_model.onnx>" << endl;
     return -1;
   }
 
