@@ -22,7 +22,7 @@ Open [Mobilenet v2 Quantization with ONNX Runtime Notebook](https://github.com/m
 2. Quantize the FP32 ONNX model to an uint8 ONNX model
 3. Convert both FP32 and uint8 ONNX models to ORT models
 
-Note: this step is optional, you can download the FP32 and uint8 ORT models [here](https://onnxruntimeexamplesdata.blob.core.windows.net/examplesdata/mobilenet_v2_ort_models.zip).
+Note: this step is optional, you can download the FP32 and uint8 ORT models [here](https://onnxruntimeexamplesdata.z13.web.core.windows.net/mobilenet_v2_ort_models.zip).
 
 ### Step 1. Clone the ONNX Runtime Mobile examples source code and download required model files
 Clone this GitHub repository to your computer to get the sample application.

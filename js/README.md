@@ -25,3 +25,7 @@ Click links for README of each examples.
 * [API usage - Tensor](api-usage_tensor) - a demonstration of basic usage of `Tensor`.
 
 * [API usage - InferenceSession](api-usage_inference-session) - a demonstration of basic usage of `InferenceSession`.
+
+* [API usage - SessionOptions](api-usage_session-options) - a demonstration of how to configure creation of an `InferenceSession` instance.
+
+* [API usage - `ort.env` flags](api-usage_ort-env-flags) - a demonstration of how to configure a set of global flags.
