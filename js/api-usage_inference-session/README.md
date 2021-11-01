@@ -10,6 +10,8 @@ This example is a demonstration of basic usage of `InferenceSession`.
 
 For more information about `SessionOptions` and `RunOptions`, please refer to other examples.
 
+See also [`InferenceSession.create`](https://onnxruntime.ai/docs/api/js/interfaces/InferenceSessionFactory.html#create) and [`InferenceSession` interface](https://onnxruntime.ai/docs/api/js/interfaces/InferenceSession.html) in API reference document.
+
 ## Usage
 
 ```sh
