@@ -208,8 +208,9 @@ if __name__ == '__main__':
     augmented_model_path = "./augmented_model.onnx"
     qdq_model_path = "./qdq_model.onnx"
     sequence_lengths = [128]
-    calib_num = 10
+    calib_num = 100
     op_types_to_quantize = ['MatMul', 'Add']
+    op_types_to_exclude_output_quantization = op_types_to_quantize # don't add qdq to node's output to avoid accuracy drop
     batch_size = 1
 
     # Generate INT8 calibration cache
@@ -251,7 +252,8 @@ if __name__ == '__main__':
         [], #nodes_to_quantize
         [], #nodes_to_exclude
         op_types_to_quantize,
-        {'ActivationSymmetric' : True, 'ForceQDQAppearAsPair' : True, 'DisableQDQForNodeOutput' : True}) #extra_options
+        op_types_to_exclude_output_quantization,
+        {'ActivationSymmetric' : True, 'AddQDQPairToWeight' : True}) #extra_options
     quantizer.quantize_model()
     quantizer.model.save_model_to_file(qdq_model_path, False)
     print("QDQ model is saved to ", qdq_model_path)
