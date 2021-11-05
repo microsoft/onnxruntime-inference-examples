@@ -118,7 +118,7 @@ if __name__ == '__main__':
     sess_options.graph_optimization_level = onnxruntime.GraphOptimizationLevel.ORT_DISABLE_ALL
     session = onnxruntime.InferenceSession(qdq_model_path, sess_options=sess_options, providers=["TensorrtExecutionProvider", "CUDAExecutionProvider"])
     if is_using_hf:
-        data_reader = HFBertDataReader(trainer_args_dict, calib_args_dict, session).trainer
+        data_reader = HFBertDataReader(trainer_args_dict, calib_args_dict, session)
         trainer = data_reader.trainer
         metrics = trainer.evaluate()
 
