@@ -459,7 +459,7 @@ class HFBertDataReader(CalibrationDataReader):
         self.trainer = trainer
         self.eval_dataloader = iter(self.trainer.get_eval_dataloader(eval_dataset))
 
-    def update_eval_dataloader(self, start_index, end_index):
+    def update_load_range(self, start_index, end_index):
         tokenizer = self.tokenizer
         eval_examples = self.eval_examples
         model_args = self.model_args
