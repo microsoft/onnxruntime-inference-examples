@@ -3,12 +3,12 @@ import onnx
 import onnxruntime
 import numpy as np
 import json
+import sys
+import logging
 from pathlib import Path
 from onnxruntime.quantization import create_calibrator, CalibrationMethod, write_calibration_table, QuantType, QuantizationMode, QLinearOpsRegistry, QDQQuantizer
 from hf_helper import HFBertDataReader 
 from helper import BertDataReader, BertEvaluater
-import sys
-import logging
 
 logger = logging.getLogger(__name__)
 
@@ -41,7 +41,7 @@ if __name__ == '__main__':
     batch_size = 8 
     op_types_to_quantize = ['MatMul', 'Add']
     op_types_to_exclude_output_quantization = op_types_to_quantize # don't add qdq to node's output to avoid accuracy drop
-    is_using_hf = False 
+    is_using_hf = True 
 
     # Create data reader
     if is_using_hf:
@@ -104,7 +104,7 @@ if __name__ == '__main__':
         [], #nodes_to_quantize
         [], #nodes_to_exclude
         op_types_to_quantize,
-        # op_types_to_exclude_output_quantization,
+        op_types_to_exclude_output_quantization,
         {'ActivationSymmetric' : True, 'AddQDQPairToWeight' : True}) #extra_options
     quantizer.quantize_model()
     quantizer.model.save_model_to_file(qdq_model_path, False)
@@ -118,11 +118,11 @@ if __name__ == '__main__':
     sess_options.graph_optimization_level = onnxruntime.GraphOptimizationLevel.ORT_DISABLE_ALL
     session = onnxruntime.InferenceSession(qdq_model_path, sess_options=sess_options, providers=["TensorrtExecutionProvider", "CUDAExecutionProvider"])
     if is_using_hf:
-        trainer = HFBertDataReader(trainer_args_dict, calib_args_dict, session).trainer
-
+        data_reader = HFBertDataReader(trainer_args_dict, calib_args_dict, session).trainer
+        trainer = data_reader.trainer
         metrics = trainer.evaluate()
-        # max_eval_samples = data_args.max_eval_samples if data_args.max_eval_samples is not None else len(eval_dataset)
-        max_eval_samples = len(trainer.eval_dataset)
+
+        max_eval_samples = data_reader.data_args.max_eval_samples if data_reader.data_args.max_eval_samples is not None else len(trainer.eval_dataset)
         metrics["eval_samples"] = min(max_eval_samples, len(trainer.eval_dataset))
 
         trainer.log_metrics("eval", metrics)

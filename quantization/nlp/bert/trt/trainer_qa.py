@@ -197,9 +197,10 @@ class QuestionAnsweringTrainer(Trainer):
                     logits = outputs[1:]
             else:
                 loss = None
+                # TODO: We will remove pytorch model's inference to save time and memory
                 outputs = model(**inputs)
 
-                # replace with ort outputs
+                # replace outputs with ort outputs 
                 ort_inputs = {}
                 for key, value in inputs.items():
                     ort_inputs[key] = value.cpu().numpy()

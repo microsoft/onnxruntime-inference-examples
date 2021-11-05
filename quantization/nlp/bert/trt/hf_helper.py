@@ -32,7 +32,7 @@ import datasets
 from datasets import load_dataset, load_metric
 
 import quant_trainer
-from trainer_qat_qa import QuestionAnsweringTrainer
+from trainer_qa import QuestionAnsweringTrainer
 
 import logging
 
@@ -199,7 +199,7 @@ class HFBertDataReader(CalibrationDataReader):
                  calib_args_dict={},
                  ort_session=None,
                  start_index=0,
-                 end_index=-1,
+                 end_index=0,
                  ):
 
         # See all possible arguments in src/transformers/training_args.py
@@ -221,7 +221,7 @@ class HFBertDataReader(CalibrationDataReader):
         # quant_trainer arguments
         calib_args_parser = argparse.ArgumentParser()
         quant_trainer.add_arguments(calib_args_parser)
-        quant_trainer_args = calib_args_parser.parse_args(self.convert_dict_to_args(calib_args_dict))
+        quant_trainer_args = calib_args_parser.parse_args(calib_args_dict)
 
         self.model_args = model_args
         self.data_args = data_args 
@@ -335,64 +335,13 @@ class HFBertDataReader(CalibrationDataReader):
         self.max_seq_length = max_seq_length
         self.pad_on_right = pad_on_right
 
-        # Validation preprocessing
-        def prepare_validation_features(examples):
-            # Tokenize our examples with truncation and maybe padding, but keep the overflows using a stride. This results
-            # in one example possible giving several features when a context is long, each of those features having a
-            # context that overlaps a bit the context of the previous feature.
-            tokenized_examples = tokenizer(
-                examples[question_column_name if pad_on_right else context_column_name],
-                examples[context_column_name if pad_on_right else question_column_name],
-                truncation="only_second" if pad_on_right else "only_first",
-                max_length=max_seq_length,
-                stride=data_args.doc_stride,
-                return_overflowing_tokens=True,
-                return_offsets_mapping=True,
-                padding="max_length" if data_args.pad_to_max_length else False,
-            )
-
-            # Since one example might give us several features if it has a long context, we need a map from a feature to
-            # its corresponding example. This key gives us just that.
-            sample_mapping = tokenized_examples.pop("overflow_to_sample_mapping")
-
-            # For evaluation, we will need to convert our predictions to substrings of the context, so we keep the
-            # corresponding example_id and we will store the offset mappings.
-            tokenized_examples["example_id"] = []
-
-            for i in range(len(tokenized_examples["input_ids"])):
-                # Grab the sequence corresponding to that example (to know what is the context and what is the question).
-                sequence_ids = tokenized_examples.sequence_ids(i)
-                context_index = 1 if pad_on_right else 0
-
-                # One example can give several spans, this is the index of the example containing this span of text.
-                sample_index = sample_mapping[i]
-                tokenized_examples["example_id"].append(examples["id"][sample_index])
-
-                # Set to None the offset_mapping that are not part of the context so it's easy to determine if a token
-                # position is part of the context or not.
-                tokenized_examples["offset_mapping"][i] = [
-                    (o if sequence_ids[k] == context_index else None)
-                    for k, o in enumerate(tokenized_examples["offset_mapping"][i])
-                ]
-
-            return tokenized_examples
-
         if "validation" not in raw_datasets:
             raise ValueError("--do_eval requires a validation dataset")
         eval_examples = raw_datasets["validation"]
         self.eval_examples = eval_examples
 
-        if data_args.max_eval_samples is not None:
-            # We will select sample from whole data
-            eval_examples = eval_examples.select(range(data_args.max_eval_samples))
-        elif end_index > start_index and  end_index != -1: 
-            eval_examples = eval_examples.select(range(start_index, end_index))
-
-        print("Length of eval eval_examples")
-        print(len(eval_examples))
-
         eval_dataset = eval_examples.map(
-            prepare_validation_features,
+            self.prepare_validation_features,
             batched=True,
             num_proc=data_args.preprocessing_num_workers,
             remove_columns=column_names,
@@ -457,76 +406,30 @@ class HFBertDataReader(CalibrationDataReader):
         )
 
         self.trainer = trainer
-        self.eval_dataloader = iter(self.trainer.get_eval_dataloader(eval_dataset))
+        self.update_load_range(start_index, end_index)
 
     def update_load_range(self, start_index, end_index):
-        tokenizer = self.tokenizer
         eval_examples = self.eval_examples
-        model_args = self.model_args
         data_args = self.data_args
-        training_args = self.training_args
-        quant_trainer_args = self.quant_trainer_args
         column_names = self.column_names
-        question_column_name = self.question_column_name
-        context_column_name = self.context_column_name
-        answer_column_name = self.answer_column_name
-        max_seq_length = self.max_seq_length
-        pad_on_right = self.pad_on_right
-        eval_examples = self.eval_examples
 
-        # Validation preprocessing
-        def prepare_validation_features(examples):
-            # Tokenize our examples with truncation and maybe padding, but keep the overflows using a stride. This results
-            # in one example possible giving several features when a context is long, each of those features having a
-            # context that overlaps a bit the context of the previous feature.
-            tokenized_examples = tokenizer(
-                examples[question_column_name if pad_on_right else context_column_name],
-                examples[context_column_name if pad_on_right else question_column_name],
-                truncation="only_second" if pad_on_right else "only_first",
-                max_length=max_seq_length,
-                stride=data_args.doc_stride,
-                return_overflowing_tokens=True,
-                return_offsets_mapping=True,
-                padding="max_length" if data_args.pad_to_max_length else False,
-            )
+        if start_index == 0 and end_index == 0:
+            end_index = len(eval_examples)
 
-            # Since one example might give us several features if it has a long context, we need a map from a feature to
-            # its corresponding example. This key gives us just that.
-            sample_mapping = tokenized_examples.pop("overflow_to_sample_mapping")
-
-            # For evaluation, we will need to convert our predictions to substrings of the context, so we keep the
-            # corresponding example_id and we will store the offset mappings.
-            tokenized_examples["example_id"] = []
-
-            for i in range(len(tokenized_examples["input_ids"])):
-                # Grab the sequence corresponding to that example (to know what is the context and what is the question).
-                sequence_ids = tokenized_examples.sequence_ids(i)
-                context_index = 1 if pad_on_right else 0
-
-                # One example can give several spans, this is the index of the example containing this span of text.
-                sample_index = sample_mapping[i]
-                tokenized_examples["example_id"].append(examples["id"][sample_index])
-
-                # Set to None the offset_mapping that are not part of the context so it's easy to determine if a token
-                # position is part of the context or not.
-                tokenized_examples["offset_mapping"][i] = [
-                    (o if sequence_ids[k] == context_index else None)
-                    for k, o in enumerate(tokenized_examples["offset_mapping"][i])
-                ]
-
-            return tokenized_examples
+        logger.info("Select eval examples from index " + str(start_index) + " to " + str(end_index))
 
         if data_args.max_eval_samples is not None:
             # We will select sample from whole data
             eval_examples = eval_examples.select(range(data_args.max_eval_samples))
-        elif end_index > start_index and  end_index != -1: 
+        elif end_index > start_index: 
             eval_examples = eval_examples.select(range(start_index, end_index))
+        else:
+            logger.warning("values of start_index and end_index are meaningless, adjust to include whole eval example")
 
-        print("Length of eval eval_examples")
-        print(len(eval_examples))
+        logger.info("Length of eval examples is " + str(len(eval_examples)))
 
         eval_dataset = eval_examples.map(
-            prepare_validation_features,
+            self.prepare_validation_features,
             batched=True,
             num_proc=data_args.preprocessing_num_workers,
             remove_columns=column_names,
@@ -535,31 +438,63 @@ class HFBertDataReader(CalibrationDataReader):
         )
 
         self.eval_dataloader = iter(self.trainer.get_eval_dataloader(eval_dataset))
+
+    # Validation preprocessing
+    def prepare_validation_features(self, examples):
+        tokenizer = self.tokenizer
+        data_args = self.data_args
+        question_column_name = self.question_column_name
+        context_column_name = self.context_column_name
+        answer_column_name = self.answer_column_name
+        max_seq_length = self.max_seq_length
+        pad_on_right = self.pad_on_right
+
+        # Tokenize our examples with truncation and maybe padding, but keep the overflows using a stride. This results
+        # in one example possible giving several features when a context is long, each of those features having a
+        # context that overlaps a bit the context of the previous feature.
+        tokenized_examples = tokenizer(
+            examples[question_column_name if pad_on_right else context_column_name],
+            examples[context_column_name if pad_on_right else question_column_name],
+            truncation="only_second" if pad_on_right else "only_first",
+            max_length=max_seq_length,
+            stride=data_args.doc_stride,
+            return_overflowing_tokens=True,
+            return_offsets_mapping=True,
+            padding="max_length" if data_args.pad_to_max_length else False,
+        )
+
+        # Since one example might give us several features if it has a long context, we need a map from a feature to
+        # its corresponding example. This key gives us just that.
+        sample_mapping = tokenized_examples.pop("overflow_to_sample_mapping")
+
+        # For evaluation, we will need to convert our predictions to substrings of the context, so we keep the
+        # corresponding example_id and we will store the offset mappings.
+        tokenized_examples["example_id"] = []
+
+        for i in range(len(tokenized_examples["input_ids"])):
+            # Grab the sequence corresponding to that example (to know what is the context and what is the question).
+            sequence_ids = tokenized_examples.sequence_ids(i)
+            context_index = 1 if pad_on_right else 0
+
+            # One example can give several spans, this is the index of the example containing this span of text.
+            sample_index = sample_mapping[i]
+            tokenized_examples["example_id"].append(examples["id"][sample_index])
+
+            # Set to None the offset_mapping that are not part of the context so it's easy to determine if a token
+            # position is part of the context or not.
+            tokenized_examples["offset_mapping"][i] = [
+                (o if sequence_ids[k] == context_index else None)
+                for k, o in enumerate(tokenized_examples["offset_mapping"][i])
+            ]
+
+        return tokenized_examples
+
     
-
-    def convert_dict_to_args(self, args_dict):
-        args = []
-        for key, value in args_dict.items():
-            if not key.startswith("--"):
-                key = "--" + key
-            # args.append(key)
-            args.append(key + " " + value)
-
-        return args
-
     def get_next(self):
         iter_data = next(self.eval_dataloader, None)
         if iter_data:
-            # print("-----------------------")
-            # print("len of input_ids")
-            # print(len(iter_data['input_ids']))
-            # print(iter_data)
             ort_inputs = {}
             for key, value in iter_data.items():
                 ort_inputs[key] = value.cpu().numpy()
-            # print("len of input_ids")
-            # print(len(ort_inputs['input_ids']))
-            # print(ort_inputs)
             return ort_inputs 
         return None
-
