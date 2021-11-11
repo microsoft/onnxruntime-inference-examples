@@ -338,6 +338,16 @@ class HFBertDataReader(CalibrationDataReader):
         if "validation" not in raw_datasets:
             raise ValueError("--do_eval requires a validation dataset")
         eval_examples = raw_datasets["validation"]
+        if data_args.max_eval_samples is not None:
+            # We will select sample from whole data
+            eval_examples = eval_examples.select(range(data_args.max_eval_samples))
+        elif end_index > start_index: 
+            eval_examples = eval_examples.select(range(start_index, end_index))
+        else:
+            logger.warning("values of start_index and end_index are meaningless, adjust to include whole eval example")
+
+        logger.info("Length of eval examples is " + str(len(eval_examples)))
+
         self.eval_examples = eval_examples
 
         eval_dataset = eval_examples.map(
@@ -406,38 +416,39 @@ class HFBertDataReader(CalibrationDataReader):
         )
 
         self.trainer = trainer
-        self.update_load_range(start_index, end_index)
-
-    def update_load_range(self, start_index, end_index):
-        eval_examples = self.eval_examples
-        data_args = self.data_args
-        column_names = self.column_names
-
-        if start_index == 0 and end_index == 0:
-            end_index = len(eval_examples)
-
-        logger.info("Select eval examples from index " + str(start_index) + " to " + str(end_index))
-
-        if data_args.max_eval_samples is not None:
-            # We will select sample from whole data
-            eval_examples = eval_examples.select(range(data_args.max_eval_samples))
-        elif end_index > start_index: 
-            eval_examples = eval_examples.select(range(start_index, end_index))
-        else:
-            logger.warning("values of start_index and end_index are meaningless, adjust to include whole eval example")
-
-        logger.info("Length of eval examples is " + str(len(eval_examples)))
-
-        eval_dataset = eval_examples.map(
-            self.prepare_validation_features,
-            batched=True,
-            num_proc=data_args.preprocessing_num_workers,
-            remove_columns=column_names,
-            load_from_cache_file=not data_args.overwrite_cache,
-            desc="Running tokenizer on validation dataset",
-        )
-
         self.eval_dataloader = iter(self.trainer.get_eval_dataloader(eval_dataset))
+        # self.update_load_range(start_index, end_index)
+
+    # def update_load_range(self, start_index, end_index):
+        # eval_examples = self.eval_examples
+        # data_args = self.data_args
+        # column_names = self.column_names
+
+        # if start_index == 0 and end_index == 0:
+            # end_index = len(eval_examples)
+
+        # logger.info("Select eval examples from index " + str(start_index) + " to " + str(end_index))
+
+        # if data_args.max_eval_samples is not None:
+            # # We will select sample from whole data
+            # eval_examples = eval_examples.select(range(data_args.max_eval_samples))
+        # elif end_index > start_index: 
+            # eval_examples = eval_examples.select(range(start_index, end_index))
+        # else:
+            # logger.warning("values of start_index and end_index are meaningless, adjust to include whole eval example")
+
+        # logger.info("Length of eval examples is " + str(len(eval_examples)))
+
+        # eval_dataset = eval_examples.map(
+            # self.prepare_validation_features,
+            # batched=True,
+            # num_proc=data_args.preprocessing_num_workers,
+            # remove_columns=column_names,
+            # load_from_cache_file=not data_args.overwrite_cache,
+            # desc="Running tokenizer on validation dataset",
+        # )
+
+        # self.eval_dataloader = iter(self.trainer.get_eval_dataloader(eval_dataset))
 
     # Validation preprocessing
     def prepare_validation_features(self, examples):

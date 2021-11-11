@@ -6,7 +6,8 @@ import json
 import sys
 import logging
 from pathlib import Path
-from onnxruntime.quantization import create_calibrator, CalibrationMethod, write_calibration_table, QuantType, QuantizationMode, QLinearOpsRegistry, QDQQuantizer
+# from onnxruntime.quantization import create_calibrator, CalibrationMethod, write_calibration_table, QuantType, QuantizationMode, QLinearOpsRegistry, QDQQuantizer
+from onnxruntime.quantization import create_calibrator, CalibrationMethod, write_calibration_table, QuantType, QuantizationMode, QDQQuantizer
 from hf_helper import HFBertDataReader 
 from helper import BertDataReader, BertEvaluater
 
@@ -42,6 +43,7 @@ if __name__ == '__main__':
     op_types_to_quantize = ['MatMul', 'Add']
     op_types_to_exclude_output_quantization = op_types_to_quantize # don't add qdq to node's output to avoid accuracy drop
     is_using_hf = True 
+    # is_using_hf = False 
 
     # Create data reader
     if is_using_hf:
@@ -59,7 +61,7 @@ if __name__ == '__main__':
             # we currently don't use HF's pytorch quantization for calibration, so leave it blank.  
         }
     
-        data_reader = HFBertDataReader(trainer_args_dict, calib_args_dict) 
+        # data_reader = HFBertDataReader(trainer_args_dict, calib_args_dict, start_index=0, end_index=calib_num) 
     else:
         batch_size = 1
         data_reader = BertDataReader(model_path, squad_json, vocab_file, batch_size, sequence_lengths)
@@ -67,8 +69,8 @@ if __name__ == '__main__':
 
     # Generate INT8 calibration cache
     logger.info("*** Calibration starts ***")
-    if not op_types_to_quantize or len(op_types_to_quantize) == 0:
-        op_types_to_quantize = list(QLinearOpsRegistry.keys())
+    # if not op_types_to_quantize or len(op_types_to_quantize) == 0:
+        # op_types_to_quantize = list(QLinearOpsRegistry.keys())
 
     calibrator = create_calibrator(model_path, op_types_to_quantize, augmented_model_path=augmented_model_path, calibrate_method=CalibrationMethod.Percentile)
     calibrator.set_execution_providers(["CUDAExecutionProvider"]) 
@@ -81,12 +83,18 @@ if __name__ == '__main__':
     '''
     stride = 10 
     for i in range(0, calib_num, stride):
-        data_reader.update_load_range(i, i+stride) 
+        if is_using_hf:
+            data_reader = HFBertDataReader(trainer_args_dict, calib_args_dict, start_index=i, end_index=i+stride) 
+        else:
+            data_reader.update_load_range(i, i+stride) 
         calibrator.collect_data(data_reader)
 
     compute_range = calibrator.compute_range()
     write_calibration_table(compute_range)
     logger.info("Calibration is done. Calibration cache is saved to calibration.json")
+
+    # with open('calibration.json', 'r') as f:
+        # compute_range=json.load(f)
 
     # Generate QDQ model
     logger.info("*** Generate QDQ model ***")
@@ -94,7 +102,7 @@ if __name__ == '__main__':
     model = onnx.load_model(Path(model_path), False)
     quantizer = QDQQuantizer(
         model,
-        False, #per_channel
+        True, #per_channel
         False, #reduce_range
         mode,
         True,  #static
@@ -104,8 +112,7 @@ if __name__ == '__main__':
         [], #nodes_to_quantize
         [], #nodes_to_exclude
         op_types_to_quantize,
-        op_types_to_exclude_output_quantization,
-        {'ActivationSymmetric' : True, 'AddQDQPairToWeight' : True}) #extra_options
+        {'ActivationSymmetric' : True, 'AddQDQPairToWeight' : True, 'AddQDQToAddNodeFollowedByReduceMeanNode': True, 'OpTypesToExcludeOutputQuantizatioin': op_types_to_quantize, 'DedicatedQDQPair': True, 'QDQChannelAxis': 1}) #extra_options
     quantizer.quantize_model()
     quantizer.model.save_model_to_file(qdq_model_path, False)
     logger.info("QDQ model is saved to " + qdq_model_path)
