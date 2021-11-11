@@ -17,6 +17,7 @@ class BertDataReader(CalibrationDataReader):
                  vocab_file,
                  batch_size,
                  max_seq_length,
+                 doc_stride,
                  start_index=0,
                  end_index=0):
         self.model_path = model_path
@@ -29,7 +30,7 @@ class BertDataReader(CalibrationDataReader):
         self.current_example_index = start_index
         self.current_feature_index = 0 # global feature index (one example can have more than one feature) 
         self.tokenizer = tokenization.BertTokenizer(vocab_file=vocab_file, do_lower_case=True)
-        self.doc_stride = 128
+        self.doc_stride = doc_stride 
         self.max_query_length = 64
         self.enum_data_dicts = iter([])
         self.features_list = []
@@ -207,7 +208,8 @@ if __name__ == '__main__':
     vocab_file = "./squad/vocab.txt"
     augmented_model_path = "./augmented_model.onnx"
     qdq_model_path = "./qdq_model.onnx"
-    sequence_lengths = [128]
+    sequence_lengths = [384, 128] # if use sequence length 384 then choose doc stride 128. if use sequence length 128 then choose doc stride 32.   
+    doc_stride = [128, 32]
     calib_num = 100
     op_types_to_quantize = ['MatMul', 'Add']
     batch_size = 1
@@ -225,7 +227,7 @@ if __name__ == '__main__':
     '''
     stride = 10
     for i in range(0, calib_num, stride):
-        data_reader = BertDataReader(model_path, squad_json, vocab_file, batch_size, sequence_lengths[-1], start_index=i, end_index=(i+stride))
+        data_reader = BertDataReader(model_path, squad_json, vocab_file, batch_size, sequence_lengths[-1], doc_stride[-1], start_index=i, end_index=(i+stride))
         calibrator.collect_data(data_reader)
 
     compute_range = calibrator.compute_range()
@@ -257,7 +259,7 @@ if __name__ == '__main__':
     os.environ["ORT_TENSORRT_FP16_ENABLE"] = "1"  # Enable TRT FP16 precision
     os.environ["ORT_TENSORRT_INT8_ENABLE"] = "1"  # Enable TRT INT8 precision
     batch_size = 1 
-    data_reader = BertDataReader(qdq_model_path, squad_json, vocab_file, batch_size, sequence_lengths[-1])
+    data_reader = BertDataReader(qdq_model_path, squad_json, vocab_file, batch_size, sequence_lengths[-1], doc_stride[-1])
     sess_options = onnxruntime.SessionOptions()
     sess_options.graph_optimization_level = onnxruntime.GraphOptimizationLevel.ORT_DISABLE_ALL
     session = onnxruntime.InferenceSession(qdq_model_path, sess_options=sess_options, providers=["TensorrtExecutionProvider", "CUDAExecutionProvider"])
