@@ -8,7 +8,7 @@ import data_processing as dp
 import tokenization
 from pathlib import Path
 import subprocess
-from onnxruntime.quantization import CalibrationDataReader, create_calibrator, CalibrationMethod, write_calibration_table, QuantType, QuantizationMode, QLinearOpsRegistry, QDQQuantizer
+from onnxruntime.quantization import CalibrationDataReader, create_calibrator, CalibrationMethod, write_calibration_table, QuantType, QuantizationMode, QDQQuantizer
 
 class BertDataReader(CalibrationDataReader):
     def __init__(self,
@@ -210,14 +210,10 @@ if __name__ == '__main__':
     sequence_lengths = [128]
     calib_num = 100
     op_types_to_quantize = ['MatMul', 'Add']
-    op_types_to_exclude_output_quantization = op_types_to_quantize # don't add qdq to node's output to avoid accuracy drop
     batch_size = 1
 
     # Generate INT8 calibration cache
     print("Calibration starts ...")
-    if not op_types_to_quantize or len(op_types_to_quantize) == 0:
-        op_types_to_quantize = list(QLinearOpsRegistry.keys())
-
     calibrator = create_calibrator(model_path, op_types_to_quantize, augmented_model_path=augmented_model_path, calibrate_method=CalibrationMethod.Percentile)
     calibrator.set_execution_providers(["CUDAExecutionProvider"]) 
 
@@ -242,7 +238,7 @@ if __name__ == '__main__':
     model = onnx.load_model(Path(model_path), False)
     quantizer = QDQQuantizer(
         model,
-        False, #per_channel
+        True, #per_channel
         False, #reduce_range
         mode,
         True,  #static
@@ -252,8 +248,7 @@ if __name__ == '__main__':
         [], #nodes_to_quantize
         [], #nodes_to_exclude
         op_types_to_quantize,
-        op_types_to_exclude_output_quantization,
-        {'ActivationSymmetric' : True, 'AddQDQPairToWeight' : True}) #extra_options
+        {'ActivationSymmetric' : True, 'AddQDQPairToWeight' : True, 'AddQDQToAddNodeFollowedByReduceMeanNode': True, 'OpTypesToExcludeOutputQuantizatioin': op_types_to_quantize, 'DedicatedQDQPair': True, 'QDQChannelAxis': 1}) #extra_options
     quantizer.quantize_model()
     quantizer.model.save_model_to_file(qdq_model_path, False)
     print("QDQ model is saved to ", qdq_model_path)
