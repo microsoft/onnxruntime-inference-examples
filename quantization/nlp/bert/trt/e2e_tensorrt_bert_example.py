@@ -1,33 +1,33 @@
 import os
 import onnx
-import glob
-import scipy.io
+import onnxruntime
 import numpy as np
-import logging
-from PIL import Image
 import json
 import collections
-import six
-import unicodedata
-import onnx
-import onnxruntime
-import sys
 import data_processing as dp
 import tokenization
 from pathlib import Path
 import subprocess
-from onnxruntime.quantization import CalibrationDataReader, create_calibrator, write_calibration_table, QuantType, QuantizationMode, QLinearOpsRegistry, QDQQuantizer
+from onnxruntime.quantization import CalibrationDataReader, create_calibrator, CalibrationMethod, write_calibration_table, QuantType, QuantizationMode, QLinearOpsRegistry, QDQQuantizer
 
 class BertDataReader(CalibrationDataReader):
-    def __init__(self, model_path, squad_json, vocab_file, batch_size, max_seq_length, num_inputs=None):
+    def __init__(self,
+                 model_path,
+                 squad_json,
+                 vocab_file,
+                 batch_size,
+                 max_seq_length,
+                 start_index=0,
+                 end_index=0):
         self.model_path = model_path
         self.data = dp.read_squad_json(squad_json)
         self.max_seq_length = max_seq_length
         self.batch_size = batch_size
-        self.example_stride = batch_size 
-        self.current_example_index = 0 # example index
-        self.current_feature_index = 0 # global feature index 
-        self.num_inputs = min(num_inputs, len(self.data)) if num_inputs else len(self.data)
+        self.example_stride = batch_size # number of examples as one example stride. (set to equal to batch size) 
+        self.start_index = start_index # squad example index to start with
+        self.end_index = len(self.data) if end_index == 0 else end_index 
+        self.current_example_index = start_index
+        self.current_feature_index = 0 # global feature index (one example can have more than one feature) 
         self.tokenizer = tokenization.BertTokenizer(vocab_file=vocab_file, do_lower_case=True)
         self.doc_stride = 128
         self.max_query_length = 64
@@ -35,7 +35,7 @@ class BertDataReader(CalibrationDataReader):
         self.features_list = []
         self.token_list = []
         self.example_id_list = []
-        self.start_of_new_stride = False
+        self.start_of_new_stride = False # flag to inform that it's a start of new example stride
 
     def get_next(self):
         iter_data = next(self.enum_data_dicts, None)
@@ -44,11 +44,11 @@ class BertDataReader(CalibrationDataReader):
             return iter_data
 
         self.enum_data_dicts = None
-        if self.current_example_index >= self.num_inputs:
-            print("Reading dataset is done. Total examples is {:}".format(self.num_inputs))
+        if self.current_example_index >= self.end_index:
+            print("Reading dataset is done. Total examples is {:}".format(self.end_index-self.start_index))
             return None
-        elif self.current_example_index + self.example_stride > self.num_inputs:
-            self.example_stride = self.num_inputs - self.current_example_index
+        elif self.current_example_index + self.example_stride > self.end_index:
+            self.example_stride = self.end_index - self.current_example_index
 
         if self.current_example_index % 10 == 0:
             current_batch = int(self.current_feature_index / self.batch_size) 
@@ -207,19 +207,31 @@ if __name__ == '__main__':
     vocab_file = "./squad/vocab.txt"
     augmented_model_path = "./augmented_model.onnx"
     qdq_model_path = "./qdq_model.onnx"
-    sequence_lengths = [384]
+    sequence_lengths = [128]
     calib_num = 100
-    op_types_to_quantize = ['MatMul', 'Transpose', 'Add']
+    op_types_to_quantize = ['MatMul', 'Add']
+    op_types_to_exclude_output_quantization = op_types_to_quantize # don't add qdq to node's output to avoid accuracy drop
     batch_size = 1
 
     # Generate INT8 calibration cache
     print("Calibration starts ...")
     if not op_types_to_quantize or len(op_types_to_quantize) == 0:
         op_types_to_quantize = list(QLinearOpsRegistry.keys())
-    calibrator = create_calibrator(model_path, op_types_to_quantize, augmented_model_path=augmented_model_path)
+
+    calibrator = create_calibrator(model_path, op_types_to_quantize, augmented_model_path=augmented_model_path, calibrate_method=CalibrationMethod.Percentile)
     calibrator.set_execution_providers(["CUDAExecutionProvider"]) 
-    data_reader = BertDataReader(model_path, squad_json, vocab_file, batch_size, sequence_lengths[-1], calib_num)
-    calibrator.collect_data(data_reader)
+
+    '''
+    We can use one data reader to do data pre-processing, however,
+    some machines don't have sufficient memory to hold all dataset and all intermediate output,
+    especially using 'Entropy' or 'Percentile' calibrator which collects histogram for tensors.
+    So let multiple data readers to handle different stride of dataset to avoid OOM.
+    '''
+    stride = 10
+    for i in range(0, calib_num, stride):
+        data_reader = BertDataReader(model_path, squad_json, vocab_file, batch_size, sequence_lengths[-1], start_index=i, end_index=(i+stride))
+        calibrator.collect_data(data_reader)
+
     compute_range = calibrator.compute_range()
     write_calibration_table(compute_range)
     print("Calibration is done. Calibration cache is saved to calibration.json")
@@ -240,7 +252,8 @@ if __name__ == '__main__':
         [], #nodes_to_quantize
         [], #nodes_to_exclude
         op_types_to_quantize,
-        {'ActivationSymmetric' : True}) #extra_options
+        op_types_to_exclude_output_quantization,
+        {'ActivationSymmetric' : True, 'AddQDQPairToWeight' : True}) #extra_options
     quantizer.quantize_model()
     quantizer.model.save_model_to_file(qdq_model_path, False)
     print("QDQ model is saved to ", qdq_model_path)
