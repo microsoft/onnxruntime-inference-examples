@@ -185,6 +185,26 @@ def inference(data_reader, ort_session):
 
     return all_predictions
 
+def get_op_nodes_not_followed_by_specific_op(model, op1, op2):
+    op1_nodes = []
+    op2_nodes = []
+    selected_op1_nodes = []
+    not_selected_op1_nodes = []
+
+    for node in model.graph.node:
+        if node.op_type == op1:
+            op1_nodes.append(node)
+        if node.op_type == op2:
+            op2_nodes.append(node)
+
+    for op1_node in op1_nodes:
+        for op2_node in op2_nodes:
+            if op1_node.output == op2_node.input:
+                selected_op1_nodes.append(op1_node.name)
+        if op1_node.name not in selected_op1_nodes:
+            not_selected_op1_nodes.append(op1_node.name)
+
+    return not_selected_op1_nodes
 
 if __name__ == '__main__':
     '''
@@ -238,6 +258,10 @@ if __name__ == '__main__':
     mode = QuantizationMode.QLinearOps
 
     model = onnx.load_model(Path(model_path), False)
+
+    # In TRT, it recommended to add QDQ pair to inputs of Add node followed by ReduceMean node.
+    nodes_to_exclude = get_op_nodes_not_followed_by_specific_op(model, "Add", "ReduceMean")
+
     quantizer = QDQQuantizer(
         model,
         True, #per_channel
@@ -248,9 +272,9 @@ if __name__ == '__main__':
         QuantType.QInt8, #activation_type
         compute_range,
         [], #nodes_to_quantize
-        [], #nodes_to_exclude
+        nodes_to_exclude,
         op_types_to_quantize,
-        {'ActivationSymmetric' : True, 'AddQDQPairToWeight' : True, 'AddQDQToAddNodeFollowedByReduceMeanNode': True, 'OpTypesToExcludeOutputQuantizatioin': op_types_to_quantize, 'DedicatedQDQPair': True, 'QDQChannelAxis': 1}) #extra_options
+        {'ActivationSymmetric' : True, 'AddQDQPairToWeight' : True, 'OpTypesToExcludeOutputQuantizatioin': op_types_to_quantize, 'DedicatedQDQPair': True, 'OpTypesSupportPerChannelQuantization': op_types_to_quantize, 'QDQChannelAxis': 1}) #extra_options
     quantizer.quantize_model()
     quantizer.model.save_model_to_file(qdq_model_path, False)
     print("QDQ model is saved to ", qdq_model_path)
