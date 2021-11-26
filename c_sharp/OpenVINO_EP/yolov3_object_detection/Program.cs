@@ -144,7 +144,7 @@ namespace yolov3
 
             // Put boxes, labels and confidence on image and save for viewing
             using var outputImage = File.OpenWrite(outImageFilePath);
-            Font font = SystemFonts.CreateFont("Arial", 16);
+            Font font = SystemFonts.CreateFont("FreeMono", 16);
             foreach (var p in predictions)
             {
                 imageOrg.Mutate(x =>
