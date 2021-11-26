@@ -10,10 +10,10 @@ The source code for this sample is available [here](https://github.com/microsoft
 
 ## Prerequisites
 1. [The Intel<sup>®</sup> Distribution of OpenVINO toolkit](https://docs.openvinotoolkit.org/latest/index.html)
-
 2. Use opencv (use the same opencv package that comes builtin with Intel<sup>®</sup> Distribution of OpenVINO toolkit)
-3. Use any sample image as input to the sample.
-4. Download the latest Squeezenet model from the ONNX Model Zoo.
+3. Use opencl for IO buffer sample (squeezenet_cpp_app_io.cpp).
+4. Use any sample image as input to the sample.
+5. Download the latest Squeezenet model from the ONNX Model Zoo.
    This example was adapted from [ONNX Model Zoo](https://github.com/onnx/models).Download the latest version of the [Squeezenet](https://github.com/onnx/models/tree/master/vision/classification/squeezenet) model from here.
 
 
@@ -49,15 +49,15 @@ export OPENCL_INCS=path/to/your/directory/openvino/thirdparty/ocl/clhpp_headers/
       Note: This build command is using the opencv location from OpenVINO 2021.4.1 Release Installation. You can use any version of OpenVINO and change the location path accordingly.
 
    - For the sample using IO Buffer Optimization feature
-         Set the OpenCL lib and headers path. For example if you are setting the path from openvino source build folder, the paths will be like:
-         ```
-         export OPENCL_LIBS=path/to/your/directory/openvino/bin/intel64/Debug/lib/
-	      export OPENCL_INCS=path/to/your/directory/openvino/thirdparty/ocl/clhpp_headers/include/
-         ```
-         Now based on tghe above path, compile command will be:
-         ```
-         g++ -o run_squeezenet_io squeezenet_cpp_app_io.cpp -I ../../../include/onnxruntime/core/session/ -I $OPENCL_INCS -I $OPENCL_INCS/../../cl_headers/ -I /opt/intel/openvino_2021.4.752/opencv/include/ -I /opt/intel/openvino_2021.4.752/opencv/lib/ -L ./ -lonnxruntime_providers_openvino -lonnxruntime_providers_shared -lonnxruntime -L /opt/intel/openvino_2021.4.752/opencv/lib/ -lopencv_imgcodecs -lopencv_dnn -lopencv_core -lopencv_imgproc -L $OPENCL_LIBS -lOpenCL
-         ```
+      Set the OpenCL lib and headers path. For example if you are setting the path from openvino source build folder, the paths will be like:
+      ```
+      export OPENCL_LIBS=path/to/your/directory/openvino/bin/intel64/Debug/lib/
+      export OPENCL_INCS=path/to/your/directory/openvino/thirdparty/ocl/clhpp_headers/include/
+      ```
+      Now based on the above path, compile command will be:
+      ```
+      g++ -o run_squeezenet squeezenet_cpp_app_io.cpp -I ../../../include/onnxruntime/core/session/ -I $OPENCL_INCS -I $OPENCL_INCS/../../cl_headers/ -I /opt/intel/openvino_2021.4.752/opencv/include/ -I /opt/intel/openvino_2021.4.752/opencv/lib/ -L ./ -lonnxruntime_providers_openvino -lonnxruntime_providers_shared -lonnxruntime -L /opt/intel/openvino_2021.4.752/opencv/lib/ -lopencv_imgcodecs -lopencv_dnn -lopencv_core -lopencv_imgproc -L $OPENCL_LIBS -lOpenCL
+      ```
 
 4. Run the sample
 
