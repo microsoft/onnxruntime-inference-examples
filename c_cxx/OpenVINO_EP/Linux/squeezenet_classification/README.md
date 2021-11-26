@@ -41,12 +41,14 @@ export OPENCL_INCS=path/to/your/directory/openvino/thirdparty/ocl/clhpp_headers/
 2. Now copy all the files required to run this sample at this same location (/onnxruntime/build/Linux/Release/)
 
 3. compile the sample
-   a. For general sample
+
+   - For general sample
       ```
       g++ -o run_squeezenet squeezenet_cpp_app.cpp -I ../../../include/onnxruntime/core/session/ -I /opt/intel/openvino_2021.4.752/opencv/include/ -I /opt/intel/openvino_2021.4.752/opencv/lib/ -L ./ -lonnxruntime_providers_openvino -lonnxruntime_providers_shared -lonnxruntime -L /opt/intel/openvino_2021.4.752/opencv/lib/ -lopencv_imgcodecs -lopencv_dnn -lopencv_core -lopencv_imgproc
       ```
       Note: This build command is using the opencv location from OpenVINO 2021.4.1 Release Installation. You can use any version of OpenVINO and change the location path accordingly.
-   b. For the sample using IO Buffer Optimization feature
+
+   - For the sample using IO Buffer Optimization feature
          Set the OpenCL lib and headers path. For example if you are setting the path from openvino source build folder, the paths will be like:
          ```
          export OPENCL_LIBS=path/to/your/directory/openvino/bin/intel64/Debug/lib/
@@ -59,23 +61,23 @@ export OPENCL_INCS=path/to/your/directory/openvino/thirdparty/ocl/clhpp_headers/
 
 4. Run the sample
 
-To Run the general sample
-   (using Intel OpenVINO-EP)
-   ```
-   ./run_squeezenet --use_openvino <path_to_onnx_model> <path_to_sample_image> <path_to_labels_file>
-   ```
-   Example:
-   ```
-   ./run_squeezenet --use_openvino squeezenet1.1-7.onnx demo.jpeg synset.txt  (using Intel OpenVINO-EP)
-   ```
-   (using Default CPU)
-   ```
-   ./run_squeezenet --use_cpu <path_to_onnx_model> <path_to_sample_image> <path_to_labels_file>
-   ```
-To Run the sample for IO Buffer Optimization feature
-   ```
-   ./run_squeezenet <path_to_onnx_model> <path_to_sample_image> <path_to_labels_file>
-   ```
+   - To Run the general sample
+      (using Intel OpenVINO-EP)
+      ```
+      ./run_squeezenet --use_openvino <path_to_onnx_model> <path_to_sample_image> <path_to_labels_file>
+      ```
+      Example:
+      ```
+      ./run_squeezenet --use_openvino squeezenet1.1-7.onnx demo.jpeg synset.txt  (using Intel OpenVINO-EP)
+      ```
+      (using Default CPU)
+      ```
+      ./run_squeezenet --use_cpu <path_to_onnx_model> <path_to_sample_image> <path_to_labels_file>
+      ```
+   - To Run the sample for IO Buffer Optimization feature
+      ```
+      ./run_squeezenet <path_to_onnx_model> <path_to_sample_image> <path_to_labels_file>
+      ```
 
 ## References:
 
