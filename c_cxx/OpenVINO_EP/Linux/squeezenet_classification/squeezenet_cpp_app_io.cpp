@@ -359,19 +359,6 @@ int main(int argc, char* argv[])
         info_gpu, shared_buffer_out_void, imgSizeO, outputDims.data(),
         outputDims.size(), ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT);
 
-    /*------------------------------------------------------------------------*/
-  
-    /*If you want to create CPU Folders
-    
-    Ort::MemoryInfo memoryInfo = Ort::MemoryInfo::CreateCpu(
-        OrtAllocatorType::OrtArenaAllocator, OrtMemType::OrtMemTypeDefault);
-    Ort::Value inputTensors = Ort::Value::CreateTensor<float>(
-        memoryInfo, inputTensorValues.data(), inputTensorSize,
-        inputDims.data(), inputDims.size());
-    Ort::Value outputTensors = Ort::Value::CreateTensor<float>(
-        memoryInfo, outputTensorValues.data(), outputTensorSize,
-        outputDims.data(), outputDims.size());*/
-
     std::cout << "Before Running\n";
     session.Run(Ort::RunOptions{nullptr}, inputNames.data(), &inputTensors, 1, outputNames.data(), &outputTensors, 1);
 
