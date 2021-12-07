@@ -13,7 +13,7 @@ namespace VisionSample
     {
         protected virtual SKBitmap OnPreprocessSourceImage(SKBitmap sourceImage) => sourceImage;
         protected virtual Tensor<TTensor> OnGetTensorForImage(SKBitmap image) => throw new NotImplementedException();
-        protected virtual void OnPrepareToApplyPredications(SKBitmap image, SKCanvas canvas) { }
+        protected virtual void OnPrepareToApplyPredictions(SKBitmap image, SKCanvas canvas) { }
         protected virtual void OnApplyPrediction(TPrediction prediction, SKPaint textPaint, SKPaint rectPaint, SKCanvas canvas) { }
 
         public byte[] ApplyPredictionsToImage(IList<TPrediction> predictions, SKBitmap image)
@@ -32,7 +32,7 @@ namespace VisionSample
 
             canvas.DrawBitmap(image, 0, 0);
 
-            OnPrepareToApplyPredications(image, canvas);
+            OnPrepareToApplyPredictions(image, canvas);
 
             foreach (var prediction in predictions)
                 OnApplyPrediction(prediction, textPaint, rectPaint, canvas);

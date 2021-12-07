@@ -51,7 +51,7 @@ namespace VisionSample
                                 else
                                 {
                                     // create session that uses the NNAPI/CoreML. the CPU execution provider is also
-                                    // enabled by default to handle any parts of the model taht NNAPI/CoreML cannot.
+                                    // enabled by default to handle any parts of the model that NNAPI/CoreML cannot.
                                     var options = SessionOptionsContainer.Create(nameof(ExecutionProviderOptions.Platform));
                                     _session = new InferenceSession(_model, options);
                                 }
