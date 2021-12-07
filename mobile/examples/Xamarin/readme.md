@@ -41,7 +41,7 @@ From this directory:
 > You may need to reload [VisionSample.csproj](VisionSample/VisionSample/VisionSample.csproj) before newly added model files will appear in [Visual Studio Solution Explorer](https://docs.microsoft.com/visualstudio/ide/use-solution-explorer?view=vs-2022).
 
 ### Use ONNX Runtime prerelease nuget packages
-If you want to use a prerelease version of ONNX Runtime nuget packages from the integration repository, you may want to add the following line to [nuget.config](nuget.config)
+If you want to use a prerelease version of ONNX Runtime nuget packages from the integration repository, update the [nuget.config](nuget.config)
 ```diff
    <add key="NuGetOrg" value="https://api.nuget.org/v3/index.json" />
 +   <add key="INT NuGetOrg" value="https://apiint.nugettest.org/v3/index.json" />
