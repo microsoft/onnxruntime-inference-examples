@@ -27,6 +27,7 @@
 
   <ItemGroup>
     <EmbeddedResource Include="SampleImages\dog.jpg" />
+    <EmbeddedResource Include="SampleImages\satya.jpg" />
   </ItemGroup>
 
 </Project>
