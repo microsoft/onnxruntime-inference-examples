@@ -22,7 +22,7 @@
   </ItemGroup>
   <ItemGroup>
     <!-- TODO: Update to use official package once Xamarin support is added to it -->
-    <PackageReference Include="Microsoft.ML.OnnxRuntime.Managed" Version="1.10.0-dev-20211202-0505-6a1d8bf4a" />
+    <PackageReference Include="Microsoft.ML.OnnxRuntime.Managed" Version="1.10.0" />
     <PackageReference Include="SkiaSharp" Version="2.80.3" />
   </ItemGroup>
 </Project>
