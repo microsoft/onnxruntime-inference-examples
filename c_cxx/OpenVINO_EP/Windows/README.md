@@ -28,7 +28,7 @@ git clone https://github.com/microsoft/onnxruntime-inference-examples.git
 Change your current directory to c_cxx\OpenVINO_EP\Windows, then run
 ```bat
 mkdir build && cd build
-cmake .. -A x64 -T host=x64 -Donnxruntime_USE_OPENVINO=ON -DONNXRUNTIME_ROOTDIR=c:\dev\ort_install -DOPENCV_ROOTDIR="C:\Program Files (x86)\Intel\openvino_2021.4.689\opencv"
+cmake .. -A x64 -T host=x64 -Donnxruntime_USE_OPENVINO=ON -DONNXRUNTIME_ROOTDIR=c:\dev\ort_install -DOPENCV_ROOTDIR="C:\Program Files (x86)\Intel\openvino_2021.4.752\opencv"
 ```
 Choose required opencv path. Skip the opencv flag if you don't want to build squeezenet sample.
 Build samples using msbuild either for Debug or Release configuration.

@@ -4,7 +4,7 @@
 
 2. The sample involves presenting an image to the ONNX Runtime (RT), which uses the OpenVINO Execution Provider for ONNX RT to run inference on various Intel hardware devices like Intel CPU, GPU, VPU and more. The sample uses OpenCV for image processing and ONNX Runtime OpenVINO EP for inference. After the sample image is inferred, the terminal will output the predicted label classes in order of their confidence.
 
-The source code for this sample is available [here](https://github.com/microsoft/onnxruntime-inference-examples/tree/main/c_cxx/OpenVINO_EP/squeezenet_classification).
+The source code for this sample is available [here](https://github.com/microsoft/onnxruntime-inference-examples/tree/main/c_cxx/OpenVINO_EP/Linux/squeezenet_classification).
 
 # How to build
 
@@ -46,7 +46,7 @@ export OPENCL_INCS=path/to/your/directory/openvino/thirdparty/ocl/clhpp_headers/
       ```
       g++ -o run_squeezenet squeezenet_cpp_app.cpp -I ../../../include/onnxruntime/core/session/ -I /opt/intel/openvino_2021.4.752/opencv/include/ -I /opt/intel/openvino_2021.4.752/opencv/lib/ -L ./ -lonnxruntime_providers_openvino -lonnxruntime_providers_shared -lonnxruntime -L /opt/intel/openvino_2021.4.752/opencv/lib/ -lopencv_imgcodecs -lopencv_dnn -lopencv_core -lopencv_imgproc
       ```
-      Note: This build command is using the opencv location from OpenVINO 2021.4.1 Release Installation. You can use any version of OpenVINO and change the location path accordingly.
+      Note: This build command is using the opencv location from OpenVINO 2021.4.2 Release Installation. You can use any version of OpenVINO and change the location path accordingly.
 
    - For the sample using IO Buffer Optimization feature
       Set the OpenCL lib and headers path. For example if you are setting the path from openvino source build folder, the paths will be like:
