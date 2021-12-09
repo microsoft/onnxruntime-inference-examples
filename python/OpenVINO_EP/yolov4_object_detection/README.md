@@ -36,7 +36,11 @@ The source code for this sample is available [here](https://github.com/microsoft
 * use any sample video with objects as test input to this sample
 * Download the tinyYOLOv2 model from the ONNX Model Zoo
 [Download Sample videos](https://github.com/intel-iot-devkit/sample-videos)
-* For all the python package dependencies requirements, check 'requirements.txt' file in the sample      directory.
+
+Note: For all the python package dependencies requirements, check 'requirements.txt' file in the sample directory. You may also install these dependencies with:
+```bash
+pip3 install -r requirements.txt
+```
 
 ## Running the ONNXRuntime OpenVINO Execution Provider sample
 

@@ -15,6 +15,7 @@ using SixLabors.ImageSharp.Processing;
 using SixLabors.ImageSharp.Formats;
 using SixLabors.ImageSharp.Drawing.Processing;
 using SixLabors.Fonts;
+using System.Runtime.InteropServices;
 
 namespace yolov3
 {
@@ -144,7 +145,8 @@ namespace yolov3
 
             // Put boxes, labels and confidence on image and save for viewing
             using var outputImage = File.OpenWrite(outImageFilePath);
-            Font font = SystemFonts.CreateFont("Arial", 16);
+            // Using FreeMono font for Linux and Arial for others
+            Font font = (RuntimeInformation.IsOSPlatform(OSPlatform.Linux)) ? SystemFonts.CreateFont("FreeMono", 16) : SystemFonts.CreateFont("Arial", 16);
             foreach (var p in predictions)
             {
                 imageOrg.Mutate(x =>
