@@ -32,3 +32,5 @@ Once QDQ model generation is done, the qdq_model.onnx will be saved.
 ## QDQ Model Evaluation
 Remember to set env variables, ORT_TENSORRT_FP16_ENABLE=1 and ORT_TENSORRT_INT8_ENABLE=1, to run QDQ model.
 We use evaluation tool from Nvidia TensorRT demo BERT repo to evaluate the result based on SQuAD v1.0 and SQuAD v2.0.
+
+Note: The input names of model in the e2e example is based on Hugging Face Model's naming. If model input names are not correct in your model, please modify the code ort_session.run(["output_start_logits","output_end_logits"], inputs) in the example.
