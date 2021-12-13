@@ -9,7 +9,7 @@ The source code for this sample is available [here](https://github.com/microsoft
 # How to build
 
 ## Prerequisites
-1. Install [.NET Core 3.1](https://dotnet.microsoft.com/download/dotnet-core/3.1) or higher for you OS (Mac, Windows or Linux).
+1. Install [.NET 5.0](https://dotnet.microsoft.com/download/dotnet/5.0) or higher for your OS (Mac, Windows or Linux).
 2. [The Intel<sup>®</sup> Distribution of OpenVINO toolkit](https://docs.openvinotoolkit.org/latest/index.html)
 3. Use any sample Image as input to the sample.
 4. Download the latest YOLOv3 model from the ONNX Model Zoo.
@@ -35,7 +35,7 @@ dotnet new console
 2. Install Nuget Packages of Onnxruntime and [ImageSharp](https://www.nuget.org/packages/SixLabors.ImageSharp)
     1. Open the Visual C# Project file (.csproj) using VS19.
     2. Right click on project, navigate to manage Nuget Packages.
-    3. Install SixLabors.ImageSharp Package from nuget.org.
+    3. Install SixLabors.ImageSharp, SixLabors.Core, SixLabors.Fonts and SixLabors.ImageSharp.Drawing Packages from nuget.org.
     4. Install Microsoft.ML.OnnxRuntime.Managed and Microsoft.ML.OnnxRuntime.Openvino from your build directory nuget-artifacts.
 
 3. Compile the sample
