@@ -3,7 +3,7 @@ There are two main steps for the quantization:
 1. Calibration is done based on SQuAD dataset to get dynamic range of floating point tensors in the model
 2. Q/DQ nodes with dynamic range (scale and zero-point) are inserted to the model
 
-After Qunatization is done, you can evaluate the QDQ model by running evaluation script we provide or your own script.
+After Quantization is done, you can evaluate the QDQ model by running evaluation script we provide or your own script.
 
 The **e2e_tensorrt_bert_example.py** is an end-to-end example for you to reference and run.
 
@@ -52,12 +52,12 @@ NVIDIA T4 with (1x T4 32G) GPUs.
 
 The accuracy results were obtained by running e2e_tensorrt_bert_example.py as above mentioned. 
 #### BERT Base
-| Sequence Length | Batch Size | FP16 Latency (ms) |  INT8 Latency (ms) |  FP16 Accuracy (F1) |    INT8 Accuracy (F1) |
-|-----------------|------------|-----------------|--------|-------------|---------|
-| 128 | 1 | 2.14245 ms | 1.65864 ms | 88.111 | 82.988 |
-| 384 | 1 | 4.55848 ms | 3.58168 ms | 88.595 | 82.739  |
+| Sequence Length | Batch Size | FP32 Latency (ms) | FP16 Latency (ms) |  INT8 Latency (ms) | FP32 Accuracy (F1) | FP16 Accuracy (F1) |    INT8 Accuracy (F1) |
+|-----------------|------------|----|-------------|--------|------|-------|---------|
+| 128 | 1 | 7.33134 ms| 2.14245 ms | 1.65864 ms |88.259| 88.111 | 82.988 |
+| 384 | 1 | 21.6183 ms| 4.55848 ms | 3.58168 ms |88.662| 88.595 | 82.739 |
 #### BERT Large
-| Sequence Length | Batch Size | FP16 Latency (ms) |  INT8 Latency (ms) |  FP16 Accuracy (F1) |    INT8 Accuracy (F1) |
-|-----------------|------------|-----------------|--------|-------------|---------|
-| 128 | 1 | 5.69197 ms | 4.46386 ms | 89.692 | 88.395 |
-| 384 | 1 | 14.5353 ms | 10.6119 ms | 89.747 | 89.541 |
+| Sequence Length | Batch Size | FP32 Latency (ms) | FP16 Latency (ms) |  INT8 Latency (ms) | FP32 Accuracy (F1) | FP16 Accuracy (F1) |    INT8 Accuracy (F1) |
+|-----------------|------------|----|-------------|--------|------|-------|---------|
+| 128 | 1 | 24.027  ms| 5.69197 ms | 4.46386 ms |90.109| 89.692 | 88.395 |
+| 384 | 1 | 70.6816 ms| 14.5353 ms | 10.6119 ms | 90.539|89.747 | 89.541 |
