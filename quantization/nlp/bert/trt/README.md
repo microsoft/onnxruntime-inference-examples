@@ -43,7 +43,7 @@ We use evaluation tool from Nvidia TensorRT demo BERT repo to evaluate the resul
 Note: The input names of model in the e2e example is based on Hugging Face Model's naming. If model input names are not correct in your model, please modify the code ort_session.run(["output_start_logits","output_end_logits"], inputs) in the example.
 
 ## Performance
-The performance results were obtained by running [onnxruntime_perf_test](https://github.com/microsoft/onnxruntime/tree/master/onnxruntime/test/perftest) with TensorRT 8.2.2.3 on
+The performance results were obtained by running [onnxruntime_perf_test](https://github.com/microsoft/onnxruntime/tree/master/onnxruntime/test/perftest) with TensorRT 8.2.2.1 on
 NVIDIA T4 with (1x T4 32G) GPUs. 
 ```shell
 ./onnxruntime_perf_test -e tensorrt -r 10000 qdq_model.onnx -o 0 -i 'trt_fp16_enable|true trt_int8_enable|true trt_engine_cache_enable|true'
