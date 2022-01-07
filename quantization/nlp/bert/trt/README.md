@@ -10,7 +10,7 @@ The **e2e_tensorrt_bert_example.py** is an end-to-end example for you to referen
 ## Requirements
 * Please build from latest ONNX Runtime source (see [here](https://onnxruntime.ai/docs/build/eps.html#tensorrt)) for now.
 We plan to include TensorRT QDQ support later in ONNX Runtime 1.11 for [ORT Python GPU Package](https://pypi.org/project/onnxruntime-gpu/)
-* TensorRT 8.2
+* TensorRT 8.2.2.1
 * Python 3+
 * numpy 
 * The onnx model used in the script is converted from Hugging Face BERT model. https://huggingface.co/transformers/serialization.html#converting-an-onnx-model-using-the-transformers-onnx-package
@@ -55,7 +55,7 @@ The accuracy results were obtained by running e2e_tensorrt_bert_example.py as ab
 | Sequence Length | Batch Size | FP32 Latency (ms) | FP16 Latency (ms) |  INT8 Latency (ms) | FP32 Accuracy (F1) | FP16 Accuracy (F1) |    INT8 Accuracy (F1) |
 |-----------------|------------|----|-------------|--------|------|-------|---------|
 | 128 | 1 | 7.33134 ms| 2.14245 ms | 1.65864 ms |88.259| 88.111 | 82.988 |
-| 384 | 1 | 21.6183 ms| 4.55848 ms | 3.58168 ms |88.662| 88.595 | 82.739 |
+| 384 | 1 | 21.6183 ms| 4.55848 ms | 3.58168 ms |88.662| 88.595 | 82.988 |
 #### BERT Large
 | Sequence Length | Batch Size | FP32 Latency (ms) | FP16 Latency (ms) |  INT8 Latency (ms) | FP32 Accuracy (F1) | FP16 Accuracy (F1) |    INT8 Accuracy (F1) |
 |-----------------|------------|----|-------------|--------|------|-------|---------|
