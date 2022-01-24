@@ -46,7 +46,7 @@ pip3 install -r requirements.txt
 
 ### How to run the sample
 ```bash
-python3 python3 yolov4.py --h
+python3 yolov4.py --h
 ```
 
 ### Run the sample on OpenVINO EP

@@ -1,7 +1,6 @@
 '''
 Copyright (C) 2021, Intel Corporation
 SPDX-License-Identifier: Apache-2.0
-
 Major Portions of this code are copyright of their respective authors and released under the Apache License Version 2.0:
 - onnx, Copyright 2021. For licensing see https://github.com/onnx/models/blob/master/LICENSE
 '''
@@ -75,16 +74,15 @@ else:
 if (not args.image):
     vid_writer = cv2.VideoWriter(outputFile, cv2.VideoWriter_fourcc('M','J','P','G'), 30, (round(cap.get(cv2.CAP_PROP_FRAME_WIDTH)),round(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))))
 
-#Specify the path to the ONNX model on your machine
-sess = rt.InferenceSession("yolov4/yolov4.onnx")
-
 device = args.device
 
 if(args.device == 'cpu'):
     print("Device type selected is 'cpu' which is the default CPU Execution Provider (MLAS)")
+    #Specify the path to the ONNX model on your machine and register the CPU EP
+    sess = rt.InferenceSession("yolov4/yolov4.onnx", providers=['CPUExecutionProvider'])
 else:
-    # Set OpenVINO as the Execution provider to infer this model
-    sess.set_providers(['OpenVINOExecutionProvider'], [{'device_type' : device}])
+    #Specify the path to the ONNX model on your machine and register the OpenVINO EP
+    sess = rt.InferenceSession("yolov4/yolov4.onnx", providers=['OpenVINOExecutionProvider'], provider_options=[{'device_type' : device}])
     print("Device type selected is: " + device + " using the OpenVINO Execution Provider")
     '''
     other 'device_type' options are: (Any hardware target can be assigned if you have the access to it)
@@ -185,7 +183,6 @@ def bboxes_iou(boxes1, boxes2):
 def nms(bboxes, iou_threshold, sigma=0.3, method='nms'):
     """
     :param bboxes: (xmin, ymin, xmax, ymax, score, class)
-
     Note: soft-nms, https://arxiv.org/pdf/1704.04503.pdf
           https://github.com/bharatsingh430/soft-nms
     """
