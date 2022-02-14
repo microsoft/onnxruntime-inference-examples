@@ -64,4 +64,8 @@ extends:
         - script: |
               curl -L -o onnxruntime.zip https://github.com/microsoft/onnxruntime/releases/download/v1.9.0/onnxruntime-win-x64-1.9.0.zip
               7z x onnxruntime.zip
+              where choco
               move onnxruntime-win-x64-1.9.0 onnxruntimebin
+              mkdir build
+              cd build
+              cmake $(REPOROOT)\c_cxx -A x64 -T host=x64 -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows-static "-DONNXRUNTIME_ROOTDIR=../onnxruntimebin"
