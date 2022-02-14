@@ -61,6 +61,5 @@ extends:
           ${{ if eq(variables['Build.SourceBranch'], 'refs/heads/master') }}:
             ob_symbolsPublishing_enabled: true
         steps:
-          - name: Download onnxruntime binary
-            run: |
+        - script: |
               curl -L -o onnxruntime.zip https://github.com/microsoft/onnxruntime/releases/download/v1.9.0/onnxruntime-win-x64-1.9.0.zip
