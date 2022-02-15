@@ -61,6 +61,11 @@ extends:
           ${{ if eq(variables['Build.SourceBranch'], 'refs/heads/master') }}:
             ob_symbolsPublishing_enabled: true
         steps:
+        - task: BatchScript@1
+          displayName: 'Run script VsDevCmd.bat to setup PATH environment'
+          inputs:
+            filename: 'C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\Common7\Tools\VsDevCmd.bat'
+            modifyEnvironment: true
         - script: |
               curl -L -o onnxruntime.zip https://github.com/microsoft/onnxruntime/releases/download/v1.9.0/onnxruntime-win-x64-1.9.0.zip
               7z x onnxruntime.zip
