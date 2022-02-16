@@ -17,11 +17,11 @@ jobs:
         uses: actions/checkout@v2
       - name: Download onnxruntime binary
         run: |          
-          aria2c -q -d $RUNNER_TEMP https://github.com/microsoft/onnxruntime/releases/download/v1.9.0/onnxruntime-linux-x64-1.9.0.tgz
+          aria2c -q -d $RUNNER_TEMP https://github.com/microsoft/onnxruntime/releases/download/v1.10.0/onnxruntime-linux-x64-1.10.0.tgz
           cd $RUNNER_TEMP
           mkdir onnxruntimebin
           cd onnxruntimebin
-          tar --strip=1 -zxvf $RUNNER_TEMP/onnxruntime-linux-x64-1.9.0.tgz
+          tar --strip=1 -zxvf $RUNNER_TEMP/onnxruntime-linux-x64-1.10.0.tgz
       - name: Build
         env:
             CC: gcc-${{ matrix.gcc }}
