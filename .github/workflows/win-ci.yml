@@ -16,10 +16,10 @@ jobs:
       - name: Download onnxruntime binary
         run: |
           choco install aria2 -y
-          aria2c -q -d $Env:RUNNER_TEMP -o onnxruntime.zip https://github.com/microsoft/onnxruntime/releases/download/v1.9.0/onnxruntime-win-x64-1.9.0.zip
+          aria2c -q -d $Env:RUNNER_TEMP -o onnxruntime.zip https://github.com/microsoft/onnxruntime/releases/download/v1.10.0/onnxruntime-win-x64-1.10.0.zip
           cd $Env:RUNNER_TEMP
           7z x $Env:RUNNER_TEMP/onnxruntime.zip
-          move onnxruntime-win-x64-1.9.0 onnxruntimebin
+          move onnxruntime-win-x64-1.10.0 onnxruntimebin
       - name: Add msbuild to PATH
         uses: microsoft/setup-msbuild@v1.0.2
         with:
@@ -41,10 +41,10 @@ jobs:
       - name: Download onnxruntime binary
         run: |
           choco install aria2 -y
-          aria2c -q -d $Env:RUNNER_TEMP -o onnxruntime.zip https://github.com/microsoft/onnxruntime/releases/download/v1.9.0/onnxruntime-win-x86-1.9.0.zip
+          aria2c -q -d $Env:RUNNER_TEMP -o onnxruntime.zip https://github.com/microsoft/onnxruntime/releases/download/v1.10.0/onnxruntime-win-x86-1.10.0.zip
           cd $Env:RUNNER_TEMP
           7z x $Env:RUNNER_TEMP/onnxruntime.zip
-          move onnxruntime-win-x86-1.9.0 onnxruntimebin
+          move onnxruntime-win-x86-1.10.0 onnxruntimebin
       - name: Add msbuild to PATH
         uses: microsoft/setup-msbuild@v1.0.2
         with:
