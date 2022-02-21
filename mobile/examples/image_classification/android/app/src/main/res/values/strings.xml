@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">Onnx Runtime Mobile Image Classifier</string>
+
+    <string-array name="execution_providers">
+        <item>CPU</item>
+        <item>OpenCL</item>
+    </string-array>
 </resources>

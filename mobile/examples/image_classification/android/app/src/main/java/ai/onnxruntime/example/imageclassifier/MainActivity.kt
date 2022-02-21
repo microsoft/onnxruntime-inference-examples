@@ -8,6 +8,10 @@ import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
+import android.view.View
+import android.widget.ArrayAdapter
+import android.widget.AdapterView
+import android.widget.Spinner
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.core.*
@@ -41,6 +45,25 @@ class MainActivity : AppCompatActivity() {
             ActivityCompat.requestPermissions(
                     this, REQUIRED_PERMISSIONS, REQUEST_CODE_PERMISSIONS
             )
+        }
+
+        val ep_selector: Spinner = findViewById(R.id.ep_selector)
+        var ep_adapter: ArrayAdapter<*> = ArrayAdapter.createFromResource(
+                this,
+                R.array.execution_providers,
+                android.R.layout.simple_spinner_item
+        )
+        ep_adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        ep_selector.adapter = ep_adapter
+        ep_selector.onItemSelectedListener = object: AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(adapterView: AdapterView<*>,  view: View, pos: Int, id: Long) {
+                val ep: String = adapterView.getItemAtPosition(pos) as String
+                selectEP(ep)
+            }
+
+            override fun onNothingSelected(adapterView: AdapterView<*>) {
+                Toast.makeText(applicationContext, "No EP", Toast.LENGTH_SHORT).show()
+            }
         }
 
         enable_quantizedmodel_toggle.setOnCheckedChangeListener { _, isChecked ->
@@ -157,6 +180,11 @@ class MainActivity : AppCompatActivity() {
     private suspend fun createOrtSession(): OrtSession? = withContext(Dispatchers.Default) {
         ortEnv?.createSession(readModel())
     }
+
+    private fun selectEP(ep: String) {
+        Toast.makeText(applicationContext, "Switching to EP " + ep, Toast.LENGTH_SHORT).show()
+    }
+
 
     // Create a new ORT session and then change the ImageAnalysis.Analyzer
     // This part is done in background to avoid blocking the UI
