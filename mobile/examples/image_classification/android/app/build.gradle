@@ -55,5 +55,6 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
 
-    implementation 'com.microsoft.onnxruntime:onnxruntime-mobile:latest.release'
+    // implementation 'com.microsoft.onnxruntime:onnxruntime-mobile:latest.release'
+    implementation files("$System.env.LOCAL_ORT_AAR_PATH")
 }
