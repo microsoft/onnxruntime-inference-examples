@@ -429,3 +429,5 @@ fastlane/test_output
 *.ort
 .model.onnx
 *.dylib
+.vscode
+

@@ -3,69 +3,111 @@ import numpy as np
 import torch
 import onnxruntime
 
-model_name = '.model.onnx'
+MODEL_FILE = '.model.onnx'
+DEVICE_NAME = 'cpu' # Replace this with 'cuda' or equivalent for other devices
+DEVICE_INDEX = 0    # Replace this with the index of the device you want to run on
 
+# A simple model to calculate addition of two tensors
 def model():
     class Model(torch.nn.Module):
         def __init__(self):
             super(Model, self).__init__()
 
-        def forward(self, x):
-            return torch.std_mean(x)
+        def forward(self, x, y):
+            return x.add(y)
 
     return Model()
 
+# Create an instance of the model and export it to ONNX graph format, with dynamic size for the data
 def create_model():
-    x = torch.rand(3)
-    torch.onnx.export(model(), x, model_name, input_names=["x"], output_names=["s", "m"], dynamic_axes={"x": {0 : "array_length"}})
+    sample_x = torch.rand(3)
+    sample_y = torch.rand(3)
 
-def run_default(x):
-    sess = onnxruntime.InferenceSession(model_name)
-    y = sess.run(["s", "m"], {"x": x})
-    print(y)    
+    torch.onnx.export(model(), (sample_x, sample_y), MODEL_FILE, input_names=["x", "y"], output_names=["z"],
+                               dynamic_axes={"x": {0 : "array_length_x"}, "y": {0: "array_length_y"}})
+ 
+# Run the model on CPU consuming and producing numpy arrays 
+def run(x: np.array, y: np.array) -> np.array:
+    session = onnxruntime.InferenceSession(MODEL_FILE)
 
-def run_with_data_on_cpu(x):
-   ortvalue = onnxruntime.OrtValue.ortvalue_from_numpy(x, 'cpu')
-   ortvalue.device_name()  # 'cpu'
-   ortvalue.shape()        # shape of the numpy array X
-   ortvalue.data_type()    # 'tensor(float)'
-   ortvalue.is_tensor()    # 'True'
-   np.array_equal(ortvalue.numpy(), x)  # 'True'
+    z = session.run(["z"], {"x": x, "y": y})
+    
+    return z[0]   
 
-   print(f'device_name: {ortvalue.device_name()}')
-   print(f'shape: {ortvalue.shape()}')
-   print(f'data_type: {ortvalue.data_type()}')
-   print(f'is_tensor: {ortvalue.is_tensor()}')
-   # ortvalue can be provided as part of the input feed to a model
-   sess = onnxruntime.InferenceSession(model_name)
-   y = sess.run(["s", "m"], {"x": ortvalue})
-   print(y)
+# Run the model on device consuming and producing ORTValues
+def run_with_data_on_device(x: np.array, y: np.array) -> list:
+    session = onnxruntime.InferenceSession(MODEL_FILE)
 
-def run_with_data_on_device(x):
-    x_ortvalue = onnxruntime.OrtValue.ortvalue_from_numpy(x, 'cpu', 0)
-    y = x=np.float32([1.0, 1.0])
-    y_ortvalue = onnxruntime.OrtValue.ortvalue_from_numpy(y, 'cpu', 0) 
+    x_ortvalue = onnxruntime.OrtValue.ortvalue_from_numpy(x, DEVICE_NAME, DEVICE_INDEX)
+    y_ortvalue = onnxruntime.OrtValue.ortvalue_from_numpy(y, DEVICE_NAME, DEVICE_INDEX)
 
-    print(f'3: y_ortvalue.shape: {y_ortvalue.shape()}')
-    session = onnxruntime.InferenceSession(model_name)
+
     io_binding = session.io_binding()
-    io_binding.bind_input(name='x', device_type=y_ortvalue.device_name(), device_id=0, element_type=np.float32, shape=x_ortvalue.shape(), buffer_ptr=x_ortvalue.data_ptr())
-    io_binding.bind_output(name='s', device_type=y_ortvalue.device_name(), device_id=0, element_type=np.float32, shape=y_ortvalue.shape(), buffer_ptr=y_ortvalue.data_ptr())
+    io_binding.bind_input(name='x', device_type=x_ortvalue.device_name(), device_id=0, element_type=np.float32, shape=x_ortvalue.shape(), buffer_ptr=x_ortvalue.data_ptr())
+    io_binding.bind_input(name='y', device_type=y_ortvalue.device_name(), device_id=0, element_type=np.float32, shape=y_ortvalue.shape(), buffer_ptr=y_ortvalue.data_ptr())
+    io_binding.bind_output(name='z', device_type=DEVICE_NAME, device_id=DEVICE_INDEX, element_type=np.float32, shape=x_ortvalue.shape())
     session.run_with_iobinding(io_binding)
 
-    print(x_ortvalue)
-    print(y_ortvalue)
+    z = io_binding.get_outputs()
+
+    return z[0]
+
+# Run the model on device consuming and producing native PyTorch tensors
+def run_with_tensors(x: torch.Tensor, y: torch.Tensor) -> torch.Tensor:
+    session = onnxruntime.InferenceSession(MODEL_FILE)
+
+    device = f'{DEVICE_NAME}:{DEVICE_INDEX}'
+
+    binding = session.io_binding()
+
+    x_tensor = x.contiguous()
+    y_tensor = y.contiguous()
+
+    binding.bind_input(
+        name='x',
+        device_type=DEVICE_NAME,
+        device_id=DEVICE_INDEX,
+        element_type=np.float32,
+        shape=tuple(x_tensor.shape),
+        buffer_ptr=x_tensor.data_ptr(),
+        )
+
+    binding.bind_input(
+        name='y',
+        device_type=DEVICE_NAME,
+        device_id=DEVICE_INDEX,
+        element_type=np.float32,
+        shape=tuple(y_tensor.shape),
+        buffer_ptr=y_tensor.data_ptr(),
+        )
+
+    ## Allocate the PyTorch tensor for the model output
+    z_tensor = torch.empty(x_tensor.shape, dtype=torch.float32, device=device).contiguous()
+    binding.bind_output(
+        name='z',
+        device_type=DEVICE_NAME,
+        device_id=DEVICE_INDEX,
+        element_type=np.float32,
+        shape=tuple(z_tensor.shape),
+        buffer_ptr=z_tensor.data_ptr(),
+    )
+
+    session.run_with_iobinding(binding)
+
+    return z_tensor
 
 
 def main():
     create_model()
 
-    run_default(x=np.float32([1.0, 2.0, 3.0]))
+    print(run(x=np.float32([1.0, 2.0, 3.0]),y=np.float32([4.0, 5.0, 6.0])))
+    # [array([5., 7., 9.], dtype=float32)]
 
-    run_with_data_on_cpu(x=np.float32([1.0, 2.0, 3.0, 4.0]))
+    print(run_with_data_on_device(x=np.float32([1.0, 2.0, 3.0, 4.0, 5.0]), y=np.float32([1.0, 2.0, 3.0, 4.0, 5.0])))
+    # 
 
-    run_with_data_on_device(x=np.float32([5.0, 10.0]))
-
+    print(run_with_tensors(torch.rand(5), torch.rand(5)))
+    # 
     
 
 if __name__ == "__main__":
