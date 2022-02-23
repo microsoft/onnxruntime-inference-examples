@@ -5,7 +5,8 @@ import onnxruntime
 
 MODEL_FILE = '.model.onnx'
 DEVICE_NAME = 'cpu' # Replace this with 'cuda' or equivalent for other devices
-DEVICE_INDEX = 0    # Replace this with the index of the device you want to run on
+DEVICE_INDEX = 0     # Replace this with the index of the device you want to run on
+DEVICE=f'{DEVICE_NAME}:{DEVICE_INDEX}'
 
 # A simple model to calculate addition of two tensors
 def model():
@@ -26,17 +27,21 @@ def create_model():
     torch.onnx.export(model(), (sample_x, sample_y), MODEL_FILE, input_names=["x", "y"], output_names=["z"],
                                dynamic_axes={"x": {0 : "array_length_x"}, "y": {0: "array_length_y"}})
  
+# Create an ONNX Runtime session with the provided model
+def create_session(model: str) -> onnxruntime.InferenceSession:
+    return onnxruntime.InferenceSession(model, providers=['CUDAExecutionProvider', 'CPUExecutionProvider'])
+
 # Run the model on CPU consuming and producing numpy arrays 
 def run(x: np.array, y: np.array) -> np.array:
-    session = onnxruntime.InferenceSession(MODEL_FILE)
+    session = create_session(MODEL_FILE)
 
     z = session.run(["z"], {"x": x, "y": y})
     
     return z[0]   
 
 # Run the model on device consuming and producing ORTValues
-def run_with_data_on_device(x: np.array, y: np.array) -> list:
-    session = onnxruntime.InferenceSession(MODEL_FILE)
+def run_with_data_copied_to_device(x: np.array, y: np.array) -> onnxruntime.OrtValue:
+    session = create_session(MODEL_FILE)
 
     x_ortvalue = onnxruntime.OrtValue.ortvalue_from_numpy(x, DEVICE_NAME, DEVICE_INDEX)
     y_ortvalue = onnxruntime.OrtValue.ortvalue_from_numpy(y, DEVICE_NAME, DEVICE_INDEX)
@@ -53,10 +58,8 @@ def run_with_data_on_device(x: np.array, y: np.array) -> list:
     return z[0]
 
 # Run the model on device consuming and producing native PyTorch tensors
-def run_with_tensors(x: torch.Tensor, y: torch.Tensor) -> torch.Tensor:
-    session = onnxruntime.InferenceSession(MODEL_FILE)
-
-    device = f'{DEVICE_NAME}:{DEVICE_INDEX}'
+def run_with_tensors_on_device(x: torch.Tensor, y: torch.Tensor) -> torch.Tensor:
+    session = create_session(MODEL_FILE)
 
     binding = session.io_binding()
 
@@ -82,7 +85,7 @@ def run_with_tensors(x: torch.Tensor, y: torch.Tensor) -> torch.Tensor:
         )
 
     ## Allocate the PyTorch tensor for the model output
-    z_tensor = torch.empty(x_tensor.shape, dtype=torch.float32, device=device).contiguous()
+    z_tensor = torch.empty(x_tensor.shape, dtype=torch.float32, device=DEVICE).contiguous()
     binding.bind_output(
         name='z',
         device_type=DEVICE_NAME,
@@ -103,11 +106,11 @@ def main():
     print(run(x=np.float32([1.0, 2.0, 3.0]),y=np.float32([4.0, 5.0, 6.0])))
     # [array([5., 7., 9.], dtype=float32)]
 
-    print(run_with_data_on_device(x=np.float32([1.0, 2.0, 3.0, 4.0, 5.0]), y=np.float32([1.0, 2.0, 3.0, 4.0, 5.0])))
-    # 
+    print(run_with_data_copied_to_device(x=np.float32([1.0, 2.0, 3.0, 4.0, 5.0]), y=np.float32([1.0, 2.0, 3.0, 4.0, 5.0])).numpy())
+    # [ 2.  4.  6.  8. 10.]
 
-    print(run_with_tensors(torch.rand(5), torch.rand(5)))
-    # 
+    print(run_with_tensors_on_device(torch.rand(5).to(DEVICE), torch.rand(5).to(DEVICE)))
+    # tensor([0.7023, 1.3127, 1.7289, 0.3982, 0.8386])
     
 
 if __name__ == "__main__":
