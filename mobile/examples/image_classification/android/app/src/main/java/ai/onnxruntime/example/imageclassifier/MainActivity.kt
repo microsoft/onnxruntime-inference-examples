@@ -178,7 +178,7 @@ class MainActivity : AppCompatActivity() {
 
     // Read ort model into a ByteArray, run in background
     private suspend fun readModel(): ByteArray = withContext(Dispatchers.IO) {
-        val modelID =
+        val modelID = if (currentEp == "OpenCL") R.raw.mobilenet_v2_onnx else
             if (enableQuantizedModel) R.raw.mobilenet_v2_uint8 else R.raw.mobilenet_v2_float
         resources.openRawResource(modelID).readBytes()
     }
