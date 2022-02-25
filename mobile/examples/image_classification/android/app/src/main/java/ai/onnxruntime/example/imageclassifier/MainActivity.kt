@@ -32,6 +32,8 @@ class MainActivity : AppCompatActivity() {
     private var ortEnv: OrtEnvironment? = null
     private var imageCapture: ImageCapture? = null
     private var imageAnalysis: ImageAnalysis? = null
+    private var currentEp: String = "CPU"
+    private var enableFp16: Boolean = false
     private var enableQuantizedModel: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -68,6 +70,11 @@ class MainActivity : AppCompatActivity() {
 
         enable_quantizedmodel_toggle.setOnCheckedChangeListener { _, isChecked ->
             enableQuantizedModel = isChecked
+            setORTAnalyzer()
+        }
+
+        enable_fp16_toggle.setOnCheckedChangeListener { _, isChecked ->
+            enableFp16 = isChecked
             setORTAnalyzer()
         }
     }
@@ -178,13 +185,26 @@ class MainActivity : AppCompatActivity() {
 
     // Create a new ORT session in background
     private suspend fun createOrtSession(): OrtSession? = withContext(Dispatchers.Default) {
-        ortEnv?.createSession(readModel())
+        var sess_options = OrtSession.SessionOptions()
+        if (currentEp == "OpenCL") {
+            sess_options.addOpenCL(enableFp16)
+        } else if (currentEp == "NNAPI") {
+            sess_options.addNnapi()
+        }
+        ortEnv?.createSession(readModel(), sess_options)
     }
 
     private fun selectEP(ep: String) {
+        currentEp = ep
         Toast.makeText(applicationContext, "Switching to EP " + ep, Toast.LENGTH_SHORT).show()
+        showEpDependentOptions()
+        setORTAnalyzer()
     }
 
+    private fun showEpDependentOptions() {
+        (findViewById(R.id.cpu_options) as View).visibility = if (currentEp == "CPU") View.VISIBLE else View.GONE
+        (findViewById(R.id.opencl_options) as View).visibility = if (currentEp == "OpenCL") View.VISIBLE else View.GONE
+    }
 
     // Create a new ORT session and then change the ImageAnalysis.Analyzer
     // This part is done in background to avoid blocking the UI

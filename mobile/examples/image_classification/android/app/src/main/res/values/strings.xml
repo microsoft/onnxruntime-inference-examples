@@ -4,5 +4,6 @@
     <string-array name="execution_providers">
         <item>CPU</item>
         <item>OpenCL</item>
+        <item>NNAPI</item>
     </string-array>
 </resources>
