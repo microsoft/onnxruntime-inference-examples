@@ -4,7 +4,7 @@ target 'ORTObjectDetection' do
   use_frameworks!
 
   # Pods for ORTObjectDetection
-  pod 'onnxruntime-mobile-objc'
+  pod 'onnxruntime-objc'
 
   target 'ORTObjectDetectionTests' do
     inherit! :search_paths
