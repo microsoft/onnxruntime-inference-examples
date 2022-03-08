@@ -76,7 +76,7 @@ jobs:
 
   - bash: |
       set -e
-      PODFILE=mobile/examples/basic_usage/ios/Podfile
+      PODFILE=mobile/examples/speech_recognition/ios/Podfile
       sed -i "" -e "s/pod 'onnxruntime-objc'/pod '$(OrtPodNamePrefix)-objc'$(OrtPodVersionSpecifier)/" ${PODFILE}
       cat ${PODFILE}
     displayName: "Update Podfile"
@@ -114,7 +114,7 @@ jobs:
 
   - bash: |
       set -e
-      PODFILE=mobile/examples/basic_usage/ios/Podfile
+      PODFILE=mobile/examples/object_detection/ios/Podfile
       sed -i "" -e "s/pod 'onnxruntime-objc'/pod '$(OrtPodNamePrefix)-objc'$(OrtPodVersionSpecifier)/" ${PODFILE}
       cat ${PODFILE}
     displayName: "Update Podfile"
