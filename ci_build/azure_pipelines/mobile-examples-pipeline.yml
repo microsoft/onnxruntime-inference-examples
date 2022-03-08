@@ -56,6 +56,13 @@ jobs:
   pool:
     vmImage: "macOS-11"
 
+  strategy:
+    matrix:
+      full:
+        OrtPodNamePrefix: onnxruntime
+      mobile:
+        OrtPodNamePrefix: onnxruntime-mobile
+
   steps:
   - template: templates/use-python-step.yml
 
@@ -65,6 +72,13 @@ jobs:
       ../model/gen_model.sh ./SpeechRecognition/model
     workingDirectory: mobile/examples/speech_recognition/ios
     displayName: "Generate model"
+
+  - bash: |
+      set -e
+      PODFILE=mobile/examples/basic_usage/ios/Podfile
+      sed -i "" -e "s/pod 'onnxruntime-objc'/pod '$(OrtPodNamePrefix)-objc'$(OrtPodVersionSpecifier)/" ${PODFILE}
+      cat ${PODFILE}
+    displayName: "Update Podfile"
 
   - script: pod install
     workingDirectory: 'mobile/examples/speech_recognition/ios'
@@ -80,6 +94,13 @@ jobs:
   pool:
     vmImage: "macOS-11"
 
+  strategy:
+    matrix:
+      full:
+        OrtPodNamePrefix: onnxruntime
+      mobile:
+        OrtPodNamePrefix: onnxruntime-mobile
+
   steps:
   - template: templates/use-python-step.yml
 
@@ -89,6 +110,13 @@ jobs:
       ./prepare_model.sh
     workingDirectory: mobile/examples/object_detection/ios/ORTObjectDetection
     displayName: "Generate model"
+
+  - bash: |
+      set -e
+      PODFILE=mobile/examples/basic_usage/ios/Podfile
+      sed -i "" -e "s/pod 'onnxruntime-objc'/pod '$(OrtPodNamePrefix)-objc'$(OrtPodVersionSpecifier)/" ${PODFILE}
+      cat ${PODFILE}
+    displayName: "Update Podfile"
 
   - script: pod install
     workingDirectory: 'mobile/examples/object_detection/ios'
