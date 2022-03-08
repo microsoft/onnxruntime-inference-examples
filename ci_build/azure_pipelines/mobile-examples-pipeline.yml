@@ -5,10 +5,11 @@ parameters:
   default: ""
 
 variables:
-- ${{ if eq(parameters.OrtPodVersion, '') }}:
-  - OrtPodVersionSpecifier: ""
-- ${{ if ne(parameters.OrtPodVersion, '') }}:
-  - OrtPodVersionSpecifier: ", '${{ parameters.OrtPodVersion }}'"
+- name: OrtPodVersionSpecifier
+  ${{ if eq(parameters.OrtPodVersion, '') }}:
+    value: ""
+  ${{ if ne(parameters.OrtPodVersion, '') }}:
+    value: ", '${{ parameters.OrtPodVersion }}'"
 
 jobs:
 
