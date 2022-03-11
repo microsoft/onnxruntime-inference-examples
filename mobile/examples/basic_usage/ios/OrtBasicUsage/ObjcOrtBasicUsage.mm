@@ -26,11 +26,39 @@ NS_ASSUME_NONNULL_BEGIN
   return ortValue;
 }
 
++ (nullable NSString*)GetAddModelPathWithError:(NSError**)error {
+  // There are two model formats:
+  // - The standard ONNX format, only supported in a full ORT build
+  //   (onnxruntime-objc Pod).
+  // - ORT format, supported by minimal and full ORT builds
+  //   (onnxruntime-mobile-objc and onnxruntime-objc Pods).
+  // Define the ORT_BASIC_USAGE_USE_ONNX_FORMAT_MODEL symbol to use the ONNX
+  // format model.
+  NSString* const path =
+#if defined(ORT_BASIC_USAGE_USE_ONNX_FORMAT_MODEL)
+      [NSBundle.mainBundle pathForResource:@"single_add" ofType:@"onnx"];
+#else
+      [NSBundle.mainBundle pathForResource:@"single_add.all" ofType:@"ort"];
+#endif
+
+  if (!path) {
+    if (error) {
+      *error = [NSError errorWithDomain:@"ObjcOrtBasicUsage.ErrorDomain"
+                                   code:1
+                               userInfo:@{NSLocalizedDescriptionKey : @"Failed to get model path."}];
+    }
+    return nil;
+  }
+
+  return path;
+}
+
 + (nullable NSNumber*)AddA:(NSNumber*)aNumber B:(NSNumber*)bNumber error:(NSError**)error {
   // We will run a simple model which adds two floats.
   // The inputs are named `A` and `B` and the output is named `C` (A + B = C).
   // All inputs and outputs are float tensors with shape [1].
-  static NSString* const kAddModelPath = [NSBundle.mainBundle pathForResource:@"single_add.all" ofType:@"ort"];
+  NSString* const addModelPath = [ObjcOrtBasicUsage GetAddModelPathWithError:error];
+  if (!addModelPath) return nil;
 
   // Regarding error handling:
   // If an error occurs, ORT APIs will return `nil` or `NO` and set the
@@ -58,7 +86,7 @@ NS_ASSUME_NONNULL_BEGIN
   // One can configure session options with a session options object
   // (ORTSessionOptions).
   // We use the default options with sessionOptions:nil.
-  ORTSession* session = [[ORTSession alloc] initWithEnv:ortEnv modelPath:kAddModelPath sessionOptions:nil error:error];
+  ORTSession* session = [[ORTSession alloc] initWithEnv:ortEnv modelPath:addModelPath sessionOptions:nil error:error];
   if (!session) return nil;
 
   // With a session and input values, we have what we need to run the model.
