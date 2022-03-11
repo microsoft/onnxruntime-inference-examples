@@ -3,7 +3,7 @@ parameters:
   displayName: "ONNX Runtime Pod version to use. Empty means unspecified."
   type: string
   #default: ""
-  default: "1.11.0-dev+20220303002.41b17a0f1"
+  default: "1.11.0-dev+20220303002.41b17a0f1"  # TODO for testing only
 
 variables:
 - name: OrtPodVersionSpecifier
