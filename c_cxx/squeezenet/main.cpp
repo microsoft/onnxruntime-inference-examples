@@ -34,6 +34,8 @@ std::unique_ptr<OrtTensorRTProviderOptionsV2> get_default_trt_provider_options()
 
 void run_ort_trt() {
   Ort::Env env(ORT_LOGGING_LEVEL_WARNING, "test");
+  const auto& api = Ort::GetApi();
+  OrtTensorRTProviderOptionsV2* tensorrt_options;
 
   Ort::SessionOptions session_options;
   session_options.SetIntraOpNumThreads(1);
@@ -46,9 +48,21 @@ void run_ort_trt() {
   const char* model_path = "squeezenet.onnx";
 #endif
 
-  auto tensorrt_options = get_default_trt_provider_options();
+  //*****************************************************************************************
+  // It's not suggested to directly new OrtTensorRTProviderOptionsV2 to get provider options
+  //*****************************************************************************************
+  //
+  // auto tensorrt_options = get_default_trt_provider_options();
+  // session_options.AppendExecutionProvider_TensorRT_V2(*tensorrt_options.get());
 
-  session_options.AppendExecutionProvider_TensorRT_V2(*tensorrt_options.get());
+  //**************************************************************************************************************************
+  // It's suggested to use CreateTensorRTProviderOptions() to get provider options
+  // since ORT takes care of valid options for you 
+  //**************************************************************************************************************************
+  api.CreateTensorRTProviderOptions(&tensorrt_options);
+  std::unique_ptr<OrtTensorRTProviderOptionsV2, decltype(api.ReleaseTensorRTProviderOptions)> rel_trt_options(tensorrt_options, api.ReleaseTensorRTProviderOptions);
+  api.SessionOptionsAppendExecutionProvider_TensorRT_V2(static_cast<OrtSessionOptions*>(session_options), rel_trt_options.get());
+
   printf("Runing ORT TRT EP with default provider options\n");
 
   Ort::Session session(env, model_path, session_options);

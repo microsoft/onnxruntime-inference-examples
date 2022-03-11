@@ -14,14 +14,16 @@ ONNX_MODEL_URL="https://media.githubusercontent.com/media/onnx/models/main/visio
 ONNX_MODEL="squeezenet.onnx"
 
 CUR_PWD=$(pwd)
-cd ${WORKSPACE}
+cd "$(dirname ${ORT_PACKAGE})"
 
 tar zxvf ${ORT_PACKAGE}
 ORT_LIB="${ORT_PACKAGE%.*}/lib"
+ls -al ${ORT_LIB}
 
 export LD_LIBRARY_PATH=${ORT_LIB}
 export LIBRARY_PATH=${ORT_LIB}
 
+cd ${WORKSPACE}
 mkdir -p build
 cd build
 
