@@ -26,7 +26,6 @@ jobs:
         XcodeArgs: 'GCC_PREPROCESSOR_DEFINITIONS="$GCC_PREPROCESSOR_DEFINITIONS ORT_BASIC_USAGE_USE_ONNX_FORMAT_MODEL"'
       mobile:
         OrtPodNamePrefix: onnxruntime-mobile
-        XcodeArgs: 'GCC_PREPROCESSOR_DEFINITIONS="$GCC_PREPROCESSOR_DEFINITIONS ORT_BASIC_USAGE_USE_ONNX_FORMAT_MODEL"'
 
   steps:
   - template: templates/use-python-step.yml
