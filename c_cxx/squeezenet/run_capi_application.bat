@@ -1,7 +1,8 @@
 set ONNX_MODEL_URL="https://media.githubusercontent.com/media/onnx/models/main/vision/classification/squeezenet/model/squeezenet1.0-7.onnx"
 set ONNX_MODEL="squeezenet.onnx"
-SET ORT_PACKAGE=%1
-SET WORKSPACE=%2
+SET ONNXRUNTIME_ROOTDIR=%1
+SET ORT_PACKAGE=%2
+SET WORKSPACE=%3
 
 echo The current directory is %CD%
 
