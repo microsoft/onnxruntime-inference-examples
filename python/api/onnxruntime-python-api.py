@@ -32,7 +32,10 @@ def create_model(type: torch.dtype = torch.float32):
  
 # Create an ONNX Runtime session with the provided model
 def create_session(model: str) -> onnxruntime.InferenceSession:
-    return onnxruntime.InferenceSession(model, providers=onnxruntime.get_available_providers())
+    providers = ['CPUExecutionProvider']
+    if torch.cuda.is_available():
+        providers.insert(0, 'CUDAExecutionProvider')
+    return onnxruntime.InferenceSession(model, providers=providers)
 
 # Run the model on CPU consuming and producing numpy arrays 
 def run(x: np.array, y: np.array) -> np.array:
