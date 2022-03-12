@@ -1,4 +1,7 @@
 # A set of code samples showing different usage of the ONNX Runtime Python API
+# Copyright (c) Microsoft Corporation. All rights reserved.
+# Licensed under the MIT License.
+
 import numpy as np
 import torch
 import onnxruntime
