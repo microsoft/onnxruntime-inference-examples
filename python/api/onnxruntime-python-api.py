@@ -4,7 +4,7 @@ import torch
 import onnxruntime
 
 MODEL_FILE = '.model.onnx'
-DEVICE_NAME = 'cpu' # Replace this with 'cuda' or equivalent for other devices
+DEVICE_NAME = 'cuda' if torch.cuda.is_available() else 'cpu'
 DEVICE_INDEX = 0     # Replace this with the index of the device you want to run on
 DEVICE=f'{DEVICE_NAME}:{DEVICE_INDEX}'
 
