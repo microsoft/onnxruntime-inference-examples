@@ -1,7 +1,8 @@
 set ONNX_MODEL_URL="https://media.githubusercontent.com/media/onnx/models/main/vision/classification/squeezenet/model/squeezenet1.0-7.onnx"
 set ONNX_MODEL="squeezenet.onnx"
-SET ORT_PACKAGE=%1
-SET WORKSPACE=%2
+SET ONNXRUNTIME_ROOTDIR=%1
+SET ORT_PACKAGE=%2
+SET WORKSPACE=%3
 
 echo The current directory is %CD%
 
@@ -10,7 +11,7 @@ set ORT_LIB=%ORT_PACKAGE:~0,-4%\lib
 echo %ORT_LIB%
 
 cd %WORKSPACE%
-cmake.exe -S . -B build\ -G "Visual Studio 16 2019"
+cmake.exe -S . -B build\ -G "Visual Studio 16 2019" -DONNXRUNTIME_ROOTDIR=%ONNXRUNTIME_ROOTDIR%
 
 REM Copy ORT libraries to same folder for linker to build.
 REM For some reasons, setting "LINK" or "LIBPATH" env variables won't help. 

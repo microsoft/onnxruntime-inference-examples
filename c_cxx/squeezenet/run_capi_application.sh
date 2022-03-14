@@ -1,15 +1,15 @@
 #!/bin/bash
 set -x
 
-while getopts w:p: parameter
+while getopts o:w:p: parameter
 do case "${parameter}"
 in
+o) ONNXRUNTIME_ROOTDIR=${OPTARG};;
 p) ORT_PACKAGE=${OPTARG};;
 w) WORKSPACE=${OPTARG};;
 esac
 done
 
-#ONNX_MODEL_URL="https://github.com/onnx/models/raw/main/vision/classification/squeezenet/model/squeezenet1.0-7.onnx"
 ONNX_MODEL_URL="https://media.githubusercontent.com/media/onnx/models/main/vision/classification/squeezenet/model/squeezenet1.0-7.onnx"
 ONNX_MODEL="squeezenet.onnx"
 
@@ -27,9 +27,8 @@ cd ${WORKSPACE}
 mkdir -p build
 cd build
 
-cmake ..
+cmake .. -DONNXRUNTIME_ROOTDIR=${ONNXRUNTIME_ROOTDIR}
 make -j4
-#wget ${ONNX_MODEL_URL} -O ${ONNX_MODEL}
 curl ${ONNX_MODEL_URL} --output ${ONNX_MODEL}
 ./capi_test
 
