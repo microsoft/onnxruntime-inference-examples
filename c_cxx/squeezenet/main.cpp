@@ -5,6 +5,8 @@
 #include <assert.h>
 #include <vector>
 #include <onnxruntime_cxx_api.h>
+
+#ifdef HAVE_TENSORRT_PROVIDER_FACTORY_H
 #include <tensorrt_provider_factory.h>
 #include <tensorrt_provider_options.h>
 
@@ -31,6 +33,7 @@ std::unique_ptr<OrtTensorRTProviderOptionsV2> get_default_trt_provider_options()
 
   return tensorrt_options;
 }
+#endif
 
 void run_ort_trt() {
   Ort::Env env(ORT_LOGGING_LEVEL_WARNING, "test");
