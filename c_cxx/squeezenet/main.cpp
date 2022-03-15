@@ -99,8 +99,8 @@ void run_ort_trt() {
     // print input shapes/dims
     input_node_dims = tensor_info.GetShape();
     printf("Input %d : num_dims=%zu\n", i, input_node_dims.size());
-    for (int j = 0; j < input_node_dims.size(); j++)
-      printf("Input %d : dim %d=%jd\n", i, j, input_node_dims[j]);
+    for (size_t j = 0; j < input_node_dims.size(); j++)
+      printf("Input %d : dim %zu=%jd\n", i, j, input_node_dims[j]);
   }
 
   size_t input_tensor_size = 224 * 224 * 3;  // simplify ... using known dim values to calculate size
