@@ -3,6 +3,9 @@ parameters:
   type: string
 - name: scheme
   type: string
+- name: args
+  type: string
+  default: ''
 
 steps:
 - task: Xcode@5
@@ -18,4 +21,6 @@ steps:
     destinationPlatformOption: 'iOS'
     destinationTypeOption: 'simulators'
     destinationSimulators: 'iPhone 8'
+    ${{ if ne(parameters.args, '') }}:
+      args: ${{ parameters.args }}
   displayName: "Xcode build and test"
