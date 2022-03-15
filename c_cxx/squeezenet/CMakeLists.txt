@@ -7,7 +7,7 @@ cmake_minimum_required(VERSION 3.13)
 option(ONNXRUNTIME_ROOTDIR "onnxruntime root dir")
 
 # tensorrt_provider_factory.h contains old APIs of the tensorrt execution provider
-include(CheckIncludeFile)
+include(CheckIncludeFileCXX)
 CHECK_INCLUDE_FILE_CXX(tensorrt_provider_factory.h HAVE_TENSORRT_PROVIDER_FACTORY_H)
 
 set(CMAKE_CXX_STANDARD 14)
