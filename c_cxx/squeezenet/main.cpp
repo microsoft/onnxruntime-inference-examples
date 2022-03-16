@@ -5,6 +5,8 @@
 #include <assert.h>
 #include <vector>
 #include <onnxruntime_cxx_api.h>
+
+#ifdef HAVE_TENSORRT_PROVIDER_FACTORY_H
 #include <tensorrt_provider_factory.h>
 #include <tensorrt_provider_options.h>
 
@@ -31,6 +33,7 @@ std::unique_ptr<OrtTensorRTProviderOptionsV2> get_default_trt_provider_options()
 
   return tensorrt_options;
 }
+#endif
 
 void run_ort_trt() {
   Ort::Env env(ORT_LOGGING_LEVEL_WARNING, "test");
@@ -96,8 +99,8 @@ void run_ort_trt() {
     // print input shapes/dims
     input_node_dims = tensor_info.GetShape();
     printf("Input %d : num_dims=%zu\n", i, input_node_dims.size());
-    for (int j = 0; j < input_node_dims.size(); j++)
-      printf("Input %d : dim %d=%jd\n", i, j, input_node_dims[j]);
+    for (size_t j = 0; j < input_node_dims.size(); j++)
+      printf("Input %d : dim %zu=%jd\n", i, j, input_node_dims[j]);
   }
 
   size_t input_tensor_size = 224 * 224 * 3;  // simplify ... using known dim values to calculate size
