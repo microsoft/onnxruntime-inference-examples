@@ -97,7 +97,7 @@ class YoloV3DataReader(ObejctDetectionDataReader):
     def load_serial(self):
         width = self.width
         height = self.width
-        nchw_data_list, filename_list, image_size_list = preprocess_func(self.image_folder, height, width,
+        nchw_data_list, filename_list, image_size_list = self.preprocess_func(self.image_folder, height, width,
                                                                                 self.start_index, self.stride)
         input_name = self.input_name
 
@@ -131,7 +131,7 @@ class YoloV3DataReader(ObejctDetectionDataReader):
         for index in range(0, stride, batch_size):
             start_index = self.start_index + index
             print("Load batch from index %s ..." % (str(start_index)))
-            nchw_data_list, filename_list, image_size_list = preprocess_func(self.image_folder, height, width,
+            nchw_data_list, filename_list, image_size_list = self.preprocess_func(self.image_folder, height, width,
                                                                                     start_index, batch_size)
 
             if nchw_data_list.size == 0:
@@ -225,7 +225,7 @@ class YoloV3VariantDataReader(YoloV3DataReader):
         for index in range(0, stride, batch_size):
             start_index = self.start_index + index
             print("Load batch from index %s ..." % (str(start_index)))
-            nchw_data_list, filename_list, image_size_list = preprocess_func(
+            nchw_data_list, filename_list, image_size_list = self.preprocess_func(
                 self.image_folder, height, width, start_index, batch_size)
 
             if nchw_data_list.size == 0:
