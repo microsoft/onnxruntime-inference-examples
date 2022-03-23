@@ -118,9 +118,9 @@ def main():
     # tensor([0.7023, 1.3127, 1.7289, 0.3982, 0.8386])
 
     create_model(torch.int64)
-
+ 
     print(run_with_torch_tensors_on_device(torch.ones(5, dtype=torch.int64).to(DEVICE), torch.zeros(5, dtype=torch.int64).to(DEVICE), np_type=np.int64, torch_type=torch.int64))
-    # tensor([0.7023, 1.3127, 1.7289, 0.3982, 0.8386])
+    # tensor([1, 1, 1, 1, 1])
 
 
 if __name__ == "__main__":
