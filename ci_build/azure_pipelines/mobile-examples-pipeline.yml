@@ -1,14 +1,14 @@
 parameters:
 - name: OrtPodVersion
-  displayName: "ONNX Runtime Pod version to use. Empty means unspecified."
+  displayName: "ONNX Runtime Pod version to use. 'default' means unspecified."
   type: string
-  default: ""
+  default: "default"
 
 variables:
 - name: OrtPodVersionSpecifier
-  ${{ if eq(parameters.OrtPodVersion, '') }}:
+  ${{ if eq(parameters.OrtPodVersion, 'default') }}:
     value: ""
-  ${{ if ne(parameters.OrtPodVersion, '') }}:
+  ${{ if ne(parameters.OrtPodVersion, 'default') }}:
     value: ", '${{ parameters.OrtPodVersion }}'"
 
 jobs:
