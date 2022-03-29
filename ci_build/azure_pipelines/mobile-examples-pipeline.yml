@@ -44,7 +44,7 @@ jobs:
   dependsOn: ProcessParameters
 
   variables:
-    OrtPodVersionSpecifier: $[ dependencies.ProcessParameters.outputs['SetVariables.OrtPodVersion'] ]
+    OrtPodVersionSpecifier: $[ dependencies.ProcessParameters.outputs['SetVariables.OrtPodVersionSpecifier'] ]
 
   strategy:
     matrix:
@@ -90,7 +90,7 @@ jobs:
   dependsOn: ProcessParameters
 
   variables:
-    OrtPodVersionSpecifier: $[ dependencies.ProcessParameters.outputs['SetVariables.OrtPodVersion'] ]
+    OrtPodVersionSpecifier: $[ dependencies.ProcessParameters.outputs['SetVariables.OrtPodVersionSpecifier'] ]
 
   strategy:
     matrix:
@@ -133,7 +133,7 @@ jobs:
   dependsOn: ProcessParameters
 
   variables:
-    OrtPodVersionSpecifier: $[ dependencies.ProcessParameters.outputs['SetVariables.OrtPodVersion'] ]
+    OrtPodVersionSpecifier: $[ dependencies.ProcessParameters.outputs['SetVariables.OrtPodVersionSpecifier'] ]
 
   strategy:
     matrix:
