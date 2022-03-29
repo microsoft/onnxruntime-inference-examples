@@ -11,6 +11,8 @@ jobs:
     vmImage: "ubuntu-20.04"
 
   steps:
+  - checkout: none
+
   - template: templates/use-python-step.yml
 
   - task: PythonScript@0
@@ -21,7 +23,7 @@ jobs:
         import re
 
         version_str = sys.argv[1]
-        if re.fullmatch(r"[\w\.-+]+", version_str) is None:
+        if re.fullmatch(r"[\w\.\-\+]+", version_str) is None:
             raise ValueError(f"Invalid version: '{version_str}'")
 
         if version_str == "default":
