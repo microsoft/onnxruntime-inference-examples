@@ -4,19 +4,45 @@ parameters:
   type: string
   default: "default"
 
-variables:
-- name: OrtPodVersionSpecifier
-  ${{ if eq(parameters.OrtPodVersion, 'default') }}:
-    value: ""
-  ${{ if ne(parameters.OrtPodVersion, 'default') }}:
-    value: ", '${{ parameters.OrtPodVersion }}'"
-
 jobs:
+
+- job: ProcessParameters
+  pool:
+    vmImage: "ubuntu-20.04"
+
+  steps:
+  - template: templates/use-python-step.yml
+
+  - task: PythonScript@0
+    inputs:
+      scriptSource: "inline"
+      script: |
+        import sys
+        import re
+
+        version_str = sys.argv[1]
+        if re.fullmatch(r"[\w\.-+]+", version_str) is None:
+            raise ValueError(f"Invalid version: '{version_str}'")
+
+        if version_str == "default":
+            pod_version_specifier = ""
+        else:
+            pod_version_specifier = f", '{version_str}'"
+
+        print(f"##vso[task.setvariable variable=OrtPodVersionSpecifier;isoutput=true]{pod_version_specifier}")
+      arguments: "${{ parameters.OrtPodVersion }}"
+    name: SetVariables
+    displayName: "Set variables"
 
 # mobile/examples/basic_usage/ios
 - job: BasicUsageIos
   pool:
     vmImage: "macOS-11"
+
+  dependsOn: ProcessParameters
+
+  variables:
+    OrtPodVersionSpecifier: $[ dependencies.ProcessParameters.outputs['SetVariables.OrtPodVersion'] ]
 
   strategy:
     matrix:
@@ -59,6 +85,11 @@ jobs:
   pool:
     vmImage: "macOS-11"
 
+  dependsOn: ProcessParameters
+
+  variables:
+    OrtPodVersionSpecifier: $[ dependencies.ProcessParameters.outputs['SetVariables.OrtPodVersion'] ]
+
   strategy:
     matrix:
       full:
@@ -96,6 +127,11 @@ jobs:
 - job: ObjectDetectionIos
   pool:
     vmImage: "macOS-11"
+
+  dependsOn: ProcessParameters
+
+  variables:
+    OrtPodVersionSpecifier: $[ dependencies.ProcessParameters.outputs['SetVariables.OrtPodVersion'] ]
 
   strategy:
     matrix:
