@@ -3,7 +3,7 @@ platform :ios, '11.0'
 target 'SpeechRecognition' do
   use_frameworks!
 
-  pod 'onnxruntime-mobile-objc'
+  pod 'onnxruntime-objc'
 
   target 'SpeechRecognitionTests' do
     inherit! :search_paths
