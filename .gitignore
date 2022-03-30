@@ -430,4 +430,5 @@ fastlane/test_output
 .model.onnx
 *.dylib
 .vscode
-
+.amlignore
+.amlignore.amltmp

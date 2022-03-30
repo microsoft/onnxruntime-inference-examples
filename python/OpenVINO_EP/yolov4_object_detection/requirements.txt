@@ -3,7 +3,7 @@ flatbuffers==2.0
 numpy==1.21.1
 onnx==1.10.1
 opencv-python==4.5.3.56
-Pillow==9.0.0
+Pillow==9.0.1
 protobuf==3.17.3
 scipy==1.7.1
 six==1.16.0
