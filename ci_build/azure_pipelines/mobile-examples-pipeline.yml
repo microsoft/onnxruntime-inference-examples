@@ -1,9 +1,59 @@
+parameters:
+- name: OrtPodVersion
+  displayName: "ONNX Runtime Pod version to use. 'default' means unspecified."
+  type: string
+  default: "default"
+
 jobs:
+
+- job: ProcessParameters
+  pool:
+    vmImage: "ubuntu-20.04"
+
+  steps:
+  - checkout: none
+
+  - template: templates/use-python-step.yml
+
+  - task: PythonScript@0
+    inputs:
+      scriptSource: "inline"
+      script: |
+        import sys
+        import re
+
+        version_str = sys.argv[1]
+        if re.fullmatch(r"[\w\.\-\+]+", version_str) is None:
+            raise ValueError(f"Invalid version: '{version_str}'")
+
+        if version_str == "default":
+            pod_version_specifier = ""
+        else:
+            pod_version_specifier = f", '{version_str}'"
+
+        print(f"##vso[task.setvariable variable=OrtPodVersionSpecifier;isoutput=true]{pod_version_specifier}")
+      arguments: "${{ parameters.OrtPodVersion }}"
+    name: SetVariables
+    displayName: "Set variables"
 
 # mobile/examples/basic_usage/ios
 - job: BasicUsageIos
   pool:
     vmImage: "macOS-11"
+
+  dependsOn: ProcessParameters
+
+  variables:
+    OrtPodVersionSpecifier: $[ dependencies.ProcessParameters.outputs['SetVariables.OrtPodVersionSpecifier'] ]
+
+  strategy:
+    matrix:
+      full:
+        OrtPodNamePrefix: onnxruntime
+        XcodeArgs: 'GCC_PREPROCESSOR_DEFINITIONS="$GCC_PREPROCESSOR_DEFINITIONS ORT_BASIC_USAGE_USE_ONNX_FORMAT_MODEL"'
+      mobile:
+        OrtPodNamePrefix: onnxruntime-mobile
+        XcodeArgs: ''
 
   steps:
   - template: templates/use-python-step.yml
@@ -15,6 +65,13 @@ jobs:
     workingDirectory: mobile/examples/basic_usage/ios
     displayName: "Generate model"
 
+  - bash: |
+      set -e
+      PODFILE=mobile/examples/basic_usage/ios/Podfile
+      sed -i "" -e "s/pod 'onnxruntime-objc'/pod '$(OrtPodNamePrefix)-objc'$(OrtPodVersionSpecifier)/" ${PODFILE}
+      cat ${PODFILE}
+    displayName: "Update Podfile"
+
   - script: pod install
     workingDirectory: 'mobile/examples/basic_usage/ios'
     displayName: "Install CocoaPods pods"
@@ -23,11 +80,24 @@ jobs:
     parameters:
       xcWorkspacePath: 'mobile/examples/basic_usage/ios/OrtBasicUsage.xcworkspace'
       scheme: 'OrtBasicUsage'
+      args: $(XcodeArgs)
 
 # mobile/examples/speech_recognition/ios
 - job: SpeechRecognitionIos
   pool:
     vmImage: "macOS-11"
+
+  dependsOn: ProcessParameters
+
+  variables:
+    OrtPodVersionSpecifier: $[ dependencies.ProcessParameters.outputs['SetVariables.OrtPodVersionSpecifier'] ]
+
+  strategy:
+    matrix:
+      full:
+        OrtPodNamePrefix: onnxruntime
+      mobile:
+        OrtPodNamePrefix: onnxruntime-mobile
 
   steps:
   - template: templates/use-python-step.yml
@@ -38,6 +108,13 @@ jobs:
       ../model/gen_model.sh ./SpeechRecognition/model
     workingDirectory: mobile/examples/speech_recognition/ios
     displayName: "Generate model"
+
+  - bash: |
+      set -e
+      PODFILE=mobile/examples/speech_recognition/ios/Podfile
+      sed -i "" -e "s/pod 'onnxruntime-objc'/pod '$(OrtPodNamePrefix)-objc'$(OrtPodVersionSpecifier)/" ${PODFILE}
+      cat ${PODFILE}
+    displayName: "Update Podfile"
 
   - script: pod install
     workingDirectory: 'mobile/examples/speech_recognition/ios'
@@ -53,6 +130,18 @@ jobs:
   pool:
     vmImage: "macOS-11"
 
+  dependsOn: ProcessParameters
+
+  variables:
+    OrtPodVersionSpecifier: $[ dependencies.ProcessParameters.outputs['SetVariables.OrtPodVersionSpecifier'] ]
+
+  strategy:
+    matrix:
+      full:
+        OrtPodNamePrefix: onnxruntime
+      mobile:
+        OrtPodNamePrefix: onnxruntime-mobile
+
   steps:
   - template: templates/use-python-step.yml
 
@@ -62,6 +151,13 @@ jobs:
       ./prepare_model.sh
     workingDirectory: mobile/examples/object_detection/ios/ORTObjectDetection
     displayName: "Generate model"
+
+  - bash: |
+      set -e
+      PODFILE=mobile/examples/object_detection/ios/Podfile
+      sed -i "" -e "s/pod 'onnxruntime-objc'/pod '$(OrtPodNamePrefix)-objc'$(OrtPodVersionSpecifier)/" ${PODFILE}
+      cat ${PODFILE}
+    displayName: "Update Podfile"
 
   - script: pod install
     workingDirectory: 'mobile/examples/object_detection/ios'

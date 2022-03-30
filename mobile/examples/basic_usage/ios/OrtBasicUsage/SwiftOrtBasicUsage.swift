@@ -27,13 +27,7 @@ func SwiftOrtAdd(_ a: Float, _ b: Float) throws -> Float {
   // We will run a simple model which adds two floats.
   // The inputs are named `A` and `B` and the output is named `C` (A + B = C).
   // All inputs and outputs are float tensors with shape [1].
-  guard
-    let modelPath = Bundle.main.path(
-      forResource: "single_add.all",
-      ofType: "ort")
-  else {
-    throw SwiftOrtBasicUsageError.error("failed to get model path")
-  }
+  let modelPath = try ObjcOrtBasicUsage.getAddModelPath()
 
   // First, we create the ORT environment.
   // The environment is required in order to create an ORT session.
