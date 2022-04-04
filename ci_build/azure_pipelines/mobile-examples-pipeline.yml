@@ -173,12 +173,28 @@ jobs:
   pool:
     vmImage: "macOS-11"
 
+  strategy:
+    matrix:
+      full:
+        OrtPackageName: onnxruntime-android
+      mobile:
+        OrtPackageName: onnxruntime-mobile
+
   steps:
   - template: templates/use-python-step.yml
 
   - bash: ./download_model_files.sh
     workingDirectory: mobile/examples/image_classification/android
     displayName: "Download model files"
+
+  - bash: |
+      set -e
+      GRADLE_FILE=mobile/examples/image_classification/android/app/build.gradle
+      sed -i "" \
+        -e "s/implementation 'com.microsoft.onnxruntime:onnxruntime-android:latest.release'/implementation 'com.microsoft.onnxruntime:$(OrtPackageName):latest.release'/" \
+        ${GRADLE_FILE}
+      cat ${GRADLE_FILE}
+    displayName: "Update build.gradle"
 
   - script: |
       python3 ./ci_build/python/run_android_emulator.py \
