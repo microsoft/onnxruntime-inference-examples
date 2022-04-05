@@ -48,7 +48,7 @@ export OPENCL_INCS=path/to/your/directory/openvino/thirdparty/ocl/clhpp_headers/
       ```
       **Note:**
       If you are using the opencv from openvino package, below are the paths:
-      * For latest version (2022.1.0), run download_opencv.sh in /path/to/openvino/extars/script and the opencv will be downloaded at /path/to/openvino/extars.
+      * For latest version (2022.1.0), run download_opencv.sh in /path/to/openvino/extras/script and the opencv will be downloaded at /path/to/openvino/extras.
       * For older openvino version, opencv is available at openvino directory itself.
 
    - For the sample using IO Buffer Optimization feature
@@ -63,7 +63,7 @@ export OPENCL_INCS=path/to/your/directory/openvino/thirdparty/ocl/clhpp_headers/
       ```
       **Note:**
       If you are using the opencv from openvino package, below are the paths:
-      * For latest version (2022.1.0), run download_opencv.sh in /path/to/openvino/extars/script and the opencv will be downloaded at /path/to/openvino/extars.
+      * For latest version (2022.1.0), run download_opencv.sh in /path/to/openvino/extras/script and the opencv will be downloaded at /path/to/openvino/extras.
       * For older openvino version, opencv is available at openvino directory itself.
 
 4. Run the sample
