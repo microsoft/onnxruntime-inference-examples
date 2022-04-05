@@ -33,7 +33,7 @@ cmake .. -A x64 -T host=x64 -Donnxruntime_USE_OPENVINO=ON -DONNXRUNTIME_ROOTDIR=
 Choose required opencv path. Skip the opencv flag if you don't want to build squeezenet sample.
 **Note:**
 If you are using the opencv from openvino package, below are the paths:
-* For latest version (2022.1.0), run download_opencv.ps1 in \path\to\openvino\extars\script and the opencv will be downloaded at \path\to\openvino\extars.
+* For latest version (2022.1.0), run download_opencv.ps1 in \path\to\openvino\extras\script and the opencv will be downloaded at \path\to\openvino\extras.
 * For older openvino version, opencv is available at openvino directory itself.
 
 Build samples using msbuild either for Debug or Release configuration.
