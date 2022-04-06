@@ -427,4 +427,8 @@ fastlane/test_output
 /*.gcno
 
 *.ort
+.model.onnx
 *.dylib
+.vscode
+.amlignore
+.amlignore.amltmp
