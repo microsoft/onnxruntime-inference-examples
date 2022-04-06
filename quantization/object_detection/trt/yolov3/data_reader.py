@@ -96,7 +96,7 @@ class YoloV3DataReader(ObejctDetectionDataReader):
 
     def load_serial(self):
         width = self.width
-        height = self.width
+        height = self.height
         nchw_data_list, filename_list, image_size_list = preprocess_func(self.image_folder, height, width,
                                                                                 self.start_index, self.stride)
         input_name = self.input_name
