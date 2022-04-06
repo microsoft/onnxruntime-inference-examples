@@ -3,10 +3,11 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 51;
+	objectVersion = 50;
 	objects = {
 
 /* Begin PBXBuildFile section */
+		EFC1563927DAC3C300B35F2D /* single_add.onnx in Resources */ = {isa = PBXBuildFile; fileRef = EFC1563827DAC3C300B35F2D /* single_add.onnx */; };
 		EFE2379726841B8D00234E2C /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFE2379626841B8D00234E2C /* ContentView.swift */; };
 		EFE2379926841B8E00234E2C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = EFE2379826841B8E00234E2C /* Assets.xcassets */; };
 		EFE2379C26841B8E00234E2C /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = EFE2379B26841B8E00234E2C /* Preview Assets.xcassets */; };
@@ -28,6 +29,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		EFC1563827DAC3C300B35F2D /* single_add.onnx */ = {isa = PBXFileReference; lastKnownFileType = file; name = single_add.onnx; path = model/single_add.onnx; sourceTree = "<group>"; };
 		EFE2379126841B8D00234E2C /* OrtBasicUsage.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = OrtBasicUsage.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		EFE2379626841B8D00234E2C /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		EFE2379826841B8E00234E2C /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -91,6 +93,7 @@
 		EFE2379326841B8D00234E2C /* OrtBasicUsage */ = {
 			isa = PBXGroup;
 			children = (
+				EFC1563827DAC3C300B35F2D /* single_add.onnx */,
 				EFE237C826841F4A00234E2C /* single_add.all.ort */,
 				EFE237C626841D5A00234E2C /* SwiftOrtBasicUsage.swift */,
 				EFE237C326841D2C00234E2C /* ObjcOrtBasicUsage.h */,
@@ -205,6 +208,7 @@
 			files = (
 				EFE237C926841F4A00234E2C /* single_add.all.ort in Resources */,
 				EFE2379C26841B8E00234E2C /* Preview Assets.xcassets in Resources */,
+				EFC1563927DAC3C300B35F2D /* single_add.onnx in Resources */,
 				EFE2379926841B8E00234E2C /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

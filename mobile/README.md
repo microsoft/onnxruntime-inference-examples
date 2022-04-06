@@ -1,6 +1,6 @@
 # ONNX Runtime Mobile Examples
 
-These examples demonstrate how to use ONNX Runtime (ORT) Mobile in mobile applications.
+These examples demonstrate how to use ONNX Runtime (ORT) in mobile applications.
 
 ## General Prerequisites
 

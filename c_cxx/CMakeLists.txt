@@ -30,6 +30,7 @@ if(NOT ONNXRUNTIME_ROOTDIR)
   endif()
 endif()
 
+#TODO: we should only need one of them.
 include_directories("${ONNXRUNTIME_ROOTDIR}/include" "${ONNXRUNTIME_ROOTDIR}/include/onnxruntime/core/session")
 link_directories("${ONNXRUNTIME_ROOTDIR}/lib")
 
@@ -76,6 +77,7 @@ if(WIN32)
   add_subdirectory(imagenet)
   add_subdirectory(MNIST)
 endif()
+add_subdirectory(squeezenet)
 if(PNG_FOUND)
   add_subdirectory(fns_candy_style_transfer)
 endif()
