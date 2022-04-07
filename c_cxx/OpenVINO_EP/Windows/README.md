@@ -31,6 +31,7 @@ mkdir build && cd build
 cmake .. -A x64 -T host=x64 -Donnxruntime_USE_OPENVINO=ON -DONNXRUNTIME_ROOTDIR=c:\dev\ort_install -DOPENCV_ROOTDIR="path\to\opencv"
 ```
 Choose required opencv path. Skip the opencv flag if you don't want to build squeezenet sample.
+
 **Note:**
 If you are using the opencv from openvino package, below are the paths:
 * For latest version (2022.1.0), run download_opencv.ps1 in \path\to\openvino\extras\script and the opencv folder will be downloaded at \path\to\openvino\extras.
