@@ -49,9 +49,9 @@ def init():
     session = onnxruntime.InferenceSession(model_path, providers=["CUDAExecutionProvider", "CPUExecutionProvider"])  
 
 
-def run(input):
+def run(input_data):
     # Preprocess the question and context into tokenized ids
-    input_ids, segment_ids, tokens = preprocess(input["question"], input["context"])
+    input_ids, segment_ids, tokens = preprocess(input_data["question"], input_data["context"])
   
     # Format the inputs for ONNX Runtime
     inputs = {
