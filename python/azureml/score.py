@@ -1,12 +1,12 @@
 
-from transformers import BertTokenizer
-import onnxruntime
+import os
 import numpy as np
+import onnxruntime
+from transformers import BertTokenizer
 
 max_seq_length = 128
 doc_stride = 128
 max_query_length = 64
-
 
 question = "What is my name"
 context = "My name is Natalie and my friend's name is Jane"
@@ -37,7 +37,13 @@ def init():
     global tokenizer, session
 
     model_name = "bert-large-uncased-whole-word-masking-finetuned-squad"
-    model_path = "./" + model_name + ".onnx"
+
+    # use AZUREML_MODEL_DIR to get your deployed model(s). If multiple models are deployed, 
+    # model_path = os.path.join(os.getenv('AZUREML_MODEL_DIR'), '$MODEL_NAME/$VERSION/$MODEL_FILE_NAME')
+    model_dir = os.getenv('AZUREML_MODEL_DIR')
+    if model_dir == None:
+        model_dir = "./"
+    model_path = os.path.join(model_dir, model_name + ".onnx")
 
     # Create the tokenizer
     tokenizer = BertTokenizer.from_pretrained(model_name)
