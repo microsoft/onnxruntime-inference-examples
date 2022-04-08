@@ -73,4 +73,4 @@ def run(input_data):
 
 if __name__ == '__main__':
     init()
-    print(run({"question": question, "context": context))
+    print(run({"question": question, "context": context})
