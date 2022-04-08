@@ -8,9 +8,6 @@ max_seq_length = 128
 doc_stride = 128
 max_query_length = 64
 
-question = "What is my name"
-context = "My name is Natalie and my friend's name is Jane"
-
 def preprocess(question, context):
     encoded_input = tokenizer(question, context)
     tokens = tokenizer.convert_ids_to_tokens(encoded_input.input_ids)
@@ -52,9 +49,9 @@ def init():
     session = onnxruntime.InferenceSession(model_path, providers=["CUDAExecutionProvider", "CPUExecutionProvider"])  
 
 
-def run(question, context):
+def run(input):
     # Preprocess the question and context into tokenized ids
-    input_ids, segment_ids, tokens = preprocess(question, context)
+    input_ids, segment_ids, tokens = preprocess(input["question"], input["context"])
   
     # Format the inputs for ONNX Runtime
     inputs = {
@@ -76,4 +73,4 @@ def run(question, context):
 
 if __name__ == '__main__':
     init()
-    print(run(question, context))
+    print(run({"question": question, "context": context))
