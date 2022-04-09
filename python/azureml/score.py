@@ -1,5 +1,7 @@
 
 import os
+import logging
+import json
 import numpy as np
 import onnxruntime
 from transformers import BertTokenizer
@@ -24,7 +26,6 @@ def postprocess(tokens, output):
                 answer += tokens[i][2:]
             else:
                 answer += " " + tokens[i]
-        results['question'] = question.capitalize()
         results['answer'] = answer.capitalize()
     else:
         results['error'] = "I am unable to find the answer to this question. Can you please ask another question?"
@@ -46,12 +47,15 @@ def init():
     tokenizer = BertTokenizer.from_pretrained(model_name)
 
     # Create an ONNX Runtime session to run the ONNX model
-    session = onnxruntime.InferenceSession(model_path, providers=["CUDAExecutionProvider", "CPUExecutionProvider"])  
+    session = onnxruntime.InferenceSession(model_path, providers=["CPUExecutionProvider"])  
 
 
-def run(input_data):
+def run(raw_data):
+    logging.info("Request received")
+    input = json.loads(raw_data)
+
     # Preprocess the question and context into tokenized ids
-    input_ids, segment_ids, tokens = preprocess(input_data["question"], input_data["context"])
+    input_ids, segment_ids, tokens = preprocess(input["question"], input["context"])
   
     # Format the inputs for ONNX Runtime
     inputs = {
@@ -73,4 +77,4 @@ def run(input_data):
 
 if __name__ == '__main__':
     init()
-    print(run({"question": question, "context": context})
+    print(run("{\"question\": \"What is my name?\", \"context\": \"My name is Natalie\"}"))
