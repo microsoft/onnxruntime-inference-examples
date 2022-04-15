@@ -427,6 +427,7 @@ fastlane/test_output
 /*.gcno
 
 *.ort
+*.onnx
 .model.onnx
 *.dylib
 .vscode
