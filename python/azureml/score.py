@@ -13,7 +13,7 @@ def preprocess(question, context):
     encoded_input = tokenizer(question, context)
     tokens = tokenizer.convert_ids_to_tokens(encoded_input.input_ids)
     print(tokens)
-    return (encoded_input.input_ids, encoded_input.token_type_ids, tokens)
+    return (encoded_input.input_ids, encoded_input.attention_mask, encoded_input.token_type_ids, tokens)
 
 def postprocess(tokens, start, end):
     print("Start:", start)
@@ -63,7 +63,7 @@ def run_pytorch(raw_data):
     logging.info("Question:", inputs["question"])
     logging.info("Context: ", inputs["context"])
 
-    input_ids, segment_ids, tokens = preprocess(inputs["question"], inputs["context"])
+    input_ids, input_mask, segment_ids, tokens = preprocess(inputs["question"], inputs["context"])
 
     print(input_ids)
 
@@ -81,13 +81,14 @@ def run(raw_data):
     logging.info(inputs)
 
     # Preprocess the question and context into tokenized ids
-    input_ids, segment_ids, tokens = preprocess(inputs["question"], inputs["context"])
+    input_ids, input_mask, segment_ids, tokens = preprocess(inputs["question"], inputs["context"])
 
     print(input_ids)
     
     # Format the inputs for ONNX Runtime
     model_inputs = {
         'input_ids':   [input_ids], 
+        'input_mask':  [input_mask],
         'segment_ids': [segment_ids]
         }
                   
