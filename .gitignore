@@ -428,7 +428,6 @@ fastlane/test_output
 
 *.ort
 *.onnx
-.model.onnx
 *.dylib
 .vscode
 .amlignore

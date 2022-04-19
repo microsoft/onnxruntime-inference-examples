@@ -290,7 +290,7 @@ int main(int argc, char* argv[])
     // step 2: Resize the image.
     cv::Mat resizedImageBGR, resizedImageRGB, resizedImage, preprocessedImage;
     cv::resize(imageBGR, resizedImageBGR,
-               cv::Size(inputDims.at(2), inputDims.at(3)),
+               cv::Size(inputDims.at(3), inputDims.at(2)),
                cv::InterpolationFlags::INTER_CUBIC);
 
     // step 3: Convert the image to HWC RGB UINT8 format.

@@ -11,6 +11,11 @@ NS_ASSUME_NONNULL_BEGIN
 @interface ObjcOrtBasicUsage : NSObject
 
 /**
+ * Gets the path to the model used to add two numbers.
+ */
++ (nullable NSString*)GetAddModelPathWithError:(NSError**)error;
+
+/**
  * Adds `a` and `b` using ONNX Runtime.
  */
 + (nullable NSNumber*)AddA:(NSNumber*)a B:(NSNumber*)b error:(NSError**)error NS_SWIFT_NAME(add(_:_:));

@@ -46,7 +46,11 @@ def run(x: np.array, y: np.array) -> np.array:
     return z[0]   
 
 # Run the model on device consuming and producing ORTValues
+<<<<<<< HEAD
 def run_with_data_copied_to_device(x: np.array, y: np.array) -> onnxruntime.OrtValue:
+=======
+def run_with_data_on_device(x: np.array, y: np.array) -> onnxruntime.OrtValue:
+>>>>>>> 0bb1dca64b0848c67989c8cada957c95d374e83d
     session = create_session(MODEL_FILE)
 
     x_ortvalue = onnxruntime.OrtValue.ortvalue_from_numpy(x, DEVICE_NAME, DEVICE_INDEX)
@@ -111,7 +115,11 @@ def main():
     print(run(x=np.float32([1.0, 2.0, 3.0]),y=np.float32([4.0, 5.0, 6.0])))
     # [array([5., 7., 9.], dtype=float32)]
 
+<<<<<<< HEAD
     print(run_with_data_copied_to_device(x=np.float32([1.0, 2.0, 3.0, 4.0, 5.0]), y=np.float32([1.0, 2.0, 3.0, 4.0, 5.0])).numpy())
+=======
+    print(run_with_data_on_device(x=np.float32([1.0, 2.0, 3.0, 4.0, 5.0]), y=np.float32([1.0, 2.0, 3.0, 4.0, 5.0])).numpy())
+>>>>>>> 0bb1dca64b0848c67989c8cada957c95d374e83d
     # [ 2.  4.  6.  8. 10.]
 
     print(run_with_torch_tensors_on_device(torch.rand(5).to(DEVICE), torch.rand(5).to(DEVICE)))

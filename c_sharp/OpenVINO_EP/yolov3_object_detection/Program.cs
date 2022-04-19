@@ -81,16 +81,19 @@ namespace yolov3
 
             //Preprocessing image
             Tensor<float> input = new DenseTensor<float>(new[] { 1, 3, h, w });
-            for (int y = 0; y < clone.Height; y++)
+            clone.ProcessPixelRows(accessor =>
             {
-                Span<Rgb24> pixelSpan = clone.GetPixelRowSpan(y);
-                for (int x = 0; x < clone.Width; x++)
+                for (int y = 0; y < accessor.Height; y++)
                 {
-                    input[0, 0, y, x] = pixelSpan[x].B / 255f;
-                    input[0, 1, y, x] = pixelSpan[x].G / 255f;
-                    input[0, 2, y, x] = pixelSpan[x].R / 255f;
+                    Span<Rgb24> pixelSpan = accessor.GetRowSpan(y);
+                    for (int x = 0; x < pixelSpan.Length; x++)
+                    {
+                        input[0, 0, y, x] = pixelSpan[x].B / 255f;
+                        input[0, 1, y, x] = pixelSpan[x].G / 255f;
+                        input[0, 2, y, x] = pixelSpan[x].R / 255f;
+                    }
                 }
-            }
+            });
 
             //Get the Image Shape
             var image_shape = new DenseTensor<float>(new[] { 1, 2 });
@@ -145,8 +148,7 @@ namespace yolov3
 
             // Put boxes, labels and confidence on image and save for viewing
             using var outputImage = File.OpenWrite(outImageFilePath);
-            // Using FreeMono font for Linux and Arial for others
-            Font font = (RuntimeInformation.IsOSPlatform(OSPlatform.Linux)) ? SystemFonts.CreateFont("FreeMono", 16) : SystemFonts.CreateFont("Arial", 16);
+            Font font = SystemFonts.CreateFont("Arial", 16);
             foreach (var p in predictions)
             {
                 imageOrg.Mutate(x =>
