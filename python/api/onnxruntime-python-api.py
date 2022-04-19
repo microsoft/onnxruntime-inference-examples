@@ -46,11 +46,7 @@ def run(x: np.array, y: np.array) -> np.array:
     return z[0]   
 
 # Run the model on device consuming and producing ORTValues
-<<<<<<< HEAD
-def run_with_data_copied_to_device(x: np.array, y: np.array) -> onnxruntime.OrtValue:
-=======
 def run_with_data_on_device(x: np.array, y: np.array) -> onnxruntime.OrtValue:
->>>>>>> 0bb1dca64b0848c67989c8cada957c95d374e83d
     session = create_session(MODEL_FILE)
 
     x_ortvalue = onnxruntime.OrtValue.ortvalue_from_numpy(x, DEVICE_NAME, DEVICE_INDEX)
