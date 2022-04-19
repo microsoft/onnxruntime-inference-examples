@@ -23,7 +23,7 @@ The source code for this sample is available [here](https://github.com/microsoft
 ## Install ONNX Runtime for OpenVINO Execution Provider
 Please install the onnxruntime-openvino python package from [here](https://github.com/intel/onnxruntime/releases/tag/v4.0)
 
-## Optional Build steps
+## Optional Build steps for ONNX Runtime
 [build instructions](https://onnxruntime.ai/docs/build/eps.html#openvino)
 
 ## Reference Documentation
