@@ -16,13 +16,14 @@ The source code for this sample is available [here](https://github.com/microsoft
 # How to build
 
 ## Prerequisites
-1. [The Intel<sup>®</sup> Distribution of OpenVINO toolkit](https://docs.openvinotoolkit.org/latest/index.html)
-2. Download the latest tinyYOLOv2 model from the ONNX Model Zoo.
-   This model was adapted from [ONNX Model Zoo](https://github.com/onnx/models).Download the latest version of the [YOLOv4](https://github.com/onnx/models/tree/master/vision/object_detection_segmentation/yolov4) model from here.
+1. [The Intel<sup>®</sup> Distribution of OpenVINO toolkit](https://docs.openvino.ai/latest/openvino_docs_install_guides_install_runtime.html)
+   Please select Install OpenVINO Runtime using an installer 
+3. Download the latest version of the [YOLOv4](https://github.com/onnx/models/tree/master/vision/object_detection_segmentation/yolov4) model from here.
 
 ## Install ONNX Runtime for OpenVINO Execution Provider
+Please install the onnxruntime-openvino python package from [here](https://github.com/intel/onnxruntime/releases/tag/v4.0)
 
-## Build steps
+## Optional Build steps
 [build instructions](https://onnxruntime.ai/docs/build/eps.html#openvino)
 
 ## Reference Documentation
@@ -51,28 +52,28 @@ python3 yolov4.py --h
 
 ### Run the sample on OpenVINO EP
 ```bash
-python3 yolov4.py --device CPU_FP32 --video bottle-detection.mp4
+python3 yolov4.py --device CPU_FP32 --video bottle-detection.mp4 --model yolov4.onnx
 ```
 Note: You can pick different device options to run on OpenVINO EP like GPU_FP32, GPU_FP16 and MYRIAD_FP16.
 
 ### Run the sample on default CPU EP (MLAS)
 ```bash
-python3 yolov4.py --device cpu --video bottle-detection.mp4
+python3 yolov4.py --device cpu --video bottle-detection.mp4 --model yolov4.onnx
 ```
 
 ### Run the sample with video as Input
 ```bash
-python3 yolov4.py --device CPU_FP32 --video bottle-detection.mp4
+python3 yolov4.py --device CPU_FP32 --video bottle-detection.mp4 --model yolov4.onnx
 ```
 
 ### Run the sample with Image as Input
 ```bash
-python3 yolov4.py --device CPU_FP32 --image cat.jpg
+python3 yolov4.py --device CPU_FP32 --image cat.jpg --model yolov4.onnx
 ```
 
 ### Run the sample with Live Input stream Like webcam
 ```bash
-python3 yolov4.py --device CPU_FP32
+python3 yolov4.py --device CPU_FP32 --model yolov4.onnx
 ```
 
 ## To stop the sample from running
