@@ -433,3 +433,5 @@ fastlane/test_output
 .vscode
 .amlignore
 .amlignore.amltmp
+config.json
+.azureml

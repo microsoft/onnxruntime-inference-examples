@@ -1,7 +1,7 @@
 $schema: https://azuremlschemas.azureedge.net/latest/managedOnlineDeployment.schema.json
 name: blue
 endpoint_name: question-answer-ort
-model: azureml:bert-large-uncased-whole-word-masking-finetuned-squad:2
+model: azureml:bert-large-uncased-whole-word-masking-finetuned-squad:3
 code_configuration:
   code: ../
   scoring_script: score.py
