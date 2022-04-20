@@ -52,7 +52,7 @@ def postprocess_bbbox(pred_bbox):
         xy_grid = np.expand_dims(np.stack(xy_grid, axis=-1), axis=2)
 
         xy_grid = np.tile(np.expand_dims(xy_grid, axis=0), [1, 1, 1, 3, 1])
-        xy_grid = xy_grid.astype(np.float)
+        xy_grid = xy_grid.astype(float)
 
         pred_xy = ((special.expit(conv_raw_dxdy) * XYSCALE[i]) - 0.5 * (XYSCALE[i] - 1) + xy_grid) * STRIDES[i]
         pred_wh = (np.exp(conv_raw_dwdh) * ANCHORS[i])
@@ -327,7 +327,8 @@ def main():
             cv2.imwrite(output_file, frame.astype(np.uint8))
         else:
             vid_writer.write(frame.astype(np.uint8))
-    
+ 
+        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
         cv2.imshow(win_name, image)
 
 if __name__ == "__main__":

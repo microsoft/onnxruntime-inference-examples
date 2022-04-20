@@ -128,6 +128,7 @@ def postprocess_output(out, frame, x_scale, y_scale):
 def show_bbox(device, frame, inference_time):
   cv2.putText(frame,device,(10,20),cv2.FONT_HERSHEY_COMPLEX,0.5,(255,255,255),1)
   cv2.putText(frame,'FPS: {}'.format(1.0/inference_time),(10,40),cv2.FONT_HERSHEY_COMPLEX,0.5,(255,255,255),1)
+  frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
   cv2.imshow('frame',frame)
 
 def main():
