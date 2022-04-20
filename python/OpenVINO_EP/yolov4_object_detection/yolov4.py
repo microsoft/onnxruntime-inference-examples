@@ -1,8 +1,8 @@
 '''
-Copyright (C) 2021, Intel Corporation
+Copyright (C) 2021-2022, Intel Corporation
 SPDX-License-Identifier: Apache-2.0
 Major Portions of this code are copyright of their respective authors and released under the Apache License Version 2.0:
-- onnx, Copyright 2021. For licensing see https://github.com/onnx/models/blob/master/LICENSE
+- onnx, Copyright 2021-2022. For licensing see https://github.com/onnx/models/blob/master/LICENSE
 '''
 
 import cv2

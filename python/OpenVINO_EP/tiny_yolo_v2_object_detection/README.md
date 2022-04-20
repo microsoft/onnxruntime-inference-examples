@@ -11,11 +11,12 @@ The source code for this sample is available [here](https://github.com/microsoft
 ## Prerequisites
 1. [The Intel<sup>®</sup> Distribution of OpenVINO toolkit](https://docs.openvino.ai/latest/openvino_docs_install_guides_install_runtime.html)
    Please select Install OpenVINO Runtime using an installer 
+2. Please check also the documentation link for the [installer](https://docs.openvino.ai/latest/openvino_docs_install_guides_installing_openvino_linux.html#doxid-openvino-docs-install-guides-installing-openvino-linux)
 2. Download the latest tinyYOLOv2 model from the ONNX Model Zoo.
    This model was adapted from [ONNX Model Zoo](https://github.com/onnx/models).Download the latest version of the [tinyYOLOv2](https://github.com/onnx/models/tree/master/vision/object_detection_segmentation/tiny-yolov2) model from here.
 
 ## Install ONNX Runtime for OpenVINO Execution Provider
-Please install the onnxruntime-openvino python package from [here](https://github.com/intel/onnxruntime/releases/tag/v4.0)
+Please install the onnxruntime-openvino python package from [here](https://github.com/intel/onnxruntime/releases/)
 
 ## Optional Build steps for ONNX Runtime
 [build instructions](https://onnxruntime.ai/docs/build/eps.html#openvino)
@@ -36,10 +37,13 @@ Note: For all the python package dependencies requirements, check 'requirements.
 pip3 install -r requirements.txt
 ```
 
-
+### How to run the sample
+```bash
+python3 tiny_yolov2_obj_detection_sample.py --h
+```
 ## Running the ONNXRuntime OpenVINO Execution Provider sample
 ```bash
-python3 tiny_yolov2_obj_detection_sample.py --video bottle-detection.mp4 --model tinyyolov2.onnx
+python3 tiny_yolov2_obj_detection_sample.py --video classroom.mp4 --model tinyyolov2.onnx --device CPU_FP32
 ```
 
 ## To stop the sample from running
