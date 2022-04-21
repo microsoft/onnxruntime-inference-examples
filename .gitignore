@@ -430,7 +430,10 @@ fastlane/test_output
 *.onnx
 *.dylib
 .vscode
+.azureml
+config.json
 .amlignore
 .amlignore.amltmp
-config.json
-.azureml
+.ipynb_aml_checkpoints
+*.ipynb.amltmp
+
