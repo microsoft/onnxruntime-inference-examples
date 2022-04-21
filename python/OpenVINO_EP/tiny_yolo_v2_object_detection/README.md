@@ -43,7 +43,7 @@ python3 tiny_yolov2_obj_detection_sample.py --h
 ```
 ## Running the ONNXRuntime OpenVINO Execution Provider sample
 ```bash
-python3 tiny_yolov2_obj_detection_sample.py --video classroom.mp4 --model tinyyolov2.onnx --device CPU_FP32
+python3 tiny_yolov2_obj_detection_sample.py --video face-demographics-walking-and-pause.mp4 --model tinyyolov2.onnx --device CPU_FP32
 ```
 
 ## To stop the sample from running
