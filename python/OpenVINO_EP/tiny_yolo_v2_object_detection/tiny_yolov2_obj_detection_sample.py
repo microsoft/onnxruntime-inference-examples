@@ -102,7 +102,7 @@ def postprocess_output(out, frame, x_scale, y_scale, i):
           classes = softmax(classes)
           detected_class = classes.argmax()
           # Now we can compute the final score for this bounding box and we only want to keep the ones whose combined score is over a certain threshold
-          if 0.45< classes[detected_class]*confidence:
+          if 0.60 < classes[detected_class]*confidence:
             color =clut[detected_class]
             x = (x - w/2)*x_scale
             y = (y - h/2)*y_scale
@@ -110,18 +110,15 @@ def postprocess_output(out, frame, x_scale, y_scale, i):
             h *= y_scale
                
             labelX = int((x+x+w)/2)
-            print(labelX)
             labelY = int((y+y+h)/2)
-            print(labelY)
             addLabel = True
-            lab_threshold = 200
+            lab_threshold = 100
             for point in existing_labels[label[detected_class]]:
               if labelX < point[0] + lab_threshold and labelX > point[0] - lab_threshold and \
                  labelY < point[1] + lab_threshold and labelY > point[1] - lab_threshold:
                   addLabel = False
               #Adding class labels to the output of the frame and also drawing a rectangular bounding box around the object detected.
             if addLabel:
-              print("detected frame")
               cv2.rectangle(frame, (int(x),int(y)),(int(x+w),int(y+h)),color,2)
               cv2.rectangle(frame, (int(x),int(y-13)),(int(x)+9*len(label[detected_class]),int(y)),color,-1)
               cv2.putText(frame,label[detected_class],(int(x)+2,int(y)-3),cv2.FONT_HERSHEY_COMPLEX,0.4,(255,255,255),1)
@@ -142,14 +139,15 @@ def main():
 
   # Validate model file path
   check_model_extension(args.model)
-
+  so = rt.SessionOptions()
+  so.log_severity_level = 3
   if (args.device == 'cpu'):
     print("Device type selected is 'cpu' which is the default CPU Execution Provider (MLAS)")
     #Specify the path to the ONNX model on your machine and register the CPU EP
-    sess = rt.InferenceSession(args.model, providers=['CPUExecutionProvider'])
+    sess = rt.InferenceSession(args.model, so, providers=['CPUExecutionProvider'])
   elif (args.device == 'CPU_FP32' or args.device == 'GPU_FP32' or args.device == 'GPU_FP16' or args.device == 'MYRIAD_FP16' or args.device == 'VADM_FP16'):
     #Specify the path to the ONNX model on your machine and register the OpenVINO EP
-    sess = rt.InferenceSession(args.model, providers=['OpenVINOExecutionProvider'], provider_options=[{'device_type' : args.device}])
+    sess = rt.InferenceSession(args.model, so, providers=['OpenVINOExecutionProvider'], provider_options=[{'device_type' : args.device}])
     print("Device type selected is: " + args.device + " using the OpenVINO Execution Provider")
     '''
     other 'device_type' options are: (Any hardware target can be assigned if you have the access to it)

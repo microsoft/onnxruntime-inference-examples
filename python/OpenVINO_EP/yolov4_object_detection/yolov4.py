@@ -270,13 +270,15 @@ def main():
     
     # Check the device information and create a session
     device = args.device
+    so = rt.SessionOptions()
+    so.log_severity_level = 3
     if(args.device == 'cpu'):
         print("Device type selected is 'cpu' which is the default CPU Execution Provider (MLAS)")
         #Specify the path to the ONNX model on your machine and register the CPU EP
-        sess = rt.InferenceSession(args.model, providers=['CPUExecutionProvider'])
+        sess = rt.InferenceSession(args.model, so, providers=['CPUExecutionProvider'])
     else:
         #Specify the path to the ONNX model on your machine and register the OpenVINO EP
-        sess = rt.InferenceSession(args.model, providers=['OpenVINOExecutionProvider'], provider_options=[{'device_type' : device}])
+        sess = rt.InferenceSession(args.model, so, providers=['OpenVINOExecutionProvider'], provider_options=[{'device_type' : device}])
         print("Device type selected is: " + device + " using the OpenVINO Execution Provider")
         '''
         other 'device_type' options are: (Any hardware target can be assigned if you have the access to it)
