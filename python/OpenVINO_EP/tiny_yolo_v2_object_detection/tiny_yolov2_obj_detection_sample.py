@@ -70,7 +70,7 @@ def image_preprocess(frame):
   preprocessed_image = preprocessed_image.reshape(1,3,416,416)
   return preprocessed_image
 
-def postprocess_output(out, frame, x_scale, y_scale):
+def postprocess_output(out, frame, x_scale, y_scale, i):
   out = out[0][0]
   num_classes = 20
   anchors = [1.08, 1.19, 3.42, 4.41, 6.63, 11.38, 9.42, 5.11, 16.62, 10.52]
@@ -110,20 +110,24 @@ def postprocess_output(out, frame, x_scale, y_scale):
             h *= y_scale
                
             labelX = int((x+x+w)/2)
+            print(labelX)
             labelY = int((y+y+h)/2)
+            print(labelY)
             addLabel = True
-            lab_threshold = 40
+            lab_threshold = 200
             for point in existing_labels[label[detected_class]]:
               if labelX < point[0] + lab_threshold and labelX > point[0] - lab_threshold and \
                  labelY < point[1] + lab_threshold and labelY > point[1] - lab_threshold:
-                 addLabel = False
+                  addLabel = False
               #Adding class labels to the output of the frame and also drawing a rectangular bounding box around the object detected.
-              if addLabel:
-                cv2.rectangle(frame, (int(x),int(y)),(int(x+w),int(y+h)),color,2)
-                cv2.rectangle(frame, (int(x),int(y-13)),(int(x)+9*len(label[detected_class]),int(y)),color,-1)
-                cv2.putText(frame,label[detected_class],(int(x)+2,int(y)-3),cv2.FONT_HERSHEY_COMPLEX,0.4,(255,255,255),1)
-                existing_labels[label[detected_class]].append((labelX,labelY))
-                print('{} detected in frame {}'.format(label[detected_class],i))
+            if addLabel:
+              print("detected frame")
+              cv2.rectangle(frame, (int(x),int(y)),(int(x+w),int(y+h)),color,2)
+              cv2.rectangle(frame, (int(x),int(y-13)),(int(x)+9*len(label[detected_class]),int(y)),color,-1)
+              cv2.putText(frame,label[detected_class],(int(x)+2,int(y)-3),cv2.FONT_HERSHEY_COMPLEX,0.4,(255,255,255),1)
+              existing_labels[label[detected_class]].append((labelX,labelY))
+            print('{} detected in frame {}'.format(label[detected_class],i))
+  
 
 def show_bbox(device, frame, inference_time):
   cv2.putText(frame,device,(10,20),cv2.FONT_HERSHEY_COMPLEX,0.5,(255,255,255),1)
@@ -167,6 +171,8 @@ def main():
   fps = cap.get(cv2.CAP_PROP_FPS)
   width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
   height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+  x_scale = float(width)/416.0  #In the document of tino-yolo-v2, input shape of this network is (1,3,416,416).
+  y_scale = float(height)/416.0      
  
   # writing the inferencing output as a video to the local disk
   fourcc = cv2.VideoWriter_fourcc(*'XVID')
@@ -175,7 +181,7 @@ def main():
 
   # capturing one frame at a time from the video feed and performing the inference
   i = 0
-  while cap.isOpened():
+  while cv2.waitKey(1) < 0:
     l_start = time.time()
     ret, frame = cap.read()
     if not ret:
@@ -194,23 +200,20 @@ def main():
     inference_time = end - start
 
     #Get the output
-    x_scale = float(width)/416.0  #In the document of tino-yolo-v2, input shape of this network is (1,3,416,416).
-    y_scale = float(height)/416.0      
-    out = postprocess_output(out, frame, x_scale, y_scale)
+    postprocess_output(out, frame, x_scale, y_scale, i)
    
     #Show the Output
     output_video.write(frame)
     show_bbox(args.device, frame, inference_time)
         
     #Press 'q' to quit the process
-    if cv2.waitKey(1) & 0xFF == ord('q'):
-      break
     print('Processed Frame {}'.format(i))
     i += 1
     l_end = time.time()
     print('Loop Time = {}'.format(l_end - l_start))
-    output_video.release()
-    cv2.destroyAllWindows()
+
+  output_video.release()
+  cv2.destroyAllWindows()
 
 if __name__ == "__main__":
   main()
