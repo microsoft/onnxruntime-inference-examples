@@ -44,9 +44,12 @@ export OPENCL_INCS=path/to/your/directory/openvino/thirdparty/ocl/clhpp_headers/
 
    - For general sample
       ```
-      g++ -o run_squeezenet squeezenet_cpp_app.cpp -I ../../../include/onnxruntime/core/session/ -I /opt/intel/openvino_2021.4.752/opencv/include/ -I /opt/intel/openvino_2021.4.752/opencv/lib/ -L ./ -lonnxruntime_providers_openvino -lonnxruntime_providers_shared -lonnxruntime -L /opt/intel/openvino_2021.4.752/opencv/lib/ -lopencv_imgcodecs -lopencv_dnn -lopencv_core -lopencv_imgproc
+      g++ -o run_squeezenet squeezenet_cpp_app.cpp -I ../../../include/onnxruntime/core/session/ -I /path/to/opencv/include/ -I /path/to/opencv/lib/ -L ./ -lonnxruntime_providers_openvino -lonnxruntime_providers_shared -lonnxruntime -L /path/to/opencv/lib/ -lopencv_imgcodecs -lopencv_dnn -lopencv_core -lopencv_imgproc
       ```
-      Note: This build command is using the opencv location from OpenVINO 2021.4.2 Release Installation. You can use any version of OpenVINO and change the location path accordingly.
+      **Note:**
+      If you are using the opencv from openvino package, below are the paths:
+      * For latest version (2022.1.0), run download_opencv.sh in /path/to/openvino/extras/script and the opencv folder will be downloaded at /path/to/openvino/extras.
+      * For older openvino version, opencv folder is available at openvino directory itself.
 
    - For the sample using IO Buffer Optimization feature
       Set the OpenCL lib and headers path. For example if you are setting the path from openvino source build folder, the paths will be like:
@@ -56,8 +59,12 @@ export OPENCL_INCS=path/to/your/directory/openvino/thirdparty/ocl/clhpp_headers/
       ```
       Now based on the above path, compile command will be:
       ```
-      g++ -o run_squeezenet squeezenet_cpp_app_io.cpp -I ../../../include/onnxruntime/core/session/ -I $OPENCL_INCS -I $OPENCL_INCS/../../cl_headers/ -I /opt/intel/openvino_2021.4.752/opencv/include/ -I /opt/intel/openvino_2021.4.752/opencv/lib/ -L ./ -lonnxruntime_providers_openvino -lonnxruntime_providers_shared -lonnxruntime -L /opt/intel/openvino_2021.4.752/opencv/lib/ -lopencv_imgcodecs -lopencv_dnn -lopencv_core -lopencv_imgproc -L $OPENCL_LIBS -lOpenCL
+      g++ -o run_squeezenet squeezenet_cpp_app_io.cpp -I ../../../include/onnxruntime/core/session/ -I $OPENCL_INCS -I $OPENCL_INCS/../../cl_headers/ -I /path/to/opencv/include/ -I /path/to/opencv/lib/ -L ./ -lonnxruntime_providers_openvino -lonnxruntime_providers_shared -lonnxruntime -L /path/to/opencv/lib/ -lopencv_imgcodecs -lopencv_dnn -lopencv_core -lopencv_imgproc -L $OPENCL_LIBS -lOpenCL
       ```
+      **Note:**
+      If you are using the opencv from openvino package, below are the paths:
+      * For latest version (2022.1.0), run download_opencv.sh in /path/to/openvino/extras/script and the opencv folder will be downloaded at /path/to/openvino/extras.
+      * For older openvino version, opencv folder is available at openvino directory itself.
 
 4. Run the sample
 
