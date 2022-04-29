@@ -9,13 +9,16 @@ The source code for this sample is available [here](https://github.com/microsoft
 # How to build
 
 ## Prerequisites
-1. [The Intel<sup>®</sup> Distribution of OpenVINO toolkit](https://docs.openvinotoolkit.org/latest/index.html)
+1. [The Intel<sup>®</sup> Distribution of OpenVINO toolkit](https://docs.openvino.ai/latest/openvino_docs_install_guides_install_runtime.html)
+   Please select Install OpenVINO Runtime using an installer 
+2. Please check also the documentation link for the [installer](https://docs.openvino.ai/latest/openvino_docs_install_guides_installing_openvino_linux.html#doxid-openvino-docs-install-guides-installing-openvino-linux)
 2. Download the latest tinyYOLOv2 model from the ONNX Model Zoo.
    This model was adapted from [ONNX Model Zoo](https://github.com/onnx/models).Download the latest version of the [tinyYOLOv2](https://github.com/onnx/models/tree/master/vision/object_detection_segmentation/tiny-yolov2) model from here.
 
 ## Install ONNX Runtime for OpenVINO Execution Provider
+Please install the onnxruntime-openvino python package from [here](https://github.com/intel/onnxruntime/releases/)
 
-## Build steps
+## Optional Build steps for ONNX Runtime
 [build instructions](https://onnxruntime.ai/docs/build/eps.html#openvino)
 
 ## Reference Documentation
@@ -26,18 +29,21 @@ The source code for this sample is available [here](https://github.com/microsoft
 * numpy version 1.19.5+
 * opencv 4.5.1+
 * python 3+
-* use any sample video with objects as test input to this sample
-* Download the tinyYOLOv2 model from the ONNX Model Zoo
+* use any sample video with objects as test input to this sample [Download Sample videos](https://github.com/intel-iot-devkit/sample-videos)
+* Download the tinyYOLOv2 model from the [ONNX Model Zoo](https://github.com/onnx/models/tree/master/vision/object_detection_segmentation/tiny-yolov2) 
 
 Note: For all the python package dependencies requirements, check 'requirements.txt' file in the sample directory. You may also install these dependencies with:
 ```bash
 pip3 install -r requirements.txt
 ```
 
-
+### How to run the sample
+```bash
+python3 tiny_yolov2_obj_detection_sample.py --h
+```
 ## Running the ONNXRuntime OpenVINO Execution Provider sample
 ```bash
-python3 tiny_yolov2_obj_detection_sample.py
+python3 tiny_yolov2_obj_detection_sample.py --video face-demographics-walking-and-pause.mp4 --model tinyyolov2.onnx --device CPU_FP32
 ```
 
 ## To stop the sample from running

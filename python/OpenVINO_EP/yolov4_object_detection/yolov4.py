@@ -1,29 +1,23 @@
 '''
-Copyright (C) 2021, Intel Corporation
+Copyright (C) 2021-2022, Intel Corporation
 SPDX-License-Identifier: Apache-2.0
 Major Portions of this code are copyright of their respective authors and released under the Apache License Version 2.0:
-- onnx, Copyright 2021. For licensing see https://github.com/onnx/models/blob/master/LICENSE
+- onnx, Copyright 2021-2022. For licensing see https://github.com/onnx/models/blob/master/LICENSE
 '''
 
 import cv2
 import numpy as np
 from onnx import numpy_helper
 import onnx
+import onnxruntime as rt
 import os
 from PIL import Image
-import onnxruntime as rt
 from scipy import special
 import colorsys
 import random
 import argparse
 import sys
 import time
-
-parser = argparse.ArgumentParser(description='Object Detection using YOLOv4 in OPENCV using OpenVINO Execution Provider for ONNXRuntime')
-parser.add_argument('--device', default='cpu', help="Device to perform inference on 'cpu (MLAS)' or on devices supported by OpenVINO-EP [CPU_FP32, GPU_FP32, GPU_FP16, MYRIAD_FP16, VAD-M_FP16].")
-parser.add_argument('--image', help='Path to image file.')
-parser.add_argument('--video', help='Path to video file.')
-args = parser.parse_args()
 
 def image_preprocess(image, target_size, gt_boxes=None):
 
@@ -47,60 +41,7 @@ def image_preprocess(image, target_size, gt_boxes=None):
         gt_boxes[:, [1, 3]] = gt_boxes[:, [1, 3]] * scale + dh
         return image_padded, gt_boxes
 
-# Process inputs
-winName = 'Object detection using ONNXRuntime OpenVINO Execution Provider using YoloV4 model'
-cv2.namedWindow(winName, cv2.WINDOW_NORMAL)
-
-outputFile = "yolo_out_py.avi"
-if (args.image):
-    # Open the image file
-    if not os.path.isfile(args.image):
-        print("Input image file ", args.image, " doesn't exist")
-        sys.exit(1)
-    cap = cv2.VideoCapture(args.image)
-    outputFile = args.image[:-4]+'_yolo_out_py.jpg'
-elif (args.video):
-    # Open the video file
-    if not os.path.isfile(args.video):
-        print("Input video file ", args.video, " doesn't exist")
-        sys.exit(1)
-    cap = cv2.VideoCapture(args.video)
-    outputFile = args.video[:-4]+'_yolo_out_py.avi'
-else:
-    # Webcam input
-    cap = cv2.VideoCapture(0)
-
-# Get the video writer initialized to save the output video
-if (not args.image):
-    vid_writer = cv2.VideoWriter(outputFile, cv2.VideoWriter_fourcc('M','J','P','G'), 30, (round(cap.get(cv2.CAP_PROP_FRAME_WIDTH)),round(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))))
-
-device = args.device
-
-if(args.device == 'cpu'):
-    print("Device type selected is 'cpu' which is the default CPU Execution Provider (MLAS)")
-    #Specify the path to the ONNX model on your machine and register the CPU EP
-    sess = rt.InferenceSession("yolov4/yolov4.onnx", providers=['CPUExecutionProvider'])
-else:
-    #Specify the path to the ONNX model on your machine and register the OpenVINO EP
-    sess = rt.InferenceSession("yolov4/yolov4.onnx", providers=['OpenVINOExecutionProvider'], provider_options=[{'device_type' : device}])
-    print("Device type selected is: " + device + " using the OpenVINO Execution Provider")
-    '''
-    other 'device_type' options are: (Any hardware target can be assigned if you have the access to it)
-    'CPU_FP32', 'GPU_FP32', 'GPU_FP16', 'MYRIAD_FP16', 'VAD-M_FP16'
-    '''
-
-outputs = sess.get_outputs()
-output_names = list(map(lambda output: output.name, outputs))
-input_name = sess.get_inputs()[0].name
-
-def get_anchors(anchors_path, tiny=False):
-    '''loads the anchors from a file'''
-    with open(anchors_path) as f:
-        anchors = f.readline()
-    anchors = np.array(anchors.split(','), dtype=np.float32)
-    return anchors.reshape(3, 3, 2)
-
-def postprocess_bbbox(pred_bbox, ANCHORS, STRIDES, XYSCALE=[1,1,1]):
+def postprocess_bbbox(pred_bbox):
     '''define anchor boxes'''
     for i, pred in enumerate(pred_bbox):
         conv_shape = pred.shape
@@ -111,7 +52,7 @@ def postprocess_bbbox(pred_bbox, ANCHORS, STRIDES, XYSCALE=[1,1,1]):
         xy_grid = np.expand_dims(np.stack(xy_grid, axis=-1), axis=2)
 
         xy_grid = np.tile(np.expand_dims(xy_grid, axis=0), [1, 1, 1, 3, 1])
-        xy_grid = xy_grid.astype(np.float)
+        xy_grid = xy_grid.astype(float)
 
         pred_xy = ((special.expit(conv_raw_dxdy) * XYSCALE[i]) - 0.5 * (XYSCALE[i] - 1) + xy_grid) * STRIDES[i]
         pred_wh = (np.exp(conv_raw_dwdh) * ANCHORS[i])
@@ -258,54 +199,139 @@ def draw_bbox(image, bboxes, classes=read_class_names("coco.names"), show_label=
 
     return image
 
+def get_anchors(anchors_path, tiny=False):
+    '''loads the anchors from a file'''
+    with open(anchors_path) as f:
+        anchors = f.readline()
+    anchors = np.array(anchors.split(','), dtype=np.float32)
+    return anchors.reshape(3, 3, 2)
+
 #Specify the path to anchors file on your machine
-ANCHORS = "./yolov4_anchors.txt"
+ANCHORS = "./yolov4_anchors.txt"    
 STRIDES = [8, 16, 32]
 XYSCALE = [1.2, 1.1, 1.05]
-
 ANCHORS = get_anchors(ANCHORS)
 STRIDES = np.array(STRIDES)
 
-while cv2.waitKey(1) < 0:
+def parse_arguments():
+    parser = argparse.ArgumentParser(description='Object Detection using YOLOv4 in OPENCV using OpenVINO Execution Provider for ONNXRuntime')
+    parser.add_argument('--device', default='CPU_FP32', help="Device to perform inference on 'cpu (MLAS)' or on devices supported by OpenVINO-EP [CPU_FP32, GPU_FP32, GPU_FP16, MYRIAD_FP16, VAD-M_FP16].")
+    parser.add_argument('--image', help='Path to image file.')
+    parser.add_argument('--video', help='Path to video file.')
+    parser.add_argument('--model', help='Path to model.')
+    args = parser.parse_args()
+    return args
     
-    # get frame from the video
-    hasFrame, frame = cap.read()
-    
-    # Stop the program if reached end of video
-    if not hasFrame:
-        print("Done processing !!!")
-        print("Output file is stored as ", outputFile)
-        cv2.waitKey(3000)
-        # Release device
-        cap.release()
-        break
+def check_model_extension(fp):
+  # Split the extension from the path and normalise it to lowercase.
+  ext = os.path.splitext(fp)[-1].lower()
 
-    input_size = 416
+  # Now we can simply use != to check for inequality, no need for wildcards.
+  if(ext != ".onnx"):
+    raise Exception(fp, "is an unknown file format. Use the model ending with .onnx format")
+  
+  if not os.path.exists(fp):
+    raise Exception("[ ERROR ] Path of the onnx model file is Invalid")
 
-    original_image = frame
-    original_image = cv2.cvtColor(original_image, cv2.COLOR_BGR2RGB)
-    original_image_size = original_image.shape[:2]
+def main(): 
 
-    image_data = image_preprocess(np.copy(original_image), [input_size, input_size])
-    image_data = image_data[np.newaxis, ...].astype(np.float32)
-    
-    start = time.time()
-    detections = sess.run(output_names, {input_name: image_data})
-    end = time.time()
-    inference_time = end - start
+    # Process arguments
+    args = parse_arguments()
 
-    pred_bbox = postprocess_bbbox(detections, ANCHORS, STRIDES, XYSCALE)
-    bboxes = postprocess_boxes(pred_bbox, original_image_size, input_size, 0.25)
-    bboxes = nms(bboxes, 0.213, method='nms')
-    image = draw_bbox(original_image, bboxes)
+    # Validate model file path
+    check_model_extension(args.model)
 
-    cv2.putText(image,device,(10,20),cv2.FONT_HERSHEY_COMPLEX,0.5,(255,255,255),1)
-    cv2.putText(image,'FPS: {}'.format(1.0/inference_time),(10,40),cv2.FONT_HERSHEY_COMPLEX,0.5,(255,255,255),1)
+    # Process inputs
+    win_name = 'Object detection using ONNXRuntime OpenVINO Execution Provider using YoloV4 model'
+    cv2.namedWindow(win_name, cv2.WINDOW_NORMAL)
 
-    # Write the frame with the detection boxes
+    output_file = "yolo_out_py.avi"
     if (args.image):
-        cv2.imwrite(outputFile, frame.astype(np.uint8))
+        # Open the image file
+        if not os.path.isfile(args.image):
+            print("Input image file ", args.image, " doesn't exist")
+            sys.exit(1)
+        cap = cv2.VideoCapture(args.image)
+        output_file = args.image[:-4]+'_yolo_out_py.jpg'
+    elif (args.video):
+        # Open the video file
+        if not os.path.isfile(args.video):
+            print("Input video file ", args.video, " doesn't exist")
+            sys.exit(1)
+        cap = cv2.VideoCapture(args.video)
+        output_file = args.video[:-4]+'_yolo_out_py.avi'
     else:
-        vid_writer.write(frame.astype(np.uint8))
+        # Webcam input
+        cap = cv2.VideoCapture(0)
 
-    cv2.imshow(winName, image)
+    # Get the video writer initialized to save the output video
+    if (not args.image):
+        vid_writer = cv2.VideoWriter(output_file, cv2.VideoWriter_fourcc('M','J','P','G'), 30, (round(cap.get(cv2.CAP_PROP_FRAME_WIDTH)),round(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))))
+    
+    # Check the device information and create a session
+    device = args.device
+    so = rt.SessionOptions()
+    so.log_severity_level = 3
+    if(args.device == 'cpu'):
+        print("Device type selected is 'cpu' which is the default CPU Execution Provider (MLAS)")
+        #Specify the path to the ONNX model on your machine and register the CPU EP
+        sess = rt.InferenceSession(args.model, so, providers=['CPUExecutionProvider'])
+    else:
+        #Specify the path to the ONNX model on your machine and register the OpenVINO EP
+        sess = rt.InferenceSession(args.model, so, providers=['OpenVINOExecutionProvider'], provider_options=[{'device_type' : device}])
+        print("Device type selected is: " + device + " using the OpenVINO Execution Provider")
+        '''
+        other 'device_type' options are: (Any hardware target can be assigned if you have the access to it)
+        'CPU_FP32', 'GPU_FP32', 'GPU_FP16', 'MYRIAD_FP16', 'VAD-M_FP16'
+        '''
+
+    input_name = sess.get_inputs()[0].name
+    
+    while cv2.waitKey(1) < 0:
+        # get frame from the video
+        has_frame, frame = cap.read()
+        # Stop the program if reached end of video
+        if not has_frame:
+            print("Done processing !!!")
+            print("Output file is stored as ", output_file)
+            has_frame=False
+            cv2.waitKey(3000)
+            # Release device
+            cap.release()
+            break
+            
+        input_size = 416
+        original_image = frame
+        original_image = cv2.cvtColor(original_image, cv2.COLOR_BGR2RGB)
+        original_image_size = original_image.shape[:2]
+
+        image_data = image_preprocess(np.copy(original_image), [input_size, input_size])
+        image_data = image_data[np.newaxis, ...].astype(np.float32)
+    
+        outputs = sess.get_outputs()
+        output_names = list(map(lambda output: output.name, outputs))
+
+        start = time.time()
+        detections = sess.run(output_names, {input_name: image_data})
+        end = time.time()
+        inference_time = end - start
+
+        pred_bbox = postprocess_bbbox(detections)
+        bboxes = postprocess_boxes(pred_bbox, original_image_size, input_size, 0.25)
+        bboxes = nms(bboxes, 0.213, method='nms')
+        image = draw_bbox(original_image, bboxes)
+
+        cv2.putText(image,device,(10,20),cv2.FONT_HERSHEY_COMPLEX,0.5,(255,255,255),1)
+        cv2.putText(image,'FPS: {}'.format(1.0/inference_time),(10,40),cv2.FONT_HERSHEY_COMPLEX,0.5,(255,255,255),1)
+
+        # Write the frame with the detection boxes
+        if (args.image):
+            cv2.imwrite(output_file, frame.astype(np.uint8))
+        else:
+            vid_writer.write(frame.astype(np.uint8))
+ 
+        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+        cv2.imshow(win_name, image)
+
+if __name__ == "__main__":
+  main()
