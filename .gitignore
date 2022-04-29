@@ -427,8 +427,13 @@ fastlane/test_output
 /*.gcno
 
 *.ort
-.model.onnx
+*.onnx
 *.dylib
 .vscode
+.azureml
+config.json
 .amlignore
 .amlignore.amltmp
+.ipynb_aml_checkpoints
+*.ipynb.amltmp
+
