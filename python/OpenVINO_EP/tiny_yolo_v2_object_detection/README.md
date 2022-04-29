@@ -29,8 +29,8 @@ Please install the onnxruntime-openvino python package from [here](https://githu
 * numpy version 1.19.5+
 * opencv 4.5.1+
 * python 3+
-* use any sample video with objects as test input to this sample
-* Download the tinyYOLOv2 model from the ONNX Model Zoo
+* use any sample video with objects as test input to this sample [Download Sample videos](https://github.com/intel-iot-devkit/sample-videos)
+* Download the tinyYOLOv2 model from the [ONNX Model Zoo](https://github.com/onnx/models/tree/master/vision/object_detection_segmentation/tiny-yolov2) 
 
 Note: For all the python package dependencies requirements, check 'requirements.txt' file in the sample directory. You may also install these dependencies with:
 ```bash
