@@ -47,7 +47,7 @@ It is written entirely in Swift and uses a bridgingheader file for the framework
 ### Related Resources
 - [Converting TFlite models to ONNX](https://github.com/onnx/tensorflow-onnx#getting-started)
 
-- [Convert ONNX models to ORT format](https://onnxruntime.ai/docs/tutorials/mobile/model-conversion.html)
+- [Convert ONNX models to ORT format](https://onnxruntime.ai/docs/reference/ort-format-models.html#convert-onnx-models-to-ort-format)
 
 #
 Here's an example screenshot of the app:
