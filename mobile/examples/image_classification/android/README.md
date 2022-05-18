@@ -56,6 +56,9 @@ Then Select `Run -> Run app` and this will prompt the app to be installed on you
 
 Now you can test and try by opening the app `ort_image_classifier` on your device. The app may request your permission for using the camera.
 
+### Custom Build Android Package
+
+If you want to use your local custom built Android AAR package, you can follow step 2 [here](https://onnxruntime.ai/docs/build/custom.html#android). (You can also find instructions to produce a custom ORT android AAR package here)
 
 #
 Here's an example screenshot of the app.
