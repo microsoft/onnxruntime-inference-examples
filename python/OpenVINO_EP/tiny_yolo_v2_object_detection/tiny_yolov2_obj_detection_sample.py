@@ -9,6 +9,11 @@ import cv2
 import time
 import os
 import argparse
+import platform
+
+if platform.system() == "Windows":
+    from openvino import utils
+    utils.add_openvino_libs_to_path()
 
 # color look up table for different classes for object detection sample
 clut = [(0,0,0),(255,0,0),(255,0,255),(0,0,255),(0,255,0),(0,255,128),

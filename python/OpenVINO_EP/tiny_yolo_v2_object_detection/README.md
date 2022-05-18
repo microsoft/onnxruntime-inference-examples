@@ -17,6 +17,10 @@ The source code for this sample is available [here](https://github.com/microsoft
 
 ## Install ONNX Runtime for OpenVINO Execution Provider
 Please install the onnxruntime-openvino python package from [here](https://github.com/intel/onnxruntime/releases/)
+For Windows make sure to install openvino as well:
+```
+pip3 install openvino
+```
 
 ## Optional Build steps for ONNX Runtime
 [build instructions](https://onnxruntime.ai/docs/build/eps.html#openvino)
@@ -29,6 +33,7 @@ Please install the onnxruntime-openvino python package from [here](https://githu
 * numpy version 1.19.5+
 * opencv 4.5.1+
 * python 3+
+* openvino
 * use any sample video with objects as test input to this sample [Download Sample videos](https://github.com/intel-iot-devkit/sample-videos)
 * Download the tinyYOLOv2 model from the [ONNX Model Zoo](https://github.com/onnx/models/tree/master/vision/object_detection_segmentation/tiny-yolov2) 
 
@@ -44,6 +49,14 @@ python3 tiny_yolov2_obj_detection_sample.py --h
 ## Running the ONNXRuntime OpenVINO Execution Provider sample
 ```bash
 python3 tiny_yolov2_obj_detection_sample.py --video face-demographics-walking-and-pause.mp4 --model tinyyolov2.onnx --device CPU_FP32
+```
+Note: Make sure the sample is having below lines to use openvino in Windows
+```
+import platform
+
+if platform.system() == "Windows":
+	from openvino import utils
+	utils.add_openvino_libs_to_path()
 ```
 
 ## To stop the sample from running

@@ -23,6 +23,10 @@ The source code for this sample is available [here](https://github.com/microsoft
 
 ## Install ONNX Runtime for OpenVINO Execution Provider
 Please install the onnxruntime-openvino python package from [here](https://github.com/intel/onnxruntime/releases/)
+For Windows make sure to install openvino as well:
+```
+pip3 install openvino
+```
 
 ## Optional Build steps for ONNX Runtime
 [build instructions](https://onnxruntime.ai/docs/build/eps.html#openvino)
@@ -35,6 +39,7 @@ Please install the onnxruntime-openvino python package from [here](https://githu
 * numpy version 1.19.5+
 * opencv 4.5.1+
 * python 3+
+* openvino
 * use any sample video with objects as test input to this sample [Download Sample videos](https://github.com/intel-iot-devkit/sample-videos)
 * download the Yolov4 model from the [ONNX Model Zoo](https://github.com/onnx/models/tree/main/vision/object_detection_segmentation/yolov4)
 
@@ -54,7 +59,16 @@ python3 yolov4.py --h
 ```bash
 python3 yolov4.py --device CPU_FP32 --video classroom.mp4 --model yolov4.onnx
 ```
-Note: You can pick different device options to run on OpenVINO EP like GPU_FP32, GPU_FP16 and MYRIAD_FP16.
+Note:
+* You can pick different device options to run on OpenVINO EP like GPU_FP32, GPU_FP16 and MYRIAD_FP16.
+* Make sure the sample is having below lines to use openvino in Windows
+	```
+	import platform
+
+	if platform.system() == "Windows":
+		from openvino import utils
+		utils.add_openvino_libs_to_path()
+	```
 
 ### Run the sample on default CPU EP (MLAS)
 ```bash
