@@ -19,8 +19,7 @@ namespace image_classification {
             int height = image.Height;
 
             // Convert the image to a tensor
-            Console.WriteLine ("Converting image to tensor");
-            Tensor<float> input = new DenseTensor<float> (new [] { 1, 3, height, width });
+            Tensor<byte> input = new DenseTensor<byte> (new [] { height, width, 3 });
             image.ProcessPixelRows(accessor =>
             {
                 for (int y = 0; y < accessor.Height; y++)
@@ -28,27 +27,29 @@ namespace image_classification {
                     Span<Rgb24> pixelSpan = accessor.GetRowSpan(y);
                     for (int x = 0; x < accessor.Width; x++)
                     {
-                        input[0, 0, y, x] = pixelSpan[x].R;
-                        input[0, 1, y, x] = pixelSpan[x].G;
-                        input[0, 2, y, x] = pixelSpan[x].B;
+                        input[y, x, 0] = pixelSpan[x].R;
+                        input[y, x, 1] = pixelSpan[x].G;
+                        input[y, x, 2] = pixelSpan[x].B;
                     }
                 }
             });
-            Console.WriteLine ("Tensor: " + input);
 
             var inputs = new List<NamedOnnxValue> {
                 NamedOnnxValue.CreateFromTensor("image", input)
             };
 
-            Console.WriteLine ("Creating session ...");
             using var session = new InferenceSession(modelFilePath);
+            
+            foreach (var r in  session.Run(inputs))
+            {
+                Console.WriteLine("Output for {0}", r.Name);
+                if (r.Name == "top_classes") {
+                    Console.WriteLine(r.AsTensor<Int64>().GetArrayString());
+                } else {
+                    Console.WriteLine(r.AsTensor<float>().GetArrayString());
+                }
+            }
 
-            Console.WriteLine("InferenceSession: " + session);
-
-            Console.WriteLine ("Running model " + modelFilePath);            
-            using IDisposableReadOnlyCollection<DisposableNamedOnnxValue> results = session.Run(inputs);
-
-            Console.WriteLine ("Image classification: " + results);
         }
 
     }
