@@ -1,4 +1,4 @@
 onnx==1.10.0
 onnxruntime==1.10.0
-tensorflow==2.6.3
+tensorflow==2.6.4
 tf2onnx==1.9.3
