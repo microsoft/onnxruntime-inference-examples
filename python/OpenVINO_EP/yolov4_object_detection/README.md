@@ -16,32 +16,34 @@ The source code for this sample is available [here](https://github.com/microsoft
 # How to build
 
 ## Prerequisites
-1. [The Intel<sup>®</sup> Distribution of OpenVINO toolkit](https://docs.openvino.ai/latest/openvino_docs_install_guides_install_runtime.html)
-   Please select Install OpenVINO Runtime using an installer 
-2. Please check also the documentation link for the [installer](https://docs.openvino.ai/latest/openvino_docs_install_guides_installing_openvino_linux.html#doxid-openvino-docs-install-guides-installing-openvino-linux)
-3. Download the latest version of the [YOLOv4](https://github.com/onnx/models/tree/master/vision/object_detection_segmentation/yolov4) model from here.
+1. For Windows, [The Intel<sup>®</sup> Distribution of OpenVINO toolkit](https://docs.openvino.ai/latest/openvino_docs_install_guides_installing_openvino_windows_header.html#doxid-openvino-docs-install-guides-installing-openvino-windows-header).
+   Please select Install OpenVINO from PyPI.
+   ```
+   pip3 install openvino
+   ```
+2. Download the latest version of the [YOLOv4](https://github.com/onnx/models/tree/master/vision/object_detection_segmentation/yolov4) model from here.
 
 ## Install ONNX Runtime for OpenVINO Execution Provider
-Please install the onnxruntime-openvino python package from [here](https://github.com/intel/onnxruntime/releases/)
-For Windows make sure to install openvino as well:
+Please install the onnxruntime-openvino python package from [here](https://pypi.org/project/onnxruntime-openvino/1.11.0/)
 ```
-pip3 install openvino
+pip3 install onnxruntime-openvino==1.11.0
 ```
 
 ## Optional Build steps for ONNX Runtime
 [build instructions](https://onnxruntime.ai/docs/build/eps.html#openvino)
+
+Note: Make sure to install [OpenVINO Runtime using an installer](https://docs.openvino.ai/latest/openvino_docs_install_guides_install_runtime.html) to build the python wheels from source.
 
 ## Reference Documentation
 [Documentation](https://onnxruntime.ai/docs/execution-providers/OpenVINO-ExecutionProvider.html)
 
 ## Requirements
 * ONNX Runtime 1.6+
-* numpy version 1.19.5+
-* opencv 4.5.1+
+* numpy version 1.21.6+
+* opencv 4.5.5+
 * python 3+
-* openvino
-* use any sample video with objects as test input to this sample [Download Sample videos](https://github.com/intel-iot-devkit/sample-videos)
-* download the Yolov4 model from the [ONNX Model Zoo](https://github.com/onnx/models/tree/main/vision/object_detection_segmentation/yolov4)
+* Use any sample video with objects as test input to this sample [Download Sample videos](https://github.com/intel-iot-devkit/sample-videos)
+* Download the Yolov4 model from the [ONNX Model Zoo](https://github.com/onnx/models/tree/main/vision/object_detection_segmentation/yolov4)
 
 Note: For all the python package dependencies requirements, check 'requirements.txt' file in the sample directory. You may also install these dependencies with:
 ```bash
@@ -97,7 +99,7 @@ Just press the letter 'q' or Ctrl+C if on Windows
 
 ## References:
 
-[Download OpenVINO EP Latest pip wheels from here](https://github.com/intel/onnxruntime/releases/)
+[Download OpenVINO EP Latest pip wheels from here](https://pypi.org/project/onnxruntime-openvino/1.11.0/)
 
 [OpenVINO Execution Provider](https://www.intel.com/content/www/us/en/artificial-intelligence/posts/faster-inferencing-with-one-line-of-code.html)
 
