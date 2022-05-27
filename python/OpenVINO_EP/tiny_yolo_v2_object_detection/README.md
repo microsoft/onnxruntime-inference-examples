@@ -1,23 +1,23 @@
-# Object detection with tinyYOLOv2 in Python using OpenVINO Execution Provider:
+# Object detection with tinyYOLOv2 in Python using OpenVINO™ Execution Provider:
 
 1. The Object detection sample uses a tinyYOLOv2 Deep Learning ONNX Model from the ONNX Model Zoo.
 
-2. The sample involves presenting a frame-by-frame video to ONNX Runtime (RT), which uses the OpenVINO Execution Provider to run inference on various Intel hardware devices as mentioned before and perform object detection to detect up to 20 different objects like birds, buses, cars, people and much more.
+2. The sample involves presenting a frame-by-frame video to ONNX Runtime (RT), which uses the OpenVINO™ Execution Provider to run inference on various Intel hardware devices as mentioned before and perform object detection to detect up to 20 different objects like birds, buses, cars, people and much more.
 
 The source code for this sample is available [here](https://github.com/microsoft/onnxruntime-inference-examples/tree/main/python/OpenVINO_EP/tiny_yolo_v2_object_detection).
 
 # How to build
 
 ## Prerequisites
-1. For Windows, [The Intel<sup>®</sup> Distribution of OpenVINO toolkit](https://docs.openvino.ai/latest/openvino_docs_install_guides_installing_openvino_windows_header.html#doxid-openvino-docs-install-guides-installing-openvino-windows-header).
-   Please select Install OpenVINO from PyPI.
+1. For Windows, [The Intel<sup>®</sup> Distribution of OpenVINO™ toolkit](https://docs.openvino.ai/latest/openvino_docs_install_guides_installing_openvino_windows_header.html#doxid-openvino-docs-install-guides-installing-openvino-windows-header).
+   Please select Install OpenVINO™ from PyPI.
    ```
    pip3 install openvino
    ```
 2. Download the latest tinyYOLOv2 model from the ONNX Model Zoo.
    This model was adapted from [ONNX Model Zoo](https://github.com/onnx/models).Download the latest version of the [tinyYOLOv2](https://github.com/onnx/models/tree/master/vision/object_detection_segmentation/tiny-yolov2) model from here.
 
-## Install ONNX Runtime for OpenVINO Execution Provider
+## Install ONNX Runtime for OpenVINO™ Execution Provider
 Please install the onnxruntime-openvino python package from [here](https://pypi.org/project/onnxruntime-openvino/1.11.0/)
 ```
 pip3 install onnxruntime-openvino==1.11.0
@@ -26,7 +26,7 @@ pip3 install onnxruntime-openvino==1.11.0
 ## Optional Build steps for ONNX Runtime
 [build instructions](https://onnxruntime.ai/docs/build/eps.html#openvino)
 
-Note: Make sure to install [OpenVINO Runtime using an installer](https://docs.openvino.ai/latest/openvino_docs_install_guides_install_runtime.html) to build the python wheels from source.
+Note: Make sure to install [OpenVINO™ Runtime using an installer](https://docs.openvino.ai/latest/openvino_docs_install_guides_install_runtime.html) to build the python wheels from source.
 
 ## Reference Documentation
 [Documentation](https://onnxruntime.ai/docs/execution-providers/OpenVINO-ExecutionProvider.html)
@@ -48,11 +48,11 @@ pip3 install -r requirements.txt
 ```bash
 python3 tiny_yolov2_obj_detection_sample.py --h
 ```
-## Running the ONNXRuntime OpenVINO Execution Provider sample
+## Running the ONNXRuntime OpenVINO™ Execution Provider sample
 ```bash
 python3 tiny_yolov2_obj_detection_sample.py --video face-demographics-walking-and-pause.mp4 --model tinyyolov2.onnx --device CPU_FP32
 ```
-Note: Make sure the sample is having below lines to use openvino in Windows
+Note: Make sure the sample is having below lines to use OpenVINO™ in Windows
 ```
 import platform
 
@@ -68,9 +68,9 @@ Just press the letter 'q' or Ctrl+C if on Windows
 
 ## References:
 
-[Download OpenVINO EP Latest pip wheels from here](https://pypi.org/project/onnxruntime-openvino/1.11.0/)
+[Download OpenVINO™ Eexecution Provider Latest pip wheels from here](https://pypi.org/project/onnxruntime-openvino/1.11.0/)
 
-[OpenVINO Execution Provider](https://www.intel.com/content/www/us/en/artificial-intelligence/posts/faster-inferencing-with-one-line-of-code.html)
+[OpenVINO™ Execution Provider](https://www.intel.com/content/www/us/en/artificial-intelligence/posts/faster-inferencing-with-one-line-of-code.html)
 
 [Docker Containers](https://www.intel.com/content/www/us/en/artificial-intelligence/posts/openvino-execution-provider-docker-container.html)
 
