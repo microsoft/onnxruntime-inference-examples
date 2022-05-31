@@ -18,7 +18,7 @@ The source code for this sample is available [here](https://github.com/microsoft
    This model was adapted from [ONNX Model Zoo](https://github.com/onnx/models).Download the latest version of the [tinyYOLOv2](https://github.com/onnx/models/tree/master/vision/object_detection_segmentation/tiny-yolov2) model from here.
 
 ## Install ONNX Runtime for OpenVINO™ Execution Provider
-Please install the onnxruntime-openvino python package from [here](https://pypi.org/project/onnxruntime-openvino/1.11.0/)
+Please install the onnxruntime-openvino python package from [here](https://pypi.org/project/onnxruntime-openvino/1.11.0/). The package for Linux contains prebuilt OpenVINO Libs with ABI 0.
 ```
 pip3 install onnxruntime-openvino==1.11.0
 ```
