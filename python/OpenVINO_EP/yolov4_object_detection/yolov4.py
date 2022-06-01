@@ -18,6 +18,11 @@ import random
 import argparse
 import sys
 import time
+import platform
+
+if platform.system() == "Windows":
+    from openvino import utils
+    utils.add_openvino_libs_to_path()
 
 def image_preprocess(image, target_size, gt_boxes=None):
 
@@ -326,9 +331,9 @@ def main():
 
         # Write the frame with the detection boxes
         if (args.image):
-            cv2.imwrite(output_file, frame.astype(np.uint8))
+            cv2.imwrite(output_file, image.astype(np.uint8))
         else:
-            vid_writer.write(frame.astype(np.uint8))
+            vid_writer.write(image.astype(np.uint8))
  
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
         cv2.imshow(win_name, image)
