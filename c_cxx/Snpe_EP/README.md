@@ -1,5 +1,6 @@
 # Image classification with Inception v3 in CPP using SNPE Execution Provider
-1.  The imagel classification uses a Inception v3 model from Snpe turtorials with DLC format. Wrap it as a Onnx model in Onnx model to inference with SNPE Execution Provider.
+1.  This image classification sample uses the Inception v3 model from [SNPE turtorial](https://developer.qualcomm.com/sites/default/files/docs/snpe/tutorial_inceptionv3.html) with DLC format. Wrap it as a custom node in an ONNX model to inference with SNPE Execution Provider.
+
 2.  The sample uses the Onnxruntime SNPE Execution Provider to run inference on various Qualcomm devices like Qualcomm CPU, GPU DSP, AIP, etc. It supports Windows ARM64, and Android.
 
 # Prerequisites (Linux host)
