@@ -42,7 +42,15 @@
     ```
 
     Run the script to generate the Onnx model with the DLC content embed in a Onnx node.
-    Change the data type for input & output from TensorProto.FLOAT to TensorProto.UINT8 if you want to run model inference with quantized data. It's helpful to save the bandwidth (expecially for application with CS mode, data need to be transmitted across the network). Also need to change the options_values for buffer_type from FLOAT to TF8 in the main.cpp
+    Change the data type for input & output from TensorProto.FLOAT to TensorProto.UINT8 if you want to run model inference with quantized data. It's helpful to save the bandwidth (expecially for application with CS mode, data need to be transmitted across the network). Also need to change the options_values for buffer_type from FLOAT to TF8 in the main.cpp.
+    ```
+    std::vector<const char*> options_keys = {"runtime", "buffer_type"};
+    std::vector<const char*> options_values = {"CPU", "TF8"}; // set to TF8 if use quantized data
+
+    CheckStatus(g_ort, g_ort->SessionOptionsAppendExecutionProvider_SNPE(session_options, options_keys.data(),
+                                                                       options_values.data(), options_keys.size()));
+    ```
+    Please refers to the unit test case [Snpe_ConvertFromAbs.QuantizedModelTf8Test](https://github.com/microsoft/onnxruntime/blob/5ecfaef042380995fb15587ccf6ff77f9d3a01d2/onnxruntime/test/contrib_ops/snpe_op_test.cc#L209-L251) for more details.
 
 # How to build
 
@@ -82,32 +90,35 @@
 
     ```
     cmake.exe -S . -B build_android\ -G Ninja -DONNXRUNTIME_ROOTDIR=[location-of-Onnxruntime] -DCMAKE_TOOLCHAIN_FILE=[location-of-android_NDK\build\cmake\android.toolchain.cmake] -DANDROID_PLATFORM=android-27 -DANDROID_MIN_SDK=27 -DANDROID_ABI=arm64-v8a
-	cmake.exe --build build_android\ --config Release
+    cmake.exe --build build_android\ --config Release
     ```
 
 3. Run sample on Android device with DSP/HTP
     Follow instruction [Running on Android using DSP Runtime](https://developer.qualcomm.com/sites/default/files/docs/snpe/tutorial_inceptionv3.html)
-    
-	push file to Android device
-	```
-	adb shell "mkdir /data/local/tmp/snpeexample"
-	adb push [$SNPE_ROOT]/lib/aarch64-android-clang6.0/*.so /data/local/tmp/snpeexample
-	adb push [$SNPE_ROOT]/lib/dsp/*.so /data/local/tmp/snpeexample
-	adb push [$Onnxruntime_ROOT]/build/Android/Release/libonnxruntime.so /data/local/tmp/snpeexample	
+
+    push file to Android device
+    ```
+    adb shell "mkdir /data/local/tmp/snpeexample"
+    adb push [$SNPE_ROOT]/lib/aarch64-android-clang6.0/*.so /data/local/tmp/snpeexample
+    adb push [$SNPE_ROOT]/lib/dsp/*.so /data/local/tmp/snpeexample
+    adb push [$Onnxruntime_ROOT]/build/Android/Release/libonnxruntime.so /data/local/tmp/snpeexample    
     adb push [$SNPE_ROOT]/models/inception_v3/data/cropped/chairs.raw /data/local/tmp/snpeexample
     adb push [$SNPE_ROOT]/models/inception_v3/snpe_inception_v3.onnx /data/local/tmp/snpeexample
     adb push ./onnxruntime-inference-examples/c_cxx/Snpe_EP/build_android/snpe_ep_sample /data/local/tmp/snpeexample
-	```
+    ```
 
-	Run sample
+    Run sample
 
-	```
-	adb shell
-	cd /data/local/tmp/snpeexample
-	snpe_ep_sample
-	```
-	
-	it will output:
+    ```
+    adb shell
+    cd /data/local/tmp/snpeexample
+    chmod +x *
+    export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/data/local/tmp/snpeexample
+    export PATH=$PATH:/data/local/tmp/snpeexample
+    snpe_ep_sample
+    ```
+
+    it will output:
     ```
     832, 0.299591, studio couch
     ```
