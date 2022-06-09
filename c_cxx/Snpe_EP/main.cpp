@@ -16,7 +16,7 @@ bool CheckStatus(const OrtApi* g_ort, OrtStatus* status) {
     const char* msg = g_ort->GetErrorMessage(status);
     std::cerr << msg << std::endl;
     g_ort->ReleaseStatus(status);
-    throw std::exception(msg);
+    throw std::exception();
   }
   return true;
 }

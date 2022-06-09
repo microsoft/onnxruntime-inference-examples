@@ -70,4 +70,41 @@
     ```
 
 ## Android
-[TBC]
+1. [Build Onnxruntime with SNPE SNPE Execution Provider](https://onnxruntime.ai/docs/execution-providers/SNPE-ExecutionProvider.html)
+    ```
+    build.bat --build_shared_lib --skip_submodule_sync --android --config Release --use_snpe --snpe_root [location-of-SNPE_SDK] --android_sdk_path [location-of-android_SDK] --android_ndk_path [location-of-android_NDK] --android_abi arm64-v8a --android_api [api-version] --cmake_generator Ninja --build_dir build\Android
+    ```
+
+2. Build the sample application
+
+    ```
+    cmake.exe -S . -B build_android\ -G Ninja -DONNXRUNTIME_ROOTDIR=[location-of-Onnxruntime] -DCMAKE_TOOLCHAIN_FILE=[location-of-android_NDK\build\cmake\android.toolchain.cmake] -DANDROID_PLATFORM=android-27 -DANDROID_MIN_SDK=27 -DANDROID_ABI=arm64-v8a
+	cmake.exe --build build_android\ --config Release
+    ```
+
+3. Run sample on Android device with DSP/HTP
+    Follow instruction [Running on Android using DSP Runtime](https://developer.qualcomm.com/sites/default/files/docs/snpe/tutorial_inceptionv3.html)
+    
+	push file to Android device
+	```
+	adb shell "mkdir /data/local/tmp/snpeexample"
+	adb push [$SNPE_ROOT]/lib/aarch64-android-clang6.0/*.so /data/local/tmp/snpeexample
+	adb push [$SNPE_ROOT]/lib/dsp/*.so /data/local/tmp/snpeexample
+	adb push [$Onnxruntime_ROOT]/build/Android/Release/libonnxruntime.so /data/local/tmp/snpeexample	
+    adb push [$SNPE_ROOT]/models/inception_v3/data/cropped/chairs.raw /data/local/tmp/snpeexample
+    adb push [$SNPE_ROOT]/models/inception_v3/snpe_inception_v3.onnx /data/local/tmp/snpeexample
+    adb push ./onnxruntime-inference-examples/c_cxx/Snpe_EP/build_android/snpe_ep_sample /data/local/tmp/snpeexample
+	```
+
+	Run sample
+
+	```
+	adb shell
+	cd /data/local/tmp/snpeexample
+	snpe_ep_sample
+	```
+	
+	it will output:
+    ```
+    832, 0.299591, studio couch
+    ```
