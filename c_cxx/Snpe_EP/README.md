@@ -70,3 +70,4 @@ Run snpe_ep_sample.exe, it will output:
 '''
 
 ## Android
+[TBC]
