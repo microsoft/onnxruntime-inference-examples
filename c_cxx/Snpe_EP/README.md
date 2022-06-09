@@ -5,7 +5,8 @@
 
 # Prerequisites (Linux host)
 1. Get a Linux host
-2. Download SNPE SDK from [here](https://developer.qualcomm.com/software/qualcomm-neural-processing-sdk)
+2. Download SNPE SDK from Qualcomm's developer site [here](https://developer.qualcomm.com/software/qualcomm-neural-processing-sdk)
+
 3. Setup SNPE on the Linux host. Setup environment for the tutorial. Follow the Tutorials and Examples for [Tensorflow inceptionv3](https://developer.qualcomm.com/sites/default/files/docs/snpe/tutorial_inceptionv3.html)
 4. Get the model [Inception v3](https://developer.qualcomm.com/sites/default/files/docs/snpe/tutorial_setup.html#tutorial_setup_inception_v3)
 
