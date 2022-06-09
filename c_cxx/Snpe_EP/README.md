@@ -18,7 +18,8 @@
 
     The data chairs.raw, notice_sign.raw, plastic_cup.raw and trash_bin.raw can be found at $SNPE_ROOT/models/inception_v3/data/. The sample applicatioin use these raw file as input.
 
-5. Create Onnx model from DLC file
+5. Create ONNX model from DLC file
+
 
     Create a script gen_onnx_model.py in folder $SNPE_ROOT/models/inception_v3 with the code below:
 
