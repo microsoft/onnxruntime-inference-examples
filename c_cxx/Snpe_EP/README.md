@@ -6,68 +6,67 @@
 1. Get a Linux host
 2. Download SNPE SDK from [here](https://developer.qualcomm.com/software/qualcomm-neural-processing-sdk)
 3. Setup SNPE on the Linux host. Setup environment for the tutorial. Follow the Tutorials and Examples for [Tensorflow inceptionv3](https://developer.qualcomm.com/sites/default/files/docs/snpe/tutorial_inceptionv3.html)
-4. Get the model  [Inception v3] (https://developer.qualcomm.com/sites/default/files/docs/snpe/tutorial_setup.html#tutorial_setup_inception_v3)
-'''
+4. Get the model [Inception v3](https://developer.qualcomm.com/sites/default/files/docs/snpe/tutorial_setup.html#tutorial_setup_inception_v3)
+```
 python $SNPE_ROOT/models/inception_v3/scripts/setup_inceptionv3.py -a ~/tmpdir -d -r dsp
-'''
+```
 
-The generated DLC file inception_v3.dlc and inception_v3_quantized.dlc can be found at $SNPE_ROOT/models/inception_v3/dlc/.
+    The generated DLC file inception_v3.dlc and inception_v3_quantized.dlc can be found at $SNPE_ROOT/models/inception_v3/dlc/.
 
-The data chairs.raw, notice_sign.raw, plastic_cup.raw and trash_bin.raw can be found at $SNPE_ROOT/models/inception_v3/data/. The sample applicatioin use these raw file as input.
+    The data chairs.raw, notice_sign.raw, plastic_cup.raw and trash_bin.raw can be found at $SNPE_ROOT/models/inception_v3/data/. The sample applicatioin use these raw file as input.
 
 5. Create Onnx model from DLC file
 
-Create a script gen_onnx_model.py in folder $SNPE_ROOT/models/inception_v3 with the code below:
+    Create a script gen_onnx_model.py in folder $SNPE_ROOT/models/inception_v3 with the code below:
 
-'''
-import onnx
-from onnx import helper
-from onnx import TensorProto
+    ```
+    import onnx
+    from onnx import helper
+    from onnx import TensorProto
 
-with open('./dlc/inception_v3_quantized.dlc','rb') as file:
-    file_content = file.read()
+    with open('./dlc/inception_v3_quantized.dlc','rb') as file:
+        file_content = file.read()
 
-input1 = helper.make_tensor_value_info('input:0', TensorProto.FLOAT, [1, 299, 299, 3])
-output1 = helper.make_tensor_value_info('InceptionV3/Predictions/Reshape_1:0', TensorProto.FLOAT, [1, 1001])
+    input1 = helper.make_tensor_value_info('input:0', TensorProto.FLOAT, [1, 299, 299, 3])
+    output1 = helper.make_tensor_value_info('InceptionV3/Predictions/Reshape_1:0', TensorProto.FLOAT, [1, 1001])
 
-snpe_node = helper.make_node('Snpe', name='Inception v3', inputs=['input:0'], outputs=['InceptionV3/Predictions/Reshape_1:0'], DLC=file_content, snpe_version='1.61.0', target_device='DSP', notes='quantized dlc model.', domain='com.microsoft')
+    snpe_node = helper.make_node('Snpe', name='Inception v3', inputs=['input:0'], outputs=['InceptionV3/Predictions/Reshape_1:0'], DLC=file_content, snpe_version='1.61.0', target_device='DSP', notes='quantized dlc model.', domain='com.microsoft')
 
-graph_def = helper.make_graph([snpe_node], 'Inception_v3', [input1], [output1])
-model_def = helper.make_model(graph_def, producer_name='tesorflow', opset_imports=[helper.make_opsetid('', 13)])
-onnx.save(model_def, 'snpe_inception_v3.onnx')
-'''
+    graph_def = helper.make_graph([snpe_node], 'Inception_v3', [input1], [output1])
+    model_def = helper.make_model(graph_def, producer_name='tesorflow', opset_imports=[helper.make_opsetid('', 13)])
+    onnx.save(model_def, 'snpe_inception_v3.onnx')
+    ```
 
-Run the script to generate the Onnx model with the DLC content embed in a Onnx node.
-Change the data type for input & output from TensorProto.FLOAT to TensorProto.UINT8 if you want to run model inference with quantized data. It's helpful to save the bandwidth (expecially for application with CS mode, data need to be transmitted across the network). Also need to change the options_values for buffer_type from FLOAT to TF8 in the main.cpp
+    Run the script to generate the Onnx model with the DLC content embed in a Onnx node.
+    Change the data type for input & output from TensorProto.FLOAT to TensorProto.UINT8 if you want to run model inference with quantized data. It's helpful to save the bandwidth (expecially for application with CS mode, data need to be transmitted across the network). Also need to change the options_values for buffer_type from FLOAT to TF8 in the main.cpp
 
 # How to build
 
 ## Windows
 1. [Build Onnxruntime with SNPE SNPE Execution Provider](https://onnxruntime.ai/docs/execution-providers/SNPE-ExecutionProvider.html)
-'''
-build.bat --use_snpe --snpe_root=[location-of-SNPE_SDK] --build_shared_lib --cmake_generator "Visual Studio 16 2019" --skip_submodule_sync --config Release --build_dir \build\Windows
-'''
+    ```
+    build.bat --use_snpe --snpe_root=[location-of-SNPE_SDK] --build_shared_lib --cmake_generator "Visual Studio 16 2019" --skip_submodule_sync --config Release --build_dir \build\Windows
+    ```
 
 2. Build the sample application
-'''
-cmake.exe -S . -B build\ -G "Visual Studio 16 2019" -DONNXRUNTIME_ROOTDIR=[location-of-Onnxruntime]
-'''
+    ```
+    cmake.exe -S . -B build\ -G "Visual Studio 16 2019" -DONNXRUNTIME_ROOTDIR=[location-of-Onnxruntime]
+    ```
 
-build snpe_ep_sample.sln with x64 platform to run on host without Qualcomm NPU, build with ARM64 platform to run on host with Qualcomm NPU.
-
+    build snpe_ep_sample.sln with x64 platform to run on host without Qualcomm NPU, build with ARM64 platform to run on host with Qualcomm NPU.
 
 3. Run the sample
-Copy files below to folder which has snpe_ep_sample.exe
-onnxruntime.dll -- from Onnxruntime build folder
-SNPE.dll -- from $SNPE_ROOT/lib
-chairs.raw -- from $SNPE_ROOT/models/inception_v3/data/cropped
-imagenet_slim_labels.txt -- from $SNPE_ROOT/models/inception_v3/data
+    Copy files below to folder which has snpe_ep_sample.exe
+    onnxruntime.dll -- from Onnxruntime build folder
+    SNPE.dll -- from $SNPE_ROOT/lib
+    chairs.raw -- from $SNPE_ROOT/models/inception_v3/data/cropped
+    imagenet_slim_labels.txt -- from $SNPE_ROOT/models/inception_v3/data
 
-Run snpe_ep_sample.exe, it will output:
+    Run snpe_ep_sample.exe, it will output:
 
-'''
-832, 0.299591, studio couch
-'''
+    ```
+    832, 0.299591, studio couch
+    ```
 
 ## Android
 [TBC]
