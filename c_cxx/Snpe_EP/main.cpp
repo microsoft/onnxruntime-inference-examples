@@ -150,16 +150,16 @@ void run_ort_snpe_ep() {
   auto max = std::max_element(float_buffer, float_buffer + output_data_size);
   int max_index = static_cast<int>(std::distance(float_buffer, max));
 
-  std::fstream frequencieFile("imagenet_slim_labels.txt", std::ios::in);
-  std::unordered_map<int, std::string> label_talbe;
-  label_talbe.reserve(output_data_size);
+  std::fstream label_file("imagenet_slim_labels.txt", std::ios::in);
+  std::unordered_map<int, std::string> label_table;
+  label_table.reserve(output_data_size);
   int i = 0;
   std::string line;
-  while (std::getline(frequencieFile, line)) {
-    label_talbe.emplace(i++, line);
+  while (std::getline(label_file, line)) {
+    label_table.emplace(i++, line);
   }
 
-  printf("%d, %f, %s \n", max_index, *max, label_talbe[max_index].c_str());
+  printf("%d, %f, %s \n", max_index, *max, label_table[max_index].c_str());
 }
 
 int main(int argc, char* argv[]) {
