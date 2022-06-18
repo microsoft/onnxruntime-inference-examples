@@ -40,8 +40,8 @@ void run_ort_snpe_ep(std::string backend, std::string input_path) {
   std::vector<const char*> options_keys = {"runtime", "buffer_type"};
   std::vector<const char*> options_values = {backend.c_str(), "FLOAT"};  // set to TF8 if use quantized data
 
-  CheckStatus(g_ort, g_ort->SessionOptionsAppendExecutionProvider_SNPE(session_options, options_keys.data(),
-                                                                       options_values.data(), options_keys.size()));
+  CheckStatus(g_ort, g_ort->SessionOptionsAppendExecutionProvider(session_options, "SNPE", options_keys.data(),
+                                                                  options_values.data(), options_keys.size()));
   OrtSession* session;
   CheckStatus(g_ort, g_ort->CreateSession(env, model_path, session_options, &session));
 
@@ -185,7 +185,7 @@ int main(int argc, char* argv[]) {
   } else if (strcmp(argv[1], DSPBACKEDN) == 0) {
     backend = "DSP";
   } else {
-  	std::cout << "This sample only support CPU, DSP." << std::endl;
+    std::cout << "This sample only support CPU, DSP." << std::endl;
     PrintHelp();
     return 1;
   }
