@@ -74,7 +74,12 @@
     chairs.raw -- from $SNPE_ROOT/models/inception_v3/data/cropped
     imagenet_slim_labels.txt -- from $SNPE_ROOT/models/inception_v3/data
 
-    Run snpe_ep_sample.exe, it will output:
+    Run
+    ```
+    snpe_ep_sample.exe --cpu chairs.raw
+    ```
+
+    it will output:
 
     ```
     832, 0.299591, studio couch
@@ -103,6 +108,7 @@
     adb push [$SNPE_ROOT]/lib/dsp/*.so /data/local/tmp/snpeexample
     adb push [$Onnxruntime_ROOT]/build/Android/Release/libonnxruntime.so /data/local/tmp/snpeexample    
     adb push [$SNPE_ROOT]/models/inception_v3/data/cropped/chairs.raw /data/local/tmp/snpeexample
+    adb push [$SNPE_ROOT]/models/inception_v3/data/imagenet_slim_labels.txt /data/local/tmp/snpeexample
     adb push [$SNPE_ROOT]/models/inception_v3/snpe_inception_v3.onnx /data/local/tmp/snpeexample
     adb push ./onnxruntime-inference-examples/c_cxx/Snpe_EP/build_android/snpe_ep_sample /data/local/tmp/snpeexample
     ```
@@ -115,7 +121,8 @@
     chmod +x *
     export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/data/local/tmp/snpeexample
     export PATH=$PATH:/data/local/tmp/snpeexample
-    snpe_ep_sample
+    snpe_ep_sample --cpu chairs.raw
+    snpe_ep_sample --dsp chairs.raw
     ```
 
     it will output:
