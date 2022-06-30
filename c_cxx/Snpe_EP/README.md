@@ -47,8 +47,8 @@
     std::vector<const char*> options_keys = {"runtime", "buffer_type"};
     std::vector<const char*> options_values = {"CPU", "TF8"}; // set to TF8 if use quantized data
 
-    CheckStatus(g_ort, g_ort->SessionOptionsAppendExecutionProvider_SNPE(session_options, options_keys.data(),
-                                                                       options_values.data(), options_keys.size()));
+    CheckStatus(g_ort, g_ort->SessionOptionsAppendExecutionProvider(session_options, "SNPE", options_keys.data(),
+                                                                    options_values.data(), options_keys.size()));
     ```
     Please refers to the unit test case [Snpe_ConvertFromAbs.QuantizedModelTf8Test](https://github.com/microsoft/onnxruntime/blob/5ecfaef042380995fb15587ccf6ff77f9d3a01d2/onnxruntime/test/contrib_ops/snpe_op_test.cc#L209-L251) for more details.
 
