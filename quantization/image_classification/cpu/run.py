@@ -89,7 +89,7 @@ def get_args():
     parser.add_argument("--output_model", required=True, help="output model")
     parser.add_argument("--calibrate_dataset", default="./test_images", help="calibration data set")
     parser.add_argument("--quant_format",
-                        default=QuantFormat.QOperator,
+                        default=QuantFormat.QDQ,
                         type=QuantFormat.from_string,
                         choices=list(QuantFormat))
     parser.add_argument("--per_channel", default=False, type=bool)
