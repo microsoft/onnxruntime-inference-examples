@@ -89,11 +89,14 @@ static int read_png_file(const char* input_file, size_t* height, size_t* width, 
   size_t input_data_length = PNG_IMAGE_SIZE(image);
   if (input_data_length != 720 * 720 * 3) {
     printf("input_data_length:%zd\n", input_data_length);
+    printf("please resize to image to 720x720\n");
     return -1;
   }
   buffer = (png_bytep)malloc(input_data_length);
   memset(buffer, 0, input_data_length);
   if (png_image_finish_read(&image, NULL /*background*/, buffer, 0 /*row_stride*/, NULL /*colormap*/) == 0) {
+    printf("png_image_finish_read() failed\n");
+    free(buffer);
     return -1;
   }
   hwc_to_chw(buffer, image.height, image.width, out, output_count);
@@ -116,7 +119,7 @@ static int write_tensor_to_png_file(OrtValue* tensor, const char* output_file) {
     return -1;
   }
   int64_t dims[4];
-  ORT_ABORT_ON_ERROR(g_ort->GetDimensions(shape_info, dims, sizeof(dims) / sizeof(dims[0])));
+  ORT_ABORT_ON_ERROR(g_ort->GetDimensions(shape_info, dims, dim_count));
   if (dims[0] != 1 || dims[1] != 3) {
     printf("output tensor shape error");
     return -1;
@@ -173,11 +176,6 @@ int run_inference(OrtSession* session, const ORTCHAR_T* input_file, const ORTCHA
   const char* input_file_p = input_file;
 #endif
   if (read_png_file(input_file_p, &input_height, &input_width, &model_input, &model_input_ele_count) != 0) {
-    return -1;
-  }
-  if (input_height != 720 || input_width != 720) {
-    printf("please resize to image to 720x720\n");
-    free(model_input);
     return -1;
   }
   OrtMemoryInfo* memory_info;
@@ -293,6 +291,12 @@ int main(int argc, char* argv[]) {
       puts("DirectML is not enabled in this build.");
       return -1;
 #endif
+    } else if (tcscmp(execution_provider, ORT_TSTR("cuda")) == 0) {
+      ret = enable_cuda(session_options);
+      if (ret) {
+        fprintf(stderr, "CUDA is not available\n");
+        return -1;
+      }
     } else {
       usage();
       puts("Invalid execution provider option.");
@@ -302,7 +306,7 @@ int main(int argc, char* argv[]) {
     printf("Try to enable CUDA first\n");
     ret = enable_cuda(session_options);
     if (ret) {
-      fprintf(stderr, "CUDA is not available\n");
+      fprintf(stdout, "CUDA is not available, continuing with cpu\n");
     } else {
       printf("CUDA is enabled\n");
     }
