@@ -26,7 +26,7 @@ class ResNet50DataReader(CalibrationDataReader):
     def get_next(self):
         if self.preprocess_flag:
             self.preprocess_flag = False
-            session = onnxruntime.InferenceSession(self.augmented_model_path, None)
+            session = onnxruntime.InferenceSession(self.augmented_model_path, providers=['CPUExecutionProvider'])
             (_, _, height, width) = session.get_inputs()[0].shape
             nhwc_data_list = preprocess_func(self.image_folder, height, width, size_limit=0)
             input_name = session.get_inputs()[0].name
@@ -65,7 +65,7 @@ def preprocess_func(images_folder, height, width, size_limit=0):
 
 
 def benchmark(model_path):
-    session = onnxruntime.InferenceSession(model_path)
+    session = onnxruntime.InferenceSession(model_path, providers=['CPUExecutionProvider'])
     input_name = session.get_inputs()[0].name
 
     total = 0.0
