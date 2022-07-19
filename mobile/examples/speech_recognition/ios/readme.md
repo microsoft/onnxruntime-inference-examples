@@ -35,6 +35,7 @@ From this directory, run:
 ```bash
 pod install
 ```
+ Note: If you wish to use your custom built pod packages instead of pre-built iOS mobile package, you can follow step 3 [here](https://onnxruntime.ai/docs/build/custom.html#ios) to switch to your local pods. (You can also find instructions to do a custom iOS build and create local Podfiles here)
 
 ## Build and run
 

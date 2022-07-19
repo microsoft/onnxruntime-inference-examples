@@ -23,6 +23,8 @@ The original `ssd_mobilenet_v1.tflite` model can be downloaded [here](https://ww
 2. In terminal, run `pod install` under `<ONNXRuntime-inference-example-root>/mobile/examples/object_detection/ios/` to generate the workspace file.
 - At the end of this step, you should get a file called `ORTObjectDetection.xcworkspace`.
 
+    Note: If you wish to use your custom built pod packages instead of pre-built iOS mobile package, you can follow step 3 [here](https://onnxruntime.ai/docs/build/custom.html#ios) to switch to your local pods. (You can also find instructions to do a custom iOS build and create local Podfiles here)
+
 3. In terminal, run the script for preparing model.
 
     Note: It is recommended to install the Python prerequisites and run the model preparation script using a separate Python environment such as a Conda environment.
@@ -48,6 +50,8 @@ It is written entirely in Swift and uses a bridgingheader file for the framework
 - [Converting TFlite models to ONNX](https://github.com/onnx/tensorflow-onnx#getting-started)
 
 - [Convert ONNX models to ORT format](https://onnxruntime.ai/docs/reference/ort-format-models.html#convert-onnx-models-to-ort-format)
+
+- [Custom build packages](https://onnxruntime.ai/docs/build/custom.html#custom-build-packages)
 
 #
 Here's an example screenshot of the app:
