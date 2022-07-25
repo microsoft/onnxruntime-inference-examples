@@ -1,24 +1,22 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using Microsoft.ML.OnnxRuntime;
 using Microsoft.ML.OnnxRuntime.Tensors;
 
 namespace MauiVisionSample
 {
-    // See: https://github.com/onnx/models/tree/master/vision/classification/resnet#model
-    // Model download: https://github.com/onnx/models/blob/master/vision/classification/resnet/model/resnet50-v1-7.onnx
-    public class ResNetSample : VisionSampleBase<ResNetImageProcessor>
+    // See: https://github.com/onnx/models/tree/main/vision/classification/mobilenet
+    // Model download: https://github.com/onnx/models/blob/main/vision/classification/mobilenet/model/mobilenetv2-12.onnx
+    // NOTE: We use the fp32 version of the model in this example as the int8 version uses internal ONNX Runtime 
+    // operators. Due to that, it will not work well with NNAPI or CoreML.
+    public class MobilenetSample : VisionSampleBase<MobilenetImageProcessor>
     {
-        public const string Identifier = "ResNet50 v2";
-        public const string ModelFilename = "resnet50-v2-7.onnx";
+        public const string Identifier = "Mobilenet V2";
+        public const string ModelFilename = "mobilenetv2-12.onnx";
 
-        public ResNetSample()
+        public MobilenetSample()
             : base(Identifier, ModelFilename) {}
 
         protected override async Task<ImageProcessingResult> OnProcessImageAsync(byte[] image)
@@ -38,7 +36,7 @@ namespace MauiVisionSample
                     builder.Append($"Top {predictions.Count} predictions: {Environment.NewLine}{Environment.NewLine}");
 
                 foreach (var prediction in predictions)
-                    builder.Append($"{prediction.Label} ({prediction.Confidence}){Environment.NewLine}");
+                    builder.Append($"{prediction.Label} ({prediction.Confidence*100:0.##}%){Environment.NewLine}");
 
                 caption = builder.ToString();
             }
@@ -46,10 +44,10 @@ namespace MauiVisionSample
             return new ImageProcessingResult(preprocessedImageData, caption);
         }
 
-        List<ResNetPrediction> GetPredictions(Tensor<float> input)
+        List<MobilenetPrediction> GetPredictions(Tensor<float> input)
         {
             // Setup inputs and outputs
-            var inputs = new List<NamedOnnxValue> { NamedOnnxValue.CreateFromTensor("data", input) };
+            var inputs = new List<NamedOnnxValue> { NamedOnnxValue.CreateFromTensor("input", input) };
 
             // Run inference
             using IDisposableReadOnlyCollection<DisposableNamedOnnxValue> results = Session.Run(inputs);
@@ -59,15 +57,15 @@ namespace MauiVisionSample
             float sum = output.Sum(x => (float)Math.Exp(x));
             IEnumerable<float> softmax = output.Select(x => (float)Math.Exp(x) / sum);
 
-            // Extract top 10 predicted classes
-            IEnumerable<ResNetPrediction> top10 = softmax
-                .Select((x, i) => new ResNetPrediction
+            // Extract top 3 predicted classes
+            IEnumerable<MobilenetPrediction> top10 = softmax
+                .Select((x, i) => new MobilenetPrediction
                 {
-                    Label = ResNetLabelMap.Labels[i],
+                    Label = MobilenetLabelMap.Labels[i],
                     Confidence = x
                 })
                 .OrderByDescending(x => x.Confidence)
-                .Take(10);
+                .Take(3);
 
             return top10.ToList();
         }

@@ -5,7 +5,7 @@ namespace MauiVisionSample
 {
     public enum ExecutionProviderOptions
     {
-        CPU,
-        Platform
+        CPU,  // default CPU execution provider
+        Platform  // platform specific provider. NNAPI on Android, CoreML on iOS. 
     }
 }

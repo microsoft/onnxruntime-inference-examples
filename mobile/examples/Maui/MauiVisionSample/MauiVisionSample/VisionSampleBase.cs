@@ -38,29 +38,31 @@ namespace MauiVisionSample
             // creating the inference session can be expensive and should be done as a one-off.
             // additionally each session uses memory for the model and the infrastructure required to execute it,
             // and has its own threadpools.
-            _prevAsyncTask = Task.Run(() =>
-                            {
-                                if (executionProvider == _curExecutionProvider)
-                                { 
-                                    return; 
-                                }
+            _prevAsyncTask = 
+                Task.Run(() =>
+                {
+                    if (executionProvider == _curExecutionProvider)
+                    { 
+                        return; 
+                    }
 
-                                if (executionProvider == ExecutionProviderOptions.CPU)
-                                {
-                                    // create session that uses the CPU execution provider
-                                    _session = new InferenceSession(_model);
-                                }
-                                else
-                                {
-                                    // create session that uses the NNAPI/CoreML. the CPU execution provider is also
-                                    // enabled by default to handle any parts of the model that NNAPI/CoreML cannot.
-                                    var options = SessionOptionsContainer.Create(nameof(ExecutionProviderOptions.Platform));
-                                    _session = new InferenceSession(_model, options);
-                                }
-                            });
+                    if (executionProvider == ExecutionProviderOptions.CPU)
+                    {
+                        // create session that uses the CPU execution provider
+                        _session = new InferenceSession(_model);
+                    }
+                    else
+                    {
+                        // create session that uses the NNAPI/CoreML. the CPU execution provider is also
+                        // enabled by default to handle any parts of the model that NNAPI/CoreML cannot.
+                        var options = SessionOptionsContainer.Create(nameof(ExecutionProviderOptions.Platform));
+                        _session = new InferenceSession(_model, options);
+                    }
+                });
         }
 
-        protected virtual Task<ImageProcessingResult> OnProcessImageAsync(byte[] image) => throw new NotImplementedException();
+        protected virtual Task<ImageProcessingResult> OnProcessImageAsync(byte[] image) => 
+            throw new NotImplementedException();
 
         public Task InitializeAsync()
         {

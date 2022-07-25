@@ -9,10 +9,10 @@ enum ImageAcquisitionMode
 
 public partial class MainPage : ContentPage
 {
-    IVisionSample _resnet;
+    IVisionSample _mobilenet;
     IVisionSample _ultraface;
 
-    IVisionSample ResNet => _resnet ??= new ResNetSample();
+    IVisionSample Mobilenet => _mobilenet ??= new MobilenetSample();
     IVisionSample Ultraface => _ultraface ??= new UltrafaceSample();
 
     public MainPage()
@@ -24,12 +24,22 @@ public partial class MainPage : ContentPage
         // Core ML: https://developer.apple.com/documentation/coreml
         // NNAPI: https://developer.android.com/ndk/guides/neuralnetworks
         ExecutionProviderOptions.Items.Add(nameof(MauiVisionSample.ExecutionProviderOptions.CPU));
-        ExecutionProviderOptions.Items.Add(DeviceInfo.Platform == DevicePlatform.Android ? "NNAPI" : "CoreML");
+
+        if (DeviceInfo.Platform == DevicePlatform.Android)
+        {
+            ExecutionProviderOptions.Items.Add("NNAPI");
+        }
+
+        if (DeviceInfo.Platform == DevicePlatform.iOS)
+        {
+            ExecutionProviderOptions.Items.Add("CoreML");
+        }
+
         ExecutionProviderOptions.SelectedIndex = 0;
 
-        if (FileSystem.Current.AppPackageFileExistsAsync(ResNetSample.ModelFilename).Result)
+        if (FileSystem.Current.AppPackageFileExistsAsync(MobilenetSample.ModelFilename).Result)
         {
-            Models.Items.Add(ResNet.Name);
+            Models.Items.Add(Mobilenet.Name);
         }
 
         if (FileSystem.Current.AppPackageFileExistsAsync(UltrafaceSample.ModelFilename).Result)
@@ -71,7 +81,7 @@ public partial class MainPage : ContentPage
 
         IVisionSample sample = Models.SelectedItem switch
         {
-            ResNetSample.Identifier => ResNet,
+            MobilenetSample.Identifier => Mobilenet,
             UltrafaceSample.Identifier => Ultraface,
             _ => null
         };
@@ -116,7 +126,7 @@ public partial class MainPage : ContentPage
 
             IVisionSample sample = Models.SelectedItem switch
             {
-                ResNetSample.Identifier => ResNet,
+                MobilenetSample.Identifier => Mobilenet,
                 UltrafaceSample.Identifier => Ultraface,
                 _ => null
             };
@@ -141,7 +151,7 @@ public partial class MainPage : ContentPage
 
         var imageName = Models.SelectedItem switch
         {
-            ResNetSample.Identifier => "dog.jpg",
+            MobilenetSample.Identifier => "wolves.jpg",
             UltrafaceSample.Identifier => "satya.jpg",
             _ => null
         };
@@ -180,7 +190,7 @@ public partial class MainPage : ContentPage
 
         var bytes = await GetBytesFromPhotoFile(photo);
 
-        return SkiaSharpUtils.HandleOrientation(bytes);
+        return Utils.HandleOrientation(bytes);
     }
 
     async Task<byte[]> TakePhotoAsync()
@@ -213,15 +223,16 @@ public partial class MainPage : ContentPage
         {
 #if WINDOWS
             // https://github.com/dotnet/maui/issues/7616
-            // 
-            throw new Exception($"MediaPicker CapturePhotoAsync does not work on Windows currently.");
-#endif
+            // MediaPicker CapturePhotoAsync does not work on Windows currently.
+            throw new Exception($"Capturing a photo does not work on Windows currently.");
+#else
             return null;
+#endif
         }
 
         var bytes = await GetBytesFromPhotoFile(photo);
 
-        return SkiaSharpUtils.HandleOrientation(bytes);
+        return Utils.HandleOrientation(bytes);
     }
 
     async Task<byte[]> GetBytesFromPhotoFile(FileResult fileResult)

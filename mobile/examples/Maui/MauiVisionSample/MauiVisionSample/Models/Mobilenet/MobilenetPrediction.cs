@@ -3,7 +3,7 @@
 
 namespace MauiVisionSample
 {
-    public class ResNetPrediction
+    public class MobilenetPrediction
     {
         public string Label { get; set; }
         public float Confidence { get; set; }

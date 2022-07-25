@@ -3,7 +3,7 @@
 
 namespace MauiVisionSample
 {
-    public class ResNetLabelMap
+    public class MobilenetLabelMap
     {
         public static readonly string[] Labels = new[] {
             "tench",

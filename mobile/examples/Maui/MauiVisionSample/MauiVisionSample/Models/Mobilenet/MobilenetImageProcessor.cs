@@ -7,22 +7,29 @@ using SkiaSharp;
 
 namespace MauiVisionSample
 {
-    public class ResNetImageProcessor : SkiaSharpImageProcessor<ResNetPrediction, float>
+    public class MobilenetImageProcessor : SkiaSharpImageProcessor<MobilenetPrediction, float>
     {
+        // pre-processing as per https://github.com/onnx/models/blob/main/vision/classification/imagenet_inference.ipynb
+
         const int RequiredHeight = 224;
         const int RequiredWidth = 224;
 
         protected override SKBitmap OnPreprocessSourceImage(SKBitmap sourceImage)
         {
-            float ratio = (float)Math.Min(RequiredWidth, RequiredHeight) / Math.Min(sourceImage.Width, sourceImage.Height);
-            using SKBitmap scaledBitmap = sourceImage.Resize(new SKImageInfo((int)(Math.Ceiling(ratio * sourceImage.Width)), (int)(Math.Ceiling(ratio * sourceImage.Height))), SKFilterQuality.Medium);
+            float ratio = (float)Math.Min(RequiredWidth, RequiredHeight) / 
+                                 Math.Min(sourceImage.Width, sourceImage.Height);
+
+            using SKBitmap scaledBitmap = sourceImage.Resize(
+                new SKImageInfo((int)(Math.Ceiling(ratio * sourceImage.Width)), 
+                (int)(Math.Ceiling(ratio * sourceImage.Height))), SKFilterQuality.Medium);
 
             var horizontalCrop = Math.Max(scaledBitmap.Width - RequiredWidth, 0);
             var verticalCrop = Math.Max(scaledBitmap.Height - RequiredHeight, 0);
             var leftOffset = horizontalCrop == 0 ? 0 : horizontalCrop / 2;
             var topOffset = verticalCrop == 0 ? 0 : verticalCrop / 2;
 
-            var cropRect = SKRectI.Create(new SKPointI(leftOffset, topOffset), new SKSizeI(RequiredWidth, RequiredHeight));
+            var cropRect = SKRectI.Create(new SKPointI(leftOffset, topOffset), 
+                                          new SKSizeI(RequiredWidth, RequiredHeight));
 
             using SKImage currentImage = SKImage.FromBitmap(scaledBitmap);
             using SKImage croppedImage = currentImage.Subset(cropRect);
