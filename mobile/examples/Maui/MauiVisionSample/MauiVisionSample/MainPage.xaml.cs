@@ -222,9 +222,13 @@ public partial class MainPage : ContentPage
         if (photo == null)
         {
 #if WINDOWS
-            // https://github.com/dotnet/maui/issues/7616
             // MediaPicker CapturePhotoAsync does not work on Windows currently.
-            throw new Exception($"Capturing a photo does not work on Windows currently.");
+            // https://github.com/dotnet/maui/issues/7616 eventually links to 
+            // https://github.com/microsoft/WindowsAppSDK/issues/1034 which is apparently the cause. 
+            // https://github.com/dotnet/maui/issues/7660#issuecomment-1152347557 has an example alternative 
+            // implementation that could be used instead of MediaPicker.CapturePhotoAsync on Windows, although ideally
+            // MAUI would do that internally...
+            throw new Exception($"Capturing a photo with MAUI MediaPicker does not work on Windows currently.");
 #else
             return null;
 #endif
