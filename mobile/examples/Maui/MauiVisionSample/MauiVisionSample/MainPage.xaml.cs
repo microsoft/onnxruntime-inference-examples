@@ -228,10 +228,16 @@ public partial class MainPage : ContentPage
             // https://github.com/dotnet/maui/issues/7660#issuecomment-1152347557 has an example alternative 
             // implementation that could be used instead of MediaPicker.CapturePhotoAsync on Windows, although ideally
             // MAUI would do that internally...
-            throw new Exception($"Capturing a photo with MAUI MediaPicker does not work on Windows currently.");
-#else
-            return null;
+            await DisplayAlert("Sorry", "Capturing a photo with MAUI MediaPicker does not work on Windows currently.", "OK");
+#elif IOS
+            if (Microsoft.Maui.Devices.DeviceInfo.Current.DeviceType == Microsoft.Maui.Devices.DeviceType.Virtual)
+            {
+                // https://github.com/dotnet/maui/issues/7013#issuecomment-1123384958
+                await DisplayAlert("Sorry", "Capturing a photo with MAUI MediaPicker is not possible with the iOS simulator.", "OK");
+            }
 #endif
+            // if it wasn't one of the above special cases the user most likely chose not to capture an image
+            return null;
         }
 
         var bytes = await GetBytesFromPhotoFile(photo);
