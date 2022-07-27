@@ -9,7 +9,7 @@ The app enables you to take/pick a photo on the device or use a sample image to 
 
 Classifies the major object in the image into 1,000 pre-defined classes.
 
-### [Ultraface](https://github.com/onnx/models/tree/f064171f7dd8e962a8a5b34eac8e1bcf83cebbde/vision/body_analysis/ultraface#ultra-lightweight-face-detection-model)
+### [Ultraface](https://github.com/onnx/models/tree/main/vision/body_analysis/ultraface)
 
 Lightweight face detection model designed for edge computing devices providing detection boxes and scores for a given image.
 
