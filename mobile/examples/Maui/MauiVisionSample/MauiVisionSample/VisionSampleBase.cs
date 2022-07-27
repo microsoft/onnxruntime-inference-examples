@@ -15,7 +15,7 @@ namespace MauiVisionSample
         Task _prevAsyncTask;
         TImageProcessor _imageProcessor;
         InferenceSession _session;
-        ExecutionProviderOptions _curExecutionProvider;
+        ExecutionProviders _curExecutionProvider;
 
         public VisionSampleBase(string name, string modelName)
         {
@@ -30,7 +30,7 @@ namespace MauiVisionSample
         public InferenceSession Session => _session;
         public TImageProcessor ImageProcessor => _imageProcessor ??= new TImageProcessor();
 
-        public async Task UpdateExecutionProviderAsync(ExecutionProviderOptions executionProvider)
+        public async Task UpdateExecutionProviderAsync(ExecutionProviders executionProvider)
         {
             // make sure any existing async task completes before we change the session
             await AwaitLastTaskAsync();
@@ -46,18 +46,24 @@ namespace MauiVisionSample
                         return; 
                     }
 
-                    if (executionProvider == ExecutionProviderOptions.CPU)
+                    var options = new SessionOptions();
+
+                    if (executionProvider == ExecutionProviders.CPU)
                     {
-                        // create session that uses the CPU execution provider
-                        _session = new InferenceSession(_model);
+                        // CPU Execution Provider is always enabled
                     }
-                    else
+                    else if (executionProvider == ExecutionProviders.NNAPI)
                     {
-                        // create session that uses the NNAPI/CoreML. the CPU execution provider is also
-                        // enabled by default to handle any parts of the model that NNAPI/CoreML cannot.
-                        var options = SessionOptionsContainer.Create(nameof(ExecutionProviderOptions.Platform));
-                        _session = new InferenceSession(_model, options);
+                        options.AppendExecutionProvider_Nnapi();
                     }
+                    else if (executionProvider == ExecutionProviders.CoreML)
+                    {
+                        // add CoreML if the device has an Apple Neural Engine. if it doesn't performance
+                        // will most likely be worse than with the CPU Execution Provider.
+                        options.AppendExecutionProvider_CoreML(CoreMLFlags.COREML_FLAG_ONLY_ENABLE_DEVICE_WITH_ANE);
+                    }
+
+                    _session = new InferenceSession(_model, options);
                 });
         }
 
@@ -89,8 +95,8 @@ namespace MauiVisionSample
         async Task Initialize()
         {
             _model = await Utils.LoadResource(_modelName);
-            _session = new InferenceSession(_model);  // default to CPU 
-            _curExecutionProvider = ExecutionProviderOptions.CPU;
+            _session = new InferenceSession(_model);  // CPU execution provider is always enabled
+            _curExecutionProvider = ExecutionProviders.CPU;
         }
     }
 }

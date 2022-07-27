@@ -3,6 +3,9 @@
 
 namespace MauiVisionSample;
 
+//using Microsoft.Maui.Platform;
+//using Microsoft.ML.OnnxRuntime;
+
 enum ImageAcquisitionMode
 {
     Sample,
@@ -26,16 +29,16 @@ public partial class MainPage : ContentPage
         // ONNX Runtime Execution Providers: https://onnxruntime.ai/docs/execution-providers/
         // Core ML: https://developer.apple.com/documentation/coreml
         // NNAPI: https://developer.android.com/ndk/guides/neuralnetworks
-        ExecutionProviderOptions.Items.Add(nameof(MauiVisionSample.ExecutionProviderOptions.CPU));
+        ExecutionProviderOptions.Items.Add(nameof(ExecutionProviders.CPU));
 
         if (DeviceInfo.Platform == DevicePlatform.Android)
         {
-            ExecutionProviderOptions.Items.Add("NNAPI");
+            ExecutionProviderOptions.Items.Add(nameof(ExecutionProviders.NNAPI));
         }
 
         if (DeviceInfo.Platform == DevicePlatform.iOS)
         {
-            ExecutionProviderOptions.Items.Add("CoreML");
+            ExecutionProviderOptions.Items.Add(nameof(ExecutionProviders.CoreML));
         }
 
         ExecutionProviderOptions.SelectedIndex = 0;
@@ -78,8 +81,10 @@ public partial class MainPage : ContentPage
     {
         var executionProvider = ExecutionProviderOptions.SelectedItem switch
         {
-            nameof(MauiVisionSample.ExecutionProviderOptions.CPU) => MauiVisionSample.ExecutionProviderOptions.CPU,
-            _ => MauiVisionSample.ExecutionProviderOptions.Platform
+            nameof(ExecutionProviders.CPU)    => ExecutionProviders.CPU,
+            nameof(ExecutionProviders.NNAPI)  => ExecutionProviders.NNAPI,
+            nameof(ExecutionProviders.CoreML) => ExecutionProviders.CoreML,
+            _ => ExecutionProviders.CPU
         };
 
         IVisionSample sample = Models.SelectedItem switch
@@ -145,7 +150,9 @@ public partial class MainPage : ContentPage
         }
 
         if (outputImage != null)
+        {
             ShowResult(outputImage, caption);
+        }
     }
 
     Task<byte[]> GetSampleImageAsync() => Task.Run(() =>

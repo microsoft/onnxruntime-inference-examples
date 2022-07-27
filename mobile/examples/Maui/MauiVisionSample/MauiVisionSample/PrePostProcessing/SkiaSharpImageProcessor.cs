@@ -70,7 +70,9 @@ namespace MauiVisionSample
             if (shortestEdge > 0.0)
             {
                 float ratio = shortestEdge / Math.Min(image.Width, image.Height);
-                image = image.Resize(new SKImageInfo((int)(ratio * image.Width), (int)(ratio * image.Height)), SKFilterQuality.Medium);
+                image = image.Resize(new SKImageInfo((int)(ratio * image.Width), 
+                                                     (int)(ratio * image.Height)), 
+                                                     SKFilterQuality.Medium);
             }
 
             return image;

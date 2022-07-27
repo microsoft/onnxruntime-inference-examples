@@ -10,7 +10,7 @@ namespace MauiVisionSample
         string Name { get; }
         string ModelName { get; }
         Task InitializeAsync();
-        Task UpdateExecutionProviderAsync(ExecutionProviderOptions executionProvider);
+        Task UpdateExecutionProviderAsync(ExecutionProviders executionProvider);
         Task<ImageProcessingResult> ProcessImageAsync(byte[] image);
     }
 }

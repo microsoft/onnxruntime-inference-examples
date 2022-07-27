@@ -25,10 +25,14 @@ namespace MauiVisionSample
             using var bitmap = SKBitmap.Decode(image);
             using var adjustedBitmap = AdjustBitmapByOrientation(bitmap, orientation);
 
+            // encode the raw bytes in a known format that SKBitmap.Decode can handle.
+            // doing this makes our APIs a little more flexible as they can take multiple image formats as byte[].
+            // alternatively we could use SKBitmap instead of byte[] to pass the data around and avoid some
+            // SKBitmap.Encode/Decode calls, at the cost of being tightly coupled to the SKBitmap type.
             using var stream = new MemoryStream();
             using var wstream = new SKManagedWStream(stream);
 
-            adjustedBitmap.Encode(wstream, SKEncodedImageFormat.Jpeg, 50);
+            adjustedBitmap.Encode(wstream, SKEncodedImageFormat.Jpeg, 100);
             var bytes = stream.ToArray();
 
             return bytes;

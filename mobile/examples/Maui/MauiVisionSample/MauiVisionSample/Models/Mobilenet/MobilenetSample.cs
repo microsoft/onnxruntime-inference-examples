@@ -21,9 +21,16 @@ namespace MauiVisionSample
 
         protected override async Task<ImageProcessingResult> OnProcessImageAsync(byte[] image)
         {
+            // Resize and center crop
             using var preprocessedImage = await Task.Run(() => ImageProcessor.PreprocessSourceImage(image)).ConfigureAwait(false);
+
+            // Convert to Tensor of normalized float RGB data with NCHW ordering
             var tensor = await Task.Run(() => ImageProcessor.GetTensorForImage(preprocessedImage)).ConfigureAwait(false);
+
+            // Run the model
             var predictions = await Task.Run(() => GetPredictions(tensor)).ConfigureAwait(false);
+
+            // Get the pre-processed image for display to the user so they can see the actual input to the model
             var preprocessedImageData = await Task.Run(() => ImageProcessor.GetBytesForBitmap(preprocessedImage)).ConfigureAwait(false);
 
             var caption = string.Empty;
@@ -33,10 +40,14 @@ namespace MauiVisionSample
                 var builder = new StringBuilder();
 
                 if (predictions.Any())
+                {
                     builder.Append($"Top {predictions.Count} predictions: {Environment.NewLine}{Environment.NewLine}");
+                }
 
                 foreach (var prediction in predictions)
-                    builder.Append($"{prediction.Label} ({prediction.Confidence*100:0.##}%){Environment.NewLine}");
+                {
+                    builder.Append($"{prediction.Label} ({prediction.Confidence * 100:0.00}%){Environment.NewLine}");
+                }
 
                 caption = builder.ToString();
             }
@@ -58,16 +69,16 @@ namespace MauiVisionSample
             IEnumerable<float> softmax = output.Select(x => (float)Math.Exp(x) / sum);
 
             // Extract top 3 predicted classes
-            IEnumerable<MobilenetPrediction> top10 = softmax
-                .Select((x, i) => new MobilenetPrediction
-                {
-                    Label = MobilenetLabelMap.Labels[i],
-                    Confidence = x
-                })
-                .OrderByDescending(x => x.Confidence)
-                .Take(3);
+            var top3 = softmax.Select((x, i) => new MobilenetPrediction
+                                                {
+                                                    Label = MobilenetLabelMap.Labels[i],
+                                                    Confidence = x
+                                                })
+                              .OrderByDescending(x => x.Confidence)
+                              .Take(3)
+                              .ToList();
 
-            return top10.ToList();
+            return top3;
         }
     }
 }
