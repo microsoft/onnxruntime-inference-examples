@@ -16,8 +16,9 @@ Lightweight face detection model designed for edge computing devices providing d
 This model is included in the repository, but has been updated using the onnxruntime python package tools to:
 - remove unused initializers,
   - `python -m onnxruntime.tools.optimize_onnx_model --opt_level basic <model>.onnx <updated_model>.onnx`
-- make the initializers constant 
-  - `python -m onnxruntime.tools.update_onnx_opset --opset 14 <model>.onnx <updated_model>.onnx`
+- make the initializers constant
+  - requires a script from the ONNX Runtime repository. this can be downloaded from [here](https://github.com/microsoft/onnxruntime/blob/master/tools/python/remove_initializer_from_input.py)
+  - `python remove_initializer_from_input.py --input <model>.onnx --output <updated_model>.onnx`
 
 in order to enable more runtime optimizations to occur.
 
