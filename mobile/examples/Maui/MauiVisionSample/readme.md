@@ -48,18 +48,18 @@ The key parts demonstrating the integration of ONNX Runtime are:
 
 The ONNX models are included in the [Raw](MauiVisionSample/Resources/Raw) resources. 
 
-The model bytes are loaded using OpenAppPackageFileAsync in Utils::LoadResource. Note that it is necessary to copy to a byte[] at runtime as the model may be compressed in the app on platforms such as Android.
+The model bytes are loaded using `OpenAppPackageFileAsync` in `Utils::LoadResource`. Note that it is necessary to copy to a byte[] at runtime as the model may be compressed in the app on platforms such as Android.
 
-### InferenceSession
+### Microsoft.ML.OnnxRuntime.InferenceSession
 
-The InferenceSession reads the ONNX model bytes, optimizes the model, and handles model execution.
+The `InferenceSession` reads the ONNX model bytes, optimizes the model, and handles model execution.
 
-An InferenceSession instance can be used to execute the model multiple times, including concurrently, so should only ever be created once per model. 
+An `InferenceSession` instance can be used to execute the model multiple times, including concurrently, so should only ever be created once per model. 
 
-Creating an inference session that uses the CPU Execution Provider is initially done in VisionSampleBase::Initialize.
+Creating an `InferenceSession` that uses the CPU Execution Provider is initially done in `VisionSampleBase::Initialize`.
 
-We also demonstrate the steps to enable an additional execution provider (if available for the platform) in VisionSampleBase::UpdateExecutionProviderAsync. 
-As execution providers must be selected prior to the creation of the InferenceSession this necessitates an expensive re-creation of the session in the sample app. Typically you would pre-determine which execution providers you wanted enabled and create the session once with that information.
+We also demonstrate the steps to enable an additional execution provider (if available for the platform) in `VisionSampleBase::UpdateExecutionProviderAsync`. 
+As execution providers must be selected prior to the creation of the `InferenceSession` this necessitates an expensive re-creation of the session in the sample app. Typically you would pre-determine which execution providers you wanted enabled and create the session once with that information.
 
 The CPU Execution Provider will be able to run all models.
 
@@ -71,9 +71,9 @@ This is highly dependent on your model, and also the device (particularly for NN
 There are 3 potential ways to acquire the image to process in the sample app.
 
 - If the sample image is selected the bytes from the jpg are loaded from the Raw resources.
-  - see GetSampleImageAsync in [MainPage.xaml.cs](MauiVisionSample/MainPage.xaml.cs)
+  - see `GetSampleImageAsync` in [MainPage.xaml.cs](MauiVisionSample/MainPage.xaml.cs)
 - If we use the MAUI MediaPicker to select/capture an image we make sure the orientation is correct and convert to a byte[] of jpg format for consistency.
-  - see TakePhotoAsync and PickPhotoAsync in [MainPage.xaml.cs](MauiVisionSample/MainPage.xaml.cs)
+  - see `TakePhotoAsync` and `PickPhotoAsync` in [MainPage.xaml.cs](MauiVisionSample/MainPage.xaml.cs)
 
 ### Pre-processing
 
@@ -81,24 +81,25 @@ Pre-processing the image involves converting it into a Tensor in the same way th
 
 At a high level there are two steps for the preprocessing:
 
-- First is to convert the byte[] to an SKBitmap using SKBitmap.Decode, and apply any image level changes like resizing and cropping.
+- First is to convert the byte[] to an SKBitmap using SKBitmap.Decode, and apply any image level changes like resizing and cropping to the bitmap.
 - Second is to convert the bitmap into the Tensor. 
-  - for these models that involves converting the byte data in the bitmap to a float value for the R, G and B values in each pixel, 
+  - for these models that involves converting the byte data in the bitmap to a float value for each R, G and B value in each pixel, 
 normalizing those values, and arranging in the NCHW format that ONNX uses.
-  - [MobilenetImageProcessor.cs](MauiVisionSample\Models\Mobilenet\MobilenetImageProcessor.cs) has comments explaining these steps in more detail.
+  - [MobilenetImageProcessor.cs](MauiVisionSample/Models/Mobilenet/MobilenetImageProcessor.cs) has comments explaining these steps and the NCHW format in more detail.
 
-Each model has an image processor to implement the model specific logic required for these steps. We leverage the SkiaSharpImageProcessor implementation of the IImageProcessor interface for common tasks.
+Each model has an image processor to implement the model specific logic required for these steps. 
+We leverage the `SkiaSharpImageProcessor` implementation of the `IImageProcessor` interface for common tasks.
 
 ### Model Execution
 
-Once we have converted our input image into a Tensor we can execute the model by calling InferenceSession::Run with the Tensor.
-This is done in IVisionSample::GetPredictions. 
+Once we have converted our input image into a Tensor we can execute the model by calling`InferenceSession::Run` with the Tensor.
+This is done in the implementations of `IVisionSample::GetPredictions`. 
 
 ### Post-processing
 
-The output for each model is always model specific. The output is first processed into a meaningful format in IVisionSample::GetPredictions.
+The output for each model is always model specific. The output is first processed into a meaningful format in `IVisionSample::GetPredictions`.
 
-Mobilenet: The results involve 1000 scores in the same order as the 1000 labels. We use softmax to convert the scores to probabilities and return the matching name from the labels and probability for the top 3 matches.
+*Mobilenet*: The results involve 1000 scores in the same order as the 1000 labels. We use Softmax to convert the scores to probabilities and return the matching name from the labels and probability for the top 3 matches.
 
-Ultraface: The results have confidence scores and bounding boxes for each match. We select the best match, if one is found with a confidence score > 50%, and return the bounding box and confidence score. Additionally, ApplyPredictionsToImage will draw the bounding box on the input image to display the areas selected to the user.
+*Ultraface*: The results have confidence scores and bounding boxes for each match. We select the best match, if one is found with a confidence score > 50%, and return the bounding box and confidence score. Additionally, `ApplyPredictionsToImage` will draw the bounding box and score on the input image so we can display the result to the user.
 
