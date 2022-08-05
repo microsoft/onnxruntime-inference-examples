@@ -186,15 +186,13 @@ export default function WebApp({navigation, route}: MainScreenProps) {
         source={{ uri: selectedImage.localUri }}
         style={styles.thumbnail}
       />
-          
-        {selectedImage != null && 
           <canvas id='canvas' width="350" height="350">
               
               <img id='selectedImage' src={selectedImage.localUri} width="250" height="250" alt='' />
               
           </canvas>
 
-        }
+    
       </View>}
 
       <TouchableOpacity onPress={openImagePickerAsync} >
