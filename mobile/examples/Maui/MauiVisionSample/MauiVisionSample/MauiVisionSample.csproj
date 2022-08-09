@@ -52,7 +52,7 @@
 	or ensure that all items in this list define a value for this metadata.
 	-->
 	<ItemGroup Condition="'$(TargetFramework)' == 'net6.0-ios'">
-		<NativeReference Include="CoreML.framework" Kind="Framework" />
+		<NativeReference Include="CoreML" Kind="Framework" />
 	</ItemGroup>
 	
 	<ItemGroup>
