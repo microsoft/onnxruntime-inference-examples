@@ -31,13 +31,16 @@
 		<MtouchExtraArgs>-gcc_flags "-framework CoreML"</MtouchExtraArgs>
 	</PropertyGroup>-->
 
-	<PropertyGroup Condition="'$(IsPublishing)'  == 'true' And '$(TargetFramework)' == 'net6.0-ios'">
+	<!--<PropertyGroup Condition="'$(IsPublishing)'  == 'true' And '$(TargetFramework)' == 'net6.0-ios'">
 		<RuntimeIdentifier>ios-arm64</RuntimeIdentifier>
-	</PropertyGroup>
+	</PropertyGroup>-->
 	
+	<!--
+	/Users/runner/.dotnet/packs/Microsoft.iOS.Sdk/15.4.328/targets/Xamarin.Shared.Sdk.targets(269,3): 
+	error : iOS projects must build with PublishTrimmed=true.
 	<PropertyGroup Condition="'$(TargetFramework)' == 'net6.0-ios'">
 		<PublishTrimmed>false</PublishTrimmed>
-	</PropertyGroup>
+	</PropertyGroup>-->
 
 	<ItemGroup Condition="'$(TargetFramework)' == 'net6.0-ios'">
 		<NativeReference Include="CoreML.framework" Kind="Framework" />
