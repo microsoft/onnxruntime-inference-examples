@@ -30,7 +30,8 @@
     <!--<PropertyGroup Condition="'$(TargetFramework)' == 'net6.0-ios'">
 		<MtouchNoSymbolStrip>true</MtouchNoSymbolStrip>		
 		<MtouchExtraArgs>-gcc_flags "-framework CoreML"</MtouchExtraArgs>
-		--><!-- this may not work https://github.com/dotnet/maui/issues/8468 --><!--
+		-->
+		<!-- this may not work https://github.com/dotnet/maui/issues/8468 --><!--
 		<AdditionalArgs>-gcc_flags "-framework CoreML"</AdditionalArgs>
 	</PropertyGroup>-->
 
@@ -58,11 +59,19 @@
 	<!-- 
 	https://github.com/xamarin/xamarin-macios/issues/15118
 	-->
-	<Target Condition="'$(TargetFramework)' == 'net6.0-ios'" Name="AddCoreML" BeforeTargets="_ComputeLinkNativeExecutableInputs" AfterTargets="_LoadLinkerOutput">
+	<Target Name="AddCoreML" AfterTargets="_LoadLinkerOutput" BeforeTargets="_ComputeLinkNativeExecutableInputs">
 		<ItemGroup>
-			<_LinkerFrameworks Add="CoreML" />
+			<_LinkerFrameworks Include="CoreML" />
 		</ItemGroup>
+        <Message Text="_LinkerFrameworks= @(_LinkerFrameworks)"/>
 	</Target>	
+	
+	<!--<Target Name="AddCoreML_2" AfterTargets="_ComputeLinkNativeExecutableInputs" BeforeTargets="_LinkNativeExecutable">
+		<ItemGroup>
+			<_NativeExecutableFrameworks Include="CoreML" />
+		</ItemGroup>
+        <Message Text="_NativeExecutableFrameworks= @(_NativeExecutableFrameworks)"/>
+	</Target>-->
 	
 	<ItemGroup>
 		<!-- App Icon -->
