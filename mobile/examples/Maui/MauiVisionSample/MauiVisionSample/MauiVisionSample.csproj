@@ -36,6 +36,9 @@
 		<PublishTrimmed>false</PublishTrimmed>
 		<RuntimeIdentifier>ios-arm64</RuntimeIdentifier>
 	</PropertyGroup>
+	<ItemGroup Condition="'$(TargetFramework)' == 'net6.0-ios'">
+		<NativeReference Include="CoreML.framework" Kind="Framework" />
+	</ItemGroup>
 	
 	<ItemGroup>
 		<!-- App Icon -->
