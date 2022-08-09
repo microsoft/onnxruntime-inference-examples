@@ -33,7 +33,7 @@
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(IsPublishing)'  == 'true' And '$(TargetFramework)' == 'net6.0-ios'">
-		<PublishTrimmed>true</PublishTrimmed>
+		<PublishTrimmed>false</PublishTrimmed>
 		<RuntimeIdentifier>ios-arm64</RuntimeIdentifier>
 	</PropertyGroup>
 	
