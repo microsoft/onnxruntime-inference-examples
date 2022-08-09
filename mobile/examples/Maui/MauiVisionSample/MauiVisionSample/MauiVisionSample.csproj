@@ -27,9 +27,12 @@
 		<DefaultLanguage>en</DefaultLanguage>
 	</PropertyGroup>
 
-	<!--<PropertyGroup Condition="'$(TargetFramework)' == 'net6.0-ios'">
+    <PropertyGroup Condition="'$(TargetFramework)' == 'net6.0-ios'">
+		<MtouchNoSymbolStrip>true</MtouchNoSymbolStrip>		
 		<MtouchExtraArgs>-gcc_flags "-framework CoreML"</MtouchExtraArgs>
-	</PropertyGroup>-->
+		<!-- this may not work https://github.com/dotnet/maui/issues/8468 -->
+		<AdditionalArgs>-gcc_flags "-framework CoreML"</AdditionalArgs>
+	</PropertyGroup>
 
 	<!--<PropertyGroup Condition="'$(IsPublishing)'  == 'true' And '$(TargetFramework)' == 'net6.0-ios'">
 		<RuntimeIdentifier>ios-arm64</RuntimeIdentifier>
@@ -42,6 +45,12 @@
 		<PublishTrimmed>false</PublishTrimmed>
 	</PropertyGroup>-->
 
+	<!-- 
+	/Users/runner/.nuget/packages/skiasharp.nativeassets.ios/2.88.0/buildTransitive/net6.0-ios13.6/SkiaSharp.NativeAssets.iOS.targets(6,9): 
+	error MSB4096: The item "CoreML.framework" in item list "NativeReference" does not define a value for metadata "FrameworkFilename".  
+	In order to use this metadata, either qualify it by specifying %(NativeReference.FrameworkFilename), 
+	or ensure that all items in this list define a value for this metadata.
+	-->
 	<ItemGroup Condition="'$(TargetFramework)' == 'net6.0-ios'">
 		<NativeReference Include="CoreML.framework" Kind="Framework" />
 	</ItemGroup>
