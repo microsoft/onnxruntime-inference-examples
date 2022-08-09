@@ -50,10 +50,10 @@
 	error MSB4096: The item "CoreML.framework" in item list "NativeReference" does not define a value for metadata "FrameworkFilename".  
 	In order to use this metadata, either qualify it by specifying %(NativeReference.FrameworkFilename), 
 	or ensure that all items in this list define a value for this metadata.
-	-->
 	<ItemGroup Condition="'$(TargetFramework)' == 'net6.0-ios'">
 		<NativeReference Include="CoreML" Kind="Framework" />
 	</ItemGroup>
+	-->
 	
 	<ItemGroup>
 		<!-- App Icon -->
