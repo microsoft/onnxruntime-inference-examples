@@ -6,7 +6,7 @@
 
    2. Install Java (OpenJDK).
 
-      - Download and install [OpenJDK Version 11](https://adoptopenjdk.net/). Extract into the `program files` folder in your local disk.
+      - Download and install [OpenJDK Version 11](https://adoptopenjdk.net/).
       - Set JAVA_HOME environment variable. Steps are highlighted [here](https://java2blog.com/how-to-set-java-path-windows-10/#How_to_set_JAVA_HOME_in_Windows_10).
 
    3. Install the [expo-cli](https://docs.expo.dev/)
