@@ -174,7 +174,7 @@ export default function WebApp({navigation, route}: MainScreenProps) {
       <Text style={styles.instructions}>
         Pick an Image or Take a Picture!
       </Text>
-      {myCamera &&
+      {myCamera && hasPermission &&
       <Camera style={{ flex: 1, alignSelf: 'stretch' }} ref={ref}>
         <View 
           style={{

@@ -144,6 +144,7 @@ export default function AndroidApp({ navigation, route }: MainScreenProps) {
       const inputData = await preprocess()
       const output = await runModelAll(ort, inputData, myModel)
       if(output) await postprocess(output)
+      ToastAndroid.show('SUPER_RESOLUTION DONE\n  SWYPE DOWN', ToastAndroid.LONG)
 
     } catch (e) {
       Alert.alert('failed to inference model', `${e}`);
