@@ -26,51 +26,23 @@
 		<TargetPlatformMinVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</TargetPlatformMinVersion>
 		<DefaultLanguage>en</DefaultLanguage>
 	</PropertyGroup>
-
-    <!--<PropertyGroup Condition="'$(TargetFramework)' == 'net6.0-ios'">
-		<MtouchNoSymbolStrip>true</MtouchNoSymbolStrip>		
-		<MtouchExtraArgs>-gcc_flags "-framework CoreML"</MtouchExtraArgs>
-		-->
-		<!-- this may not work https://github.com/dotnet/maui/issues/8468 --><!--
-		<AdditionalArgs>-gcc_flags "-framework CoreML"</AdditionalArgs>
-	</PropertyGroup>-->
-
-	<!--<PropertyGroup Condition="'$(IsPublishing)'  == 'true' And '$(TargetFramework)' == 'net6.0-ios'">
-		<RuntimeIdentifier>ios-arm64</RuntimeIdentifier>
-	</PropertyGroup>-->
-	
-	<!--
-	/Users/runner/.dotnet/packs/Microsoft.iOS.Sdk/15.4.328/targets/Xamarin.Shared.Sdk.targets(269,3): 
-	error : iOS projects must build with PublishTrimmed=true.
-	<PropertyGroup Condition="'$(TargetFramework)' == 'net6.0-ios'">
-		<PublishTrimmed>false</PublishTrimmed>
-	</PropertyGroup>-->
-
-	<!-- 
-	/Users/runner/.nuget/packages/skiasharp.nativeassets.ios/2.88.0/buildTransitive/net6.0-ios13.6/SkiaSharp.NativeAssets.iOS.targets(6,9): 
-	error MSB4096: The item "CoreML.framework" in item list "NativeReference" does not define a value for metadata "FrameworkFilename".  
-	In order to use this metadata, either qualify it by specifying %(NativeReference.FrameworkFilename), 
-	or ensure that all items in this list define a value for this metadata.
-	<ItemGroup Condition="'$(TargetFramework)' == 'net6.0-ios'">
-		<NativeReference Include="CoreML" Kind="Framework" />
-	</ItemGroup>
-	-->
 	
 	<!-- 
-	https://github.com/xamarin/xamarin-macios/issues/15118
+	Manually add CoreML to the frameworks we link against.
 	-->
-	<Target Name="AddCoreML" AfterTargets="_LoadLinkerOutput" BeforeTargets="_ComputeLinkNativeExecutableInputs">
+	<Target Name="AddCoreML" Condition="'$(TargetFramework)' == 'net6.0-ios'" AfterTargets="_LoadLinkerOutput" BeforeTargets="_ComputeLinkNativeExecutableInputs">
 		<ItemGroup>
 			<_LinkerFrameworks Include="CoreML" />
 		</ItemGroup>
-        <Message Text="_LinkerFrameworks= @(_LinkerFrameworks)"/>
 	</Target>	
 	
-	<!--<Target Name="AddCoreML_2" AfterTargets="_ComputeLinkNativeExecutableInputs" BeforeTargets="_LinkNativeExecutable">
+	<!--
+	alternative place to add
+	<Target Name="AddCoreML_2" AfterTargets="_ComputeLinkNativeExecutableInputs" BeforeTargets="_LinkNativeExecutable">
 		<ItemGroup>
 			<_NativeExecutableFrameworks Include="CoreML" />
 		</ItemGroup>
-        <Message Text="_NativeExecutableFrameworks= @(_NativeExecutableFrameworks)"/>
+        <Message Importance="high" Text="_NativeExecutableFrameworks= @(_NativeExecutableFrameworks)"/>
 	</Target>-->
 	
 	<ItemGroup>
