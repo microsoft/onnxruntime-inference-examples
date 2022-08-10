@@ -3,54 +3,38 @@ import React, { useState } from 'react';
 import { Alert, Button, Text, View, NativeModules, Image, ScrollView, ToastAndroid, Platform } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import * as ImageManipulator from 'expo-image-manipulator';
-import { Asset } from 'expo-asset';
 import { MainScreenProps } from './NavigStack';
-import { pixelsRGBToYCbCr, pixelsYCbCrToRGB } from '../misc/utilities';
+import { openImagePicker, converter, loadModelAll, runModelAll } from '../misc/utilities';
 import { styles } from '../misc/styles';
 
 
-let model: any;
-let ort: any
+const bitmapModule = NativeModules.Bitmap
+const imageDim = 224
+const scaledImageDim = imageDim * 3
 const platform = Platform.OS
 
+
+let ort: any
 if (platform == "android") { ort = require("onnxruntime-react-native") }
 
 let isLoaded = false;
-const [imgHeight, imgWidth] = [224, 224]
-const [postImgHeight, postImgWidth] = [imgHeight * 3, imgWidth * 3]
+let model: any;
+let floatPixelsY = new Float32Array(imageDim * imageDim)
+let cbArray = new Float32Array(scaledImageDim*scaledImageDim)
+let crArray = new Float32Array(scaledImageDim*scaledImageDim)
+let bitmapPixel: number[] = Array(imageDim * imageDim);
+let bitmapScaledPixel: number[] = Array(scaledImageDim * scaledImageDim);
 
-
-let floatPixelsY = new Float32Array()
-let cbArray = new Array<number>()
-let crArray = new Array<number>()
-
-let bitmapPixel: number[] = Array(imgHeight * imgWidth);
-let bitmapScaledPixel: number[] = Array(postImgHeight * postImgWidth);
-
-const bitmapModule = NativeModules.Bitmap
 
 export default function AndroidApp({ navigation, route }: MainScreenProps) {
   const [selectedImage, setSelectedImage] = useState<any>(null);
   const [outputImage, setOutputImage] = useState<any>(null);
   const [myModel, setModel] = useState(model);
 
+
   async function openImagePickerAsync() {
-
-    const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
-
-    if (permissionResult.granted === false) {
-      alert("Permission to access Camera Roll is Required!");
-      return;
-    }
-
-    const pickerResult = await ImagePicker.launchImageLibraryAsync({ allowsEditing: true });
-
-    if (pickerResult.cancelled === true) {
-      return;
-    }
-
-    await imageToPixel(pickerResult.uri)
-
+    const pickerResult = await openImagePicker() as string
+    await imageToPixel(pickerResult)
     return
   };
 
@@ -58,13 +42,13 @@ export default function AndroidApp({ navigation, route }: MainScreenProps) {
   async function imageToPixel(uri: string) {
     const imageResult = await ImageManipulator.manipulateAsync(
       uri, [
-      { resize: { height: imgHeight, width: imgWidth } }
+      { resize: { height: imageDim, width: imageDim } }
     ]
     )
 
     const imageScaled = await ImageManipulator.manipulateAsync(
       uri, [
-      { resize: { height: postImgHeight, width: postImgWidth } }
+      { resize: { height: scaledImageDim, width: scaledImageDim } }
     ]
     )
 
@@ -108,38 +92,22 @@ export default function AndroidApp({ navigation, route }: MainScreenProps) {
 
 
   async function preprocess() {
-    floatPixelsY = Float32Array.from(bitmapPixel)
-    cbArray = Array.from(bitmapScaledPixel)
-    crArray = Array.from(bitmapScaledPixel)
 
-    bitmapPixel.forEach((value, index) => {
-      const red = (value >> 16 & 0xFF)
-      const green = (value >> 8 & 0xFF)
-      const blue = (value & 0xFF)
-      floatPixelsY[index] = pixelsRGBToYCbCr(red, green, blue, "y")
-    });
+    const result = await converter([bitmapPixel, bitmapScaledPixel], "YCbCR", platform) as Float32Array[]
+    floatPixelsY = result[0]
+    cbArray = result[1]
+    crArray = result[2]
 
-    bitmapScaledPixel.forEach((value, index) => {
-      const red = (value >> 16 & 0xFF)
-      const green = (value >> 8 & 0xFF)
-      const blue = (value & 0xFF)
-      cbArray[index] = pixelsRGBToYCbCr(red, green, blue, "cb")
-      crArray[index] = pixelsRGBToYCbCr(red, green, blue, "cr")
-    })
-
-    let tensor = new ort.Tensor(floatPixelsY, [1, 1, imgHeight, imgWidth])
+    let tensor = new ort.Tensor(floatPixelsY, [1, 1, imageDim, imageDim])
     return tensor
   };
 
 
-  async function postprocess(floatArray: Array<number>): Promise<string> {
-    const intArray = Array<number>(postImgHeight * postImgWidth);
+  async function postprocess(floatArray: number[]) {
 
-    floatArray.forEach((value, index) => {
-      intArray[index] = (pixelsYCbCrToRGB(value, cbArray[index], crArray[index], platform) as number[])[0]
-    })
+    const intArray = await converter([floatArray, Array.from(cbArray), Array.from(crArray)], "RGB", platform) as any[]
 
-    let imageUri = await bitmapModule.getImageUri(intArray).then(
+    let imageUri = await bitmapModule.getImageUri(Array.from(intArray)).then(
       (image: any) => {
         return image.uri
       }
@@ -151,21 +119,13 @@ export default function AndroidApp({ navigation, route }: MainScreenProps) {
     ])
 
     setOutputImage({ localUri: imageRotated.uri })
-    return imageUri
   };
 
 
   async function loadModel() {
     try {
-      const assets = await Asset.loadAsync(require('../assets/super_resnet12.ort'));
-      const modelUri = assets[0].localUri;
-
-      if (!modelUri) {
-        Alert.alert('failed to get model URI', `${assets[0]}`);
-      } else {
-        setModel(await ort.InferenceSession.create(modelUri));
-        return
-      }
+      const model = await loadModelAll(ort)
+      setModel(model)
 
     } catch (e) {
       Alert.alert('failed to load model', `${e}`);
@@ -176,26 +136,10 @@ export default function AndroidApp({ navigation, route }: MainScreenProps) {
 
   async function runModel() {
     try {
-      const feeds: Record<any, any> = {};
 
-      if (bitmapPixel.length == imgHeight * imgWidth) {
-        feeds[myModel.inputNames[0]] = await preprocess();
-      } else {
-        Alert.alert("No Image selected", "You need to upload and/or show image")
-        return
-      }
-
-      const fetches = await myModel.run(feeds);
-      const output = fetches[myModel.outputNames[0]];
-
-      if (!output) {
-        Alert.alert('failed to get output', `${myModel.outputNames[0]}`);
-      } else {
-        const out = output.data as Float32Array;
-        const array = Array.from(out);
-        await postprocess(array);
-        ToastAndroid.show('SUPER_RESOLUTION DONE\n  SWYPE DOWN', ToastAndroid.LONG)
-      }
+      const inputData = await preprocess()
+      const output = await runModelAll(ort, inputData, myModel)
+      if(output) await postprocess(output)
 
     } catch (e) {
       Alert.alert('failed to inference model', `${e}`);
@@ -244,8 +188,3 @@ export default function AndroidApp({ navigation, route }: MainScreenProps) {
     </View>
   );
 };
-
-
-
-
-

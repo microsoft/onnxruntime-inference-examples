@@ -6,6 +6,14 @@ export const styles = StyleSheet.create({
     backgroundColor: 'white'
   },
 
+  cameraButton: {
+    alignSelf: "flex-start",
+    margin: 8,
+    width: 40,
+    height: 40,
+    resizeMode: "contain"
+  },
+
   containerAndroid: {
       flex: 1,
       backgroundColor: '#ffb703',
@@ -60,7 +68,6 @@ export const styles = StyleSheet.create({
     marginLeft: 10,
     marginRight: 10,
     alignItems: "center",
-    backgroundColor: "#111111"
   },
 
   welcomeText: {

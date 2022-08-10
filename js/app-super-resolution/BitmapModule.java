@@ -32,6 +32,9 @@ public class BitmapModule extends ReactContextBaseJavaModule {
         return "Bitmap";
     }
 
+    /**
+     * Function responsible for providing the pixel data of an image given its source
+     */
     @ReactMethod
     public void getPixels(String filePath, final Promise promise) {
         try {
