@@ -46,7 +46,7 @@ export default function AndroidApp({ navigation, route }: MainScreenProps) {
 
   /**
    * It generates the hex pixel data of an image given its source.
-   * It firstly rsizes the image to the right dimensions, then makes use of an 
+   * It firstly resizes the image to the right dimensions, then makes use of an 
    * Android [Native Module](https://reactnative.dev/docs/next/native-modules-android) to get a [height x width] array containing the pixel data. 
    */
   async function imageToPixel(uri: string) {
