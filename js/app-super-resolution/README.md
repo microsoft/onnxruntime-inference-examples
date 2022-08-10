@@ -18,7 +18,7 @@ For steps on how to build this project, refer to [this](instructions.md).
 
 ### Model
 
-The ORT model used can be found [here](assets\super_resnet12.ort).
+The ORT model used can be found [here](https://github.com/VictorIyke/super_resolution_MW/blob/main/cross_plat/assets/super_resnet12.ort).
 
 ### Pre-processing
 

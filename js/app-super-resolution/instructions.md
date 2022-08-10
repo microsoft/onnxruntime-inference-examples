@@ -64,11 +64,11 @@
       The generated project files will be updated automatically.
 
    2. Move the BitmapModule.java file and the BitmapReactPackage.java file in `<SOURCE_ROOT>` to this directory:
-      [`<SOURCE_ROOT>\android\app\src\main\java\com\example\ortdemo`](android\app\src\main\java\com\example\ortdemo)
+      `<SOURCE_ROOT>\android\app\src\main\java\com\example\ortdemo`
       These files contain native module functions useful for the Android implementation.
       For more information on Native Modules, click this link: [Native Modules (React Native)](https://reactnative.dev/docs/next/native-modules-intro)
 
-   3. In [`<SOURCE_ROOT>\android\app\src\main\java\com\example\ortdemo\MainApplication.java`](android\app\src\main\java\com\example\ortdemo\MainApplication.java), add the following lines of code to the `getPackages` function:
+   3. In `<SOURCE_ROOT>\android\app\src\main\java\com\example\ortdemo\MainApplication.java`, add the following lines of code to the `getPackages` function:
 
       ```java
       packages.add(new BitmapReactPackage());
