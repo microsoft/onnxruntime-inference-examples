@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
 package com.example.ortdemo;
 
 import androidx.annotation.NonNull;

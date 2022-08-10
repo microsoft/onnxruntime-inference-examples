@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
 package com.example.ortdemo;
 
 import com.facebook.react.bridge.ReactApplicationContext;
@@ -33,14 +36,16 @@ public class BitmapModule extends ReactContextBaseJavaModule {
     }
 
     /**
-     * Function responsible for providing the pixel data of an image given its source
+     * Function responsible for providing the pixel data of an image given its
+     * source
      */
     @ReactMethod
     public void getPixels(String filePath, final Promise promise) {
         try {
             WritableNativeMap result = new WritableNativeMap();
             WritableNativeArray pixels = new WritableNativeArray();
-            Bitmap bitmap = MediaStore.Images.Media.getBitmap(Objects.requireNonNull(this.getCurrentActivity()).getContentResolver(), Uri.parse(filePath));
+            Bitmap bitmap = MediaStore.Images.Media.getBitmap(
+                    Objects.requireNonNull(this.getCurrentActivity()).getContentResolver(), Uri.parse(filePath));
 
             if (bitmap == null) {
                 promise.reject(new NullPointerException("No Bitmap Selected"));
@@ -75,7 +80,7 @@ public class BitmapModule extends ReactContextBaseJavaModule {
     public void getImageUri(ReadableArray arrayPixels, final Promise promise) {
         try {
             WritableNativeMap result = new WritableNativeMap();
-            int[] arrayIntPixels = new int[224*224*3*3];
+            int[] arrayIntPixels = new int[224 * 224 * 3 * 3];
             for (int i = 0; i < arrayPixels.size(); i++) {
                 arrayIntPixels[i] = arrayPixels.getInt(i);
             }

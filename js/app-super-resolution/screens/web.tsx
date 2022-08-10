@@ -1,3 +1,7 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
+
 import { Button, Text, View, Image, TouchableOpacity } from 'react-native';
 import { styles } from '../misc/styles';
 import React, {useState, useEffect, useRef} from 'react';
@@ -38,7 +42,7 @@ export default function WebApp({navigation, route}: MainScreenProps) {
   const [hasPermission, setHasPermission] = useState<any>(null);
   const ref = useRef<any>(null)
   
-  
+
   useEffect(() => {
     (async () => {
       const { status } = await Camera.requestCameraPermissionsAsync();

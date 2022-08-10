@@ -1,3 +1,7 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
+
 import * as ImagePicker from 'expo-image-picker';
 import { Asset } from 'expo-asset';
 type PlatformTypes = "ios" | "android" | "windows" | "macos" | "web"
@@ -134,7 +138,7 @@ export async function converter(array: number[][], mode: "YCbCR"|"RGB", platform
         for (let i=0; i < scaledDim*scaledDim; i++) {
             if (platform == "android") {
                 intArray[i] = pixelsYCbCrToRGB(outputArray[i], cbArray[i], crArray[i], platform)[0]
-                
+
             }else if (platform == "web") {
                 const pixel = pixelsYCbCrToRGB(outputArray[i], cbArray[i], crArray[i], platform)
                 const currIndex = i * 4;

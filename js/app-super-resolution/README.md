@@ -1,3 +1,7 @@
+// Copyright (c) Microsoft Corporation.
+
+// Licensed under the MIT license.
+
 # RUNNING SUPER-RESOLUTION ON IMAGES ACROSS VARIOUS PLATFORMS USING ONNX RUNTIME MODELS
 
 ## OVERVIEW
