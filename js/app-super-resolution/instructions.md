@@ -1,7 +1,3 @@
-// Copyright (c) Microsoft Corporation.
-
-// Licensed under the MIT license.
-
 ## Steps of building project from scratch
 
 0. Prerequisites
