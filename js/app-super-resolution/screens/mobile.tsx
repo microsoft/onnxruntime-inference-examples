@@ -35,14 +35,20 @@ export default function AndroidApp({ navigation, route }: MainScreenProps) {
   const [outputImage, setOutputImage] = useState<any>(null);
   const [myModel, setModel] = useState(model);
 
-
+  /**
+   * Opens up the library of the mobile device in order to select an image from the library.
+   */
   async function openImagePickerAsync() {
     const pickerResult = await openImagePicker() as string
     await imageToPixel(pickerResult)
     return
   };
 
-
+  /**
+   * It generates the hex pixel data of an image given its source.
+   * It firstly rsizes the image to the right dimensions, then makes use of an 
+   * Android [Native Module](https://reactnative.dev/docs/next/native-modules-android) to get a [height x width] array containing the pixel data. 
+   */
   async function imageToPixel(uri: string) {
     const imageResult = await ImageManipulator.manipulateAsync(
       uri, [
@@ -76,7 +82,9 @@ export default function AndroidApp({ navigation, route }: MainScreenProps) {
     setOutputImage(null)
   }
 
-
+  /**
+   * Opens up the camera of the mobile device to take a picture.
+   */
   async function openCameraAsync() {
     const permissionResult = await ImagePicker.requestCameraPermissionsAsync();
 
@@ -94,7 +102,9 @@ export default function AndroidApp({ navigation, route }: MainScreenProps) {
     await imageToPixel(pickerResult.uri)
   }
 
-
+  /**
+   * It creates an ORT tensor from the Y' channel pixel data of the input image
+   */
   async function preprocess() {
 
     const result = await converter([bitmapPixel, bitmapScaledPixel], "YCbCR", platform) as Float32Array[]
@@ -106,7 +116,11 @@ export default function AndroidApp({ navigation, route }: MainScreenProps) {
     return tensor
   };
 
-
+  /**
+   * It sets the output image visible by generating the output image source given its pixel data.
+   * Makes use of an Android [Native Module](https://reactnative.dev/docs/next/native-modules-android) which creates a temporary image file
+   * from its pixel data
+   */
   async function postprocess(floatArray: number[]) {
 
     const intArray = await converter([floatArray, Array.from(cbArray), Array.from(crArray)], "RGB", platform) as any[]
@@ -125,7 +139,9 @@ export default function AndroidApp({ navigation, route }: MainScreenProps) {
     setOutputImage({ localUri: imageRotated.uri })
   };
 
-
+  /**
+   * Loads ORT model on mobile
+   */
   async function loadModel() {
     try {
       const model = await loadModelAll(ort)
@@ -137,12 +153,14 @@ export default function AndroidApp({ navigation, route }: MainScreenProps) {
     }
   }
 
-
+  /**
+   * Runs ORT model on mobile
+   */
   async function runModel() {
     try {
 
       const inputData = await preprocess()
-      const output = await runModelAll(ort, inputData, myModel)
+      const output = await runModelAll(inputData, myModel)
       if(output) await postprocess(output)
       ToastAndroid.show('SUPER_RESOLUTION DONE\n  SWYPE DOWN', ToastAndroid.LONG)
 
@@ -152,6 +170,7 @@ export default function AndroidApp({ navigation, route }: MainScreenProps) {
     }
   };
 
+  // Automatically loads the model immediately the screen is rendered
   if (!isLoaded || !myModel) {
     loadModel().then(() => {
       isLoaded = true;

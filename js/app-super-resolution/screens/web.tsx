@@ -42,7 +42,9 @@ export default function WebApp({navigation, route}: MainScreenProps) {
   const [hasPermission, setHasPermission] = useState<any>(null);
   const ref = useRef<any>(null)
   
-
+  /**
+   * Requests Camera Permissions
+   */
   useEffect(() => {
     (async () => {
       const { status } = await Camera.requestCameraPermissionsAsync();
@@ -50,24 +52,37 @@ export default function WebApp({navigation, route}: MainScreenProps) {
     })();
   }, []);
 
-
+  /**
+   * Opens up the library of the device in order to select an image from the library.
+   * The selected image is then resized to the acceptable dimension of the model.
+   */
   let openImagePickerAsync = async () => {
-    setCamera(false)
     const pickerResult = await openImagePicker() as string
     const imageResult = await ImageManipulator.manipulateAsync(
       pickerResult, [
         {resize: {height: imageDim, width: imageDim}}
       ]
     )
-    setSelectedImage({ localUri: imageResult.uri });
+    await clearCanvas(imageResult.uri)
+  };
+
+  /**
+   * The function clears the previous output image of the canvas.
+   */
+  async function clearCanvas(src: string) {
+    setSelectedImage({ localUri: src });
+    setCamera(false);
     const canvas = document.getElementById("canvas") as HTMLCanvasElement
     ctx = canvas.getContext("2d")
     if (ctx) {
       ctx.clearRect(0, 0, 350, 350)
     }
-  };
+  }
 
-
+  /**
+   * It takes a snapshot of the camera view and perfoms some Image manipulation on the snapshot.
+   * The selected image is then resized to the acceptable dimension of the model.
+   */
   async function _takePhoto() {
     const photo = await ref.current.takePictureAsync({isImageMirror: true})
     const[big, small] = [Math.max(photo.height, photo.width), Math.min(photo.height, photo.width)]
@@ -78,17 +93,12 @@ export default function WebApp({navigation, route}: MainScreenProps) {
         {resize: {height: imageDim, width: imageDim}}
       ]
     )
-
-    setSelectedImage({ localUri: imageResult.uri });
-    setCamera(false);
-    const canvas = document.getElementById("canvas") as HTMLCanvasElement
-    ctx = canvas.getContext("2d")
-    if (ctx) {
-      ctx.clearRect(0, 0, 350, 350)
-    }
+    await clearCanvas(imageResult.uri)
   } 
 
-
+  /**
+   * It creates an ORT tensor from the Y' channel pixel data of the input image
+   */
   async function preProcess(){
     await draw();
 
@@ -101,17 +111,16 @@ export default function WebApp({navigation, route}: MainScreenProps) {
     return tensor
   }
 
-
+  /**
+   * It draws an image unto the main canvas using the output pixel data from the model
+   */
   async function postProcess(outputArray: number []) {
-    
     const newImageData = await converter(Array.of(outputArray, Array.from(cbArray), Array.from(crArray)), "RGB", platform) as any[]
-
     let data = myImageScaledData.data
 
     newImageData.forEach((value, index) => {
       data[index] = value
     })
-
     
     if (ctx && kdv) {  
       kdv.putImageData(myImageScaledData, 0, 0);
@@ -121,7 +130,11 @@ export default function WebApp({navigation, route}: MainScreenProps) {
     }
   }
 
-
+  /**
+   * It returns a [height x width x 4] array containing the pixel data of the input image in RGBA format.
+   * Draws the input image unto an [Offscreeen Canvas](https://developer.mozilla.org/en-US/docs/Web/API/OffscreenCanvas) and the image data is
+   * gotten from the offscreen canvas.
+   */
   async function draw() {
     const image1 = document.getElementById('selectedImage') as HTMLImageElement
     kdv = offscreen.getContext('2d')
@@ -139,7 +152,9 @@ export default function WebApp({navigation, route}: MainScreenProps) {
     }
   }
   
-
+  /**
+   * Load ORT model on web
+   */
   async function loadModel() {
     try {
       const model = await loadModelAll(ort)
@@ -150,20 +165,21 @@ export default function WebApp({navigation, route}: MainScreenProps) {
     }
   }
   
-  
+  /**
+   * Run ORT model on web
+   */
   async function runModel() {
     try {
       const inputData = await preProcess()
-      const output = await runModelAll(ort, inputData, myModel)
+      const output = await runModelAll(inputData, myModel)
       if(output) await postProcess(output)
     } catch (e) {
       throw e;
     }
   }
 
-    
+  // Automatically loads the model immediately the screen is rendered
   if (!isLoaded || !myModel) {
-
     loadModel().then(() => {
       isLoaded = true;
     })

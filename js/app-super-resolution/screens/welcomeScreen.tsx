@@ -24,4 +24,3 @@ export default function WelcomeScreen({ navigation, route }: WelcomeScreenProps)
       </View>
     )
   }
-

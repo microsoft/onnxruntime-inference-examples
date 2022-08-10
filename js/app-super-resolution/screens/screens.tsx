@@ -1,3 +1,7 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
+
 import WelcomeScreen from './welcomeScreen';
 import AndroidApp from './mobile';
 import WebApp from './web';

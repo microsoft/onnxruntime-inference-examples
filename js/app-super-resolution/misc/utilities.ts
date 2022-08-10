@@ -7,7 +7,29 @@ import { Asset } from 'expo-asset';
 type PlatformTypes = "ios" | "android" | "windows" | "macos" | "web"
 
 
-export function pixelsRGBToYCbCr(red: number, green: number, blue: number, mode: string): number {
+/**
+ * Uses the expo-image-picker node module to open up the Image library of the device and allows editing.
+ */
+ export async function openImagePicker() {
+    const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+    if (permissionResult.granted === false) {
+      alert("Permission to access Camera Roll is Required!");
+      return "0";
+    }
+
+    const pickerResult = await ImagePicker.launchImageLibraryAsync({ allowsEditing: true });
+
+    if (pickerResult.cancelled === true) {
+      return pickerResult.cancelled;
+    }
+    return pickerResult.uri
+}
+
+/**
+ * Converts an RGB pixel to YCbCr color format
+ */
+function pixelsRGBToYCbCr(red: number, green: number, blue: number, mode: string) {
 
     let result = 0
     if (mode == "y") {
@@ -31,8 +53,10 @@ export function pixelsRGBToYCbCr(red: number, green: number, blue: number, mode:
     
 }
 
-
-export function pixelsYCbCrToRGB(pixel: number, cb: number, cr: number, platform: PlatformTypes) {
+/**
+ * Converts an YCbCr pixel to RGB color format
+ */
+function pixelsYCbCrToRGB(pixel: number, cb: number, cr: number, platform: PlatformTypes) {
     const y = Math.min(Math.max((pixel * 255), 0), 255);
 
     const red = Math.min(Math.max((y + (1.4025 * (cr-0x80))), 0), 255);
@@ -58,25 +82,14 @@ export function pixelsYCbCrToRGB(pixel: number, cb: number, cr: number, platform
     }else return Array(0)
 }
 
-
-export async function openImagePicker() {
-    const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
-
-    if (permissionResult.granted === false) {
-      alert("Permission to access Camera Roll is Required!");
-      return "0";
-    }
-
-    const pickerResult = await ImagePicker.launchImageLibraryAsync({ allowsEditing: true });
-
-    if (pickerResult.cancelled === true) {
-      return pickerResult.cancelled;
-    }
-    return pickerResult.uri
-
-}
-
-
+/**
+ * Function for converting the pixel arrays used in this application depending on modes.
+ * - Mode `YCbCr`: It produces the input array needed by the model. Converts the RGB pixel array gotten from the input image to a float32
+ * array containing Y' channel pixels
+ * 
+ * - Mode `RGB`: It produces the output array needed by the mobile and web APIs to generate an output image. Converts the model output float32 array
+ * containing Y' channel pixels to an RGBA pixel array
+ */
 export async function converter(array: number[][], mode: "YCbCR"|"RGB", platform: PlatformTypes) {
     const imageDim = 224
     const scaledDim = imageDim * 3
@@ -154,7 +167,11 @@ export async function converter(array: number[][], mode: "YCbCR"|"RGB", platform
     }
 }
 
-
+/**
+ * Function to load a model on various platforms.
+ * It loads the model as an asset and the source is obtained. Then an inference session is created with the model in the platform environment.
+ * Returns the model. 
+ */
 export async function loadModelAll(ort: any) {
     const assets = await Asset.loadAsync(require('../assets/super_resnet12.ort'));
     const modelUri = assets[0].localUri;
@@ -168,8 +185,13 @@ export async function loadModelAll(ort: any) {
     }
 }
 
-
-export async function runModelAll(ort: any, inputData: any, model: any) {
+/**
+ * Function to run a model on various platforms given the input data.
+ * After the input tensor for the model is created, this function is called to run the model with the input data and obtain a float32 output
+ * array.
+ * Returns the output array.
+ */
+export async function runModelAll(inputData: any, model: any) {
     const feeds: Record<any, any> = {};
     feeds[model.inputNames[0]] = inputData;
     const fetches = await model.run(feeds);

@@ -13,7 +13,7 @@
       - Download and install [OpenJDK Version 11](https://adoptopenjdk.net/). Extract into the `program files` folder in your local disk.
       - Set JAVA_HOME environment variable. Steps are highlighted [here](https://java2blog.com/how-to-set-java-path-windows-10/#How_to_set_JAVA_HOME_in_Windows_10).
 
-   3. Install expo
+   3. Install the [expo-cli](https://docs.expo.dev/)
 
       ```sh
       npm install -g expo-cli
@@ -30,7 +30,11 @@
 
    2. Navigate to the `js\app-super-resolution` folder. This folder will be your `<SOURCE_ROOT>`
 
-2. Install required Libraries
+2. Add ORT model to project:
+
+   - Download the ORT model from this [link](https://github.com/VictorIyke/super_resolution_MW/blob/main/cross_plat/assets/super_resnet12.ort) into the `assets` folder in the `<SOURCE_ROOT>`
+
+3. Install required Libraries
 
    1. There are two ways to do this. Run any of the commands below in `<SOURCE_ROOT>` to install the modules and libraries specified in the package.json file.
 
@@ -53,7 +57,7 @@
       yarn --force
       ```
 
-3. Setup Android Projects:
+4. Setup Android Projects:
 
    1. In `<SOURCE_ROOT>`, run the following command to generate android project files.
 
@@ -88,7 +92,7 @@
       }
       ```
 
-4. Run the following command to launch:
+5. Run the following command to launch:
 
    In `<SOURCE_ROOT>`, run the following command to launch for Android
 
