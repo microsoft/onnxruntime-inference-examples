@@ -1,4 +1,4 @@
-## Steps of building project from scratch
+## Steps of building project from scratch (For Windows)
 
 0. Prerequisites
 
