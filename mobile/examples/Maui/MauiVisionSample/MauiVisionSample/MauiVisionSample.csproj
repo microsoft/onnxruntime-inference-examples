@@ -46,7 +46,7 @@
 
 	<ItemGroup>
 	  <PackageReference Include="Microsoft.ML.OnnxRuntime" Version="1.13.0-dev-20220822-0550-fa2799c91" />
-	  <PackageReference Include="SkiaSharp" Version="2.88.0" />
+	  <PackageReference Include="SkiaSharp" Version="2.88.1" />
 	</ItemGroup>
 
 	<!--<ItemGroup>
