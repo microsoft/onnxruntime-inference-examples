@@ -27,16 +27,6 @@
 		<DefaultLanguage>en</DefaultLanguage>
 	</PropertyGroup>
 	
-	<!-- 
-	Short term workaround for issue with publishing the iOS IPA by manually adding CoreML to the frameworks we link against.
-	https://github.com/microsoft/onnxruntime/issues/12420
-	-->
-	<Target Name="AddCoreML" Condition="'$(TargetFramework)' == 'net6.0-ios'" AfterTargets="_LoadLinkerOutput" BeforeTargets="_ComputeLinkNativeExecutableInputs">
-		<ItemGroup>
-			<_LinkerFrameworks Include="CoreML" />
-		</ItemGroup>
-	</Target>
-	
 	<ItemGroup>
 		<!-- App Icon -->
 		<MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#512BD4" />
@@ -55,7 +45,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <PackageReference Include="Microsoft.ML.OnnxRuntime" Version="1.12.1" />
+	  <PackageReference Include="Microsoft.ML.OnnxRuntime" Version="1.13.0-dev-20220822-0550-fa2799c91" />
 	  <PackageReference Include="SkiaSharp" Version="2.88.0" />
 	</ItemGroup>
 
