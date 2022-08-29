@@ -19,7 +19,13 @@ python -m onnxruntime.quantization.shape_inference --input mobilenetv2-7.onnx --
 The pre-processing consists of the following optional steps
 - Symbolic Shape Inference. It works best with transformer models.
 - ONNX Runtime Model Optimization.
-- ONNX Shape Inference
+- ONNX Shape Inference.
+
+Quantization requires tensor shape information to perform its best. Model optimization
+also improve the performance of quantization. For instance, a Convolution node followed
+by a BatchNormalization node can be merged into a single node during optimization.
+Currently we can not quantize BatchNormalization by itself, but we can quantize the
+merged Convolution + BatchNormalization node.
 
 It is highly recommended to run model optimization in pre-processing instead of in quantization.
 To learn more about each of these steps and finer controls, run:
