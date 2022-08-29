@@ -1,3 +1,4 @@
+TEST
 # ONNX Runtime Inference Examples
 
 <div align="center">
