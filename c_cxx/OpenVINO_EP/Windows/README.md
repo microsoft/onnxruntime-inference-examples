@@ -7,6 +7,13 @@
 
 #### Build ONNX Runtime
 Open x64 Native Tools Command Prompt for VS 2019.
+For running the sample with IO Buffer optimization feature, make sure you set the OpenCL paths. For example if you are setting the path from openvino source build folder, the paths will be like:
+
+```
+set OPENCL_LIBS=\path\to\openvino\folder\bin\intel64\Release\OpenCL.lib
+set OPENCL_INCS=\path\to\openvino\folder\thirdparty\ocl\clhpp_headers\include
+```
+
 ```
 build.bat --config RelWithDebInfo --use_openvino CPU_FP32 --build_shared_lib --parallel --cmake_extra_defines CMAKE_INSTALL_PREFIX=c:\dev\ort_install --skip_tests
 ```
@@ -31,6 +38,12 @@ mkdir build && cd build
 cmake .. -A x64 -T host=x64 -Donnxruntime_USE_OPENVINO=ON -DONNXRUNTIME_ROOTDIR=c:\dev\ort_install -DOPENCV_ROOTDIR="path\to\opencv"
 ```
 Choose required opencv path. Skip the opencv flag if you don't want to build squeezenet sample.
+
+To get the squeezenet sample with IO buffer feature enabled, pass opencl paths as well:
+```bat
+mkdir build && cd build
+cmake .. -A x64 -T host=x64 -Donnxruntime_USE_OPENVINO=ON -DONNXRUNTIME_ROOTDIR=c:\dev\ort_install -DOPENCV_ROOTDIR="path\to\opencv -DOPENCL_LIB=path\to\openvino\folder\bin\intel64\Release\ -DOPENCL_INCLUDE=path\to\openvino\folder\thirdparty\ocl\clhpp_headers\include"
+```
 
 **Note:**
 If you are using the opencv from openvino package, below are the paths:
