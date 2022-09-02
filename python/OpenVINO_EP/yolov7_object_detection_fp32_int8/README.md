@@ -4,12 +4,12 @@
 Create a virtual environment either using a the `conda` virtual environment or `python venv`.
 
 ### Conda
-```bash
+```
 $ conda create -n yolov7 python=3.8
 $ conda activate yolov7
 ```
 ### Python venv
-```bash
+```
 $ python3 -m venv yolov7
 $ source yolov7/bin/activate
 ```
@@ -19,21 +19,26 @@ After creating and activating virtual environment, install the required packages
 
 1. Jupyter Notebook
 ```
-$ pip install jupyter
+$ pip install --no-cache-dir jupyter
 ```
 2. NNCF Experimental
 ```
 $ git clone https://github.com/openvinotoolkit/nncf.git
 $ cd nncf && python setup.py install --onnx
-$ pip install -qr onnxruntime-openvino==1.12.0
-$ rm -fR nncf 
+$ pip install --no-cache-dir onnxruntime-openvino==1.11.0
+$ pip install --no-cache-dir onnxconverter_common
+$ cd .. && rm -fR nncf 
 ```
-## YoloV7
+3. YoloV7 requirements
 
-The YoloV7 repository, has a `requirements.txt` file which will install all the necessary packages.
-
-**Please follow the instructions mentioned within the notebook. You might have to restart the notebook once the packages are installed.**
-
+```
+$ cd notebooks
+$ git clone https://github.com/WongKinYiu/yolov7
+$ cp -R yolov7/* .
+$ pip install --no-cache-dir -r requirements.txt
+$ rm -fR yolov7
+```
+Launch the notebook from here.
 ## Dataset
 The dataset used in this sample is the coco-validation2017 dataset. It will be downloaded automatically in the desired location while running the notebook.
 
