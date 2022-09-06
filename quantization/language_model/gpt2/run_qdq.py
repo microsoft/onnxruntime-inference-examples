@@ -8,11 +8,12 @@ def get_args():
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--input_model",
-        default="gpt2_medium_fp32.onnx",
+        default="gpt2_medium_fp32_preprocessed.onnx",
         help="Path to float 32 gpt-2 model.",
     )
     parser.add_argument(
-        "--output_model", required=False, help="Path to quantized model"
+        "--output_model", required=False, help="Path to quantized model",
+        default="gpt2_medium_fp32_quant.onnx"
     )
     parser.add_argument(
         "--calibrate_dataset",
