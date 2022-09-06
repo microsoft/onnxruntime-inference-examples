@@ -18,7 +18,7 @@ Here we pre-process the model, essentially run shape inferences and model optimi
 which may improve the performance of quantization.
 
 ```console
-python -m onnxruntime.quantization.qdq_preprocess --input gpt2_medium_fp32.onnx --output gpt2_medium_fp32_preprocessed.onnx
+python -m onnxruntime.quantization.preprocess --input gpt2_medium_fp32.onnx --output gpt2_medium_fp32_preprocessed.onnx
 ```
 
 ## Quantize 
