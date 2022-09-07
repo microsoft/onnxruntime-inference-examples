@@ -13,7 +13,7 @@ Pre-processing prepares a float32 model for quantization. Run the following comm
 model `mobilenetv2-7.onnx`.
 
 ```console
-python -m onnxruntime.quantization.shape_inference --input mobilenetv2-7.onnx --output mobilenetv2-7-infer.onnx
+python -m onnxruntime.quantization.preprocess --input mobilenetv2-7.onnx --output mobilenetv2-7-infer.onnx
 ```
 
 The pre-processing consists of the following optional steps
@@ -30,7 +30,7 @@ merged Convolution + BatchNormalization node.
 It is highly recommended to run model optimization in pre-processing instead of in quantization.
 To learn more about each of these steps and finer controls, run:
 ```console
-python -m onnxruntime.quantization.shape_inference --help
+python -m onnxruntime.quantization.preprocess --help
 ```
 
 ## Quantization
@@ -76,7 +76,7 @@ For instance, you have a model `abc_float32_model.onnx`, and a quantized model
 by default. You can run the following code to produce an optimized float32 model:
 
 ```console
-python -m onnxruntime.quantization.shape_inference --input abc_float32_model.onnx --output abc_optimized.onnx --skip_symbolic_shape True
+python -m onnxruntime.quantization.preprocess --input abc_float32_model.onnx --output abc_optimized.onnx --skip_symbolic_shape True
 ```
 
 Then run the debugger comparing `abc_optimized.onnx` with `abc_quantized.onnx`.
