@@ -1,6 +1,7 @@
 /*
 Copyright (C) 2021, Intel Corporation
 SPDX-License-Identifier: Apache-2.0
+
 Portions of this software are copyright of their respective authors and released under the MIT license:
 - ONNX-Runtime-Inference, Copyright 2020 Lei Mao. For licensing see https://github.com/leimao/ONNX-Runtime-Inference/blob/main/LICENSE.md
 */
