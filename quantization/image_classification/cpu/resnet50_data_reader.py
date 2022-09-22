@@ -39,23 +39,25 @@ def _preprocess_images(images_folder: str, height: int, width: int, size_limit=0
 
 class ResNet50DataReader(CalibrationDataReader):
     def __init__(self, calibration_image_folder: str, model_path: str):
-        self.image_folder = calibration_image_folder
-        self.model_path = model_path
-        self.preprocess_flag = True
-        self.enum_data_dicts = []
-        self.datasize = 0
+        self.enum_data = None
+
+        # Use inference session to get input shape.
+        session = onnxruntime.InferenceSession(model_path, None)
+        (_, _, height, width) = session.get_inputs()[0].shape
+
+        # Convert image to input data
+        self.nhwc_data_list = _preprocess_images(
+            calibration_image_folder, height, width, size_limit=0
+        )
+        self.input_name = session.get_inputs()[0].name
+        self.datasize = len(self.nhwc_data_list)
 
     def get_next(self):
-        if self.preprocess_flag:
-            self.preprocess_flag = False
-            session = onnxruntime.InferenceSession(self.model_path, None)
-            (_, _, height, width) = session.get_inputs()[0].shape
-            nhwc_data_list = _preprocess_images(
-                self.image_folder, height, width, size_limit=0
+        if self.enum_data is None:
+            self.enum_data = iter(
+                [{self.input_name: nhwc_data} for nhwc_data in self.nhwc_data_list]
             )
-            input_name = session.get_inputs()[0].name
-            self.datasize = len(nhwc_data_list)
-            self.enum_data_dicts = iter(
-                [{input_name: nhwc_data} for nhwc_data in nhwc_data_list]
-            )
-        return next(self.enum_data_dicts, None)
+        return next(self.enum_data, None)
+
+    def rewind(self):
+        self.enum_data = None
