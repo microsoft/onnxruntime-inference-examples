@@ -40,7 +40,8 @@ struct MNIST {
     const char* input_names[] = {"Input3"};
     const char* output_names[] = {"Plus214_Output_0"};
 
-    session_.Run(Ort::RunOptions{nullptr}, input_names, &input_tensor_, 1, output_names, &output_tensor_, 1);
+    Ort::RunOptions run_options;
+    session_.Run(run_options, input_names, &input_tensor_, 1, output_names, &output_tensor_, 1);
     softmax(results_);
     result_ = std::distance(results_.begin(), std::max_element(results_.begin(), results_.end()));
     return result_;
