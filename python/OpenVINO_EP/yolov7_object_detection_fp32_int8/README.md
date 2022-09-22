@@ -42,7 +42,7 @@ The models are to be exported using the export script present in the yolov7 repo
 ```
 $ wget https://github.com/WongKinYiu/yolov7/releases/download/v0.1/yolov7-tiny.pt
 ```
-Export Model using the below command. (As mentioned in the official public [repo](https://github.com/WongKinYiu/yolov7#export).)
+Export Model using the below command. (As mentioned in the official public [repo](https://github.com/WongKinYiu/yolov7#export).)  
 **Note: Adjust the values of `iou-thres` and `conf-thres` while exporting to get better bounding boxes.**
 ```
 $ python export.py --weights yolov7-tiny.pt --grid --end2end --simplify --topk-all 100 --iou-thres 0.65 --conf-thres 0.35 --img-size 640 640 --max-wh 640
