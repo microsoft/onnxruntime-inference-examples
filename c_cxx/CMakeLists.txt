@@ -31,7 +31,7 @@ if(NOT ONNXRUNTIME_ROOTDIR)
 endif()
 
 #TODO: we should only need one of them.
-include_directories("${ONNXRUNTIME_ROOTDIR}/include" "${ONNXRUNTIME_ROOTDIR}/include/onnxruntime/core/session")
+include_directories("${ONNXRUNTIME_ROOTDIR}/include/" "${ONNXRUNTIME_ROOTDIR}/include/onnxruntime/core/providers/" "${ONNXRUNTIME_ROOTDIR}/include/onnxruntime/core/session")
 link_directories("${ONNXRUNTIME_ROOTDIR}/lib")
 
 #if JPEG lib is available, we'll use it for image decoding, otherwise we'll use WIC
