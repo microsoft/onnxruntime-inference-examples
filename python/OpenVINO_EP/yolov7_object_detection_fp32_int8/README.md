@@ -9,7 +9,7 @@ $ source yv7-pyenv/bin/activate
 $ pip install --upgrade pip
 ```
 ### Conda
-If system python3 version is < 3.8 it's recommended to either upgrade to python3.8 or use create virtual environment python3.8 using conda.
+If system python3 version is < 3.8.13 it's recommended to either upgrade to python3.8 or use create virtual environment python3.8 using conda.
 ```
 $ conda create -n yolov7 python=3.8
 $ conda activate yolov7
@@ -18,9 +18,10 @@ $ conda activate yolov7
 After creating and activating virtual environment, install the required packages:
 
 ### NNCF Experimental
+
 ```
 $ git clone https://github.com/openvinotoolkit/nncf.git
-$ cd nncf && python setup.py install --onnx
+$ cd nncf && python setup.py develop --onnx
 $ pip install --no-cache-dir onnxconverter_common onnxruntime-openvino==1.11.0
 $ cd .. && rm -fR nncf 
 ```
@@ -34,6 +35,7 @@ $ cp -R yolov7/* .
 $ pip install --no-cache-dir -r requirements.txt
 $ rm -fR yolov7
 ```
+
 Launch the notebook from here.
 ## Dataset
 The dataset used in this sample is the coco-validation2017 dataset. It will be downloaded automatically in the desired location while running the notebook.
