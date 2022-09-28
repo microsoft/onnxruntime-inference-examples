@@ -1,7 +1,6 @@
 /*
 Copyright (C) 2021, Intel Corporation
 SPDX-License-Identifier: Apache-2.0
-
 Portions of this software are copyright of their respective authors and released under the MIT license:
 - ONNX-Runtime-Inference, Copyright 2020 Lei Mao. For licensing see https://github.com/leimao/ONNX-Runtime-Inference/blob/main/LICENSE.md
 */
@@ -313,7 +312,7 @@ int main(int argc, char* argv[])
     so we have to prepare an array of Ort::Value instances for inputs and outputs respectively even if 
     we only have one input and one output. */
 
-    std::vector<const char*> inputNames{"data_0"};
+    std::vector<const char*> inputNames{inputName};
     std::vector<const char*> outputNames{outputName};
     std::vector<Ort::Value> inputTensors;
     std::vector<Ort::Value> outputTensors;
