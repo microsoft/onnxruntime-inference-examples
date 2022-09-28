@@ -230,7 +230,8 @@ int main(int argc, char* argv[])
     std::cout << "Number of Input Nodes: " << numInputNodes << std::endl;
     std::cout << "Number of Output Nodes: " << numOutputNodes << std::endl;
 
-    const char* inputName = session.GetInputName(0, allocator);
+    auto inputNodeName = session.GetInputNameAllocated(0, allocator);
+    const char* inputName = inputNodeName.get();
     std::cout << "Input Name: " << inputName << std::endl;
 
     Ort::TypeInfo inputTypeInfo = session.GetInputTypeInfo(0);
@@ -242,7 +243,8 @@ int main(int argc, char* argv[])
     std::vector<int64_t> inputDims = inputTensorInfo.GetShape();
     std::cout << "Input Dimensions: " << inputDims << std::endl;
 
-    const char* outputName = session.GetOutputName(0, allocator);
+    auto outputNodeName = session.GetOutputNameAllocated(0, allocator);
+    const char* outputName = outputNodeName.get();
     std::cout << "Output Name: " << outputName << std::endl;
 
     Ort::TypeInfo outputTypeInfo = session.GetOutputTypeInfo(0);
@@ -311,7 +313,7 @@ int main(int argc, char* argv[])
     so we have to prepare an array of Ort::Value instances for inputs and outputs respectively even if 
     we only have one input and one output. */
 
-    std::vector<const char*> inputNames{inputName};
+    std::vector<const char*> inputNames{"data_0"};
     std::vector<const char*> outputNames{outputName};
     std::vector<Ort::Value> inputTensors;
     std::vector<Ort::Value> outputTensors;
