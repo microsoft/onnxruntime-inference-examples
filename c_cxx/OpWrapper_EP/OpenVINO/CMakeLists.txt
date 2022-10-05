@@ -25,6 +25,8 @@ cmake_print_variables(ONNXRUNTIME_ROOTDIR)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
 include_directories( 
     ${ONNXRUNTIME_ROOTDIR}/include/onnxruntime/core/session/
@@ -56,4 +58,4 @@ endif()
 add_custom_command(TARGET opwrapper_ov_test POST_BUILD
   COMMAND ${CMAKE_COMMAND} -E copy_if_different
   "${CMAKE_SOURCE_DIR}/custom_op_ov_ep_wrapper.onnx"
-  ${CMAKE_BINARY_DIR})
+  "${CMAKE_BINARY_DIR}/data/custom_op_ov_ep_wrapper.onnx")

@@ -14,16 +14,3 @@ else()
 endif()
 
 set_property(TARGET openvino_wrapper APPEND_STRING PROPERTY LINK_FLAGS ${OPENVINO_WRAPPER_LIB_LINK_FLAG})
-
-# Copy target dll to location where main program can access.
-if(WIN32)
-  add_custom_command(TARGET openvino_wrapper POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy
-    "$<TARGET_FILE_DIR:openvino_wrapper>/openvino_wrapper.dll"
-    ${CMAKE_BINARY_DIR})
-else()
-  add_custom_command(TARGET openvino_wrapper POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy
-    "$<TARGET_FILE_DIR:openvino_wrapper>/openvino_wrapper.so"
-    ${CMAKE_BINARY_DIR})
-endif()
