@@ -34,7 +34,7 @@ include_directories(
 )
 link_directories("${ONNXRUNTIME_ROOTDIR}/lib")
 
-add_executable(opwrapper_ov_test main.cpp)
+add_executable(opwrapper_ov_test main.cpp utils.cpp)
 
 if(HAVE_OPWRAPPER_PROVIDER_FACTORY_H)
     target_compile_definitions(opwrapper_ov_test PRIVATE -DHAVE_OPWRAPPER_PROVIDER_FACTORY_H)
