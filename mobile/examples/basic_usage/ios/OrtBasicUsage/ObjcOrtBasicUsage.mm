@@ -38,7 +38,7 @@ NS_ASSUME_NONNULL_BEGIN
 #if defined(ORT_BASIC_USAGE_USE_ONNX_FORMAT_MODEL)
       [NSBundle.mainBundle pathForResource:@"single_add" ofType:@"onnx"];
 #else
-      [NSBundle.mainBundle pathForResource:@"single_add.all" ofType:@"ort"];
+      [NSBundle.mainBundle pathForResource:@"single_add" ofType:@"ort"];
 #endif
 
   if (!path) {
