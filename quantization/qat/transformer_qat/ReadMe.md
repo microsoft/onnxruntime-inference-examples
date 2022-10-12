@@ -1,4 +1,4 @@
-# Bert model QAT and onnxruntime GPU support
+# **Bert model QAT and onnxruntime GPU support**
 
 ## **Introduction**
 
@@ -47,7 +47,7 @@ To run and evalute the optimized int8 onnxruntime model,
 ```console
 python bert_imdb_finetune_qat.py --do_qat_onnx_eval --qat_opt_onnx_model ../BertModel/bert-base-uncased-finetuned-imdb-int8.onnx
 ```
-as you may encounter conflict as torch and onnxruntime require different cuda, we suggest you creat seperate environment that contains torch cpu version with onnxruntime-gpu version to run the onnx int8 model.
+as you may encounter conflict as torch and onnxruntime here require different cuda, we suggest you creat seperate environment that contains torch cpu with onnxruntime-gpu to run the last command above.
 
 ## **How to QAT a Bert Model**
 
@@ -65,12 +65,12 @@ Basically, all QAT change is in the file qat_bert.py and qat_utils.py, following
 from qat_bert import quantize_bert_model
 from qat_utils import remove_qconfig_for_module
 def remove_qconfig_before_convert(model):
-    # remove subtree that do no need qat by name or type
+    # Do not quantize subgraph that not in the bert part
     remove_qconfig_for_module(model, '', ['classifier', 'bert.pooler'], remove_subtree=True)
 
 model = quantize_bert_model(model, remove_qconfig_before_convert)
 ```
 
 ## **QAT a Bert Model in your project**
-    * Reuse the qat_bert.py and qat_utils.py. in case the transformer version is not same, modifications may needed to those two files.
-    * Similar minor change as showed above in the main training python file could make the work done.
+* Reuse the qat_bert.py and qat_utils.py. in case the transformer version is not same, modifications may needed to those two files.
+* Similar minor change as showed above in the main training python file could make the work done.

@@ -8,7 +8,7 @@ from typing import List, Optional, Tuple, Union
 
 from qat_utils import (
     qat_activation_layout, QatActivationLayout, QAwaredLinear,
-    iterate_modules, remove_qconfig_for_module, copy_attributes
+    iterate_modules, copy_attributes
 )
 
 from transformers.models.bert.modeling_bert import (

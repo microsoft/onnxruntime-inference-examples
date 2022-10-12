@@ -7,22 +7,19 @@ from torch.utils.data import DataLoader, SequentialSampler
 
 from datasets import load_dataset, load_metric
 from transformers import (
-    # CONFIG_MAPPING,
     AutoConfig,
     AutoModelForSequenceClassification,
     AutoTokenizer,
     HfArgumentParser,
     Trainer,
     TrainingArguments,
-    # is_torch_tpu_available,
-    # set_seed,
 )
 
 from qat_bert import quantize_bert_model
 
 from qat_utils import remove_qconfig_for_module
 def remove_qconfig_before_convert(model):
-    # remove subtree that do no need qat by name or type
+    # Do not quantize subgraph that not in the bert part
     remove_qconfig_for_module(model, '', ['classifier', 'bert.pooler'], remove_subtree=True)
 
 OUTPUT_PREFIX="../BertModel"
@@ -207,7 +204,7 @@ def eval_fine_tuned():
     print(f"====Accuracy is: {accuracy}")
 
 
-def eval_onnx_model(onnx_model, custom_lib = None, providers = ["CUDAExecutionProvider"],):
+def eval_onnx_model(onnx_model, padding_base = 0, custom_lib = None, providers = ["CUDAExecutionProvider"],):
     print(f"=================================================================")
     print(f"====Evaluating onnx tuned model: {onnx_model}")
     print(f"=================================================================")
@@ -231,6 +228,11 @@ def eval_onnx_model(onnx_model, custom_lib = None, providers = ["CUDAExecutionPr
         test_references = np_labels if test_references is None else np.concatenate((test_references, np_labels), axis=0)
         input_ids = np.array(inputs['input_ids'], dtype=np.int64)
         attention_mask = np.array(inputs['attention_mask'], dtype=np.int64)
+        if (padding_base > 0):
+            seq_len = (input_ids.shape[-1] + 15) // 16 * 16
+            pad_width = seq_len - input_ids.shape[-1]
+            input_ids = np.pad(input_ids, ((0, 0), (0, pad_width)))
+            attention_mask = np.pad(attention_mask, ((0, 0), (0, pad_width)))
         onnx_outputs = session.run(['logits'], {'input_ids' : input_ids, 'attention_mask' : attention_mask})
         logits = onnx_outputs[0]
         test_predictions = logits if test_predictions is None else np.concatenate((test_predictions, logits), axis=0)
@@ -278,7 +280,7 @@ def main():
     if actions.do_qat_export or actions.do_qat_all:
         qat_export()
     if actions.do_qat_onnx_eval or actions.do_qat_all:
-        eval_onnx_model(qat_onnx_model if actions.qat_opt_onnx_model is None else actions.qat_opt_onnx_model)
+        eval_onnx_model(qat_onnx_model if actions.qat_opt_onnx_model is None else actions.qat_opt_onnx_model, padding_base=16)
 
 if __name__ == "__main__":
     main()
