@@ -1,5 +1,8 @@
 onnx==1.10.0
-onnxruntime==1.10.0
+# TODO when it's released, use onnxruntime 1.13.0 instead of ort-nightly
+# onnxruntime==1.13.0
+--extra-index-url https://test.pypi.org/simple/
+ort-nightly==1.13.0.dev20221005006
 protobuf==3.20.2
 tensorflow==2.7.2
 tf2onnx==1.9.3
