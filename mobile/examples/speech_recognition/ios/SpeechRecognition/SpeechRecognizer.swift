@@ -21,7 +21,7 @@ class SpeechRecognizer {
 
   init() throws {
     ortEnv = try ORTEnv(loggingLevel: ORTLoggingLevel.warning)
-    guard let modelPath = Bundle.main.path(forResource: "wav2vec2-base-960h.all", ofType: "ort") else {
+    guard let modelPath = Bundle.main.path(forResource: "wav2vec2-base-960h", ofType: "ort") else {
       throw SpeechRecognizerError.Error("Failed to find model file.")
     }
     ortSession = try ORTSession(env: ortEnv, modelPath: modelPath, sessionOptions: nil)
