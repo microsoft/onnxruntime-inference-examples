@@ -3,10 +3,11 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 51;
+	objectVersion = 50;
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2E9C81B228F7678E00F46565 /* wav2vec2-base-960h.ort in Resources */ = {isa = PBXBuildFile; fileRef = 2E9C81B128F7678E00F46565 /* wav2vec2-base-960h.ort */; };
 		EFE237D726855E4600234E2C /* SpeechRecognitionApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFE237D626855E4600234E2C /* SpeechRecognitionApp.swift */; };
 		EFE237D926855E4600234E2C /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFE237D826855E4600234E2C /* ContentView.swift */; };
 		EFE237DB26855E4B00234E2C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = EFE237DA26855E4B00234E2C /* Assets.xcassets */; };
@@ -14,7 +15,6 @@
 		EFE237E926855E4B00234E2C /* SpeechRecognitionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFE237E826855E4B00234E2C /* SpeechRecognitionTests.swift */; };
 		EFE2380226855FB900234E2C /* AudioRecorder.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFE2380126855FB900234E2C /* AudioRecorder.swift */; };
 		EFE2380526855FD700234E2C /* SpeechRecognizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFE2380426855FD700234E2C /* SpeechRecognizer.swift */; };
-		EFE238072685608A00234E2C /* wav2vec2-base-960h.all.ort in Resources */ = {isa = PBXBuildFile; fileRef = EFE238062685608A00234E2C /* wav2vec2-base-960h.all.ort */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -28,6 +28,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		2E9C81B128F7678E00F46565 /* wav2vec2-base-960h.ort */ = {isa = PBXFileReference; lastKnownFileType = file; name = "wav2vec2-base-960h.ort"; path = "model/wav2vec2-base-960h.ort"; sourceTree = "<group>"; };
 		EFE237D326855E4600234E2C /* SpeechRecognition.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SpeechRecognition.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		EFE237D626855E4600234E2C /* SpeechRecognitionApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeechRecognitionApp.swift; sourceTree = "<group>"; };
 		EFE237D826855E4600234E2C /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -40,7 +41,6 @@
 		EFE2380126855FB900234E2C /* AudioRecorder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AudioRecorder.swift; sourceTree = "<group>"; };
 		EFE2380326855FC800234E2C /* SpeechRecognition-Bridging-Header.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "SpeechRecognition-Bridging-Header.h"; sourceTree = "<group>"; };
 		EFE2380426855FD700234E2C /* SpeechRecognizer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SpeechRecognizer.swift; sourceTree = "<group>"; };
-		EFE238062685608A00234E2C /* wav2vec2-base-960h.all.ort */ = {isa = PBXFileReference; lastKnownFileType = file; name = "wav2vec2-base-960h.all.ort"; path = "model/wav2vec2-base-960h.all.ort"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -90,6 +90,7 @@
 		EFE237D526855E4600234E2C /* SpeechRecognition */ = {
 			isa = PBXGroup;
 			children = (
+				2E9C81B128F7678E00F46565 /* wav2vec2-base-960h.ort */,
 				EFE2380126855FB900234E2C /* AudioRecorder.swift */,
 				EFE2380426855FD700234E2C /* SpeechRecognizer.swift */,
 				EFE2380326855FC800234E2C /* SpeechRecognition-Bridging-Header.h */,
@@ -97,7 +98,6 @@
 				EFE237D826855E4600234E2C /* ContentView.swift */,
 				EFE237DA26855E4B00234E2C /* Assets.xcassets */,
 				EFE237DF26855E4B00234E2C /* Info.plist */,
-				EFE238062685608A00234E2C /* wav2vec2-base-960h.all.ort */,
 				EFE237DC26855E4B00234E2C /* Preview Content */,
 			);
 			path = SpeechRecognition;
@@ -200,9 +200,9 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				EFE238072685608A00234E2C /* wav2vec2-base-960h.all.ort in Resources */,
 				EFE237DE26855E4B00234E2C /* Preview Assets.xcassets in Resources */,
 				EFE237DB26855E4B00234E2C /* Assets.xcassets in Resources */,
+				2E9C81B228F7678E00F46565 /* wav2vec2-base-960h.ort in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
