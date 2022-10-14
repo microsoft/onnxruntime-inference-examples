@@ -12,9 +12,7 @@ This directory contains a few C/C++ sample applications for demoing onnxruntime 
 ## Prerequisites
 1. Visual Studio 2015/2017/2019
 2. cmake(version >=3.13)
-3. (optional) [libpng 1.6](http://www.libpng.org/pub/png/libpng.html)
-
-You may get a precompiled libpng library from [https://onnxruntimetestdata.blob.core.windows.net/models/libpng.zip](https://onnxruntimetestdata.blob.core.windows.net/models/libpng.zip)
+3. (optional) [libpng 1.6](https://libpng.sourceforge.io/)
 
 ## Install ONNX Runtime
 ### Option 1: download a prebuilt package
@@ -31,16 +29,16 @@ build.bat --config RelWithDebInfo --build_shared_lib --parallel
 By default this will build a project with "C:\Program Files (x86)\onnxruntime" install destination. This is a protected folder on Windows. If you do not want to run installation with elevated priviliges you will need to override the default installation location by passing extra CMake arguments. For example:
 
 ```
-build.bat --config RelWithDebInfo --build_shared_lib --parallel  --cmake_extra_defines CMAKE_INSTALL_PREFIX=c:\dev\ort_install
+build.bat --config RelWithDebInfo --build_dir .\build  --build_shared_lib --parallel  --cmake_extra_defines CMAKE_INSTALL_PREFIX=c:\dev\ort_install
 ```
 
-By default products of the build on Windows go to .\build\Windows\<config> folder. In the case above it would be .\build\Windows\RelWithDebInfo.
+By default products of the build on Windows go to .\build\Windows\<config> folder. In the case above it would be .\build\RelWithDebInfo since the build folder is mentioned explicitly.
 If you did not specify alternative installation location above you would need to open an elevated command prompt to install onnxruntime.
 Run the following commands.
 
 ```
-cd .\Windows\RelWithDebInfo
-msbuild INSTALL.vcxproj /p:Configuration=RelWithDebInfo
+cmake --install .\build\RelWithDebInfo --config RelWithDebInfo
+
 ```
 
 ## Build the samples
@@ -63,6 +61,7 @@ Or build it using msbuild
 
 ```bat
 msbuild onnxruntime_samples.sln /p:Configuration=Debug|Release
+cmake --install .\build\Debug|Release --config Debug
 ```
 
 To run the samples make sure that your Install Folder Bin is in the path so your sample executable can find onnxruntime dll and libpng if you used it.

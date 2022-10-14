@@ -1,5 +1,5 @@
 onnx==1.10.0
 onnxruntime==1.10.0
-protobuf==3.20.1
+protobuf==3.20.2
 tensorflow==2.7.2
 tf2onnx==1.9.3

@@ -12,10 +12,11 @@
 #include <vector>
 #include <memory>
 #include <atomic>
+#include <optional>
 
-#include "providers.h"
-#include "local_filesystem.h"
-#include "sync_api.h"
+ #include "providers.h"
+ #include "local_filesystem.h"
+ #include "sync_api.h"
 
 #include <onnxruntime_cxx_api.h>
 
@@ -26,7 +27,9 @@
 #ifdef _WIN32
 #include <atlbase.h>
 #endif
+
 using namespace std::chrono;
+
 
 class Validator : public OutputCollector<TCharString> {
  private:
@@ -81,19 +84,14 @@ class Validator : public OutputCollector<TCharString> {
   int image_size_;
 
   std::mutex m_;
-  char* input_name_ = nullptr;
-  char* output_name_ = nullptr;
+  std::optional<Ort::AllocatedStringPtr> input_name_;
+  std::optional<Ort::AllocatedStringPtr> output_name_;
   Ort::Env& env_;
   const TCharString model_path_;
   system_clock::time_point start_time_;
 
  public:
   int GetImageSize() const { return image_size_; }
-
-  ~Validator() {
-    free(input_name_);
-    free(output_name_);
-  }
 
   void PrintResult() {
     if (finished_count_ == 0) return;
@@ -124,20 +122,15 @@ class Validator : public OutputCollector<TCharString> {
     VerifyInputOutputCount(session_);
     Ort::AllocatorWithDefaultOptions ort_alloc;
     {
-      char* t = session_.GetInputName(0, ort_alloc);
-      input_name_ = my_strdup(t);
-      ort_alloc.Free(t);
-      t = session_.GetOutputName(0, ort_alloc);
-      output_name_ = my_strdup(t);
-      ort_alloc.Free(t);
+      input_name_.emplace(session_.GetInputNameAllocated(0, ort_alloc));
+      output_name_.emplace(session_.GetOutputNameAllocated(0, ort_alloc));
     }
 
     Ort::TypeInfo info = session_.GetInputTypeInfo(0);
     auto tensor_info = info.GetTensorTypeAndShapeInfo();
     size_t dim_count = tensor_info.GetDimensionsCount();
     assert(dim_count == 4);
-    std::vector<int64_t> dims(dim_count);
-    tensor_info.GetDimensions(dims.data(), dims.size());
+    std::vector<int64_t> dims = tensor_info.GetShape();
     if (dims[1] != dims[2] || dims[3] != 3) {
       throw std::runtime_error("This model is not supported by this program. input tensor need be in NHWC format");
     }
@@ -150,8 +143,10 @@ class Validator : public OutputCollector<TCharString> {
     {
       std::lock_guard<std::mutex> l(m_);
       const size_t remain = task_id_list.size();
+      const char* input_names[] = {input_name_->get()};
+      char* output_names[] = {output_name_->get()};
       Ort::Value output_tensor{nullptr};
-      session_.Run(Ort::RunOptions{nullptr}, &input_name_, &input_tensor, 1, &output_name_, &output_tensor, 1);
+      session_.Run(Ort::RunOptions{nullptr}, input_names, &input_tensor, 1, output_names, &output_tensor, 1);
       float* probs = output_tensor.GetTensorMutableData<float>();
       for (const auto& s : task_id_list) {
         float* end = probs + output_class_count_;
