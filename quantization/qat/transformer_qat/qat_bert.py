@@ -7,7 +7,7 @@ from torch.nn.parameter import Parameter
 from typing import List, Optional, Tuple, Union
 
 from qat_utils import (
-    qat_activation_layout, QatActivationLayout, QAwaredLinear,
+    qat_activation_layout, QatActivationLayout, QAwareLinear,
     iterate_modules, copy_attributes
 )
 
@@ -32,7 +32,7 @@ class BertQatOptions:
 bert_qat_option = BertQatOptions(quantize_attention_scores = True, quantize_attention_probs = True)
 
 
-class QAwaredBertSelfAttention(nn.Module):
+class QAwareBertSelfAttention(nn.Module):
     def __init__(self, fp_module, activation_layout : QatActivationLayout, qat_option : BertQatOptions):
         super().__init__()
 
@@ -160,11 +160,11 @@ class QAwaredBertSelfAttention(nn.Module):
         print(f"==============Converting a {type(mod).__name__} module ==> {cls.__name__} module...")
         assert hasattr(mod, 'qconfig'), 'Input float module must have qconfig defined'
         assert mod.qconfig, 'Input float module must have a valid qconfig'
-        qawared_mod = cls(mod, qat_activation_layout, bert_qat_option)
-        return qawared_mod
+        qaware_mod = cls(mod, qat_activation_layout, bert_qat_option)
+        return qaware_mod
 
 
-class QAwaredBertIntermediate(nn.Module):
+class QAwareBertIntermediate(nn.Module):
     def __init__(self, fp_module, activation_layout: QatActivationLayout):
         super().__init__()
         copy_attributes(self, fp_module, ['dense', 'intermediate_act_fn'])
@@ -183,11 +183,11 @@ class QAwaredBertIntermediate(nn.Module):
         print(f"==============Converting a {type(mod).__name__} module ==> {cls.__name__} module...")
         assert hasattr(mod, 'qconfig'), 'Input float module must have qconfig defined'
         assert mod.qconfig, 'Input float module must have a valid qconfig'
-        qawared_mod = cls(mod, qat_activation_layout)
-        return qawared_mod
+        qaware_mod = cls(mod, qat_activation_layout)
+        return qaware_mod
 
 
-class QAwaredBertOutput(nn.Module):
+class QAwareBertOutput(nn.Module):
     def __init__(self, float_module, activation_layout):
         super().__init__()
         self.dense = float_module.dense
@@ -217,11 +217,11 @@ class QAwaredBertOutput(nn.Module):
         print(f"==============Converting a {type(mod).__name__} module ==> {cls.__name__} module...")
         assert hasattr(mod, 'qconfig'), 'Input float module must have qconfig defined'
         assert mod.qconfig, 'Input float module must have a valid qconfig'
-        qawared_mod = cls(mod, qat_activation_layout)
-        return qawared_mod
+        qaware_mod = cls(mod, qat_activation_layout)
+        return qaware_mod
 
 
-class QAwaredBertSelfOutput(nn.Module):
+class QAwareBertSelfOutput(nn.Module):
     def __init__(self, float_module, activation_layout):
         super().__init__()
         self.dense = float_module.dense
@@ -250,8 +250,8 @@ class QAwaredBertSelfOutput(nn.Module):
         print(f"==============Converting a {type(mod).__name__} module ==> {cls.__name__} module...")
         assert hasattr(mod, 'qconfig'), 'Input float module must have qconfig defined'
         assert mod.qconfig, 'Input float module must have a valid qconfig'
-        qawared_mod = cls(mod, qat_activation_layout)
-        return qawared_mod
+        qaware_mod = cls(mod, qat_activation_layout)
+        return qaware_mod
 
 
 # before_convert_fn(model) is called right before torch.quantization.convert(model..)
@@ -264,11 +264,11 @@ def quantize_bert_model(model, before_convert_fn = None):
         weight=torch.quantization.default_per_channel_weight_fake_quant) # or default_weight_fake_quant
 
     qmapping = {
-        torch.nn.modules.linear.Linear : QAwaredLinear,
-        BertOutput : QAwaredBertOutput,
-        BertSelfOutput : QAwaredBertSelfOutput,
-        BertSelfAttention: QAwaredBertSelfAttention,
-        BertIntermediate: QAwaredBertIntermediate,
+        torch.nn.modules.linear.Linear : QAwareLinear,
+        BertOutput : QAwareBertOutput,
+        BertSelfOutput : QAwareBertSelfOutput,
+        BertSelfAttention: QAwareBertSelfAttention,
+        BertIntermediate: QAwareBertIntermediate,
     }
 
     # model = torch.quantization.prepare_qat(...) make things out of control, just do not use it
@@ -286,7 +286,7 @@ def quantize_bert_model(model, before_convert_fn = None):
     torch.quantization.convert(model, mapping = qmapping, inplace=True, remove_qconfig=False)
 
     # do not use torch.quantization.prepare_() as it calls propagate_qconfig_(model, qconfig_dict=None) again
-    non_leaf_module_to_observe = [QAwaredLinear] if qat_activation_layout == QatActivationLayout.ROW else []
+    non_leaf_module_to_observe = [QAwareLinear] if qat_activation_layout == QatActivationLayout.ROW else []
     torch.quantization.add_observer_(
         model,
         qconfig_propagation_list=[torch.nn.LayerNorm, torch.nn.GELU], # Leaf module infact :)

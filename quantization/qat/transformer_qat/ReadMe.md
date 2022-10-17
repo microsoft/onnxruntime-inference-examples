@@ -5,12 +5,12 @@
 This bert_imdb_finetune_qat example is to show how to:
 * Do QAT training with bert model
 * Export QAT trainned model to onnx model with Q/DQ operators
-* optimized the exported Q/DQ model to run with onnxruntime CUDA execution engine in int8 mode.
+* Optimize the exported Q/DQ model to run with onnxruntime CUDA execution provider in int8 mode.
 
 The base fp32 part of the sample is based on following document on web by Fabio Chiusano: 
 [BERT Finetuning with Hugging Face and Training Visualizations with TensorBoard](https://medium.com/nlplanet/bert-finetuning-with-hugging-face-and-training-visualizations-with-tensorboard-46368a57fc97)
 
-## **Prerequest**
+## **Pre-requisite**
 
 Note that transfomrers and torch version are important for the sample to run correctly.
 * Huggingface transformers 4.23.0
@@ -29,7 +29,7 @@ python bert_imdb_finetune_qat.py --do_fp32_all
 
 ## **finetune, export and evaluation with QAT**
 
-Following command will use the fp32 model finetuned above, quantize it, and do quantize awared training.
+Following command will use the fp32 model finetuned above, quantize it, and do quantize aware training.
 Evalute the QAT model, then export onnx model with Q/DQ.
 
 ```console
@@ -38,7 +38,7 @@ python bert_imdb_finetune_qat.py --do_qat_fine_tune --do_qat_eval --do_qat_expor
 
 ## **optimize the qdq model for onnxruntime cuda**
 
-Newest onnxruntime contains transformers optimizer for int8 Q/DQ model. To fuse the qdq onnx model, run:
+onnxruntime 1.13 contains transformers optimizer for int8 Q/DQ model. To fuse the qdq onnx model, run:
 ```console
 python -m onnxruntime.transformers.optimizer  --num_heads 12 --input ../BertModel/bert-base-uncased-finetuned-imdb-qat.onnx --output ../BertModel/bert-base-uncased-finetuned-imdb-int8.onnx
 ```
@@ -51,7 +51,7 @@ as you may encounter conflict as torch and onnxruntime here require different cu
 
 ## **How to QAT a Bert Model**
 
-Basically, all QAT change is in the file qat_bert.py and qat_utils.py, following things are done there:
+Basically, all QAT components are in the files qat_bert.py and qat_utils.py, including:
 + Fakeq() is applied on specifictensor, for huggingface, many basic module are modified, like
     * BertOutput,
     * BertSelfOutput,

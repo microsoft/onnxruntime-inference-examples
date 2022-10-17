@@ -82,7 +82,7 @@ def copy_attributes(target, source, needed_attrs):
         if hasattr(source, name):
             setattr(target, name, getattr(source, name))
     
-class QAwaredLinear(nn.Linear):
+class QAwareLinear(nn.Linear):
     _FLOAT_MODULE = nn.Linear
 
     def __init__(self, fp_module: _FLOAT_MODULE, activation_layout : QatActivationLayout):
@@ -127,5 +127,5 @@ class QAwaredLinear(nn.Linear):
         assert hasattr(mod, 'qconfig'), 'Input float module must have qconfig defined'
         assert mod.qconfig, 'Input float module must have a valid qconfig'
 
-        qawared_mod = cls(mod, qat_activation_layout)
-        return qawared_mod
+        qaware_mod = cls(mod, qat_activation_layout)
+        return qaware_mod
