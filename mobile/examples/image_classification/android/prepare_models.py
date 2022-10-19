@@ -12,11 +12,12 @@ import urllib.request
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Prepares model files used by the image_classification example.")
+    default_format = "onnx"
     parser.add_argument(
-        "--type",
+        "--format",
         choices=["onnx", "ort"],
-        default="onnx",
-        help="Type of models to generate.",
+        default=default_format,
+        help=f"Model format to generate. Default: {default_format}",
     )
     parser.add_argument(
         "--output_dir",
@@ -77,8 +78,8 @@ def main():
                 check=True,
             )
 
-            # convert to ORT format, if specified
-            if args.type == "ort":
+            # convert to ORT format if needed
+            if args.format == "ort":
                 subprocess.run(
                     [
                         sys.executable,
