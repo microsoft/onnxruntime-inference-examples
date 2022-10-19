@@ -1,0 +1,5 @@
+onnx==1.12.0
+# TODO when it's released, use onnxruntime 1.13.0 instead of ort-nightly
+# onnxruntime==1.13.0
+--extra-index-url https://test.pypi.org/simple/
+ort-nightly==1.13.0.dev20221005006
