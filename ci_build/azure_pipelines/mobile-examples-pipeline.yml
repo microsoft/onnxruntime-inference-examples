@@ -177,15 +177,20 @@ jobs:
     matrix:
       full:
         OrtPackageName: onnxruntime-android
+        ModelFormat: onnx
       mobile:
         OrtPackageName: onnxruntime-mobile
+        ModelFormat: ort
 
   steps:
   - template: templates/use-python-step.yml
 
-  - bash: ./download_model_files.sh
+  - bash: |
+      set -e
+      pip install -r ./prepare_models.requirements.txt
+      ./prepare_models.py --output_dir ./app/src/main/res/raw --format $(ModelFormat)
     workingDirectory: mobile/examples/image_classification/android
-    displayName: "Download model files"
+    displayName: "Generate models"
 
   - bash: |
       set -e
