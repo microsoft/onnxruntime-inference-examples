@@ -5,7 +5,7 @@
 
 # Prerequisites
 1. Setup a Linux environment by [WSL2](https://learn.microsoft.com/en-us/windows/wsl/)
-2. Download SNPE SDK from Qualcomm's developer site [here](https://developer.qualcomm.com/software/qualcomm-neural-processing-sdk)
+2. Download SNPE SDK from Qualcomm's developer site [here](https://developer.qualcomm.com/software/qualcomm-neural-processing-sdk/windows-on-snapdragon). Developer needs to request access to the package.
 
 3. Setup SNPE on the Linux environment (WSL2). Setup environment for the tutorial. Follow the Tutorials and Examples for [ONNX VGG](https://developer.qualcomm.com/sites/default/files/docs/snpe/tutorial_onnx.html)
 4. Get the model
