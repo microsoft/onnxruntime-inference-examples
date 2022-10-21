@@ -27,7 +27,7 @@
 	
     The generated DLC file vgg16.dlc and vgg16_q.dlc can be found at $SNPE_ROOT/models/VGG/dlc/.
 
-    The data kitten.raw can be found at $SNPE_ROOT/models/VGG/data/cropped. The synset.txt can be found at $SNPE_ROOT/models/VGG/data. The sample applicatioin use this raw file as input.
+    The data kitten.raw can be found at $SNPE_ROOT/models/VGG/data/cropped. The synset.txt can be found at $SNPE_ROOT/models/VGG/data. The sample application use this raw file as input.
 
 5. Create ONNX model from DLC file
 
