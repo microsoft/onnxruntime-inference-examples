@@ -3,11 +3,11 @@
 
 2.  The sample uses the Onnxruntime SNPE Execution Provider to run inference on various Qualcomm devices like Qualcomm CPU, GPU DSP, AIP, etc. It supports Windows ARM64, and Android.
 
-# Prerequisites (Linux host)
-1. Get a Linux host
+# Prerequisites
+1. Setup a Linux environment by [WSL2](https://learn.microsoft.com/en-us/windows/wsl/)
 2. Download SNPE SDK from Qualcomm's developer site [here](https://developer.qualcomm.com/software/qualcomm-neural-processing-sdk)
 
-3. Setup SNPE on the Linux host. Setup environment for the tutorial. Follow the Tutorials and Examples for [Tensorflow inceptionv3](https://developer.qualcomm.com/sites/default/files/docs/snpe/tutorial_inceptionv3.html)
+3. Setup SNPE on the Linux environment (WSL2). Setup environment for the tutorial. Follow the Tutorials and Examples for [Tensorflow inceptionv3](https://developer.qualcomm.com/sites/default/files/docs/snpe/tutorial_inceptionv3.html)
 4. Get the model [Inception v3](https://developer.qualcomm.com/sites/default/files/docs/snpe/tutorial_setup.html#tutorial_setup_inception_v3)
 
     ```
@@ -65,7 +65,7 @@
     cmake.exe -S . -B build\ -G "Visual Studio 16 2019" -DONNXRUNTIME_ROOTDIR=[location-of-Onnxruntime]
     ```
 
-    build snpe_ep_sample.sln with x64 platform to run on host without Qualcomm NPU, build with ARM64 platform to run on host with Qualcomm NPU.
+    build snpe_ep_sample.sln with x64 platform to run on host without Qualcomm NPU, build with ARM64 platform to run on devic with Qualcomm NPU.
 
 3. Run the sample
     Copy files below to folder which has snpe_ep_sample.exe

@@ -3,11 +3,11 @@
 
 2.  The sample uses the Onnxruntime SNPE Execution Provider to run inference on various Qualcomm devices like Qualcomm CPU, DSP, etc. It supports Windows ARM64.
 
-# Prerequisites (Linux host)
-1. Get a Linux host
+# Prerequisites
+1. Setup a Linux environment by [WSL2](https://learn.microsoft.com/en-us/windows/wsl/)
 2. Download SNPE SDK from Qualcomm's developer site [here](https://developer.qualcomm.com/software/qualcomm-neural-processing-sdk)
 
-3. Setup SNPE on the Linux host. Setup environment for the tutorial. Follow the Tutorials and Examples for [ONNX VGG](https://developer.qualcomm.com/sites/default/files/docs/snpe/tutorial_onnx.html)
+3. Setup SNPE on the Linux environment (WSL2). Setup environment for the tutorial. Follow the Tutorials and Examples for [ONNX VGG](https://developer.qualcomm.com/sites/default/files/docs/snpe/tutorial_onnx.html)
 4. Get the model
     Run command below to get the VGG16 Onnx model.
     ```
@@ -31,29 +31,7 @@
 
 5. Create ONNX model from DLC file
 
-
-    Create a script WrapDLCintoOnnx.py in folder $SNPE_ROOT/models/VGG/dlc with the code below:
-
-    ```
-	import onnx
-	from onnx import helper
-	from onnx import TensorProto
-
-    # change to vgg16.dlc if you want to run on CPU
-	with open('./vgg16_q.dlc','rb') as file:
-		file_content = file.read()
-
-	input1 = helper.make_tensor_value_info('data', TensorProto.FLOAT, [1, 224, 224, 3])
-	output1 = helper.make_tensor_value_info('vgg0_dense2_fwd', TensorProto.FLOAT, [1, 1000])
-
-	snpe_node = helper.make_node('Snpe', name='snpe concat', inputs=['data'], outputs=['vgg0_dense2_fwd'], DLC=file_content, snpe_version='1.61.46', target_device='CPU', notes='VGG16 dlc model.', domain='com.microsoft')
-
-	graph_def = helper.make_graph([snpe_node], 'snpe dlc', [input1], [output1])
-	model_def = helper.make_model(graph_def, producer_name='onnx', opset_imports=[helper.make_opsetid('', 13)])
-	onnx.save(model_def, 'vgg16_dlc_q.onnx')
-    ```
-
-    Run the script to generate the Onnx model with the DLC content embed in a Onnx node.
+    Run script WrapDLCintoOnnx.py in folder $SNPE_ROOT/models/VGG/dlc to generate the Onnx model with the DLC content embed in a Onnx node.
 	
 	Sample code to enable SNPE ExecutionProvider:
     ```
@@ -71,7 +49,7 @@
 # Build & Run
 
 ## Windows
-1. Install [.NET 6.0](https://dotnet.microsoft.com/download/dotnet/6.0) or higher and download nuget.
+1. Install [.NET 6.0](https://dotnet.microsoft.com/download/dotnet/6.0) or higher and download nuget. Install SDK on build machine, install Arm64 runtime on target device.
 2. Install Microsoft.ML.OnnxRuntime.Snpe nuget package from [nuget.org](https://www.nuget.org/)
    Open image_classification.csproj with Visual Studio. Right click on the solution and click Restore Nuget Packages if the nuget is not installed.
 
