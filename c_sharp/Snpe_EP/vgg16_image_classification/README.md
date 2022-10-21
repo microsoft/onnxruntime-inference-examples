@@ -55,7 +55,7 @@
 
 3. Build the sample application
     
-    build image_classification project with x64 platform to run without Qualcomm NPU, build with ARM64 platform to run on devic with Qualcomm NPU.
+    build image_classification project with x64 platform to run without Qualcomm NPU, build with ARM64 platform to run on device with Qualcomm NPU.
 
 4. Run the sample
     Copy files below to folder which has image_classification.exe

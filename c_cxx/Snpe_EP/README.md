@@ -65,7 +65,7 @@
     cmake.exe -S . -B build\ -G "Visual Studio 16 2019" -DONNXRUNTIME_ROOTDIR=[location-of-Onnxruntime]
     ```
 
-    build snpe_ep_sample.sln with x64 platform to run on host without Qualcomm NPU, build with ARM64 platform to run on devic with Qualcomm NPU.
+    build snpe_ep_sample.sln with x64 platform to run on host without Qualcomm NPU, build with ARM64 platform to run on device with Qualcomm NPU.
 
 3. Run the sample
     Copy files below to folder which has snpe_ep_sample.exe
