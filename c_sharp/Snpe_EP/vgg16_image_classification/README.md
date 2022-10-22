@@ -5,7 +5,7 @@
 
 # Prerequisites
 1. Setup a Linux environment by [WSL2](https://learn.microsoft.com/en-us/windows/wsl/)
-2. Download SNPE SDK from Qualcomm's developer site [here](https://developer.qualcomm.com/software/qualcomm-neural-processing-sdk/windows-on-snapdragon). Developer needs to request access to the package.
+2. Download SNPE SDK from Qualcomm's developer site [here](https://developer.qualcomm.com/software/qualcomm-neural-processing-sdk/windows-on-snapdragon). Developer needs to request access to the package. SNPE v1.61.46 and v1.61.48 are qualified so far.
 
 3. Setup SNPE on the Linux environment (WSL2). Setup environment for the tutorial. Follow the Tutorials and Examples for [ONNX VGG](https://developer.qualcomm.com/sites/default/files/docs/snpe/tutorial_onnx.html)
 4. Get the model
@@ -58,11 +58,18 @@
     build image_classification project with x64 platform to run without Qualcomm NPU, build with ARM64 platform to run on device with Qualcomm NPU.
 
 4. Run the sample
+    Install [VC redist arm64](https://aka.ms/vs/17/release/vc_redist.arm64.exe) if you encounter the error "The application was unable to start correctly".
+
     Copy files below to folder which has image_classification.exe
+
     onnxruntime.dll -- from Onnxruntime build folder
-    SNPE.dll and other dll if exist -- from $SNPE_ROOT/lib
-    *.so -- from $SNPE_ROOT/lib/lib, this is required for DSP inference
+
+    SNPE.dll, snpe_dsp_domains_v3.dll -- from $SNPE_ROOT/lib/aarch64-windows-vc19
+
+    libsnpe_dsp_v68_domains_v3_skel.so -- from $SNPE_ROOT/lib/dsp, this is required for DSP inference
+
     kitten.raw -- from $SNPE_ROOT/models/VGG/data/cropped
+
     synset.txt -- from $SNPE_ROOT/models/VGG/data
 
     Run
