@@ -58,6 +58,8 @@
     build image_classification project with x64 platform to run without Qualcomm NPU, build with ARM64 platform to run on device with Qualcomm NPU.
 
 4. Run the sample
+    Install [VC redist arm64](https://aka.ms/vs/17/release/vc_redist.arm64.exe) if you encounter the error "The application was unable to start correctly".
+
     Copy files below to folder which has image_classification.exe
 
     onnxruntime.dll -- from Onnxruntime build folder
