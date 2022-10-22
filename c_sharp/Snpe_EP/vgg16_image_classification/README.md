@@ -59,10 +59,15 @@
 
 4. Run the sample
     Copy files below to folder which has image_classification.exe
+
     onnxruntime.dll -- from Onnxruntime build folder
-    SNPE.dll and other dll if exist -- from $SNPE_ROOT/lib
-    *.so -- from $SNPE_ROOT/lib/lib, this is required for DSP inference
+
+    SNPE.dll -- from $SNPE_ROOT/lib/aarch64-windows-vc19
+
+    libsnpe_dsp_v68_domains_v3_skel.so -- from $SNPE_ROOT/lib/dsp, this is required for DSP inference
+
     kitten.raw -- from $SNPE_ROOT/models/VGG/data/cropped
+
     synset.txt -- from $SNPE_ROOT/models/VGG/data
 
     Run
