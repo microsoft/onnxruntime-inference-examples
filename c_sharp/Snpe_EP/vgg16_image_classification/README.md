@@ -62,7 +62,7 @@
 
     onnxruntime.dll -- from Onnxruntime build folder
 
-    SNPE.dll -- from $SNPE_ROOT/lib/aarch64-windows-vc19
+    SNPE.dll, snpe_dsp_domains_v3.dll -- from $SNPE_ROOT/lib/aarch64-windows-vc19
 
     libsnpe_dsp_v68_domains_v3_skel.so -- from $SNPE_ROOT/lib/dsp, this is required for DSP inference
 
