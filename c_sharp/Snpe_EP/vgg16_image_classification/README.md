@@ -1,83 +1,52 @@
 # Image classification with VGG16 in C# using SNPE Execution Provider
-1.  This image classification sample uses the VGG16 model from [SNPE turtorial](https://developer.qualcomm.com/sites/default/files/docs/snpe/tutorial_onnx.html) with DLC format. Wrap it as a custom node in an ONNX model to inference with SNPE Execution Provider.
 
-2.  The sample uses the Onnxruntime SNPE Execution Provider to run inference on various Qualcomm devices like Qualcomm CPU, DSP, etc. It supports Windows ARM64.
+This sample shows how to use ONNX Runtime with SNPE execution provider to run models optimized for Qualcomm silicon on Windows Arm64 devices. It uses the VGG16 model from [Qualcomm's tutorial](https://developer.qualcomm.com/sites/default/files/docs/snpe/tutorial_onnx.html) and turns it into a SNPE-optiimized ONNX model that can be inferenced with ONNX Runtime with SNPE execution provider.
 
-# Prerequisites
-1. Setup a Linux environment by [WSL2](https://learn.microsoft.com/en-us/windows/wsl/)
-2. Download SNPE SDK from Qualcomm's developer site [here](https://developer.qualcomm.com/software/qualcomm-neural-processing-sdk/windows-on-snapdragon). Developer needs to request access to the package. SNPE v1.61.46 and v1.61.48 are qualified so far.
+# Install Qualcomm SDK for Windows
+Download the Qualcomm Neural Processing SDK for Windows on Snapdragon from [Qualcomm's developer site](https://developer.qualcomm.com/software/qualcomm-neural-processing-sdk/windows-on-snapdragon).
+   * You currently need to request access to the packages and you will need to create a Qualcomm account to access the packages
+   * SNPE v1.61.46 and v1.61.48 have been qualified with ONNX Runtime so far.
 
-3. Setup SNPE on the Linux environment (WSL2). Setup environment for the tutorial. Follow the Tutorials and Examples for [ONNX VGG](https://developer.qualcomm.com/sites/default/files/docs/snpe/tutorial_onnx.html)
-4. Get the model
-    Run command below to get the VGG16 Onnx model.
-    ```
-    cd $SNPE_ROOT/models/VGG
-    wget https://s3.amazonaws.com/onnx-model-zoo/vgg/vgg16/vgg16.onnx
-    ```
-
-    Offload the Softmax from post-processing to model inference (on NPU). Copy add_softmax.py to $SNPE_ROOT/models/VGG/onnx folder and run it, to apply Softmax node to model output.
-
-    Follow step 3 ~ 5 to generate the DLC file vgg16.dlc. 
-	
-	Runn command below to generate the quantized DLC file vgg16_q.dlc.
+# Prepare the SNPE-optimized ONNX file 
+Currently the Qualcomm model tools are only runnable in a Linux environment even though their output will be used in Windows.
+1. Setup a Linux environment with [WSL2](https://learn.microsoft.com/en-us/windows/wsl/)
+2. Download and install the Linux [Qualcomm Neural Processing SDK](https://developer.qualcomm.com/downloads/qualcomm-neural-processing-sdk-ai-v1660) in the WSL2 environment.
+   * Note, you will need to login with your Qualcomm account to access.
+3. Follow steps 1 and 2 in [Qualcomm's tutorial](https://developer.qualcomm.com/sites/default/files/docs/snpe/tutorial_onnx.html) to setup the environment and download the source model
+4. Add post-processing steps to the model
+   * Copy add_softmax.py to $SNPE_ROOT/models/VGG/onnx folder and run it to apply Softmax node to model output. 
+5. Follow steps 3 thourg 5 in [Qualcomm's tutorial](https://developer.qualcomm.com/sites/default/files/docs/snpe/tutorial_onnx.html)
+   * These will generate a vgg16.dlc file in $SNPE_ROOT/models/VGG/dlc/
+6. Apply quantization to the model
+   * Run command below to generate the quantized DLC file vgg16_q.dlc.
     ```
 	cd $SNPE_ROOT/models/VGG
 	snpe-dlc-quantize --input_dlc dlc/vgg16.dlc --output_dlc dlc/vgg16_q.dlc --input_list data/cropped/raw_list.txt
-    ```
+    ```    
+7. Create the SNPE-optimized ONNX model
+    * Copy the script WrapDLCintoOnnx.py to the $SNPE_ROOT/models/VGG/dlc folder and run it. This will generate an ONNX model with the DLC content embedded.
 	
-    The generated DLC file vgg16.dlc and vgg16_q.dlc can be found at $SNPE_ROOT/models/VGG/dlc/.
+# Build & run the sample app
+The sample app uses the ONNX file you created above
 
-    The data kitten.raw can be found at $SNPE_ROOT/models/VGG/data/cropped. The synset.txt can be found at $SNPE_ROOT/models/VGG/data. The sample application use this raw file as input.
-
-5. Create ONNX model from DLC file
-
-    Run script WrapDLCintoOnnx.py in folder $SNPE_ROOT/models/VGG/dlc to generate the Onnx model with the DLC content embed in a Onnx node.
-	
-	Sample code to enable SNPE ExecutionProvider:
-    ```
-    var options = new SessionOptions { LogId = "SnpeImageClassificationSample" };
-
-    // Add SNPE EP
-    var providerOptions = new Dictionary<string, string>();
-    providerOptions.Add("runtime", "DSP"); // CPU, DSP
-    providerOptions.Add("buffer_type", "FLOAT");
-    options.AppendExecutionProvider("SNPE", providerOptions);
-
-    using var session = new InferenceSession(modelFilePath, options);
-    ```
-
-# Build & Run
-
-## Windows
-1. Install [.NET 6.0](https://dotnet.microsoft.com/download/dotnet/6.0) or higher and download nuget. Install SDK on build machine, install Arm64 runtime on target device.
+1. Install [.NET 6.0](https://dotnet.microsoft.com/download/dotnet/6.0) or higher for Arm64.
 2. Install Microsoft.ML.OnnxRuntime.Snpe nuget package from [nuget.org](https://www.nuget.org/)
-   Open image_classification.csproj with Visual Studio. Right click on the solution and click Restore Nuget Packages if the nuget is not installed.
-
-3. Build the sample application
-    
-    build image_classification project with x64 platform to run without Qualcomm NPU, build with ARM64 platform to run on device with Qualcomm NPU.
-
-4. Run the sample
-    Install [VC redist arm64](https://aka.ms/vs/17/release/vc_redist.arm64.exe) if you encounter the error "The application was unable to start correctly".
-
-    Copy files below to folder which has image_classification.exe
-
-    onnxruntime.dll -- from Onnxruntime build folder
-
-    SNPE.dll, snpe_dsp_domains_v3.dll -- from $SNPE_ROOT/lib/aarch64-windows-vc19
-
-    libsnpe_dsp_v68_domains_v3_skel.so -- from $SNPE_ROOT/lib/dsp, this is required for DSP inference
-
-    kitten.raw -- from $SNPE_ROOT/models/VGG/data/cropped
-
-    synset.txt -- from $SNPE_ROOT/models/VGG/data
-
-    Run
+3. Open image_classification.csproj with Visual Studio. Right click on the solution and click Restore Nuget Packages if the nuget is not installed.
+4. Build the sample application, making sure to select the ARM64 platform target.
+5. Copy additional files needed to run the sample to the folder that contains image_classification.exe
+    * onnxruntime.dll -- from the win-arm64 build folder (for example, vgg16_image_classification\bin\Debug\net6.0\runtimes\win-arm64\nativenet6.0/rutimes/win-arm64/native)
+    * SNPE.dll, snpe_dsp_domains_v3.dll -- from $SNPE_ROOT/lib/aarch64-windows-vc19
+    * libsnpe_dsp_v68_domains_v3_skel.so -- from $SNPE_ROOT/lib/dsp, this is required for DSP inference
+    * kitten.raw -- from $SNPE_ROOT/models/VGG/data/cropped
+    * synset.txt -- from $SNPE_ROOT/models/VGG/data
+6. Make sure [VC redist arm64](https://aka.ms/vs/17/release/vc_redist.arm64.exe) is installed. You can check the list of installed Apps in Settings to see if it is already there.
+   * If it is not installed, you will encounter the error "The application was unable to start correctly" when you try to run the sample app.
+7. Run the sample app
     ```
     image_classification.exe vgg16_dlc_q.onnx kitten.raw synset.txt
     ```
 
-    it will output:
+    It should output:
 
     ```
 	vgg16_image_classification>image_classification.exe vgg16_dlc_q.onnx kitten.raw synset.txt
@@ -87,3 +56,5 @@
 	probability=0.0127016995 ; class=n02127052 lynx, catamount
 	probability=0.0028225998 ; class=n02129604 tiger, Panthera tigris
     ```
+
+    This indicates the model has been successfully run by ONNX Runtime with SNPE execution provider on the Qualcomm NPU.
