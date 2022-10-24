@@ -133,8 +133,7 @@
     <PackageReference Include="Xamarin.Forms" Version="5.0.0.2244" />
     <PackageReference Include="Xamarin.Essentials" Version="1.7.0" />
     <PackageReference Include="Microsoft.ML.OnnxRuntime">
-      <!-- TODO: Update to use official package once Xamarin support is added to it -->
-      <Version>1.10.0</Version>
+      <Version>1.13.1</Version>
     </PackageReference>
     <PackageReference Include="System.Memory" Version="4.5.4" IncludeAssets="None" />
   </ItemGroup>

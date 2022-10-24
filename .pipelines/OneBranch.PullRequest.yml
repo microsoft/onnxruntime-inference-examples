@@ -82,10 +82,10 @@ extends:
                 set -e -x
                 apt-get update
                 apt-get install -y cmake gcc g++ libpng-dev libjpeg-turbo8-dev
-                curl -O -L https://github.com/microsoft/onnxruntime/releases/download/v1.10.0/onnxruntime-linux-x64-1.10.0.tgz
+                curl -O -L https://github.com/microsoft/onnxruntime/releases/download/v1.13.1/onnxruntime-linux-x64-1.13.1.tgz
                 mkdir onnxruntimebin
                 cd onnxruntimebin
-                tar --strip=1 -zxvf ../onnxruntime-linux-x64-1.10.0.tgz
+                tar --strip=1 -zxvf ../onnxruntime-linux-x64-1.13.1.tgz
             displayName: Download onnxruntime
             workingDirectory: '$(Build.BinariesDirectory)'            
 
@@ -126,9 +126,9 @@ extends:
             @echo ##vso[task.setvariable variable=vsdevcmd]%vsdevcmd%
           displayName: 'locate vsdevcmd via vswhere'
         - script: |
-            curl -L -o onnxruntime.zip https://github.com/microsoft/onnxruntime/releases/download/v1.10.0/onnxruntime-win-x64-1.10.0.zip
+            curl -L -o onnxruntime.zip https://github.com/microsoft/onnxruntime/releases/download/v1.13.1/onnxruntime-win-x64-1.13.1.zip
             7z x onnxruntime.zip
-            move onnxruntime-win-x64-1.10.0 onnxruntimebin
+            move onnxruntime-win-x64-1.13.1 onnxruntimebin
           workingDirectory: '$(Build.BinariesDirectory)'
           displayName: 'Download onnxruntime binary' 
         #TODO: use the vsdevcmd variable
