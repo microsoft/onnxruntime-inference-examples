@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 #include <onnxruntime_cxx_api.h>
-#include <opwrapper_cxx_api.h>
+#include <onnxruntime_session_options_config_keys.h>
 
 #include <algorithm>
 #include <array>
@@ -28,10 +28,7 @@ struct CmdArgs {
   [[nodiscard]] bool HasNext() const { return index_ < argc_; }
 
   [[nodiscard]] std::string_view GetNext() {
-    if (!HasNext()) {
-      throw std::exception("Out-of-bounds access when parsing command-line arguments.");
-    }
-
+    assert(HasNext());
     return argv_[index_++];
   }
 
@@ -132,14 +129,11 @@ int main(int argc, char** argv) {
     Ort::Env env;
     Ort::SessionOptions session_opts;
 
-    // TODO: Add RegisterCustomOpsLibrary as a method of Ort::SessionOptions.
-    void* lib_handle = nullptr;
-    Ort::ThrowOnError(Ort::GetApi().RegisterCustomOpsLibrary(static_cast<OrtSessionOptions*>(session_opts),
-                                                             custom_op_lib_path.data(), &lib_handle));
-    Ort::OpWrapper::ProviderOptions openvino_options;
-    openvino_options.UpdateOptions({{"device_type", "CPU"}});
+    session_opts.AddConfigEntry("custom_op.OpenVINO_EP_Wrapper.device_type", "CPU");
 
-    Ort::OpWrapper::AppendExecutionProvider(session_opts, "OpenVINO_EP_Wrapper", openvino_options);
+    std::unique_ptr<void, decltype(&CleanUpCustomOpLib)> custom_op_lib(
+        session_opts.RegisterCustomOpsLibrary(custom_op_lib_path.data()), CleanUpCustomOpLib);
+
     Ort::Session session(env, model_path.data(), session_opts);
 
     constexpr size_t MODEL_EXPECTED_WIDTH = 224;

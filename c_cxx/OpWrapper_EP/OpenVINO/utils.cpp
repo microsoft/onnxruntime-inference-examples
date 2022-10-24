@@ -35,6 +35,14 @@ static std::string SlurpFile(const char* path) {
   return output;
 }
 
+void CleanUpCustomOpLib(void* lib_handle) {
+#ifdef _WIN32
+  FreeLibrary(static_cast<HMODULE>(lib_handle));
+#else
+  dlclose(lib_handle);
+#endif
+}
+
 //
 // Bmp utils:
 //

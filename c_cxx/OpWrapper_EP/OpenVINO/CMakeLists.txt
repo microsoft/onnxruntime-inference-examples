@@ -30,7 +30,6 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
 include_directories( 
     ${ONNXRUNTIME_ROOTDIR}/include/onnxruntime/core/session/
-    ${ONNXRUNTIME_ROOTDIR}/include/onnxruntime/core/providers/opwrapper/
 )
 link_directories("${ONNXRUNTIME_ROOTDIR}/lib")
 

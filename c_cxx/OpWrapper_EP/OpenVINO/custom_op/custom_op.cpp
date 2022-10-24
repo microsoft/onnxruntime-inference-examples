@@ -19,9 +19,11 @@ static void AddOrtCustomOpDomainToContainer(Ort::CustomOpDomain&& domain) {
 OrtStatus* ORT_API_CALL RegisterCustomOps(OrtSessionOptions* options, const OrtApiBase* api_base) {
 
   // Allow use of Ort::GetApi() and Ort::OpWrapper::GetApi() in C++ ORT api implementations.
-  Ort::OpWrapper::InitApi(api_base->GetApi(ORT_API_VERSION));
+  Ort::InitApi(api_base->GetApi(ORT_API_VERSION));
 
-  static CustomOpOpenVINO c_CustomOpOpenVINO;
+  Ort::UnownedSessionOptions session_options(options);
+
+  static CustomOpOpenVINO c_CustomOpOpenVINO(session_options);
 
   OrtStatus* result = nullptr;
 
@@ -29,7 +31,6 @@ OrtStatus* ORT_API_CALL RegisterCustomOps(OrtSessionOptions* options, const OrtA
     Ort::CustomOpDomain domain{c_OpDomain};
     domain.Add(&c_CustomOpOpenVINO);
 
-    Ort::Unowned<Ort::SessionOptions> session_options(options);
     session_options.Add(domain);
     AddOrtCustomOpDomainToContainer(std::move(domain));
 

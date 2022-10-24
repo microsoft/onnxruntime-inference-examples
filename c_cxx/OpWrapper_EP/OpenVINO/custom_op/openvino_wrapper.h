@@ -4,14 +4,15 @@
 #pragma once
 
 #define ORT_API_MANUAL_INIT
-#include <opwrapper_cxx_api.h>
+#include <onnxruntime_cxx_api.h>
 #undef ORT_API_MANUAL_INIT
 
 #include <openvino/openvino.hpp>
 #include <string>
 
 struct KernelOpenVINO {
-  KernelOpenVINO(const OrtApi& api, const OrtKernelInfo* info, const char* op_name);
+  KernelOpenVINO(const OrtApi& api, const OrtKernelInfo* info,
+                 const std::unordered_map<std::string, std::string>& session_configs);
 
   void Compute(OrtKernelContext* context);
 
@@ -25,6 +26,7 @@ struct KernelOpenVINO {
 };
 
 struct CustomOpOpenVINO : Ort::CustomOpBase<CustomOpOpenVINO, KernelOpenVINO> {
+  CustomOpOpenVINO(Ort::UnownedSessionOptions session_options);
   void* CreateKernel(const OrtApi& api, const OrtKernelInfo* info) const;
   const char* GetName() const;
   size_t GetInputTypeCount() const;
@@ -34,4 +36,8 @@ struct CustomOpOpenVINO : Ort::CustomOpBase<CustomOpOpenVINO, KernelOpenVINO> {
   OrtCustomOpInputOutputCharacteristic GetInputCharacteristic(size_t index) const;
   OrtCustomOpInputOutputCharacteristic GetOutputCharacteristic(size_t index) const;
   const char* GetExecutionProviderType() const;
+  std::vector<std::string> GetSessionConfigKeys() const;
+
+ private:
+  Ort::UnownedSessionOptions session_options_;
 };

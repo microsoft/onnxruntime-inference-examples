@@ -10,6 +10,8 @@
 
 #ifdef _WIN32
 #include <objbase.h>  // MultiByteToWideChar
+#else
+#include <dlfcn.h>  // dlclose
 #endif
 
 template <size_t N>
@@ -26,6 +28,8 @@ int64_t GetShapeSize(const std::array<int64_t, N>& shape) {
 #ifdef _WIN32
 std::wstring ConvertString(std::string_view str);
 #endif
+
+void CleanUpCustomOpLib(void* lib_handle);
 
 //
 // BMP utils:

@@ -55,27 +55,26 @@ static bool AreShapesEqual(const std::vector<int64_t>& ort_shape, const ov::Shap
   return true;
 }
 
-static bool AreIONodesEqual(OrtAllocator* allocator, const Ort::NodeArg& ort_node,
-                            const ov::Output<ov::Node>& ov_node) {
+static bool AreIONodesEqual(Ort::ConstKernelIOInfo ort_node, const ov::Output<ov::Node>& ov_node) {
   // Check name
-  auto ort_name = ort_node.GetName(allocator);
-  std::string ov_name = ov_node.get_any_name();
-  if (std::strncmp(ort_name.first.get(), ov_name.c_str(), ort_name.second) != 0) {
+  const std::string ort_name = ort_node.GetName();
+  const std::string ov_name = ov_node.get_any_name();
+  if (ort_name != ov_name) {
     return false;
   }
 
-  Ort::TypeInfo type_info = ort_node.GetTypeInfo();
-  Ort::Unowned<Ort::TensorTypeAndShapeInfo> type_shape_info = type_info.GetTensorTypeAndShapeInfo();
+  Ort::ConstTypeInfo type_info = ort_node.GetTypeInfo();
+  Ort::ConstTensorTypeAndShapeInfo type_shape_info = type_info.GetTensorTypeAndShapeInfo();
 
   // Check element type.
-  ov::element::Type ort_elem_type = ConvertONNXToOVType(type_shape_info.GetElementType());
-  ov::element::Type ov_elem_type = ov_node.get_element_type();
+  const ov::element::Type ort_elem_type = ConvertONNXToOVType(type_shape_info.GetElementType());
+  const ov::element::Type ov_elem_type = ov_node.get_element_type();
   if (ort_elem_type != ov_elem_type) {
     return false;
   }
 
   // Check shape.
-  std::vector<int64_t> ort_shape = type_shape_info.GetShape();
+  const std::vector<int64_t> ort_shape = type_shape_info.GetShape();
   const ov::Shape& ov_shape = ov_node.get_shape();
   if (!AreShapesEqual(ort_shape, ov_shape)) {
     return false;
@@ -84,7 +83,7 @@ static bool AreIONodesEqual(OrtAllocator* allocator, const Ort::NodeArg& ort_nod
   return true;
 }
 
-static bool ValidateInputsAndOutputs(const Ort::KernelInfo& kinfo, const ov::OutputVector& ov_inputs,
+static bool ValidateInputsAndOutputs(const Ort::ConstKernelInfo& kinfo, const ov::OutputVector& ov_inputs,
                                      const ov::OutputVector& ov_outputs) {
   const size_t num_inputs = kinfo.GetInputCount();
   const size_t num_outputs = kinfo.GetOutputCount();
@@ -94,24 +93,22 @@ static bool ValidateInputsAndOutputs(const Ort::KernelInfo& kinfo, const ov::Out
     return false;
   }
 
-  Ort::AllocatorWithDefaultOptions allocator;
-
   // Check input names, shapes, and element types.
   for (size_t i = 0; i < num_inputs; ++i) {
-    const Ort::NodeArg ort_input = kinfo.GetInput(i);
+    const Ort::KernelIOInfo ort_input = kinfo.GetInputInfo(i);
     const auto& ov_input = ov_inputs[i];
 
-    if (!AreIONodesEqual(static_cast<OrtAllocator*>(allocator), ort_input, ov_input)) {
+    if (!AreIONodesEqual(ort_input.GetConst(), ov_input)) {
       return false;
     }
   }
 
   // Check output names, shapes, and element types.
   for (size_t i = 0; i < num_outputs; ++i) {
-    const Ort::NodeArg ort_output = kinfo.GetOutput(i);
+    const Ort::KernelIOInfo ort_output = kinfo.GetOutputInfo(i);
     const auto& ov_output = ov_outputs[i];
 
-    if (!AreIONodesEqual(static_cast<OrtAllocator*>(allocator), ort_output, ov_output)) {
+    if (!AreIONodesEqual(ort_output.GetConst(), ov_output)) {
       return false;
     }
   }
@@ -119,8 +116,9 @@ static bool ValidateInputsAndOutputs(const Ort::KernelInfo& kinfo, const ov::Out
   return true;
 }
 
-KernelOpenVINO::KernelOpenVINO(const OrtApi& api, const OrtKernelInfo* info, const char* op_name) : ort_(api) {
-  Ort::KernelInfo kinfo(info);
+KernelOpenVINO::KernelOpenVINO(const OrtApi& api, const OrtKernelInfo* info,
+                               const std::unordered_map<std::string, std::string>& session_configs) : ort_(api) {
+  Ort::ConstKernelInfo kinfo(info);
 
   // Extract OpenVINO .bin and .xml contents from node attributes.
   this->weights_ = kinfo.GetAttribute<std::string>("BIN");
@@ -142,26 +140,27 @@ KernelOpenVINO::KernelOpenVINO(const OrtApi& api, const OrtKernelInfo* info, con
   }
 
   // Get OpenVINO device type from provider options.
-  Ort::OpWrapper::ProviderOptions opts = Ort::OpWrapper::ProviderOptions::FromKernelInfo(info, op_name);
-  this->device_type_ = opts.HasOption("device_type") ? opts.GetOption("device_type") : "CPU";
+  auto device_type_it = session_configs.find("device_type");
+  this->device_type_ = device_type_it != session_configs.end() ? device_type_it->second : "CPU";
 
   // Compile OpenVINO model.
   this->compiled_model_ = core.compile_model(model, this->device_type_);
 }
 
 void KernelOpenVINO::Compute(OrtKernelContext* context) {
-  // TODO: Add Ort::KernelContext class.
-  const size_t num_inputs = this->ort_.KernelContext_GetInputCount(context);
+  Ort::KernelContext kcontext(context);
+
+  const size_t num_inputs = kcontext.GetInputCount();
   assert(num_inputs == this->ov_inputs_.size());
 
   ov::TensorVector ov_inputs(num_inputs);
 
   // Gather OpenVINO model inputs.
   for (size_t i = 0; i < num_inputs; ++i) {
-    const OrtValue* ort_val = this->ort_.KernelContext_GetInput(context, i);
+    Ort::ConstValue ort_val = kcontext.GetInput(i);
     const auto& input_info = this->ov_inputs_[i];
 
-    const void* p_input_data = this->ort_.GetTensorData<void>(ort_val);
+    const void* p_input_data = ort_val.GetTensorData<void>();
     ov_inputs[i] = ov::Tensor(input_info.get_element_type(), input_info.get_shape(), const_cast<void*>(p_input_data));
   }
 
@@ -171,7 +170,7 @@ void KernelOpenVINO::Compute(OrtKernelContext* context) {
   infer_req.set_input_tensors(ov_inputs);
   infer_req.infer();
 
-  const size_t num_outputs = this->ort_.KernelContext_GetOutputCount(context);
+  const size_t num_outputs = kcontext.GetOutputCount();
   assert(num_outputs == this->ov_outputs_.size());
 
   // Copy inference results to ORT memory.
@@ -185,8 +184,8 @@ void KernelOpenVINO::Compute(OrtKernelContext* context) {
     // Get dst to which to copy result.
     const ov::Shape& ov_shape = output_info.get_shape();
     std::vector<int64_t> shape(ov_shape.begin(), ov_shape.end());
-    OrtValue* ort_val = this->ort_.KernelContext_GetOutput(context, i, shape.data(), shape.size());
-    void* dst = this->ort_.GetTensorMutableData<void>(ort_val);
+    Ort::UnownedValue ort_val = kcontext.GetOutput(i, shape);
+    void* dst = ort_val.GetTensorMutableData<void>();
 
     // Copy data.
     size_t copy_size = elem_type.size() * ov::shape_size(ov_shape);
@@ -198,8 +197,13 @@ void KernelOpenVINO::Compute(OrtKernelContext* context) {
 // CustomOpOpenVINO
 //
 
+CustomOpOpenVINO::CustomOpOpenVINO(Ort::UnownedSessionOptions session_options) : session_options_(session_options) {
+}
+
 void* CustomOpOpenVINO::CreateKernel(const OrtApi& api, const OrtKernelInfo* info) const {
-  return new KernelOpenVINO(api, info, this->GetName());
+  std::unordered_map<std::string, std::string> session_configs;
+  GetSessionConfigs(session_configs, this->session_options_.GetConst());
+  return new KernelOpenVINO(api, info, session_configs);
 }
 
 const char* CustomOpOpenVINO::GetName() const { return "OpenVINO_EP_Wrapper"; }
@@ -224,4 +228,6 @@ OrtCustomOpInputOutputCharacteristic CustomOpOpenVINO::GetOutputCharacteristic(s
   return INPUT_OUTPUT_VARIADIC;
 }
 
-const char* CustomOpOpenVINO::GetExecutionProviderType() const { return "OpWrapperExecutionProvider"; }
+const char* CustomOpOpenVINO::GetExecutionProviderType() const { return nullptr; }
+
+std::vector<std::string> CustomOpOpenVINO::GetSessionConfigKeys() const { return {"device_type"}; }
