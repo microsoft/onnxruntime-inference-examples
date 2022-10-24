@@ -4,18 +4,19 @@ This sample shows how to use ONNX Runtime with SNPE execution provider to run mo
 
 # Install Qualcomm SDK for Windows
 Download the Qualcomm Neural Processing SDK for Windows on Snapdragon from [Qualcomm's developer site](https://developer.qualcomm.com/software/qualcomm-neural-processing-sdk/windows-on-snapdragon).
-* You currently need to request access to the packages.
-* SNPE v1.61.46 and v1.61.48 have been qualified with ONNX Runtime so far.
+   * You currently need to request access to the packages and you will need to create a Qualcomm account to access the packages
+   * SNPE v1.61.46 and v1.61.48 have been qualified with ONNX Runtime so far.
 
 # Prepare the SNPE-optimized ONNX file 
 Currently the Qualcomm model tools are only runnable in a Linux environment even though their output will be used in Windows.
 1. Setup a Linux environment with [WSL2](https://learn.microsoft.com/en-us/windows/wsl/)
-2. Download and install the Qualcomm SNPE SDK in the WSL2 environment.
+2. Download and install the Linux [Qualcomm Neural Processing SDK](https://developer.qualcomm.com/downloads/qualcomm-neural-processing-sdk-ai-v1660) in the WSL2 environment.
+   * Note, you will need to login with your Qualcomm account to access.
 3. Follow steps 1 and 2 in [Qualcomm's tutorial](https://developer.qualcomm.com/sites/default/files/docs/snpe/tutorial_onnx.html) to setup the environment and download the source model
 4. Add post-processing steps to the model
-  * Copy add_softmax.py to $SNPE_ROOT/models/VGG/onnx folder and run it to apply Softmax node to model output. 
+   * Copy add_softmax.py to $SNPE_ROOT/models/VGG/onnx folder and run it to apply Softmax node to model output. 
 5. Follow steps 3 thourg 5 in [Qualcomm's tutorial](https://developer.qualcomm.com/sites/default/files/docs/snpe/tutorial_onnx.html)
-  * These will generate a vgg16.dlc file in $SNPE_ROOT/models/VGG/dlc/
+   * These will generate a vgg16.dlc file in $SNPE_ROOT/models/VGG/dlc/
 6. Apply quantization to the model
    * Run command below to generate the quantized DLC file vgg16_q.dlc.
     ```
@@ -26,7 +27,7 @@ Currently the Qualcomm model tools are only runnable in a Linux environment even
     * Copy the script WrapDLCintoOnnx.py to the $SNPE_ROOT/models/VGG/dlc folder and run it. This will generate an ONNX model with the DLC content embedded.
 	
 # Build & run the sample app
-The sample app uses the ONNX file you created abov
+The sample app uses the ONNX file you created above
 
 1. Install [.NET 6.0](https://dotnet.microsoft.com/download/dotnet/6.0) or higher for Arm64.
 2. Install Microsoft.ML.OnnxRuntime.Snpe nuget package from [nuget.org](https://www.nuget.org/)
