@@ -117,9 +117,9 @@ int run_inference(OrtSession* session, const ORTCHAR_T* input_file, const ORTCHA
   assert(is_tensor);
   int ret = 0;
   float* output_tensor_data = NULL;
-  ORT_ABORT_ON_ERROR(g_ort->GetTensorMutableData(output_tensor, &output_tensor_data));
+  ORT_ABORT_ON_ERROR(g_ort->GetTensorMutableData(output_tensor, (void**)&output_tensor_data));
   uint8_t* output_image_data = NULL;
-  chw_to_hwc(output_tensor_data, 720, 720, (void**)&output_image_data);
+  chw_to_hwc(output_tensor_data, 720, 720, &output_image_data);
   if (write_image_file(output_image_data, 720, 720, output_file) != 0) {
     ret = -1;
   }
