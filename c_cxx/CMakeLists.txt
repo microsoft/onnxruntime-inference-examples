@@ -22,6 +22,8 @@ option(onnxruntime_USE_TENSORRT "Build with TensorRT support" OFF)
 option(LIBPNG_ROOTDIR "libpng root dir")
 option(ONNXRUNTIME_ROOTDIR "onnxruntime root dir")
 
+set(CMAKE_CXX_STANDARD 17)
+
 if(NOT ONNXRUNTIME_ROOTDIR)
   if(WIN32)
     set(ONNXRUNTIME_ROOTDIR "C:/Program Files (x86)/onnxruntime")

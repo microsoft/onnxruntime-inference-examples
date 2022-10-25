@@ -16,6 +16,11 @@ parameters: # parameters are shown up in ADO UI in a build queue time
   type: boolean
   default: false
 
+- name: 'ortversion'
+  displayName: 'ONNX Runtime Version'
+  type: string
+  default: '1.13.1'
+
 variables:
   CDP_DEFINITION_BUILD_COUNT: $[counter('', 0)] 
   system.debug: ${{ parameters.debug }}
@@ -82,10 +87,10 @@ extends:
                 set -e -x
                 apt-get update
                 apt-get install -y cmake gcc g++ libpng-dev libjpeg-turbo8-dev
-                curl -O -L https://github.com/microsoft/onnxruntime/releases/download/v1.10.0/onnxruntime-linux-x64-1.10.0.tgz
+                curl -O -L https://github.com/microsoft/onnxruntime/releases/download/v{{ parameters.ortversion }}/onnxruntime-linux-x64-{{ parameters.ortversion }}.tgz
                 mkdir onnxruntimebin
                 cd onnxruntimebin
-                tar --strip=1 -zxvf ../onnxruntime-linux-x64-1.10.0.tgz
+                tar --strip=1 -zxvf ../onnxruntime-linux-x64-{{ parameters.ortversion }}.tgz
             displayName: Download onnxruntime
             workingDirectory: '$(Build.BinariesDirectory)'            
 
@@ -126,9 +131,9 @@ extends:
             @echo ##vso[task.setvariable variable=vsdevcmd]%vsdevcmd%
           displayName: 'locate vsdevcmd via vswhere'
         - script: |
-            curl -L -o onnxruntime.zip https://github.com/microsoft/onnxruntime/releases/download/v1.10.0/onnxruntime-win-x64-1.10.0.zip
+            curl -L -o onnxruntime.zip https://github.com/microsoft/onnxruntime/releases/download/v{{ parameters.ortversion }}/onnxruntime-win-x64-{{ parameters.ortversion }}.zip
             7z x onnxruntime.zip
-            move onnxruntime-win-x64-1.10.0 onnxruntimebin
+            move onnxruntime-win-x64-{{ parameters.ortversion }} onnxruntimebin
           workingDirectory: '$(Build.BinariesDirectory)'
           displayName: 'Download onnxruntime binary' 
         #TODO: use the vsdevcmd variable
