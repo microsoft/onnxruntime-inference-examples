@@ -15,7 +15,7 @@ Currently the Qualcomm model tools are only runnable in a Linux environment even
 3. Follow steps 1 and 2 in [Qualcomm's tutorial](https://developer.qualcomm.com/sites/default/files/docs/snpe/tutorial_onnx.html) to setup the environment and download the source model
 4. Add post-processing steps to the model
    * Copy add_softmax.py to $SNPE_ROOT/models/VGG/onnx folder and run it to apply Softmax node to model output. 
-5. Follow steps 3 thourg 5 in [Qualcomm's tutorial](https://developer.qualcomm.com/sites/default/files/docs/snpe/tutorial_onnx.html)
+5. Follow steps 3 through 5 in [Qualcomm's tutorial](https://developer.qualcomm.com/sites/default/files/docs/snpe/tutorial_onnx.html)
    * These will generate a vgg16.dlc file in $SNPE_ROOT/models/VGG/dlc/
 6. Apply quantization to the model
    * Run command below to generate the quantized DLC file vgg16_q.dlc.
