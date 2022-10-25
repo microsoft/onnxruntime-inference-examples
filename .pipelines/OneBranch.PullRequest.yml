@@ -129,7 +129,7 @@ extends:
           displayName: 'locate vsdevcmd via vswhere'
 
         - task: PowerShell@2
-          displayName: 'Download AzCopy (used for download test data script)'
+          displayName: 'Download ONNX Runtime Binaries' 
           inputs:
             targetType: 'inline'
             script: |
@@ -137,7 +137,6 @@ extends:
               7z x onnxruntime.zip
               move onnxruntime-win-x64-{{ parameters.ortversion }} onnxruntimebin
             workingDirectory: '$(Build.BinariesDirectory)'
-            displayName: 'Download ONNX Runtime Binaries' 
 
         #TODO: use the vsdevcmd variable
         - script: |
