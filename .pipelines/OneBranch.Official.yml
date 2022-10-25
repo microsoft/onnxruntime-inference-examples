@@ -128,13 +128,11 @@ extends:
           displayName: 'locate vsdevcmd via vswhere'
 
         - task: PowerShell@2
-          displayName: 'Download ONNX Runtime Binaries' 
+          displayName: 'Download ONNX Runtime'
           inputs:
-            targetType: 'inline'
-            script: |
-              curl -L -o onnxruntime.zip "https://github.com/microsoft/onnxruntime/releases/download/v{{ parameters.ortversion }}/onnxruntime-win-x64-{{ parameters.ortversion }}.zip"
-              7z x onnxruntime.zip
-              move onnxruntime-win-x64-{{ parameters.ortversion }} onnxruntimebin
+            targetType: filePath
+            filePath: ci_build/download_ort_release.ps1
+            arguments: '{{ parameters.ortversion }}'
             workingDirectory: '$(Build.BinariesDirectory)'
 
         #TODO: use the vsdevcmd variable
