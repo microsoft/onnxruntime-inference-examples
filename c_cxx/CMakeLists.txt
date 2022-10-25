@@ -21,6 +21,7 @@ option(onnxruntime_USE_NUPHAR "Build with Nuphar" OFF)
 option(onnxruntime_USE_TENSORRT "Build with TensorRT support" OFF)
 option(LIBPNG_ROOTDIR "libpng root dir")
 option(ONNXRUNTIME_ROOTDIR "onnxruntime root dir")
+include(FetchContent)
 
 set(CMAKE_CXX_STANDARD 17)
 
@@ -30,6 +31,19 @@ if(NOT ONNXRUNTIME_ROOTDIR)
   else()
     include_directories("/usr/local/include/onnxruntime")
   endif()
+endif()
+
+if(WIN32)
+  add_library(wil INTERFACE)
+
+
+  FetchContent_Declare(
+      microsoft_wil
+      URL https://github.com/microsoft/wil/archive/refs/tags/v1.0.220914.1.zip
+    )
+  FetchContent_Populate(microsoft_wil)
+  target_include_directories(wil INTERFACE ${microsoft_wil_SOURCE_DIR}/include)
+  set(WIL_LIB wil)
 endif()
 
 #TODO: we should only need one of them.
@@ -80,7 +94,7 @@ if(WIN32)
   add_subdirectory(MNIST)
 endif()
 add_subdirectory(squeezenet)
-if(PNG_FOUND)
+if(WIN32 OR PNG_FOUND)
   add_subdirectory(fns_candy_style_transfer)
 endif()
 #missing experimental_onnxruntime_cxx_api.h
