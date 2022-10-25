@@ -132,7 +132,7 @@ extends:
           inputs:
             targetType: filePath
             filePath: ci_build/download_ort_release.ps1
-            arguments: '{{ parameters.ortversion }}'
+            arguments: '${{ parameters.ortversion }}'
             workingDirectory: '$(Build.BinariesDirectory)'
 
         #TODO: use the vsdevcmd variable
