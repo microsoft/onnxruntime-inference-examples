@@ -93,7 +93,7 @@ extends:
 
           - script: |
                 set -e -x
-                cmake $(Build.SourcesDirectory)/c_cxx -DCMAKE_BUILD_TYPE=Release -DONNXRUNTIME_ROOTDIR=$(Build.BinariesDirectory)/onnxruntimebin
+                CFLAGS="-O2 -Wall -Wextra -Werror" CXXFLAGS="-O2 -Wall -Wextra -Werror" cmake $(Build.SourcesDirectory)/c_cxx -DCMAKE_BUILD_TYPE=Release -DONNXRUNTIME_ROOTDIR=$(Build.BinariesDirectory)/onnxruntimebin
                 make -j$(nproc)
             displayName: build
             workingDirectory: '$(Build.BinariesDirectory)'
