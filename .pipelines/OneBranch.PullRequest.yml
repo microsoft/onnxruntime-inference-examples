@@ -83,16 +83,12 @@ extends:
               minor: '0'
               exclude_commit: true
 
-          - script: |
-                set -e -x
-                apt-get update
-                apt-get install -y cmake gcc g++ libpng-dev libjpeg-turbo8-dev
-                curl -O -L https://github.com/microsoft/onnxruntime/releases/download/v{{ parameters.ortversion }}/onnxruntime-linux-x64-{{ parameters.ortversion }}.tgz
-                mkdir onnxruntimebin
-                cd onnxruntimebin
-                tar --strip=1 -zxvf ../onnxruntime-linux-x64-{{ parameters.ortversion }}.tgz
-            displayName: Download onnxruntime
-            workingDirectory: '$(Build.BinariesDirectory)'            
+          - task: Bash@3
+            displayName: 'Bash Script'
+            inputs:
+              targetType: filePath
+              filePath: ci_build/download_ort_release.sh
+              arguments: -i {{ parameters.ortversion }}           
 
           - script: |
                 set -e -x
