@@ -1,6 +1,8 @@
 # Copyright (c) Microsoft Corporation. All rights reserved.
 # Licensed under the MIT License.
 
+set(CMAKE_CXX_STANDARD 17)
+
 set(FS_SOURCES local_filesystem.h sync_api.h controller.h controller.cc)
 
 if(WIN32)
