@@ -129,7 +129,8 @@ int main(int argc, char** argv) {
     Ort::Env env;
     Ort::SessionOptions session_opts;
 
-    session_opts.AddConfigEntry("custom_op.OpenVINO_EP_Wrapper.device_type", "CPU");
+    // Add session config entry for the custom op.
+    session_opts.AddCustomOpConfigEntry("OpenVINO_EP_Wrapper", "device_type", "CPU");
 
     std::unique_ptr<void, decltype(&CleanUpCustomOpLib)> custom_op_lib(
         session_opts.RegisterCustomOpsLibrary(custom_op_lib_path.data()), CleanUpCustomOpLib);
