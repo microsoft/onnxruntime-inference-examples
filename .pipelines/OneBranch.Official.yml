@@ -88,7 +88,7 @@ extends:
             inputs:
               targetType: filePath
               filePath: ci_build/download_ort_release.sh
-              arguments: -i {{ parameters.ortversion }}           
+              arguments: '-i {{ parameters.ortversion }}'
 
           - script: |
                 set -e -x
