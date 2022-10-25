@@ -84,11 +84,12 @@ extends:
               exclude_commit: true
 
           - task: Bash@3
-            displayName: 'Bash Script'
+            displayName: 'Download ONNX Runtime Binaries'            
             inputs:
               targetType: filePath
               filePath: ci_build/download_ort_release.sh
-              arguments: '-i {{ parameters.ortversion }}'
+              arguments: '-i ${{ parameters.ortversion }}'
+              workingDirectory: '$(Build.BinariesDirectory)'
 
           - script: |
                 set -e -x
