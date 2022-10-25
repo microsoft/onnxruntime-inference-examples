@@ -132,7 +132,7 @@ extends:
           inputs:
             targetType: 'inline'
             script: |
-              Invoke-WebRequest -OutFile onnxruntime.zip 'https://github.com/microsoft/onnxruntime/releases/download/v{{ parameters.ortversion }}/onnxruntime-win-x64-{{ parameters.ortversion }}.zip'
+              curl -L -o onnxruntime.zip "https://github.com/microsoft/onnxruntime/releases/download/v{{ parameters.ortversion }}/onnxruntime-win-x64-{{ parameters.ortversion }}.zip"
               7z x onnxruntime.zip
               move onnxruntime-win-x64-{{ parameters.ortversion }} onnxruntimebin
             workingDirectory: '$(Build.BinariesDirectory)'
