@@ -1,7 +1,7 @@
 {
   "notificationAliases": ["chasun@microsoft.com"],
   "areaPath": "ONNX Runtime\\Engineering Systems",
-  "codebaseName": "onnxruntime-inference-examples",
+  "codebaseName": "onnxruntime_inference_examples",
   "instanceUrl": "https://aiinfra.visualstudio.com/",
   "projectName": "ONNX Runtime",
   "ignoreBranchName": true,
