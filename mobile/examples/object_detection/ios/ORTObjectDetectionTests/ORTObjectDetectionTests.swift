@@ -8,7 +8,7 @@ import XCTest
 class ORTObjectDetectionTests: XCTestCase {
   func testModelLoads() throws {
     let modelHandler = ModelHandler(
-      modelFileInfo: (name: "ssd_mobilenet_v1.all", extension: "ort"),
+      modelFileInfo: (name: "ssd_mobilenet_v1", extension: "ort"),
       labelsFileInfo: (name: "labelmap", extension: "txt"))
     XCTAssertNotNil(modelHandler)
   }

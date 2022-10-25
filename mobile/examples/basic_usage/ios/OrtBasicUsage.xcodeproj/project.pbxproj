@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2E64B71F28F7633600A55A0B /* single_add.ort in Resources */ = {isa = PBXBuildFile; fileRef = 2E64B71E28F7633600A55A0B /* single_add.ort */; };
 		EFC1563927DAC3C300B35F2D /* single_add.onnx in Resources */ = {isa = PBXBuildFile; fileRef = EFC1563827DAC3C300B35F2D /* single_add.onnx */; };
 		EFE2379726841B8D00234E2C /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFE2379626841B8D00234E2C /* ContentView.swift */; };
 		EFE2379926841B8E00234E2C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = EFE2379826841B8E00234E2C /* Assets.xcassets */; };
@@ -15,7 +16,6 @@
 		EFE237C426841D2C00234E2C /* ObjcOrtBasicUsage.mm in Sources */ = {isa = PBXBuildFile; fileRef = EFE237C126841D2C00234E2C /* ObjcOrtBasicUsage.mm */; };
 		EFE237C526841D2C00234E2C /* OrtBasicUsageApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFE237C226841D2C00234E2C /* OrtBasicUsageApp.swift */; };
 		EFE237C726841D5A00234E2C /* SwiftOrtBasicUsage.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFE237C626841D5A00234E2C /* SwiftOrtBasicUsage.swift */; };
-		EFE237C926841F4A00234E2C /* single_add.all.ort in Resources */ = {isa = PBXBuildFile; fileRef = EFE237C826841F4A00234E2C /* single_add.all.ort */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -29,6 +29,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		2E64B71E28F7633600A55A0B /* single_add.ort */ = {isa = PBXFileReference; lastKnownFileType = file; name = single_add.ort; path = model/single_add.ort; sourceTree = "<group>"; };
 		EFC1563827DAC3C300B35F2D /* single_add.onnx */ = {isa = PBXFileReference; lastKnownFileType = file; name = single_add.onnx; path = model/single_add.onnx; sourceTree = "<group>"; };
 		EFE2379126841B8D00234E2C /* OrtBasicUsage.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = OrtBasicUsage.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		EFE2379626841B8D00234E2C /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -43,7 +44,6 @@
 		EFE237C226841D2C00234E2C /* OrtBasicUsageApp.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OrtBasicUsageApp.swift; sourceTree = "<group>"; };
 		EFE237C326841D2C00234E2C /* ObjcOrtBasicUsage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ObjcOrtBasicUsage.h; sourceTree = "<group>"; };
 		EFE237C626841D5A00234E2C /* SwiftOrtBasicUsage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwiftOrtBasicUsage.swift; sourceTree = "<group>"; };
-		EFE237C826841F4A00234E2C /* single_add.all.ort */ = {isa = PBXFileReference; lastKnownFileType = file; name = single_add.all.ort; path = model/single_add.all.ort; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -93,8 +93,8 @@
 		EFE2379326841B8D00234E2C /* OrtBasicUsage */ = {
 			isa = PBXGroup;
 			children = (
+				2E64B71E28F7633600A55A0B /* single_add.ort */,
 				EFC1563827DAC3C300B35F2D /* single_add.onnx */,
-				EFE237C826841F4A00234E2C /* single_add.all.ort */,
 				EFE237C626841D5A00234E2C /* SwiftOrtBasicUsage.swift */,
 				EFE237C326841D2C00234E2C /* ObjcOrtBasicUsage.h */,
 				EFE237C126841D2C00234E2C /* ObjcOrtBasicUsage.mm */,
@@ -206,10 +206,10 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				EFE237C926841F4A00234E2C /* single_add.all.ort in Resources */,
 				EFE2379C26841B8E00234E2C /* Preview Assets.xcassets in Resources */,
 				EFC1563927DAC3C300B35F2D /* single_add.onnx in Resources */,
 				EFE2379926841B8E00234E2C /* Assets.xcassets in Resources */,
+				2E64B71F28F7633600A55A0B /* single_add.ort in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
