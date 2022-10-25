@@ -126,12 +126,18 @@ extends:
             @echo ##vso[task.setvariable variable=vslatest]%vslatest%
             @echo ##vso[task.setvariable variable=vsdevcmd]%vsdevcmd%
           displayName: 'locate vsdevcmd via vswhere'
-        - script: |
-            curl -L -o onnxruntime.zip https://github.com/microsoft/onnxruntime/releases/download/v{{ parameters.ortversion }}/onnxruntime-win-x64-{{ parameters.ortversion }}.zip
-            7z x onnxruntime.zip
-            move onnxruntime-win-x64-{{ parameters.ortversion }} onnxruntimebin
-          workingDirectory: '$(Build.BinariesDirectory)'
-          displayName: 'Install python modules' 
+
+        - task: PowerShell@2
+          displayName: 'Download AzCopy (used for download test data script)'
+          inputs:
+            targetType: 'inline'
+            script: |
+              Invoke-WebRequest -OutFile onnxruntime.zip 'https://github.com/microsoft/onnxruntime/releases/download/v{{ parameters.ortversion }}/onnxruntime-win-x64-{{ parameters.ortversion }}.zip'
+              7z x onnxruntime.zip
+              move onnxruntime-win-x64-{{ parameters.ortversion }} onnxruntimebin
+            workingDirectory: '$(Build.BinariesDirectory)'
+            displayName: 'Download ONNX Runtime Binaries' 
+
         #TODO: use the vsdevcmd variable
         - script: |
             call $(vsdevcmd)
