@@ -11,7 +11,7 @@ int read_image_file(_In_z_ const ORTCHAR_T* input_file, _Out_ size_t* height, _O
                   _Out_ size_t* output_count);
 
 
-int write_image_file(_In_ const uint8_t* model_output_bytes, unsigned int height,
+int write_image_file(_In_ uint8_t* model_output_bytes, unsigned int height,
                      unsigned int width, _In_z_ const ORTCHAR_T* output_file);
 
 /**

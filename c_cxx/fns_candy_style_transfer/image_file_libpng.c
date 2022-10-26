@@ -29,7 +29,7 @@ int read_image_file(const ORTCHAR_T* input_file, size_t* height, size_t* width, 
 }
 
 
-int write_image_file(const uint8_t* model_output_bytes, unsigned int height,
+int write_image_file(uint8_t* model_output_bytes, unsigned int height,
                      unsigned int width, const ORTCHAR_T* output_file){
   png_image image;
   memset(&image, 0, (sizeof image));

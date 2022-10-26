@@ -15,7 +15,7 @@
  * \param output_count Array length of the `out` param
  */
 int read_image_file(_In_z_ const ORTCHAR_T* input_file, _Out_ size_t* height, _Out_ size_t* width, _Outptr_ float** out,
-                  _Out_ size_t* output_count) {
+                    _Out_ size_t* output_count) {
   wil::com_ptr_failfast<IWICImagingFactory> piFactory =
       wil::CoCreateInstanceFailFast<IWICImagingFactory>(CLSID_WICImagingFactory);
   wil::com_ptr_failfast<IWICBitmapDecoder> decoder;
@@ -35,7 +35,7 @@ int read_image_file(_In_z_ const ORTCHAR_T* input_file, _Out_ size_t* height, _O
   FAIL_FAST_IF_FAILED(piFrameDecode->GetSize(&image_width, &image_height));
   wil::com_ptr_failfast<IWICBitmapScaler> scaler;
   IWICBitmapSource* source_to_copy = piFrameDecode.get();
-  if (image_width != 720 || image_height != 720) {    
+  if (image_width != 720 || image_height != 720) {
     FAIL_FAST_IF_FAILED(piFactory->CreateBitmapScaler(&scaler));
     FAIL_FAST_IF_FAILED(scaler->Initialize(source_to_copy, 720, 720, WICBitmapInterpolationModeFant));
     source_to_copy = scaler.get();
@@ -51,15 +51,14 @@ int read_image_file(_In_z_ const ORTCHAR_T* input_file, _Out_ size_t* height, _O
   UINT stride = image_width * bytes_per_pixel;
   std::vector<uint8_t> data(image_width * image_height * bytes_per_pixel);
   FAIL_FAST_IF_FAILED(ppIFormatConverter->CopyPixels(nullptr, stride, static_cast<UINT>(data.size()), data.data()));
-  
+
   hwc_to_chw(data.data(), image_height, image_width, out, output_count);
   *height = image_height;
   *width = image_width;
   return 0;
 }
 
-
-int write_image_file(_In_ const uint8_t* model_output_bytes, unsigned int height, unsigned int width,
+int write_image_file(_In_ uint8_t* model_output_bytes, unsigned int height, unsigned int width,
                      _In_z_ const ORTCHAR_T* output_file) {
   std::filesystem::path file_path(output_file);
   if (!file_path.has_extension()) {
@@ -97,6 +96,7 @@ int write_image_file(_In_ const uint8_t* model_output_bytes, unsigned int height
   FAIL_FAST_IF_FAILED(frame->SetPixelFormat(&targetFormat));
   constexpr UINT bytes_per_pixel = 24 / 8;
   size_t stride = width * bytes_per_pixel;
+  // The last parameter of WritePixels is a "BYTE*", not "const BYTE*".
   FAIL_FAST_IF_FAILED(frame->WritePixels(height, static_cast<UINT>(stride),
                                          static_cast<UINT>(height * width * bytes_per_pixel), model_output_bytes));
   FAIL_FAST_IF_FAILED(frame->Commit());
