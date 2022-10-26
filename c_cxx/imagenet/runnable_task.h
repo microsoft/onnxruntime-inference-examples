@@ -2,8 +2,6 @@
 // Licensed under the MIT License.
 
 #pragma once
-#include <functional>
-
 #include "sync_api.h"
 
 class RunnableTask {

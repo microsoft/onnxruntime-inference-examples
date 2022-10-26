@@ -27,7 +27,7 @@ int read_image_file(_In_z_ const ORTCHAR_T* input_file, _Out_ size_t* height, _O
   FAIL_FAST_IF_FAILED(decoder->GetFrameCount(&count));
   if (count != 1) {
     printf("The image has multiple frames, I don't know which to choose.\n");
-    abort();
+    return -1;
   }
   wil::com_ptr_failfast<IWICBitmapFrameDecode> piFrameDecode;
   FAIL_FAST_IF_FAILED(decoder->GetFrame(0, &piFrameDecode));
@@ -53,13 +53,13 @@ int read_image_file(_In_z_ const ORTCHAR_T* input_file, _Out_ size_t* height, _O
   FAIL_FAST_IF_FAILED(ppIFormatConverter->CopyPixels(nullptr, stride, static_cast<UINT>(data.size()), data.data()));
   
   hwc_to_chw(data.data(), image_height, image_width, out, output_count);
-  *height = 720;
-  *width = 720;
+  *height = image_height;
+  *width = image_width;
   return 0;
 }
 
 
-int write_image_file(uint8_t* model_output_bytes, unsigned int height, unsigned int width,
+int write_image_file(_In_ const uint8_t* model_output_bytes, unsigned int height, unsigned int width,
                      _In_z_ const ORTCHAR_T* output_file) {
   std::filesystem::path file_path(output_file);
   if (!file_path.has_extension()) {
