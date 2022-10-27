@@ -133,17 +133,20 @@ namespace yolov3
             for (int i = 0; i < indices.Length; i = i + 3)
             {
                 out_classes[count] = indices[i + 1];
-                out_scores[count] = scores[indices[i], indices[i + 1], indices[i + 2]];
-                predictions.Add(new Prediction
+                if (indices[i + 1] > -1)
                 {
-                       Box = new Box(boxes[indices[i], indices[i + 2], 1],
-                                     boxes[indices[i], indices[i + 2], 0],
-                                     boxes[indices[i], indices[i + 2], 3],
-                                     boxes[indices[i], indices[i + 2], 2]),
-                        Class = LabelMap.Labels[out_classes[count]],
-                        Score = out_scores[count]
-                });
-                count++;
+                    out_scores[count] = scores[indices[i], indices[i + 1], indices[i + 2]];
+                    predictions.Add(new Prediction
+                    {
+                        Box = new Box(boxes[indices[i], indices[i + 2], 1],
+                                        boxes[indices[i], indices[i + 2], 0],
+                                        boxes[indices[i], indices[i + 2], 3],
+                                        boxes[indices[i], indices[i + 2], 2]),
+                            Class = LabelMap.Labels[out_classes[count]],
+                            Score = out_scores[count]
+                    });
+                    count++;
+                }
             }
 
             // Put boxes, labels and confidence on image and save for viewing
