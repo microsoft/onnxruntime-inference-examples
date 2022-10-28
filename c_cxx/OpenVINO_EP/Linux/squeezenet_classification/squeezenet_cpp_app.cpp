@@ -230,7 +230,8 @@ int main(int argc, char* argv[])
     std::cout << "Number of Input Nodes: " << numInputNodes << std::endl;
     std::cout << "Number of Output Nodes: " << numOutputNodes << std::endl;
 
-    const char* inputName = session.GetInputName(0, allocator);
+    auto inputNodeName = session.GetInputNameAllocated(0, allocator);
+    const char* inputName = inputNodeName.get();
     std::cout << "Input Name: " << inputName << std::endl;
 
     Ort::TypeInfo inputTypeInfo = session.GetInputTypeInfo(0);
@@ -242,7 +243,8 @@ int main(int argc, char* argv[])
     std::vector<int64_t> inputDims = inputTensorInfo.GetShape();
     std::cout << "Input Dimensions: " << inputDims << std::endl;
 
-    const char* outputName = session.GetOutputName(0, allocator);
+    auto outputNodeName = session.GetOutputNameAllocated(0, allocator);
+    const char* outputName = outputNodeName.get();
     std::cout << "Output Name: " << outputName << std::endl;
 
     Ort::TypeInfo outputTypeInfo = session.GetOutputTypeInfo(0);
