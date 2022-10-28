@@ -87,7 +87,7 @@ extends:
             displayName: 'Download ONNX Runtime Binaries'            
             inputs:
               targetType: filePath
-              filePath: ci_build/download_ort_release.sh
+              filePath: ci_build/download_ort_release_and_install_deps.sh
               arguments: '-i ${{ parameters.ortversion }}'
               workingDirectory: '$(Build.BinariesDirectory)'
 

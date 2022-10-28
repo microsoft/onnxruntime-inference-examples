@@ -9,8 +9,6 @@
 #include "providers.h"
 #endif
 #include <objbase.h>
-#else
-#include <png.h>
 #endif
 #include "image_file.h"
 
