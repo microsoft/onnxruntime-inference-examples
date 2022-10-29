@@ -41,7 +41,7 @@ Note: Make sure to install [OpenVINO™ Runtime using an installer](https://docs
 * ONNX Runtime 1.6+
 * numpy version 1.21.6+
 * opencv 4.5.5+
-* python 3+
+* python 3.7 >= 3.9 for linux and python 3.9 for windows
 * Use any sample video with objects as test input to this sample [Download Sample videos](https://github.com/intel-iot-devkit/sample-videos)
 * Download the Yolov4 model from the [ONNX Model Zoo](https://github.com/onnx/models/tree/main/vision/object_detection_segmentation/yolov4)
 
