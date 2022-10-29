@@ -64,11 +64,11 @@ void run_ort_trt() {
   // It's suggested to use CreateTensorRTProviderOptions() to get provider options
   // since ORT takes care of valid options for you
   //**************************************************************************************************************************
-  api.CreateTensorRTProviderOptions(&tensorrt_options);
+  Ort::ThrowOnError(api.CreateTensorRTProviderOptions(&tensorrt_options));
   std::unique_ptr<OrtTensorRTProviderOptionsV2, decltype(api.ReleaseTensorRTProviderOptions)> rel_trt_options(
       tensorrt_options, api.ReleaseTensorRTProviderOptions);
-  api.SessionOptionsAppendExecutionProvider_TensorRT_V2(static_cast<OrtSessionOptions*>(session_options),
-                                                        rel_trt_options.get());
+  Ort::ThrowOnError(api.SessionOptionsAppendExecutionProvider_TensorRT_V2(static_cast<OrtSessionOptions*>(session_options),
+                                                        rel_trt_options.get()));
 
   std::cout << "Running ORT TRT EP with default provider options" << std::endl;
 
