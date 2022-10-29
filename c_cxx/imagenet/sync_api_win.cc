@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 #include "sync_api.h"
+#include <stdexcept>
 
 void CreateAndSubmitThreadpoolWork(_In_ ONNXRUNTIME_CALLBACK_FUNCTION callback, _In_ void* data,
                                    _In_opt_ PThreadPoolCallbackEnv pool) {

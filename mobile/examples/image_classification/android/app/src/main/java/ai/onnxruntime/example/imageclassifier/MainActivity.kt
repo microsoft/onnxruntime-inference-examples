@@ -33,9 +33,9 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        ortEnv = OrtEnvironment.getEnvironment()
         // Request Camera permission
         if (allPermissionsGranted()) {
-            ortEnv = OrtEnvironment.getEnvironment()
             startCamera()
         } else {
             ActivityCompat.requestPermissions(
@@ -149,7 +149,7 @@ class MainActivity : AppCompatActivity() {
     // Read ort model into a ByteArray, run in background
     private suspend fun readModel(): ByteArray = withContext(Dispatchers.IO) {
         val modelID =
-            if (enableQuantizedModel) R.raw.mobilenet_v2_uint8 else R.raw.mobilenet_v2_float
+            if (enableQuantizedModel) R.raw.mobilenetv2_int8 else R.raw.mobilenetv2_fp32
         resources.openRawResource(modelID).readBytes()
     }
 
