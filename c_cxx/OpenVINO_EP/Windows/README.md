@@ -50,6 +50,7 @@ If you are using the opencv from openvino package, below are the paths:
 * For openvino version 2022.1.0, run download_opencv.ps1 in \path\to\openvino\extras\script and the opencv folder will be downloaded at \path\to\openvino\extras.
 * For older openvino version, opencv folder is available at openvino directory itself.
 * The current cmake files are adjusted with the opencv folders coming along with openvino packages. Plase make sure you are updating the opencv paths according to your custom builds.
+
 For the squeezenet IO buffer sample:
 Make sure you are creating the opencl context for the right GPU device in a multi-GPU environment.
 

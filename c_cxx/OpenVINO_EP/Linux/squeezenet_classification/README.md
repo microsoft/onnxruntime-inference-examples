@@ -66,6 +66,7 @@ export OPENCL_INCS=path/to/your/directory/openvino/thirdparty/ocl/clhpp_headers/
       * For latest version (2022.1.0), run download_opencv.sh in /path/to/openvino/extras/script and the opencv folder will be downloaded at /path/to/openvino/extras.
       * For older openvino version, opencv folder is available at openvino directory itself.
       * The current cmake files are adjusted with the opencv folders coming along with openvino packages. Plase make sure you are updating the opencv paths according to your custom builds.
+      
       For the squeezenet IO buffer sample:
       Make sure you are creating the opencl context for the right GPU device in a multi-GPU environment.
 
