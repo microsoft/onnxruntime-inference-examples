@@ -26,7 +26,7 @@ struct KernelOpenVINO {
 };
 
 struct CustomOpOpenVINO : Ort::CustomOpBase<CustomOpOpenVINO, KernelOpenVINO> {
-  CustomOpOpenVINO(Ort::UnownedSessionOptions session_options);
+  CustomOpOpenVINO(Ort::ConstSessionOptions session_options);
   void* CreateKernel(const OrtApi& api, const OrtKernelInfo* info) const;
   const char* GetName() const;
   size_t GetInputTypeCount() const;
@@ -39,5 +39,5 @@ struct CustomOpOpenVINO : Ort::CustomOpBase<CustomOpOpenVINO, KernelOpenVINO> {
   std::vector<std::string> GetSessionConfigKeys() const;
 
  private:
-  Ort::UnownedSessionOptions session_options_;
+  Ort::ConstSessionOptions session_options_;
 };

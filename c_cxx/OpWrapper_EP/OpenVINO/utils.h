@@ -31,60 +31,7 @@ std::wstring ConvertString(std::string_view str);
 
 void CleanUpCustomOpLib(void* lib_handle);
 
-//
-// BMP utils:
-//
+void ConvertHWCToCHW(std::vector<float>& output, const uint8_t* input, size_t width, size_t height, size_t num_colors,
+                     bool normalize = true);
 
-struct BmpInfo {
-  explicit BmpInfo(const char* bpm_filepath) noexcept;
-
-  BmpInfo(const BmpInfo& other) = default;
-  BmpInfo& operator=(const BmpInfo& other) = default;
-
-  BmpInfo(BmpInfo&& other) = default;
-  BmpInfo& operator=(BmpInfo&& other) = default;
-
-  ~BmpInfo() = default;
-
-  enum class LoadStatus {
-    Ok,
-    NotBMP,
-    ReadError,
-    UnsupportedBMPType,
-    UnsupportedCompression,
-  };
-
-  static constexpr const char* LoadStatusString(LoadStatus status) noexcept {
-    switch (status) {
-      case LoadStatus::Ok:
-        return "Success";
-      case LoadStatus::NotBMP:
-        return "Not a valid BMP file";
-      case LoadStatus::ReadError:
-        return "Error while reading BMP file";
-      case LoadStatus::UnsupportedBMPType:
-        return "Unsupported BMP file type; only support BITMAPINFOHEADER";
-      case LoadStatus::UnsupportedCompression:
-        return "Unsupported BMP compression type; only support uncompressed images";
-      default:
-        return "UNKNOWN ERROR";
-    }
-  }
-
-  LoadStatus Load();
-
-  bool IsValid() const;
-  size_t Width() const { return width_; }
-  size_t Height() const { return height_; }
-  uint16_t BytesPerPixel() const { return bpp_ >> 3; }
-  size_t NumPixels() const { return width_ * height_; }
-  const uint8_t* Data() const;
-  size_t Size() const;
-
- private:
-  size_t width_;
-  size_t height_;
-  uint16_t bpp_;
-  std::vector<uint8_t> data_;
-  const char* filepath_;
-};
+void Softmax(std::vector<float>& output, const float* inputs, size_t num_inputs);

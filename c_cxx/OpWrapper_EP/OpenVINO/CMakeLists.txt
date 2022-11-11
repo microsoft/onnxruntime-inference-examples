@@ -56,5 +56,5 @@ endif()
 # Copy ONNX model to executable's directory.
 add_custom_command(TARGET opwrapper_ov_test POST_BUILD
   COMMAND ${CMAKE_COMMAND} -E copy_if_different
-  "${CMAKE_SOURCE_DIR}/custom_op_ov_ep_wrapper.onnx"
-  "${CMAKE_BINARY_DIR}/data/custom_op_ov_ep_wrapper.onnx")
+  "${CMAKE_SOURCE_DIR}/custom_op_mnist_ov_wrapper.onnx"
+  "${CMAKE_BINARY_DIR}/data/custom_op_mnist_ov_wrapper.onnx")

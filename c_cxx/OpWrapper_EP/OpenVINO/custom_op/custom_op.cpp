@@ -7,7 +7,7 @@
 #include "custom_op.h"
 #include "openvino_wrapper.h"
 
-static const char* c_OpDomain = "ai.onnx.contrib";
+static const char* c_OpDomain = "test.customop.ov";
 
 static void AddOrtCustomOpDomainToContainer(Ort::CustomOpDomain&& domain) {
   static std::vector<Ort::CustomOpDomain> ort_custom_op_domain_container;
@@ -23,7 +23,7 @@ OrtStatus* ORT_API_CALL RegisterCustomOps(OrtSessionOptions* options, const OrtA
 
   Ort::UnownedSessionOptions session_options(options);
 
-  static CustomOpOpenVINO c_CustomOpOpenVINO(session_options);
+  static CustomOpOpenVINO c_CustomOpOpenVINO(session_options.GetConst());
 
   OrtStatus* result = nullptr;
 

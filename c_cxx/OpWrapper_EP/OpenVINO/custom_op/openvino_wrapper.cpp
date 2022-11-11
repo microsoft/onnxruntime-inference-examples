@@ -197,16 +197,16 @@ void KernelOpenVINO::Compute(OrtKernelContext* context) {
 // CustomOpOpenVINO
 //
 
-CustomOpOpenVINO::CustomOpOpenVINO(Ort::UnownedSessionOptions session_options) : session_options_(session_options) {
+CustomOpOpenVINO::CustomOpOpenVINO(Ort::ConstSessionOptions session_options) : session_options_(session_options) {
 }
 
 void* CustomOpOpenVINO::CreateKernel(const OrtApi& api, const OrtKernelInfo* info) const {
   std::unordered_map<std::string, std::string> session_configs;
-  GetSessionConfigs(session_configs, this->session_options_.GetConst());
+  GetSessionConfigs(session_configs, this->session_options_);
   return new KernelOpenVINO(api, info, session_configs);
 }
 
-const char* CustomOpOpenVINO::GetName() const { return "OpenVINO_EP_Wrapper"; }
+const char* CustomOpOpenVINO::GetName() const { return "OpenVINO_Wrapper"; }
 
 size_t CustomOpOpenVINO::GetInputTypeCount() const { return 1; }
 
