@@ -6,29 +6,37 @@ import { StatusBar } from 'expo-status-bar';
 import React, { useState } from 'react';
 import { Alert, Button, Text, View, NativeModules, Image, ScrollView, ToastAndroid, Platform } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
-import * as ImageManipulator from 'expo-image-manipulator';
+//import * as ImageManipulator from 'expo-image-manipulator';
 import { MainScreenProps } from './NavigStack';
-import { openImagePicker, converter, loadModelAll, runModelAll } from '../misc/utilities';
+import { /*converter,*/ loadModelAll, runModelAll } from '../misc/utilities';
 import { styles } from '../misc/styles';
+//import { btoa, atob } from 'react-native-quick-base64';
 
 
+let base64ImageStringFromUpload = ""
+let imageHeight = 1
+let imageWidth = 1
+let ort: any
+const platform = Platform.OS
+if (platform == "android") { ort = require("onnxruntime-react-native") }
+let base64js = require('base64-js')
+let isLoaded = false;
+let model: any;
+
+/** 
+ * Note: Code snippet used for imageToPixel(). Commented out here as it's not needed with updated
+ * data pre/post processing support.
+ * 
 const bitmapModule = NativeModules.Bitmap
 const imageDim = 224
 const scaledImageDim = imageDim * 3
-const platform = Platform.OS
-
-
-let ort: any
-if (platform == "android") { ort = require("onnxruntime-react-native") }
-
-let isLoaded = false;
-let model: any;
 let floatPixelsY = new Float32Array(imageDim * imageDim)
 let cbArray = new Float32Array(scaledImageDim*scaledImageDim)
 let crArray = new Float32Array(scaledImageDim*scaledImageDim)
 let bitmapPixel: number[] = Array(imageDim * imageDim);
 let bitmapScaledPixel: number[] = Array(scaledImageDim * scaledImageDim);
 
+*/
 
 export default function AndroidApp({ navigation, route }: MainScreenProps) {
   const [selectedImage, setSelectedImage] = useState<any>(null);
@@ -39,16 +47,40 @@ export default function AndroidApp({ navigation, route }: MainScreenProps) {
    * Opens up the library of the mobile device in order to select an image from the library.
    */
   async function openImagePickerAsync() {
-    const pickerResult = await openImagePicker() as string
-    await imageToPixel(pickerResult)
-    return
+    const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+    if (permissionResult.granted === false) {
+      alert("Permission to access Camera Roll is Required!");
+      return;
+    }
+
+    // enable return base64 encoded data option when calling ImagePicker
+    const pickerResult = await ImagePicker.launchImageLibraryAsync({ allowsEditing: true, base64: true });
+
+    if (pickerResult.cancelled === true) {
+      return;
+    }
+
+    base64ImageStringFromUpload = pickerResult.base64;
+    imageHeight = pickerResult.height;
+    imageWidth = pickerResult.width;
+    // Check the input image size currently there's a restriction from superRes model to take in 224x224 image
+    // TODO: Delete when restrictions are removed
+    console.log("Height of input jpeg:" + imageHeight);
+    console.log("Width of input jpeg:" + imageWidth);
+
+    setSelectedImage({
+      localUri: pickerResult.uri
+    });
+
+    setOutputImage(null)
   };
 
   /**
    * It generates the hex pixel data of an image given its source.
    * It firstly resizes the image to the right dimensions, then makes use of an 
    * Android [Native Module](https://reactnative.dev/docs/next/native-modules-android) to get a [height x width] array containing the pixel data. 
-   */
+
   async function imageToPixel(uri: string) {
     const imageResult = await ImageManipulator.manipulateAsync(
       uri, [
@@ -81,7 +113,10 @@ export default function AndroidApp({ navigation, route }: MainScreenProps) {
 
     setOutputImage(null)
   }
+  */
 
+  // Note: only updated the path for opening from ImagePicker for now.
+  // TODO: update path for opening from camera
   /**
    * Opens up the camera of the mobile device to take a picture.
    */
@@ -99,44 +134,32 @@ export default function AndroidApp({ navigation, route }: MainScreenProps) {
       return;
     }
 
-    await imageToPixel(pickerResult.uri)
+    //await imageToPixel(pickerResult.uri)
   }
 
+  function _base64ToByteArray(base64ImageStringFromUpload: string) {
+    let decodedByteArray = base64js.toByteArray(base64ImageStringFromUpload)
+    return decodedByteArray
+  };
+
   /**
-   * It creates an ORT tensor from the Y' channel pixel data of the input image
+   * Prepare the input data and input tensor for model
+   * @returns ort tensor type
    */
   async function preprocess() {
-
-    const result = await converter([bitmapPixel, bitmapScaledPixel], "YCbCR", platform) as Float32Array[]
-    floatPixelsY = result[0]
-    cbArray = result[1]
-    crArray = result[2]
-
-    let tensor = new ort.Tensor(floatPixelsY, [1, 1, imageDim, imageDim])
+    let inputDataArray = _base64ToByteArray(base64ImageStringFromUpload)
+    let dataLength = inputDataArray.length
+    let tensor = new ort.Tensor(inputDataArray, [dataLength])
     return tensor
   };
 
   /**
-   * It sets the output image visible by generating the output image source given its pixel data.
-   * Makes use of an Android [Native Module](https://reactnative.dev/docs/next/native-modules-android) which creates a temporary image file
-   * from its pixel data
+   * Process output of inference result and set output image
+   * @param OutputArr ort inferenceSession call result
    */
-  async function postprocess(floatArray: number[]) {
-
-    const intArray = await converter([floatArray, Array.from(cbArray), Array.from(crArray)], "RGB", platform) as any[]
-
-    let imageUri = await bitmapModule.getImageUri(Array.from(intArray)).then(
-      (image: any) => {
-        return image.uri
-      }
-    )
-
-    const imageRotated = await ImageManipulator.manipulateAsync(imageUri, [
-      { rotate: 90 },
-      { flip: ImageManipulator.FlipType.Horizontal }
-    ])
-
-    setOutputImage({ localUri: imageRotated.uri })
+  async function postprocess(OutputArr: number[]) {
+    let encodedString = base64js.fromByteArray(OutputArr)
+    setOutputImage({ localUri: `data:image/jpeg;base64,${encodedString}` })
   };
 
   /**
@@ -158,12 +181,10 @@ export default function AndroidApp({ navigation, route }: MainScreenProps) {
    */
   async function runModel() {
     try {
-
       const inputData = await preprocess()
       const output = await runModelAll(inputData, myModel)
-      if(output) await postprocess(output)
-      ToastAndroid.show('SUPER_RESOLUTION DONE\n  SWYPE DOWN', ToastAndroid.LONG)
-
+      if (output) await postprocess(output)
+      ToastAndroid.show('SUPER_RESOLUTION DONE\n  SWIPE DOWN', ToastAndroid.LONG)
     } catch (e) {
       Alert.alert('failed to inference model', `${e}`);
       throw e;

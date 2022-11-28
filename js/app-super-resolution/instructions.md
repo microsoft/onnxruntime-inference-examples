@@ -101,3 +101,9 @@
    ```sh
    expo start --web
    ```
+
+* Note:
+  * To try the updated data pre/post processing support for android side, currently need to install 
+  * 1. onnxruntime-react-native custom built package with ort-extensions dependency.
+  * 2. `base64-js` and `react-native-quick-base64` npm package for base64 encoding/decoding support.
+  * TODO: update above required dependencies.
