@@ -16,12 +16,12 @@ bool CheckStatus(const OrtApi* g_ort, OrtStatus* status) {
     const char* msg = g_ort->GetErrorMessage(status);
     std::cerr << msg << std::endl;
     g_ort->ReleaseStatus(status);
-    throw std::exception();
+    throw Ort::Exception(msg, OrtErrorCode::ORT_EP_FAIL);
   }
   return true;
 }
 
-void run_ort_snpe_ep() {
+void run_ort_snpe_ep(std::string backend, std::string input_path) {
 #ifdef _WIN32
   const wchar_t* model_path = L"snpe_inception_v3.onnx";
 #else
@@ -38,10 +38,10 @@ void run_ort_snpe_ep() {
   CheckStatus(g_ort, g_ort->SetSessionGraphOptimizationLevel(session_options, ORT_ENABLE_BASIC));
 
   std::vector<const char*> options_keys = {"runtime", "buffer_type"};
-  std::vector<const char*> options_values = {"CPU", "FLOAT"}; // set to TF8 if use quantized data
+  std::vector<const char*> options_values = {backend.c_str(), "FLOAT"};  // set to TF8 if use quantized data
 
-  CheckStatus(g_ort, g_ort->SessionOptionsAppendExecutionProvider_SNPE(session_options, options_keys.data(),
-                                                                       options_values.data(), options_keys.size()));
+  CheckStatus(g_ort, g_ort->SessionOptionsAppendExecutionProvider(session_options, "SNPE", options_keys.data(),
+                                                                  options_values.data(), options_keys.size()));
   OrtSession* session;
   CheckStatus(g_ort, g_ort->CreateSession(env, model_path, session_options, &session));
 
@@ -124,7 +124,7 @@ void run_ort_snpe_ep() {
   size_t input_data_length = input_data_size * sizeof(float);
   std::vector<float> input_data(input_data_size, 1.0);
 
-  std::ifstream input_raw_file("chairs.raw", std::ios::binary);
+  std::ifstream input_raw_file(input_path, std::ios::binary);
   input_raw_file.seekg(0, std::ios::end);
   const size_t num_elements = input_raw_file.tellg() / sizeof(float);
   input_raw_file.seekg(0, std::ios::beg);
@@ -162,7 +162,35 @@ void run_ort_snpe_ep() {
   printf("%d, %f, %s \n", max_index, *max, label_table[max_index].c_str());
 }
 
+void PrintHelp() {
+  std::cout << "To run the sample, use the following command:" << std::endl;
+  std::cout << "Example: ./snpe_ep_sample --cpu <path_to_raw_input>" << std::endl;
+  std::cout << "To Run with SNPE CPU backend. Example: ./snpe_ep_sample --cpu chairs.raw" << std::endl;
+  std::cout << "To Run with SNPE DSP backend. Example: ./snpe_ep_sample --dsp chairs.raw" << std::endl;
+}
+
+constexpr const char* CPUBACKEDN = "--cpu";
+constexpr const char* DSPBACKEDN = "--dsp";
+
 int main(int argc, char* argv[]) {
-  run_ort_snpe_ep(); 
+  std::string backend = "CPU";
+
+  if (argc != 3) {
+    PrintHelp();
+    return 1;
+  }
+
+  if (strcmp(argv[1], CPUBACKEDN) == 0) {
+    backend = "CPU";
+  } else if (strcmp(argv[1], DSPBACKEDN) == 0) {
+    backend = "DSP";
+  } else {
+    std::cout << "This sample only support CPU, DSP." << std::endl;
+    PrintHelp();
+    return 1;
+  }
+  std::string input_path(argv[2]);
+
+  run_ort_snpe_ep(backend, input_path);
   return 0;
 }

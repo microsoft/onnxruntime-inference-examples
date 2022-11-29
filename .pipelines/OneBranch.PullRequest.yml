@@ -16,6 +16,11 @@ parameters: # parameters are shown up in ADO UI in a build queue time
   type: boolean
   default: false
 
+- name: 'ortversion'
+  displayName: 'ONNX Runtime Version'
+  type: string
+  default: '1.13.1'
+
 variables:
   CDP_DEFINITION_BUILD_COUNT: $[counter('', 0)] 
   system.debug: ${{ parameters.debug }}
@@ -78,20 +83,17 @@ extends:
               minor: '0'
               exclude_commit: true
 
-          - script: |
-                set -e -x
-                apt-get update
-                apt-get install -y cmake gcc g++ libpng-dev libjpeg-turbo8-dev
-                curl -O -L https://github.com/microsoft/onnxruntime/releases/download/v1.10.0/onnxruntime-linux-x64-1.10.0.tgz
-                mkdir onnxruntimebin
-                cd onnxruntimebin
-                tar --strip=1 -zxvf ../onnxruntime-linux-x64-1.10.0.tgz
-            displayName: Download onnxruntime
-            workingDirectory: '$(Build.BinariesDirectory)'            
+          - task: Bash@3
+            displayName: 'Download ONNX Runtime Binaries'            
+            inputs:
+              targetType: filePath
+              filePath: ci_build/download_ort_release_and_install_deps.sh
+              arguments: '-i ${{ parameters.ortversion }}'
+              workingDirectory: '$(Build.BinariesDirectory)'
 
           - script: |
                 set -e -x
-                cmake $(Build.SourcesDirectory)/c_cxx -DCMAKE_BUILD_TYPE=Release -DONNXRUNTIME_ROOTDIR=$(Build.BinariesDirectory)/onnxruntimebin
+                CFLAGS="-O2 -Wall -Wextra -Werror" CXXFLAGS="-O2 -Wall -Wextra -Werror" cmake $(Build.SourcesDirectory)/c_cxx -DCMAKE_BUILD_TYPE=Release -DONNXRUNTIME_ROOTDIR=$(Build.BinariesDirectory)/onnxruntimebin
                 make -j$(nproc)
             displayName: build
             workingDirectory: '$(Build.BinariesDirectory)'
@@ -125,12 +127,15 @@ extends:
             @echo ##vso[task.setvariable variable=vslatest]%vslatest%
             @echo ##vso[task.setvariable variable=vsdevcmd]%vsdevcmd%
           displayName: 'locate vsdevcmd via vswhere'
-        - script: |
-            curl -L -o onnxruntime.zip https://github.com/microsoft/onnxruntime/releases/download/v1.10.0/onnxruntime-win-x64-1.10.0.zip
-            7z x onnxruntime.zip
-            move onnxruntime-win-x64-1.10.0 onnxruntimebin
-          workingDirectory: '$(Build.BinariesDirectory)'
-          displayName: 'Download onnxruntime binary' 
+
+        - task: PowerShell@2
+          displayName: 'Download ONNX Runtime'
+          inputs:
+            targetType: filePath
+            filePath: ci_build/download_ort_release.ps1
+            arguments: '${{ parameters.ortversion }}'
+            workingDirectory: '$(Build.BinariesDirectory)'
+
         #TODO: use the vsdevcmd variable
         - script: |
             call $(vsdevcmd)

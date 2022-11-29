@@ -1,0 +1,77 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="MauiVisionSample.MainPage">
+
+    <Grid RowSpacing="0" ColumnSpacing="0">
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="50" />
+            <RowDefinition Height="50" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="50" />
+            <RowDefinition Height="50" />
+            <RowDefinition Height="50" />
+        </Grid.RowDefinitions>
+
+        <Picker
+            x:Name="Models"
+            HorizontalTextAlignment="Center"
+            Grid.Row="0"
+            Margin="5,5,5,5" />
+
+        <Picker
+            x:Name="ExecutionProviderOptions"
+            HorizontalTextAlignment="Center"
+            Grid.Row="1"
+            Margin="5,0,5,5" />
+
+        <Grid Grid.Row="2" Margin="20" VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <Image
+                x:Name="OutputImage"
+                Grid.Row="0"
+                Aspect="AspectFit"
+                HorizontalOptions="FillAndExpand"
+                VerticalOptions="FillAndExpand" />
+
+            <Label x:Name="Caption"
+                   Grid.Row="1"
+                   Margin="0,20,0,0"
+                   VerticalTextAlignment="Start"
+                   HorizontalOptions="StartAndExpand"
+                   VerticalOptions="StartAndExpand" />
+        </Grid>
+
+        <Button
+            x:Name="SamplePhotoButton"
+            Grid.Row="3"
+            Text="Sample"
+            Clicked="AcquireButton_Clicked" />
+
+        <Button
+            x:Name="PickPhotoButton"
+            Grid.Row="4"
+            Text="Pick"
+            Clicked="AcquireButton_Clicked" />
+
+        <Button
+            x:Name="TakePhotoButton"
+            Grid.Row="5"
+            Text="Capture"
+            Clicked="AcquireButton_Clicked" />
+
+        <ActivityIndicator
+            x:Name="BusyIndicator"
+            Grid.RowSpan="6"
+            HorizontalOptions="CenterAndExpand"
+            VerticalOptions="CenterAndExpand"
+            Color="Black" />
+    </Grid>
+
+
+</ContentPage>

@@ -6,7 +6,7 @@ This is an example application for [ONNX Runtime](https://github.com/microsoft/o
 This example is loosely based on [Google CodeLabs - Getting Started with CameraX](https://codelabs.developers.google.com/codelabs/camerax-getting-started)
 
 ### Model
-We use pre-trained [TorchVision MOBILENET V2](https://pytorch.org/hub/pytorch_vision_mobilenet_v2/) in this sample app.
+We use pre-trained [MobileNet V2 models](https://github.com/onnx/models/tree/main/vision/classification/mobilenet) from the ONNX model zoo in this sample app.
 
 ## Requirements
 - Android Studio 4.1+ (installed on Mac/Windows/Linux)
@@ -16,21 +16,16 @@ We use pre-trained [TorchVision MOBILENET V2](https://pytorch.org/hub/pytorch_vi
 
 ## Build And Run
 
-### Step 0. [Optional] Prepare the ORT models
-Open [Mobilenet v2 Quantization with ONNX Runtime Notebook](https://github.com/microsoft/onnxruntime-inference-examples/blob/main/quantization/notebooks/imagenet_v2/mobilenet.ipynb), this notebook will demonstrate how to,
-1. Export the pre-trained MobileNet V2 FP32 model from PyTorch to a FP32 ONNX model
-2. Quantize the FP32 ONNX model to an uint8 ONNX model
-3. Convert both FP32 and uint8 ONNX models to ORT models
-
-Note: this step is optional, you can download the FP32 and uint8 ORT models [here](https://onnxruntimeexamplesdata.z13.web.core.windows.net/mobilenet_v2_ort_models.zip).
-
 ### Step 1. Clone the ONNX Runtime Mobile examples source code and download required model files
 Clone this GitHub repository to your computer to get the sample application.
 
-Put the labels file and models into the sample application resource directory:
-- Download the labels file [here](https://raw.githubusercontent.com/pytorch/hub/master/imagenet_classes.txt)
-- Copy MobileNetV2 ORT models and the labels file to `mobile/examples/image_classification/android/app/src/main/res/raw/`
-- Alternatively, you can run `mobile/examples/image_classification/android/download_model_files.sh` to download the labels file and models to the sample application resource directory.
+Run `mobile/examples/image_classification/android/prepare_models.py` to download and prepare the labels file and model files in the sample application resource directory.
+
+```bash
+cd mobile/examples/image_classification/android  # cd to this directory
+python -m pip install -r ./prepare_models.requirements.txt
+python ./prepare_models.py --output_dir ./app/src/main/res/raw
+```
 
 Then open the sample application in Android Studio. To do this, open Android Studio and select `Open an existing project`, browse folders and open the folder `mobile/examples/image_classification/android/`.
 

@@ -3,11 +3,11 @@
 
 2.  The sample uses the Onnxruntime SNPE Execution Provider to run inference on various Qualcomm devices like Qualcomm CPU, GPU DSP, AIP, etc. It supports Windows ARM64, and Android.
 
-# Prerequisites (Linux host)
-1. Get a Linux host
+# Prerequisites
+1. Setup a Linux environment by [WSL2](https://learn.microsoft.com/en-us/windows/wsl/)
 2. Download SNPE SDK from Qualcomm's developer site [here](https://developer.qualcomm.com/software/qualcomm-neural-processing-sdk)
 
-3. Setup SNPE on the Linux host. Setup environment for the tutorial. Follow the Tutorials and Examples for [Tensorflow inceptionv3](https://developer.qualcomm.com/sites/default/files/docs/snpe/tutorial_inceptionv3.html)
+3. Setup SNPE on the Linux environment (WSL2). Setup environment for the tutorial. Follow the Tutorials and Examples for [Tensorflow inceptionv3](https://developer.qualcomm.com/sites/default/files/docs/snpe/tutorial_inceptionv3.html)
 4. Get the model [Inception v3](https://developer.qualcomm.com/sites/default/files/docs/snpe/tutorial_setup.html#tutorial_setup_inception_v3)
 
     ```
@@ -47,8 +47,8 @@
     std::vector<const char*> options_keys = {"runtime", "buffer_type"};
     std::vector<const char*> options_values = {"CPU", "TF8"}; // set to TF8 if use quantized data
 
-    CheckStatus(g_ort, g_ort->SessionOptionsAppendExecutionProvider_SNPE(session_options, options_keys.data(),
-                                                                       options_values.data(), options_keys.size()));
+    g_ort->SessionOptionsAppendExecutionProvider(session_options, "SNPE", options_keys.data(),
+                                                 options_values.data(), options_keys.size());
     ```
     Please refers to the unit test case [Snpe_ConvertFromAbs.QuantizedModelTf8Test](https://github.com/microsoft/onnxruntime/blob/5ecfaef042380995fb15587ccf6ff77f9d3a01d2/onnxruntime/test/contrib_ops/snpe_op_test.cc#L209-L251) for more details.
 
@@ -65,7 +65,7 @@
     cmake.exe -S . -B build\ -G "Visual Studio 16 2019" -DONNXRUNTIME_ROOTDIR=[location-of-Onnxruntime]
     ```
 
-    build snpe_ep_sample.sln with x64 platform to run on host without Qualcomm NPU, build with ARM64 platform to run on host with Qualcomm NPU.
+    build snpe_ep_sample.sln with x64 platform to run on host without Qualcomm NPU, build with ARM64 platform to run on device with Qualcomm NPU.
 
 3. Run the sample
     Copy files below to folder which has snpe_ep_sample.exe
@@ -74,7 +74,12 @@
     chairs.raw -- from $SNPE_ROOT/models/inception_v3/data/cropped
     imagenet_slim_labels.txt -- from $SNPE_ROOT/models/inception_v3/data
 
-    Run snpe_ep_sample.exe, it will output:
+    Run
+    ```
+    snpe_ep_sample.exe --cpu chairs.raw
+    ```
+
+    it will output:
 
     ```
     832, 0.299591, studio couch
@@ -103,6 +108,7 @@
     adb push [$SNPE_ROOT]/lib/dsp/*.so /data/local/tmp/snpeexample
     adb push [$Onnxruntime_ROOT]/build/Android/Release/libonnxruntime.so /data/local/tmp/snpeexample    
     adb push [$SNPE_ROOT]/models/inception_v3/data/cropped/chairs.raw /data/local/tmp/snpeexample
+    adb push [$SNPE_ROOT]/models/inception_v3/data/imagenet_slim_labels.txt /data/local/tmp/snpeexample
     adb push [$SNPE_ROOT]/models/inception_v3/snpe_inception_v3.onnx /data/local/tmp/snpeexample
     adb push ./onnxruntime-inference-examples/c_cxx/Snpe_EP/build_android/snpe_ep_sample /data/local/tmp/snpeexample
     ```
@@ -115,7 +121,8 @@
     chmod +x *
     export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/data/local/tmp/snpeexample
     export PATH=$PATH:/data/local/tmp/snpeexample
-    snpe_ep_sample
+    snpe_ep_sample --cpu chairs.raw
+    snpe_ep_sample --dsp chairs.raw
     ```
 
     it will output:
