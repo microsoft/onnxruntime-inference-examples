@@ -1,7 +1,16 @@
 # Windows C++ sample with OVEP:
 
 1. model-explorer
-2. Squeezenet classification
+
+    This sample application demonstrates how to use components of the experimental C++ API to query for model inputs/outputs and how to run inferrence using OpenVINO Execution Provider for ONNXRT on a model. The source code for this sample is available [here](https://github.com/microsoft/onnxruntime-inference-examples/tree/main/c_cxx/OpenVINO_EP/Windows/model-explorer).
+
+2. Squeezenet classification sample
+
+    The sample involves presenting an image to the ONNX Runtime (RT), which uses the OpenVINO Execution Provider for ONNXRT to run inference on various Intel hardware devices like Intel CPU, GPU, VPU and more. The sample uses OpenCV for image processing and ONNX Runtime OpenVINO EP for inference. After the sample image is inferred, the terminal will output the predicted label classes in order of their confidence. The source code for this sample is available [here](https://github.com/microsoft/onnxruntime-inference-examples/tree/main/c_cxx/OpenVINO_EP/Windows/squeezenet_classification).
+
+3. Squeezenet classification sample with IO Buffer feature
+
+    This sample is also doing the same process but with IO Buffer optimization enabled. With IO Buffer interfaces we can avoid any memory copy overhead when plugging OpenVINO™ inference into an existing GPU pipeline. It also enables OpenCL kernels to participate in the pipeline to become native buffer consumers or producers of the OpenVINO™ inference. Refer [here](https://docs.openvino.ai/latest/openvino_docs_OV_UG_supported_plugins_GPU_RemoteTensor_API.html) for more details. This sample is for GPUs only. The source code for this sample is available [here](https://github.com/microsoft/onnxruntime-inference-examples/tree/main/c_cxx/OpenVINO_EP/Windows/squeezenet_classification_io_buffer).
 
 ## How to build
 
