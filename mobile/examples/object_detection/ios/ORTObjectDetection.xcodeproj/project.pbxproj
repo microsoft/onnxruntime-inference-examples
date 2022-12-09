@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2E64B72128F7656400A55A0B /* ssd_mobilenet_v1.ort in Resources */ = {isa = PBXBuildFile; fileRef = 2E64B72028F7656400A55A0B /* ssd_mobilenet_v1.ort */; };
 		5182220826793930003B00DB /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 5182220726793930003B00DB /* Main.storyboard */; };
 		5182220A2679440C003B00DB /* labelmap.txt in Resources */ = {isa = PBXBuildFile; fileRef = 518222092679440B003B00DB /* labelmap.txt */; };
 		5182220C26795576003B00DB /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5182220B26795576003B00DB /* SceneDelegate.swift */; };
@@ -20,7 +21,6 @@
 		51A25D64266EA7460087C801 /* ModelHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51A25D63266EA7460087C801 /* ModelHandler.swift */; };
 		51A25D66266EA7AE0087C801 /* CameraManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51A25D65266EA7AE0087C801 /* CameraManager.swift */; };
 		51A25D6926715ECD0087C801 /* OverlayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51A25D6826715ECD0087C801 /* OverlayView.swift */; };
-		EF2E2B1626FAA092005C8A04 /* ssd_mobilenet_v1.all.ort in Resources */ = {isa = PBXBuildFile; fileRef = EF2E2B1526FAA092005C8A04 /* ssd_mobilenet_v1.all.ort */; };
 		EF2E2B1E26FAAD93005C8A04 /* ORTObjectDetectionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF2E2B1D26FAAD93005C8A04 /* ORTObjectDetectionTests.swift */; };
 /* End PBXBuildFile section */
 
@@ -35,6 +35,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		2E64B72028F7656400A55A0B /* ssd_mobilenet_v1.ort */ = {isa = PBXFileReference; lastKnownFileType = file; path = ssd_mobilenet_v1.ort; sourceTree = "<group>"; };
 		5182220726793930003B00DB /* Main.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Main.storyboard; sourceTree = "<group>"; };
 		518222092679440B003B00DB /* labelmap.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = labelmap.txt; sourceTree = "<group>"; };
 		5182220B26795576003B00DB /* SceneDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -51,7 +52,6 @@
 		51A25D65266EA7AE0087C801 /* CameraManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CameraManager.swift; sourceTree = "<group>"; };
 		51A25D67267137B70087C801 /* BridgingHeader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BridgingHeader.h; sourceTree = "<group>"; };
 		51A25D6826715ECD0087C801 /* OverlayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverlayView.swift; sourceTree = "<group>"; };
-		EF2E2B1526FAA092005C8A04 /* ssd_mobilenet_v1.all.ort */ = {isa = PBXFileReference; lastKnownFileType = file; path = ssd_mobilenet_v1.all.ort; sourceTree = "<group>"; };
 		EF2E2B1B26FAAD93005C8A04 /* ORTObjectDetectionTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ORTObjectDetectionTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		EF2E2B1D26FAAD93005C8A04 /* ORTObjectDetectionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ORTObjectDetectionTests.swift; sourceTree = "<group>"; };
 		EF2E2B1F26FAAD93005C8A04 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -127,7 +127,7 @@
 		51A25D5C266EA0030087C801 /* ModelsAndData */ = {
 			isa = PBXGroup;
 			children = (
-				EF2E2B1526FAA092005C8A04 /* ssd_mobilenet_v1.all.ort */,
+				2E64B72028F7656400A55A0B /* ssd_mobilenet_v1.ort */,
 				518222092679440B003B00DB /* labelmap.txt */,
 			);
 			path = ModelsAndData;
@@ -231,7 +231,7 @@
 			files = (
 				51A25D5A266E9CA60087C801 /* LaunchScreen.storyboard in Resources */,
 				5182220A2679440C003B00DB /* labelmap.txt in Resources */,
-				EF2E2B1626FAA092005C8A04 /* ssd_mobilenet_v1.all.ort in Resources */,
+				2E64B72128F7656400A55A0B /* ssd_mobilenet_v1.ort in Resources */,
 				5182220826793930003B00DB /* Main.storyboard in Resources */,
 				51A25D4D266E9C3E0087C801 /* Assets.xcassets in Resources */,
 			);

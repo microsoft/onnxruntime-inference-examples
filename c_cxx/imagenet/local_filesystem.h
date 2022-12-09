@@ -19,6 +19,7 @@
 #include <unistd.h>
 #include <sys/mman.h>
 #endif
+
 #include <onnxruntime_c_api.h>
 void ReadFileAsString(const ORTCHAR_T* fname, void*& p, size_t& len);
 

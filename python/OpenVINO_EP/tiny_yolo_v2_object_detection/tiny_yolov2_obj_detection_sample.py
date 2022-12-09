@@ -9,6 +9,11 @@ import cv2
 import time
 import os
 import argparse
+import platform
+
+if platform.system() == "Windows":
+    from openvino import utils
+    utils.add_openvino_libs_to_path()
 
 # color look up table for different classes for object detection sample
 clut = [(0,0,0),(255,0,0),(255,0,255),(0,0,255),(0,255,0),(0,255,128),
@@ -153,8 +158,8 @@ def main():
     other 'device_type' options are: (Any hardware target can be assigned if you have the access to it)
     'CPU_FP32', 'GPU_FP32', 'GPU_FP16', 'MYRIAD_FP16', 'VAD-M_FP16'
     '''
-  else: 
-    print("Device type selected is not [cpu, CPU_FP32, GPU_FP32, GPU_FP16, MYRIAD_FP16, VADM_FP16]")
+  else:
+    raise Exception("Device type selected is not [cpu, CPU_FP32, GPU_FP32, GPU_FP16, MYRIAD_FP16, VADM_FP16]")
 
   # Get the input name of the model
   input_name = sess.get_inputs()[0].name
