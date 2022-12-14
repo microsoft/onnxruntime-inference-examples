@@ -1,7 +1,6 @@
 /*
 Copyright (C) 2021, Intel Corporation
 SPDX-License-Identifier: Apache-2.0
-
 Portions of this software are copyright of their respective authors and released under the MIT license:
 - ONNX-Runtime-Inference, Copyright 2020 Lei Mao. For licensing see https://github.com/leimao/ONNX-Runtime-Inference/blob/main/LICENSE.md
 */
@@ -21,8 +20,12 @@ Portions of this software are copyright of their respective authors and released
 #include <string>
 #include <vector>
 #include <stdexcept> // To use runtime_error
+#include <CL/cl2.hpp>
 #include <Windows.h>
 #include <psapi.h>
+
+#define CL_HPP_MINIMUM_OPENCL_VERSION 120
+#define CL_HPP_TARGET_OPENCL_VERSION 120
 
 std::size_t GetPeakWorkingSetSize() {
     PROCESS_MEMORY_COUNTERS pmc;
@@ -31,6 +34,49 @@ std::size_t GetPeakWorkingSetSize() {
     }
     return 0;
 }
+
+struct OpenCL {
+    cl::Context _context;
+    cl::Device _device;
+    cl::CommandQueue _queue;
+
+    explicit OpenCL(std::shared_ptr<std::vector<cl_context_properties>> media_api_context_properties = nullptr) {
+        // get Intel iGPU OCL device, create context and queue
+        {
+            const unsigned int refVendorID = 0x8086;
+            cl_uint n = 0;
+            clGetPlatformIDs(0, NULL, &n);
+
+            // Get platform list
+            std::vector<cl_platform_id> platform_ids(n);
+            clGetPlatformIDs(n, platform_ids.data(), NULL);
+
+            for (auto& id : platform_ids) {
+                cl::Platform platform = cl::Platform(id);
+                std::vector<cl::Device> devices;
+                platform.getDevices(CL_DEVICE_TYPE_GPU, &devices);
+                for (auto& d : devices) {
+                    if (refVendorID == d.getInfo<CL_DEVICE_VENDOR_ID>()) {
+                        _device = d;
+                        _context = cl::Context(_device);
+                        break;
+                    }
+                }
+            }
+            cl_command_queue_properties props = CL_QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE;
+            _queue = cl::CommandQueue(_context, _device, props);
+        }
+    }
+
+    explicit OpenCL(cl_context context) {
+        // user-supplied context handle
+        _context = cl::Context(context);
+        _device = cl::Device(_context.getInfo<CL_CONTEXT_DEVICES>()[0]);
+
+        cl_command_queue_properties props = CL_QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE;
+        _queue = cl::CommandQueue(_context, _device, props);
+    }
+};
 
 template <typename T>
 T vectorProduct(const std::vector<T>& v)
@@ -111,7 +157,7 @@ bool checkModelExtension(const std::string& filename)
         return true;
     return false;
 }
- 
+
 // Function to validate the Label file extension.
 bool checkLabelFileExtension(const std::string& filename)
 {
@@ -140,16 +186,12 @@ float division(float num, float den){
 
 void printHelp() {
     std::cout << "To run the model, use the following command:\n";
-    std::cout << "Example: run_squeezenet --use_openvino <path_to_the_model> <path_to_the_image> <path_to_the_classes_file>" << std::endl;
-    std::cout << "\n To Run using OpenVINO EP.\nExample: run_squeezenet --use_openvino squeezenet1.1-7.onnx demo.jpeg synset.txt \n" << std::endl;
-    std::cout << "\n To Run on Default CPU.\n Example: run_squeezenet --use_cpu squeezenet1.1-7.onnx demo.jpeg synset.txt \n" << std::endl;
+    std::cout << "Example: ./run_squeezenet <path_to_the_model> <path_to_the_image> <path_to_the_classes_file>" << std::endl;
+    std::cout << "\n Example: ./run_squeezenet squeezenet1.1-7.onnx demo.jpeg synset.txt \n" << std::endl;
 }
 
 int main(int argc, char* argv[])
 {
-    bool useOPENVINO{true};
-    const char* useOPENVINOFlag = "--use_openvino";
-    const char* useCPUFlag = "--use_cpu";
 
     if(argc == 2) {
         std::string option = argv[1];
@@ -157,40 +199,27 @@ int main(int argc, char* argv[])
             printHelp();
         }
         return 0;
-    } else if(argc != 5) {
+    } else if(argc != 4) {
         std::cout << "[ ERROR ] you have used the wrong command to run your program." << std::endl;
         printHelp();
         return 0;
-    } else if (strcmp(argv[1], useOPENVINOFlag) == 0) {
-        useOPENVINO = true;
-    } else if (strcmp(argv[1], useCPUFlag) == 0) {
-        useOPENVINO = false;
-    }
-
-    if (useOPENVINO)
-    {
-        std::cout << "Inference Execution Provider: OPENVINO" << std::endl;
-    }
-    else
-    {
-        std::cout << "Inference Execution Provider: CPU" << std::endl;
     }
 
     std::string instanceName{"image-classification-inference"};
-	
     #ifdef _WIN32
-        std::string str_arg2 = argv[2];
-        std::wstring wide_string_arg2 = std::wstring(str_arg2.begin(), str_arg2.end());
-        std::basic_string<ORTCHAR_T> modelFilepath = std::basic_string<ORTCHAR_T>(wide_string_arg2);
+        std::string str_arg1 = argv[1];
+        std::wstring wide_string_arg1 = std::wstring(str_arg1.begin(), str_arg1.end());
+        std::basic_string<ORTCHAR_T> modelFilepath = std::basic_string<ORTCHAR_T>(wide_string_arg1);
     #else
-        std::string modelFilepath = argv[2]; // .onnx file
+        std::string modelFilepath = argv[1]; // .onnx file
+
         //validate ModelFilePath
         checkModelExtension(modelFilepath);
         if(!checkModelExtension(modelFilepath)) {
             throw std::runtime_error("[ ERROR ] The ModelFilepath is not correct. Make sure you are setting the path to an onnx model file (.onnx)");
         }
     #endif
-    std::string imageFilepath = argv[3];
+    std::string imageFilepath = argv[2];
 
     // Validate ImageFilePath
     imageFileExtension(imageFilepath);
@@ -203,31 +232,31 @@ int main(int argc, char* argv[])
     }
 
     // Validate LabelFilePath
-    std::string labelFilepath = argv[4];
+    std::string labelFilepath = argv[3];
     if(!checkLabelFileExtension(labelFilepath)) {
         throw std::runtime_error("[ ERROR ] The LabelFilepath is not set correctly and the labels file should end with extension .txt");
     }
 
     std::vector<std::string> labels{readLabels(labelFilepath)};
 
-    Ort::Env env(OrtLoggingLevel::ORT_LOGGING_LEVEL_WARNING,
-                 instanceName.c_str());
+    Ort::Env env(OrtLoggingLevel::ORT_LOGGING_LEVEL_FATAL, instanceName.c_str());
     Ort::SessionOptions sessionOptions;
     sessionOptions.SetIntraOpNumThreads(1);
 
+    auto ocl_instance = std::make_shared<OpenCL>();
+
     //Appending OpenVINO Execution Provider API
-    if (useOPENVINO) {
-        // Using OPENVINO backend
-        OrtOpenVINOProviderOptions options;
-        options.device_type = "CPU_FP32"; //Other options are: GPU_FP32, GPU_FP16, MYRIAD_FP16
-        std::cout << "OpenVINO device type is set to: " << options.device_type << std::endl;
-        sessionOptions.AppendExecutionProvider_OpenVINO(options);
-    }
+    // Using OPENVINO backend
+    OrtOpenVINOProviderOptions options;
+    options.device_type = "GPU_FP32"; //Another options are: GPU_FP16, GPU.1_FP32, GPU.1_FP16, GPU.0_FP32, GPU.0_FP16
+    options.context = (void *) ocl_instance->_context.get() ; 
+    std::cout << "OpenVINO device type is set to: " << options.device_type << std::endl;
+    sessionOptions.AppendExecutionProvider_OpenVINO(options);
     
     // Sets graph optimization level
     // Available levels are
     // ORT_DISABLE_ALL -> To disable all optimizations
-    // ORT_ENABLE_BASIC -> To enable basic optimizations (Such as redundant node
+    // ORT_ENABLE_BASIC -> To enable basic optimizations ( Such as redundant node
     // removals) ORT_ENABLE_EXTENDED -> To enable extended optimizations
     // (Includes level 1 + more complex optimizations like node fusions)
     // ORT_ENABLE_ALL -> To Enable All possible optimizations
@@ -238,6 +267,7 @@ int main(int argc, char* argv[])
     Ort::Session session(env, modelFilepath.c_str(), sessionOptions);
 
     Ort::AllocatorWithDefaultOptions allocator;
+    Ort::MemoryInfo info_gpu("OpenVINO_GPU", OrtAllocatorType::OrtDeviceAllocator, 0, OrtMemTypeDefault);
 
     size_t numInputNodes = session.GetInputCount();
     size_t numOutputNodes = session.GetOutputCount();
@@ -304,65 +334,68 @@ int main(int argc, char* argv[])
     // step 8: Convert the image to CHW RGB float format.
     // HWC to CHW
     cv::dnn::blobFromImage(resizedImage, preprocessedImage);
-
-
+    
     //Run Inference
+    std::vector<const char*> inputNames{inputName};
+    std::vector<const char*> outputNames{outputName};
 
     /* To run inference using ONNX Runtime, the user is responsible for creating and managing the 
-    input and output buffers. These buffers could be created and managed via std::vector.
-    The linear-format input data should be copied to the buffer for ONNX Runtime inference. */
+    input and output buffers. The buffers are IO Binding Buffers created on Remote Folders to create Remote Blob*/
 
     size_t inputTensorSize = vectorProduct(inputDims);
     std::vector<float> inputTensorValues(inputTensorSize);
     inputTensorValues.assign(preprocessedImage.begin<float>(),
                              preprocessedImage.end<float>());
 
+    size_t imgSize = inputTensorSize*4;
+    cl_int err;
+    cl::Buffer shared_buffer(ocl_instance->_context, CL_MEM_READ_WRITE, imgSize, NULL, &err);
+    {
+        void *buffer = (void *)preprocessedImage.ptr();
+        ocl_instance->_queue.enqueueWriteBuffer(shared_buffer, true, 0, imgSize, buffer);
+    }
+
+    //To pass to OrtValue wrap the buffer in shared buffer
+    void *shared_buffer_void = static_cast<void *>(&shared_buffer);
     size_t outputTensorSize = vectorProduct(outputDims);
+    std::vector<float> outputTensorValues(outputTensorSize);
+ 
+    Ort::Value inputTensors = Ort::Value::CreateTensor(
+        info_gpu, shared_buffer_void, imgSize, inputDims.data(),
+        inputDims.size(), ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT);
+
     assert(("Output tensor size should equal to the label set size.",
             labels.size() == outputTensorSize));
-    std::vector<float> outputTensorValues(outputTensorSize);
+    
+    size_t imgSizeO = outputTensorSize*4;
+    cl::Buffer shared_buffer_out(ocl_instance->_context, CL_MEM_READ_WRITE, imgSizeO, NULL, &err);
+   
+   //To pass the ORT Value wrap the output buffer in shared buffer
+    void *shared_buffer_out_void = static_cast<void *>(&shared_buffer_out);
+       Ort::Value outputTensors = Ort::Value::CreateTensor(
+        info_gpu, shared_buffer_out_void, imgSizeO, outputDims.data(),
+        outputDims.size(), ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT);
 
-
-    /* Once the buffers were created, they would be used for creating instances of Ort::Value 
-    which is the tensor format for ONNX Runtime. There could be multiple inputs for a neural network, 
-    so we have to prepare an array of Ort::Value instances for inputs and outputs respectively even if 
-    we only have one input and one output. */
-
-    std::vector<const char*> inputNames{inputName};
-    std::vector<const char*> outputNames{outputName};
-    std::vector<Ort::Value> inputTensors;
-    std::vector<Ort::Value> outputTensors;
-
-    /*
-    Creating ONNX Runtime inference sessions, querying input and output names, 
-    dimensions, and types are trivial.
-    Setup inputs & outputs: The input & output tensors are created here. */
-
-    Ort::MemoryInfo memoryInfo = Ort::MemoryInfo::CreateCpu(
-        OrtAllocatorType::OrtArenaAllocator, OrtMemType::OrtMemTypeDefault);
-    inputTensors.push_back(Ort::Value::CreateTensor<float>(
-        memoryInfo, inputTensorValues.data(), inputTensorSize, inputDims.data(),
-        inputDims.size()));
-    outputTensors.push_back(Ort::Value::CreateTensor<float>(
-        memoryInfo, outputTensorValues.data(), outputTensorSize,
-        outputDims.data(), outputDims.size()));
-
-    /* To run inference, we provide the run options, an array of input names corresponding to the 
-    inputs in the input tensor, an array of input tensor, number of inputs, an array of output names 
-    corresponding to the the outputs in the output tensor, an array of output tensor, number of outputs. */
-
-    session.Run(Ort::RunOptions{nullptr}, inputNames.data(),
-                inputTensors.data(), 1, outputNames.data(),
-                outputTensors.data(), 1);
+    std::cout << "Before Running\n";
+    session.Run(Ort::RunOptions{nullptr}, inputNames.data(), &inputTensors, 1, outputNames.data(), &outputTensors, 1);
 
     int predId = 0;
     float activation = 0;
     float maxActivation = std::numeric_limits<float>::lowest();
     float expSum = 0;
+
+    uint8_t *ary = (uint8_t*) malloc(imgSizeO);
+    ocl_instance->_queue.enqueueReadBuffer(shared_buffer_out, true, 0, imgSizeO, ary);
+
+    //float outputTensorArray[outputTensorSize] ;
+    float* outputTensorArray = new float[outputTensorSize];
+
+    std::memcpy(outputTensorArray, ary, imgSizeO);
     /* The inference result could be found in the buffer for the output tensors, 
     which are usually the buffer from std::vector instances. */
+
     for (int i = 0; i < labels.size(); i++) {
-        activation = outputTensorValues.at(i);
+        activation = outputTensorArray[i];
         expSum += std::exp(activation);
         if (activation > maxActivation)
         {
@@ -382,15 +415,15 @@ int main(int argc, char* argv[])
     }
 
     // Measure latency
-    int numTests{100};
+    int numTests{10};
     std::chrono::steady_clock::time_point begin =
         std::chrono::steady_clock::now();
 
     //Run: Running the session is done in the Run() method:
     for (int i = 0; i < numTests; i++) {
-        session.Run(Ort::RunOptions{nullptr}, inputNames.data(),
-                    inputTensors.data(), 1, outputNames.data(),
-                    outputTensors.data(), 1);
+       // session.Run(Ort::RunOptions{nullptr}, binding);
+      session.Run(Ort::RunOptions{nullptr}, inputNames.data(), &inputTensors, 1, outputNames.data(), &outputTensors, 1);
+      //session.Run(Ort::RunOptions{nullptr}, binding);
     }
     std::chrono::steady_clock::time_point end =
         std::chrono::steady_clock::now();
