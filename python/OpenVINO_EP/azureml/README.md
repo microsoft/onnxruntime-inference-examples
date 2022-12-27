@@ -18,7 +18,6 @@ To run on AzureML, you need:
  [Optimum Intel](https://github.com/huggingface/optimum-intel/tree/v1.5.2).  
 - The output of training is an INT8 optimized model and will stored on a local/cloud storage.  
 - Inorder to run Quantization Aware Training we need to provide few arguments as an input to the training script like model name, dataset name etc.  
-
   <br/>For more details please refer to the training notebook.
 
 ## Inference on quantized model using OpenVINO Execution provider through Optimum ONNX Runtime
