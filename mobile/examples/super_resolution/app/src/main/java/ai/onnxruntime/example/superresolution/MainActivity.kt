@@ -10,7 +10,6 @@ import android.widget.ImageView
 import android.widget.Toast
 import androidx.activity.*
 import androidx.appcompat.app.AppCompatActivity
-import androidx.camera.core.*
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.*
 import java.io.InputStream
@@ -23,24 +22,23 @@ class MainActivity : AppCompatActivity() {
     private val backgroundExecutor: ExecutorService by lazy { Executors.newSingleThreadExecutor() }
     private var ortEnv: OrtEnvironment? = null
 
-    var mImage: ImageView? = null
-    var super_resulution_button: Button? = null
+    private var outputImage: ImageView? = null
+    private var superResolutionButton: Button? = null
 
     @SuppressLint("UseCompatLoadingForDrawables")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        mImage = findViewById(R.id.imageView2);
-        super_resulution_button = findViewById(R.id.super_resolution_button)
+        outputImage = findViewById(R.id.imageView2);
+        superResolutionButton = findViewById(R.id.super_resolution_button)
+
         ortEnv = OrtEnvironment.getEnvironment()
 
-        super_resulution_button?.setOnClickListener(object : View.OnClickListener {
-            override fun onClick(view: View?) {
-                Toast.makeText(baseContext,"Super resolution performed!", Toast.LENGTH_SHORT).show()
-                setSuperResPerformer()
-            }
-        })
+        superResolutionButton?.setOnClickListener {
+            Toast.makeText(baseContext, "Super resolution performed!", Toast.LENGTH_SHORT).show()
+            setSuperResPerformer()
+        }
     }
 
     override fun onDestroy() {
@@ -50,7 +48,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun updateUI(result: Result) {
-        mImage?.setImageBitmap(result.outputBitmap)
+        outputImage?.setImageBitmap(result.outputBitmap)
     }
 
     // Read ort model into a ByteArray
@@ -69,8 +67,6 @@ class MainActivity : AppCompatActivity() {
         return ortEnv?.createSession(readModel(), sessionOptions)
     }
 
-    // Create a new ORT session and then change the ImageAnalysis.Analyzer
-    // This part is done in background to avoid blocking the UI
     private fun setSuperResPerformer()  {
         var result = Result()
         var superResPerformer = SuperResPerformer(createOrtSession(), result)
@@ -79,6 +75,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     companion object {
-        public const val TAG = "ORTSuperResolution"
+        const val TAG = "ORTSuperResolution"
     }
 }

@@ -10,10 +10,7 @@ import java.io.InputStream
 import java.nio.ByteBuffer
 import java.util.*
 
-
-// TODO: modify to super res use case
 internal data class Result(
-    // TODO: output image bytes -> display to png
     var outputBitmap: Bitmap? = null
 ) {}
 
@@ -22,7 +19,7 @@ internal class SuperResPerformer(
     private val result: Result?
 ) {
 
-    public fun analyze(inputStream: InputStream) {
+    fun analyze(inputStream: InputStream) {
         // Step 1: convert image into byte array (raw image bytes)
         val rawImageBytes = inputStream.readBytes()
 
@@ -47,18 +44,17 @@ internal class SuperResPerformer(
                     val outputImageBitmap =
                         byteArrayToBitmap(rawOutput)
 
-                // Step 5: set output result
+                    // Step 5: set output result
                     this.result?.outputBitmap = outputImageBitmap
                 }
             }
         }
     }
 
-    fun byteArrayToBitmap(data: ByteArray): Bitmap {
+    private fun byteArrayToBitmap(data: ByteArray): Bitmap {
         return BitmapFactory.decodeByteArray(data, 0, data.size)
     }
 
-    // We can switch analyzer in the app, need to make sure the native resources are freed
     protected fun finalize() {
         ortSession?.close()
     }

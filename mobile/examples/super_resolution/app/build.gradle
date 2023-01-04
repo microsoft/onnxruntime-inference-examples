@@ -37,15 +37,6 @@ android {
 }
 
 dependencies {
-    // CameraX core library using the camera2 implementation
-    def camerax_version = "1.0.0"
-    // The following line is optional, as the core library is included indirectly by camera-camera2
-    implementation "androidx.camera:camera-camera2:${camerax_version}"
-    // If you want to additionally use the CameraX Lifecycle library
-    implementation "androidx.camera:camera-lifecycle:${camerax_version}"
-    // If you want to additionally use the CameraX View class
-    implementation "androidx.camera:camera-view:1.0.0-alpha25"
-
     implementation 'androidx.core:core-ktx:1.7.0'
     implementation 'androidx.appcompat:appcompat:1.5.1'
     implementation 'com.google.android.material:material:1.7.0'
@@ -54,7 +45,8 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.4'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.0'
 
-    // TODO: may want to update to latest version of ort mobile aar package
+    // Note: may want to update to latest version of ort mobile aar package
     implementation 'com.microsoft.onnxruntime:onnxruntime-android:1.12.1'
-    implementation files('libs/onnxruntime-extensions-release.aar')
+    // TODO: create the libs folder and copy required ort-extensions android aar package here
+    implementation files('libs/onnxruntime-mobile-extensions-0.5.0.aar')
 }
