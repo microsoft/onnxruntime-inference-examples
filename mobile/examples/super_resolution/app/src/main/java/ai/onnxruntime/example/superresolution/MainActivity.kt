@@ -4,7 +4,6 @@ import ai.onnxruntime.*
 import ai.onnxruntime.extensions.OrtxPackage
 import android.annotation.SuppressLint
 import android.os.Bundle
-import android.view.View
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.Toast
@@ -51,14 +50,13 @@ class MainActivity : AppCompatActivity() {
         outputImage?.setImageBitmap(result.outputBitmap)
     }
 
-    // Read ort model into a ByteArray
-    private fun readModel(): ByteArray  {
+    private fun readModel(): ByteArray {
         val modelID = R.raw.pt_super_resolution_op16
         return resources.openRawResource(modelID).readBytes()
     }
 
     private fun readInputImage(): InputStream {
-         return assets.open("test_superresolution.png")
+        return assets.open("test_superresolution.png")
     }
 
     private fun createOrtSession(): OrtSession? {
@@ -67,7 +65,7 @@ class MainActivity : AppCompatActivity() {
         return ortEnv?.createSession(readModel(), sessionOptions)
     }
 
-    private fun setSuperResPerformer()  {
+    private fun setSuperResPerformer() {
         var result = Result()
         var superResPerformer = SuperResPerformer(createOrtSession(), result)
         superResPerformer.analyze(readInputImage())

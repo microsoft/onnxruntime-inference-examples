@@ -9,7 +9,3 @@
 
 #
 Here's an example screenshot of the app.
-
-<img width=20% src="images/sample_screenshot_1.jpg" alt="App Screenshot" />
-
-<img width=20% src="images/sample_screenshot_2.jpg" alt="App Screenshot" />
