@@ -18,9 +18,7 @@ import java.util.concurrent.Executors
 
 
 class MainActivity : AppCompatActivity() {
-    private val backgroundExecutor: ExecutorService by lazy { Executors.newSingleThreadExecutor() }
-    private var ortEnv: OrtEnvironment? = null
-
+    private var ortEnv: OrtEnvironment = OrtEnvironment.getEnvironment()
     private var outputImage: ImageView? = null
     private var superResolutionButton: Button? = null
 
@@ -32,18 +30,15 @@ class MainActivity : AppCompatActivity() {
         outputImage = findViewById(R.id.imageView2);
         superResolutionButton = findViewById(R.id.super_resolution_button)
 
-        ortEnv = OrtEnvironment.getEnvironment()
-
         superResolutionButton?.setOnClickListener {
+            performSuperResolution()
             Toast.makeText(baseContext, "Super resolution performed!", Toast.LENGTH_SHORT).show()
-            setSuperResPerformer()
         }
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        backgroundExecutor.shutdown()
-        ortEnv?.close()
+        ortEnv.close()
     }
 
     private fun updateUI(result: Result) {
@@ -59,16 +54,16 @@ class MainActivity : AppCompatActivity() {
         return assets.open("test_superresolution.png")
     }
 
-    private fun createOrtSession(): OrtSession? {
+    private fun createOrtSession(): OrtSession {
         val sessionOptions: OrtSession.SessionOptions = OrtSession.SessionOptions()
         sessionOptions.registerCustomOpLibrary(OrtxPackage.getLibraryPath())
-        return ortEnv?.createSession(readModel(), sessionOptions)
+        return ortEnv.createSession(readModel(), sessionOptions)
     }
 
-    private fun setSuperResPerformer() {
+    private fun performSuperResolution() {
         var result = Result()
         var superResPerformer = SuperResPerformer(createOrtSession(), result)
-        superResPerformer.analyze(readInputImage())
+        superResPerformer.analyze(readInputImage(), ortEnv)
         updateUI(result);
     }
 

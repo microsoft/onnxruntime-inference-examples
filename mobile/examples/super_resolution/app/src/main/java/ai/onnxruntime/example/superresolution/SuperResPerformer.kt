@@ -15,37 +15,36 @@ internal data class Result(
 ) {}
 
 internal class SuperResPerformer(
-    private val ortSession: OrtSession?,
-    private val result: Result?
+    private val ortSession: OrtSession,
+    private val result: Result
 ) {
 
-    fun analyze(inputStream: InputStream) {
+    fun analyze(inputStream: InputStream, ortEnv: OrtEnvironment) {
         // Step 1: convert image into byte array (raw image bytes)
         val rawImageBytes = inputStream.readBytes()
 
         // Step 2: get the shape of the byte array and make ort tensor
         val shape = longArrayOf(rawImageBytes.size.toLong())
-        val env = OrtEnvironment.getEnvironment()
-        env.use {
+
+        ortEnv.use {
             val inputTensor = OnnxTensor.createTensor(
-                env,
+                ortEnv,
                 ByteBuffer.wrap(rawImageBytes),
                 shape,
                 OnnxJavaType.UINT8
             )
             inputTensor.use {
                 // Step 3: call ort inferenceSession run
-                val output = ortSession?.run(Collections.singletonMap("image", inputTensor))
+                val output = ortSession.run(Collections.singletonMap("image", inputTensor))
 
                 // Step 4: output analysis
                 output.use {
-                    @Suppress("UNCHECKED_CAST")
                     val rawOutput = (output?.get(0)?.value) as ByteArray
                     val outputImageBitmap =
                         byteArrayToBitmap(rawOutput)
 
                     // Step 5: set output result
-                    this.result?.outputBitmap = outputImageBitmap
+                    this.result.outputBitmap = outputImageBitmap
                 }
             }
         }
@@ -56,6 +55,6 @@ internal class SuperResPerformer(
     }
 
     protected fun finalize() {
-        ortSession?.close()
+        ortSession.close()
     }
 }
