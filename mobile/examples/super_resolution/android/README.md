@@ -2,7 +2,7 @@
 
 ## Overview
 
-This is an example application for [ONNX Runtime](https://github.com/microsoft/onnxruntime) on Android with [Ort-Extensions](https://github.com/microsoft/onnxruntime-extensions) support for pre/post processing. The demo app accomplishes the task of recovering a high resolution (HR) image from its low resolution counterpart.
+This is an basic Super Resolution example application for [ONNX Runtime](https://github.com/microsoft/onnxruntime) on Android with [Ort-Extensions](https://github.com/microsoft/onnxruntime-extensions) support for pre/post processing. The demo app accomplishes the task of recovering a high resolution (HR) image from its low resolution counterpart.
 
 The model used here is from source: [Pytorch Super Resolution](https://pytorch.org/tutorials/advanced/super_resolution_with_onnxruntime.html) and accomodated into [ONNX](https://github.com/onnx/onnx) version with pre/post processing support.
 
@@ -32,7 +32,7 @@ Note: When update to pre-release/release version ort package, it will no longer 
 ### Step 3: Connect Android Device and Run the app
   Connect your Android Device to your computer or select the Android Emulator in Android Studio Device manager.
 
-  Then selector `Run -> Run app` and this will prompt the app to be built and installed on your device or emulator.
+  Then select `Run -> Run app` and this will prompt the app to be built and installed on your device or emulator.
 
   Now you can try and test the super resolution android app by clicking the perform action button.
 
