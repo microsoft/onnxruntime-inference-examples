@@ -61,9 +61,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun performSuperResolution() {
-        var result = Result()
-        var superResPerformer = SuperResPerformer(createOrtSession(), result)
-        superResPerformer.analyze(readInputImage(), ortEnv)
+        var superResPerformer = SuperResPerformer(createOrtSession())
+        var result = superResPerformer.upscale(readInputImage(), ortEnv)
         updateUI(result);
     }
 
