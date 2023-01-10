@@ -1,0 +1,22 @@
+platform :ios, '11.0'
+
+target 'ORTSuperResolution' do
+  # Comment the next line if you don't want to use dynamic frameworks
+  use_frameworks!
+
+  # Pods for OrtSuperResolution
+  pod 'onnxruntime-c'
+  
+  #pre-release version pods   
+  pod 'onnxruntime-extensions-c', '0.5.0-dev+261962.e3663fb'
+  
+end
+
+post_install do |installer|
+  installer.pods_project.targets.each do |target|
+    target.build_configurations.each do |config|
+      config.build_settings['CODE_SIGNING_ALLOWED'] = 'NO'
+    end
+  end
+end
+
