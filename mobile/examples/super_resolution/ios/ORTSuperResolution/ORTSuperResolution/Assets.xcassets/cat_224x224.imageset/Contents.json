@@ -1,11 +1,11 @@
 {
   "images" : [
     {
+      "filename" : "cat_224x224.png",
       "idiom" : "universal",
       "scale" : "1x"
     },
     {
-      "filename" : "test_superresolution.png",
       "idiom" : "universal",
       "scale" : "2x"
     },

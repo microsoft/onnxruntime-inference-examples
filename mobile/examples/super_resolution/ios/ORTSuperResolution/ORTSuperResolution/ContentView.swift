@@ -7,42 +7,52 @@ import SwiftUI
 struct ContentView: View {
     @State private var performSuperRes = false
     
-    // TODO: modify the output result (String) to be an image to get displayed on screen
-    func runOrtSuperResolution() -> String {
+    func runOrtSuperResolution() -> UIImage? {
         do {
-            try ORTSuperResolutionPerformer.performSuperResolution()
-            return "Ok"
+            
+            let outputImage = try ORTSuperResolutionPerformer.performSuperResolution()
+            return outputImage
+            
         } catch let error as NSError {
-            return "Error: \(error.localizedDescription)"
+            
+            print("Error: \(error.localizedDescription)")
+            return nil
+            
         }
     }
     
     var body: some View {
-        VStack {
+        ScrollView{
             VStack {
-                Text("ORTSuperResolution").font(.title).bold()
-                    .frame(width: 400, height: 80)
-                    .border(Color.purple, width: 4)
-                    .background(Color.purple)
-                
-                Text("Input low resolution image: ").frame(width: 380, height: 40, alignment:.leading)
-                
-                Image("test_superresolution")
-                
-                Button("Perform Super Resolution") {
-                  performSuperRes.toggle()
+                VStack {
+                    Text("ORTSuperResolution").font(.title).bold()
+                        .frame(width: 400, height: 80)
+                        .border(Color.purple, width: 4)
+                        .background(Color.purple)
+                    
+                    Text("Input low resolution image: ").frame(width: 350, height: 40, alignment:.leading)
+                    
+                    Image("cat_224x224").frame(width: 250, height: 250)
+                    
+                    Button("Perform Super Resolution") {
+                        performSuperRes.toggle()
+                    }
+                    
+                    if performSuperRes {
+                        Text("Output high resolution image: ").frame(width: 350, height: 40, alignment:.leading)
+                        
+                        if (runOrtSuperResolution() != nil) {
+                            Image(uiImage: runOrtSuperResolution()!)
+                        } else {
+                            Text("Unable to perform super resolution. ").frame(width: 350, height: 40, alignment:.leading)
+                        }
+                    }
+                    Spacer()
+                    
                 }
-
-                if performSuperRes {
-                    Text("Output high resolution image: ").frame(width: 380, height: 40, alignment:.leading)
-                    // TODO: call run OrtSuperResolution and display Image
-                    Text("Ort Super Resolution Result: \(runOrtSuperResolution())")
-                }
-                Spacer()
-                
             }
+            .padding()
         }
-        .padding()
     }
 }
 

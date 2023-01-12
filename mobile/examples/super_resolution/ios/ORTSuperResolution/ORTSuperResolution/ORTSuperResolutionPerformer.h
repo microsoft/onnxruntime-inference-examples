@@ -5,12 +5,13 @@
 #define ORTSuperResolutionPerformer_h
 
 #import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface ORTSuperResolutionPerformer : NSObject
 
-+ (BOOL)performSuperResolution:(NSError **)error;
++ (nullable UIImage*)performSuperResolutionWithError:(NSError**)error;
 
 @end
 

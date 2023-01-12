@@ -8,18 +8,19 @@
 
 /* Begin PBXBuildFile section */
 		510A53D6296DE390000DB268 /* pt_super_resolution_with_pre_post_processing_opset16.onnx in Resources */ = {isa = PBXBuildFile; fileRef = 510A53D5296DE390000DB268 /* pt_super_resolution_with_pre_post_processing_opset16.onnx */; };
+		510A53E8296FE46F000DB268 /* cat_224x224.png in Resources */ = {isa = PBXBuildFile; fileRef = 510A53E7296FE46F000DB268 /* cat_224x224.png */; };
 		5130D9BC2968B93A009B4B88 /* ORTSuperResolutionApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5130D9BB2968B93A009B4B88 /* ORTSuperResolutionApp.swift */; };
 		5130D9BE2968B93A009B4B88 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5130D9BD2968B93A009B4B88 /* ContentView.swift */; };
 		5130D9C02968B93C009B4B88 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5130D9BF2968B93C009B4B88 /* Assets.xcassets */; };
 		5130D9C32968B93C009B4B88 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5130D9C22968B93C009B4B88 /* Preview Assets.xcassets */; };
 		51D5968B2968DE9900F1CD43 /* ORTSuperResolutionPerformer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 51D5968A2968DE9900F1CD43 /* ORTSuperResolutionPerformer.mm */; };
-		51D59694296CB81400F1CD43 /* test_superresolution.png in Resources */ = {isa = PBXBuildFile; fileRef = 51D59693296CB81300F1CD43 /* test_superresolution.png */; };
 		A5B59BE84CBFD6888661F36F /* Pods_ORTSuperResolution.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 755AF68A43F10A3705E48DEB /* Pods_ORTSuperResolution.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		1E7BB2E9D57D4724415DEE99 /* Pods-ORTSuperResolution.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ORTSuperResolution.release.xcconfig"; path = "Target Support Files/Pods-ORTSuperResolution/Pods-ORTSuperResolution.release.xcconfig"; sourceTree = "<group>"; };
 		510A53D5296DE390000DB268 /* pt_super_resolution_with_pre_post_processing_opset16.onnx */ = {isa = PBXFileReference; lastKnownFileType = file; path = pt_super_resolution_with_pre_post_processing_opset16.onnx; sourceTree = "<group>"; };
+		510A53E7296FE46F000DB268 /* cat_224x224.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = cat_224x224.png; sourceTree = "<group>"; };
 		5130D9B82968B93A009B4B88 /* ORTSuperResolution.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ORTSuperResolution.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		5130D9BB2968B93A009B4B88 /* ORTSuperResolutionApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ORTSuperResolutionApp.swift; sourceTree = "<group>"; };
 		5130D9BD2968B93A009B4B88 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -28,7 +29,6 @@
 		51D596892968DE9900F1CD43 /* ORTSuperResolutionPerformer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ORTSuperResolutionPerformer.h; sourceTree = "<group>"; };
 		51D5968A2968DE9900F1CD43 /* ORTSuperResolutionPerformer.mm */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; path = ORTSuperResolutionPerformer.mm; sourceTree = "<group>"; };
 		51D5968C2968E16000F1CD43 /* ORTSuperResolution-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "ORTSuperResolution-Bridging-Header.h"; sourceTree = "<group>"; };
-		51D59693296CB81300F1CD43 /* test_superresolution.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = test_superresolution.png; sourceTree = "<group>"; };
 		755AF68A43F10A3705E48DEB /* Pods_ORTSuperResolution.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_ORTSuperResolution.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		A7EB253B37E0FF4FF12F118A /* Pods-ORTSuperResolution.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ORTSuperResolution.debug.xcconfig"; path = "Target Support Files/Pods-ORTSuperResolution/Pods-ORTSuperResolution.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -67,7 +67,7 @@
 			isa = PBXGroup;
 			children = (
 				510A53D5296DE390000DB268 /* pt_super_resolution_with_pre_post_processing_opset16.onnx */,
-				51D59693296CB81300F1CD43 /* test_superresolution.png */,
+				510A53E7296FE46F000DB268 /* cat_224x224.png */,
 				51D5968A2968DE9900F1CD43 /* ORTSuperResolutionPerformer.mm */,
 				51D596892968DE9900F1CD43 /* ORTSuperResolutionPerformer.h */,
 				5130D9BB2968B93A009B4B88 /* ORTSuperResolutionApp.swift */,
@@ -165,9 +165,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				510A53D6296DE390000DB268 /* pt_super_resolution_with_pre_post_processing_opset16.onnx in Resources */,
-				51D59694296CB81400F1CD43 /* test_superresolution.png in Resources */,
 				5130D9C32968B93C009B4B88 /* Preview Assets.xcassets in Resources */,
 				5130D9C02968B93C009B4B88 /* Assets.xcassets in Resources */,
+				510A53E8296FE46F000DB268 /* cat_224x224.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
