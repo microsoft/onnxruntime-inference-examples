@@ -9,20 +9,16 @@ struct ContentView: View {
     
     func runOrtSuperResolution() -> UIImage? {
         do {
-            
             let outputImage = try ORTSuperResolutionPerformer.performSuperResolution()
             return outputImage
-            
         } catch let error as NSError {
-            
             print("Error: \(error.localizedDescription)")
             return nil
-            
         }
     }
     
     var body: some View {
-        ScrollView{
+        ScrollView {
             VStack {
                 VStack {
                     Text("ORTSuperResolution").font(.title).bold()
@@ -48,7 +44,6 @@ struct ContentView: View {
                         }
                     }
                     Spacer()
-                    
                 }
             }
             .padding()
