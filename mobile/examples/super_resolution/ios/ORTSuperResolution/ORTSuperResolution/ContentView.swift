@@ -37,8 +37,9 @@ struct ContentView: View {
                     if performSuperRes {
                         Text("Output high resolution image: ").frame(width: 350, height: 40, alignment:.leading)
                         
-                        if (runOrtSuperResolution() != nil) {
-                            Image(uiImage: runOrtSuperResolution()!)
+                        let outputImage = runOrtSuperResolution()
+                        if (outputImage != nil) {
+                            Image(uiImage: outputImage!)
                         } else {
                             Text("Unable to perform super resolution. ").frame(width: 350, height: 40, alignment:.leading)
                         }
