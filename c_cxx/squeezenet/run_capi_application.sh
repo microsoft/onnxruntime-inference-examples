@@ -30,7 +30,7 @@ cd build
 cmake .. -DONNXRUNTIME_ROOTDIR=${ONNXRUNTIME_ROOTDIR}
 make -j4
 curl ${ONNX_MODEL_URL} --output ${ONNX_MODEL}
-./capi_test
+LD_DEBUG=libs ./capi_test
 
 if [ $? -ne 0 ]
 then
