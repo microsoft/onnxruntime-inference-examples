@@ -37,7 +37,6 @@ struct ContentView: View {
                     if performSuperRes {
                         Text("Output high resolution image: ").frame(width: 350, height: 40, alignment:.leading)
                         
-                        let outputImage = runOrtSuperResolution()
                         if let outputImage = runOrtSuperResolution() {
                             Image(uiImage: outputImage)
                         } else {
