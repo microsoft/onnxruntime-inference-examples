@@ -48,5 +48,5 @@ dependencies {
     // Note: may want to update to latest version of ort mobile aar package
     implementation 'com.microsoft.onnxruntime:onnxruntime-android:1.12.1'
     // TODO: create the libs folder and copy required ort-extensions android aar package here
-    implementation files('libs/onnxruntime-mobile-extensions-0.5.0.aar')
+    implementation files('libs/onnxruntime-extensions-android-0.6.0.aar')
 }
