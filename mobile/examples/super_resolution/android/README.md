@@ -23,10 +23,10 @@ Clone this repository to get the sample application. Then open the project under
 
 ### Step 2: Prepare the model and required packages
 
-- Create a libs folder under `mobile\examples\super_resolution\android\app`. i.e. `mobile\examples\super_resolution\android\app\libs`.
-- Copy the `ort-mobile-extensions` aar package into the created libs folder.
-  
-Note: When update to pre-release/release version ort-extensions android package, it will no longer require a local AAR package.
+- The required aar package is under lib's folder `mobile\examples\super_resolution\android\app\libs`.
+- The model used is under `mobile\examples\super_resolution\android\app\src\main\res\raw`.
+
+Note: When update to pre-release/release version ort-extensions android package, it will no longer consume a local AAR package that's included in this repo.
 
 
 ### Step 3: Connect Android Device and Run the app

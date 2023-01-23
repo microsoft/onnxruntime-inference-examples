@@ -45,7 +45,6 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.4'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.0'
 
-    // Note: may want to update to latest version of ort mobile aar package
     implementation 'com.microsoft.onnxruntime:onnxruntime-android:latest.release'
     // TODO: update with released version aar package when available
     implementation files('libs/onnxruntime-extensions-android-0.6.0.aar')
