@@ -232,13 +232,6 @@ jobs:
       addToPath: true
       architecture: "x64"
     displayName: "Use Python 3.9"
-  
-  - task: JavaToolInstaller@0
-    displayName: Use jdk 11
-    inputs:
-        versionSpec: "11"
-        jdkArchitectureOption: "x64"
-        jdkSourceOption: "PreInstalled"
 
   - script: |
       python3 ./ci_build/python/run_android_emulator.py \
@@ -247,6 +240,13 @@ jobs:
         --start --emulator-extra-args="-partition-size 4096" \
         --emulator-pid-file $(Build.BinariesDirectory)/emulator.pid
     displayName: "Start Android emulator"
+  
+  - task: JavaToolInstaller@0
+    displayName: Use jdk 11
+    inputs:
+      versionSpec: "11"
+      jdkArchitectureOption: "x64"
+      jdkSourceOption: "PreInstalled"
 
   - bash: |
       set -e
