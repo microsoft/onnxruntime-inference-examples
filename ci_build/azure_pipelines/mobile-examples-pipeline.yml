@@ -226,7 +226,6 @@ jobs:
     vmImage: "macOS-11"
 
   steps:
-  - template: templates/use-python-step.yml
   
   - task: JavaToolInstaller@0
     displayName: Use jdk 11
@@ -236,7 +235,7 @@ jobs:
         jdkSourceOption: "PreInstalled"
 
   - script: |
-      python3 ./ci_build/python/run_android_emulator.py \
+      python ./ci_build/python/run_android_emulator.py \
         --android-sdk-root ${ANDROID_SDK_ROOT} \
         --create-avd --system-image "system-images;android-30;google_apis;x86_64" \
         --start --emulator-extra-args="-partition-size 4096" \
@@ -251,7 +250,7 @@ jobs:
     displayName: "Build and run tests"
 
   - script: |
-      python3 ./ci_build/python/run_android_emulator.py \
+      python ./ci_build/python/run_android_emulator.py \
         --android-sdk-root ${ANDROID_SDK_ROOT} \
         --stop \
         --emulator-pid-file $(Build.BinariesDirectory)/emulator.pid
