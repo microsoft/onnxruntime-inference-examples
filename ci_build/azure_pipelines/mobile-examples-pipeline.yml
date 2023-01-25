@@ -236,7 +236,10 @@ jobs:
         --emulator-pid-file $(Build.BinariesDirectory)/emulator.pid
     displayName: "Start Android emulator"
 
-  - bash:  ./gradlew connectedDebugAndroidTest --no-daemon
+  - bash: |
+      set -e
+      chmod +x ./gradlew 
+      ./gradlew connectedDebugAndroidTest --no-daemon
     workingDirectory: mobile/examples/super_resolution/android
     displayName: "Build and run tests"
 
