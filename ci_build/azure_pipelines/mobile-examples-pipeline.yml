@@ -227,6 +227,13 @@ jobs:
 
   steps:
   - template: templates/use-python-step.yml
+  
+  - task: JavaToolInstaller@0
+    displayName: Use jdk 11
+    inputs:
+        versionSpec: "11"
+        jdkArchitectureOption: "x64"
+        jdkSourceOption: "PreInstalled"
 
   - script: |
       python3 ./ci_build/python/run_android_emulator.py \
