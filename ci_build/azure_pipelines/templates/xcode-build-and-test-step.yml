@@ -20,7 +20,7 @@ steps:
     packageApp: false
     destinationPlatformOption: 'iOS'
     destinationTypeOption: 'simulators'
-    destinationSimulators: 'iPhone 12'
+    destinationSimulators: 'iPhone 8'
     ${{ if ne(parameters.args, '') }}:
       args: ${{ parameters.args }}
   displayName: "Xcode build and test"
