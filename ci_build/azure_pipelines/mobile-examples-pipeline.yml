@@ -226,12 +226,7 @@ jobs:
     vmImage: "macOS-11"
 
   steps:
-  - task: UsePythonVersion@0
-    inputs:
-      versionSpec: "3.9"
-      addToPath: true
-      architecture: "x64"
-    displayName: "Use Python 3.9"
+  - template: templates/use-python-step.yml
 
   - script: |
       python3 ./ci_build/python/run_android_emulator.py \
@@ -264,3 +259,25 @@ jobs:
     condition: always()
 
 
+  # mobile/examples/super_resolution/ios
+- job: SuperResolutionIos
+  pool:
+    vmImage: "macOS-11"
+
+  dependsOn: ProcessParameters
+
+  variables:
+    OrtPodVersionSpecifier: $[ dependencies.ProcessParameters.outputs['SetVariables.OrtPodVersionSpecifier'] ]
+
+  steps:
+  - template: templates/use-python-step.yml
+
+  - script: pod install
+    workingDirectory: 'mobile/examples/super_resolution/ios'
+    displayName: "Install CocoaPods pods"
+
+  - template: templates/xcode-build-and-test-step.yml
+    parameters:
+      xcWorkspacePath: 'mobile/examples/super_resolution/ios/ORTSuperResolution.xcworkspace'
+      scheme: 'ORTSuperResolution'
+      
