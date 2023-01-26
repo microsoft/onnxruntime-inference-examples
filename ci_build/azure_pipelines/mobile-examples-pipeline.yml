@@ -220,7 +220,8 @@ jobs:
         --emulator-pid-file $(Build.BinariesDirectory)/emulator.pid
     displayName: "Stop Android emulator"
     condition: always()
-  
+
+# mobile/examples/super_resolution/android 
 - job: SuperResolutionAndroid
   pool:
     vmImage: "macOS-11"
@@ -259,15 +260,10 @@ jobs:
     condition: always()
 
 
-  # mobile/examples/super_resolution/ios
+# mobile/examples/super_resolution/ios
 - job: SuperResolutionIos
   pool:
     vmImage: "macOS-11"
-
-  dependsOn: ProcessParameters
-
-  variables:
-    OrtPodVersionSpecifier: $[ dependencies.ProcessParameters.outputs['SetVariables.OrtPodVersionSpecifier'] ]
 
   steps:
   - template: templates/use-python-step.yml
@@ -278,6 +274,5 @@ jobs:
 
   - template: templates/xcode-build-and-test-step.yml
     parameters:
-      xcWorkspacePath: 'mobile/examples/super_resolution/ios/ORTSuperResolution.xcworkspace'
+      xcWorkspacePath: 'mobile/examples/super_resolution/ios/ORTSuperResolution/ORTSuperResolution.xcworkspace'
       scheme: 'ORTSuperResolution'
-      
