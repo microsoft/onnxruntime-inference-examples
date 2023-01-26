@@ -273,7 +273,7 @@ jobs:
   - template: templates/use-python-step.yml
 
   - script: pod install
-    workingDirectory: 'mobile/examples/super_resolution/ios'
+    workingDirectory: 'mobile/examples/super_resolution/ios/ORTSuperResolution'
     displayName: "Install CocoaPods pods"
 
   - template: templates/xcode-build-and-test-step.yml
