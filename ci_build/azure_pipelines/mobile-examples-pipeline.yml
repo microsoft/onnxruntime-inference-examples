@@ -266,8 +266,7 @@ jobs:
     vmImage: "macOS-11"
 
   steps:
-  - template: templates/use-python-step.yml
-
+  
   - script: pod install
     workingDirectory: 'mobile/examples/super_resolution/ios/ORTSuperResolution'
     displayName: "Install CocoaPods pods"
