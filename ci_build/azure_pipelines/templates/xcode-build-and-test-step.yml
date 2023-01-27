@@ -16,11 +16,11 @@ steps:
     xcWorkspacePath: '${{ parameters.xcWorkspacePath }}'
     scheme: '${{ parameters.scheme }}'
     xcodeVersion: 'specifyPath'
-    xcodeDeveloperDir: '/Applications/Xcode_12.5.1.app/Contents/Developer'
+    xcodeDeveloperDir: '/Applications/Xcode_14.1.app/Contents/Developer'
     packageApp: false
     destinationPlatformOption: 'iOS'
     destinationTypeOption: 'simulators'
-    destinationSimulators: 'iPhone 8'
+    destinationSimulators: 'iPhone 14'
     ${{ if ne(parameters.args, '') }}:
       args: ${{ parameters.args }}
   displayName: "Xcode build and test"
