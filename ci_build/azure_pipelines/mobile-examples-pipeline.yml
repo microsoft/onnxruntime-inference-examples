@@ -221,6 +221,9 @@ jobs:
     displayName: "Stop Android emulator"
     condition: always()
 
+# Note: start with testing with the included aar package, 
+# can update with testing with Full/Mobile packages as the other samples later.
+
 # mobile/examples/super_resolution/android 
 - job: SuperResolutionAndroid
   pool:
@@ -259,6 +262,8 @@ jobs:
     displayName: "Stop Android emulator"
     condition: always()
 
+# Note: start with testing with the pre-release version pods.
+# can update with testing with Full/Mobile pods as the other samples later.
 
 # mobile/examples/super_resolution/ios
 - job: SuperResolutionIos
