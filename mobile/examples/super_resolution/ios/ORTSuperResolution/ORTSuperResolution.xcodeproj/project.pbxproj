@@ -477,26 +477,41 @@
 			};
 			name = Release;
 		};
-		51AB38B729887443004E33B0 /* Debug */ = {
+		51AB38B32981FA5E004E33B0 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				COPY_PHASE_STRIP = NO;
-				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_OPTIMIZATION_LEVEL = 0;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = UBF8T346G9;
+				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 14.5;
-				PRODUCT_NAME = ORTSuperResolutionTests;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.MS.ORTSuperResolutionTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/ORTSuperResolution.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/ORTSuperResolution";
 			};
 			name = Debug;
 		};
-		51AB38B829887443004E33B0 /* Release */ = {
+		51AB38B42981FA5E004E33B0 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				COPY_PHASE_STRIP = YES;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = UBF8T346G9;
+				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 14.5;
-				PRODUCT_NAME = ORTSuperResolutionTests;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.MS.ORTSuperResolutionTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/ORTSuperResolution.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/ORTSuperResolution";
 			};
 			name = Release;
 		};
@@ -524,8 +539,8 @@
 		51AB38B22981FA5E004E33B0 /* Build configuration list for PBXNativeTarget "ORTSuperResolutionTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				51AB38B729887443004E33B0 /* Debug */,
-				51AB38B829887443004E33B0 /* Release */,
+				51AB38B32981FA5E004E33B0 /* Debug */,
+				51AB38B42981FA5E004E33B0 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
