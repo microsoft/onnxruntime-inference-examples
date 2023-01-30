@@ -485,6 +485,7 @@
 				GCC_OPTIMIZATION_LEVEL = 0;
 				IPHONEOS_DEPLOYMENT_TARGET = 14.5;
 				PRODUCT_NAME = ORTSuperResolutionTests;
+				SWIFT_VERSION = 5.0;
 			};
 			name = Debug;
 		};
@@ -495,6 +496,7 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				IPHONEOS_DEPLOYMENT_TARGET = 14.5;
 				PRODUCT_NAME = ORTSuperResolutionTests;
+				SWIFT_VERSION = 5.0;
 			};
 			name = Release;
 		};
