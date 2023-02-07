@@ -24,6 +24,8 @@ Click links for README of each examples.
 
 * [API usage - Tensor](api-usage_tensor) - a demonstration of basic usage of `Tensor`.
 
+* [API usage - Tensor <--> Image conversion](api-usage-tensor-image) - a demonstration of conversions from Image elements to and from `Tensor`.
+
 * [API usage - InferenceSession](api-usage_inference-session) - a demonstration of basic usage of `InferenceSession`.
 
 * [API usage - SessionOptions](api-usage_session-options) - a demonstration of how to configure creation of an `InferenceSession` instance.
