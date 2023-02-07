@@ -18,31 +18,44 @@
     <canvas id="canvasHTMLElement"></canvas>
     <h3>Image from tensor resized</h3>
     <canvas id="canvasHTMLElementResize"></canvas>
+    <h3>Image from tensor (ImageData)</h3>
+    <canvas id="canvasImageData"></canvas>
 
 </body>
 <script>
     var canvasHTML = document.getElementById('canvasHTMLElement');
     var canvasResize = document.getElementById('canvasHTMLElementResize');
+    var canvasImageData = document.getElementById('canvasImageData');
 
     async function handleImage(img) {
 
     // HTML Element --> Tensor
-      const inputTensor = await ort.Tensor.fromImage(img);
+      const htmlTensor = await ort.Tensor.fromImage(img);
     // HTML Element --> Tensor + resized
       const resizedTensor = await ort.Tensor.fromImage(img, options = {resizedWidth: 224, resizedHeight: 224});
     // Tensor --> ImageData
-      const image1 = inputTensor.toImageData();
-    // Presenting the images on dom
-      canvasHTML.width = image1.width;
-      canvasHTML.height = image1.height;
-      let context = canvasHTML.getContext('2d');
-      context.putImageData(image1, 0, 0);
-
+      const imageHTML = htmlTensor.toImageData();
+    // Tensor --> ImageData (resized)
       const resizeImage = resizedTensor.toImageData();
+    // ImageData --> Tensor
+      const imageDataTensor = await ort.Tensor.fromImage(imageHTML);
+      const imageImageData = imageDataTensor.toImageData();
+    
+    // Presenting the images on dom
+      canvasHTML.width = imageHTML.width;
+      canvasHTML.height = imageHTML.height;
+      let context = canvasHTML.getContext('2d');
+      context.putImageData(imageHTML, 0, 0);
+
       canvasResize.width = resizeImage.width;
       canvasResize.height = resizeImage.height;
       context = canvasResize.getContext('2d');
       context.putImageData(resizeImage, 0, 0);
+
+      canvasImageData.width = imageImageData.width;
+      canvasImageData.height = imageImageData.height;
+      context = canvasImageData.getContext('2d');
+      context.putImageData(imageImageData, 0, 0);
     }
 
     function loadImage(fileReader) {
