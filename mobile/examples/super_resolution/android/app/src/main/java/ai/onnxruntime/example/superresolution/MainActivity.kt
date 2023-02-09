@@ -31,7 +31,7 @@ class MainActivity : AppCompatActivity() {
         superResolutionButton = findViewById(R.id.super_resolution_button)
 
         superResolutionButton?.setOnClickListener {
-            performSuperResolution()
+            performSuperResolution(createOrtSession())
             Toast.makeText(baseContext, "Super resolution performed!", Toast.LENGTH_SHORT).show()
         }
     }
@@ -60,8 +60,8 @@ class MainActivity : AppCompatActivity() {
         return ortEnv.createSession(readModel(), sessionOptions)
     }
 
-    private fun performSuperResolution() {
-        var superResPerformer = SuperResPerformer(createOrtSession())
+    private fun performSuperResolution(ortSession: OrtSession) {
+        var superResPerformer = SuperResPerformer(ortSession)
         var result = superResPerformer.upscale(readInputImage(), ortEnv)
         updateUI(result);
     }
