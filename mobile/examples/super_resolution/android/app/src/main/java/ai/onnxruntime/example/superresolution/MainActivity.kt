@@ -30,8 +30,11 @@ class MainActivity : AppCompatActivity() {
         outputImage = findViewById(R.id.imageView2);
         superResolutionButton = findViewById(R.id.super_resolution_button)
 
+        val sessionOptions: OrtSession.SessionOptions = OrtSession.SessionOptions()
+        sessionOptions.registerCustomOpLibrary(OrtxPackage.getLibraryPath())
+
         superResolutionButton?.setOnClickListener {
-            performSuperResolution(createOrtSession())
+            performSuperResolution(ortEnv.createSession(readModel(), sessionOptions))
             Toast.makeText(baseContext, "Super resolution performed!", Toast.LENGTH_SHORT).show()
         }
     }
@@ -54,15 +57,9 @@ class MainActivity : AppCompatActivity() {
         return assets.open("test_superresolution.png")
     }
 
-    private fun createOrtSession(): OrtSession {
-        val sessionOptions: OrtSession.SessionOptions = OrtSession.SessionOptions()
-        sessionOptions.registerCustomOpLibrary(OrtxPackage.getLibraryPath())
-        return ortEnv.createSession(readModel(), sessionOptions)
-    }
-
     private fun performSuperResolution(ortSession: OrtSession) {
-        var superResPerformer = SuperResPerformer(ortSession)
-        var result = superResPerformer.upscale(readInputImage(), ortEnv)
+        var superResPerformer = SuperResPerformer()
+        var result = superResPerformer.upscale(readInputImage(), ortEnv, ortSession)
         updateUI(result);
     }
 

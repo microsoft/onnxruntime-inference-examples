@@ -15,10 +15,9 @@ internal data class Result(
 ) {}
 
 internal class SuperResPerformer(
-    private val ortSession: OrtSession
 ) {
 
-    fun upscale(inputStream: InputStream, ortEnv: OrtEnvironment): Result {
+    fun upscale(inputStream: InputStream, ortEnv: OrtEnvironment, ortSession: OrtSession): Result {
         var result = Result()
 
         // Step 1: convert image into byte array (raw image bytes)
@@ -47,14 +46,12 @@ internal class SuperResPerformer(
                 result.outputBitmap = outputImageBitmap
             }
         }
+        ortSession.close()
+
         return result
     }
 
     private fun byteArrayToBitmap(data: ByteArray): Bitmap {
         return BitmapFactory.decodeByteArray(data, 0, data.size)
-    }
-
-    protected fun finalize() {
-        ortSession.close()
     }
 }
