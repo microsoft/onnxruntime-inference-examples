@@ -9,7 +9,11 @@ import XCTest
 final class ORTSuperResolutionTests: XCTestCase {
 
     func testPerformSuperResolution() throws {
-        // test that it doesn't throw
-        try ORTSuperResolutionPerformer.performSuperResolution()
+        
+        let outputImage = try ORTSuperResolutionPerformer.performSuperResolution()
+        XCTAssertNotNil(outputImage, "check the output UIImage is not nil")
+        XCTAssertEqual(outputImage.size.height, 672.0)
+        XCTAssertEqual(outputImage.size.width, 672.0)
+
     }
 }
