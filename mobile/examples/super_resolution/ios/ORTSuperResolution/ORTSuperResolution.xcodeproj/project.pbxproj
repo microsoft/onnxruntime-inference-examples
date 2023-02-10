@@ -13,8 +13,19 @@
 		5130D9BE2968B93A009B4B88 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5130D9BD2968B93A009B4B88 /* ContentView.swift */; };
 		5130D9C02968B93C009B4B88 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5130D9BF2968B93C009B4B88 /* Assets.xcassets */; };
 		5130D9C32968B93C009B4B88 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5130D9C22968B93C009B4B88 /* Preview Assets.xcassets */; };
+		51AB38AF2981FA5E004E33B0 /* ORTSuperResolutionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51AB38AE2981FA5E004E33B0 /* ORTSuperResolutionTests.swift */; };
 		51D5968B2968DE9900F1CD43 /* ORTSuperResolutionPerformer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 51D5968A2968DE9900F1CD43 /* ORTSuperResolutionPerformer.mm */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		51AB38B02981FA5E004E33B0 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 5130D9B02968B93A009B4B88 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 5130D9B72968B93A009B4B88;
+			remoteInfo = ORTSuperResolution;
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		510A53D5296DE390000DB268 /* pt_super_resolution_with_pre_post_processing_opset16.onnx */ = {isa = PBXFileReference; lastKnownFileType = file; path = pt_super_resolution_with_pre_post_processing_opset16.onnx; sourceTree = "<group>"; };
@@ -24,6 +35,8 @@
 		5130D9BD2968B93A009B4B88 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		5130D9BF2968B93C009B4B88 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		5130D9C22968B93C009B4B88 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		51AB38AC2981FA5E004E33B0 /* ORTSuperResolutionTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ORTSuperResolutionTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		51AB38AE2981FA5E004E33B0 /* ORTSuperResolutionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ORTSuperResolutionTests.swift; sourceTree = "<group>"; };
 		51D596892968DE9900F1CD43 /* ORTSuperResolutionPerformer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ORTSuperResolutionPerformer.h; sourceTree = "<group>"; };
 		51D5968A2968DE9900F1CD43 /* ORTSuperResolutionPerformer.mm */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; path = ORTSuperResolutionPerformer.mm; sourceTree = "<group>"; };
 		51D5968C2968E16000F1CD43 /* ORTSuperResolution-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "ORTSuperResolution-Bridging-Header.h"; sourceTree = "<group>"; };
@@ -37,6 +50,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		51AB38A92981FA5E004E33B0 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -44,6 +64,7 @@
 			isa = PBXGroup;
 			children = (
 				5130D9BA2968B93A009B4B88 /* ORTSuperResolution */,
+				51AB38AD2981FA5E004E33B0 /* ORTSuperResolutionTests */,
 				5130D9B92968B93A009B4B88 /* Products */,
 				A16DBB08BBAF3DC3572038B4 /* Pods */,
 			);
@@ -53,6 +74,7 @@
 			isa = PBXGroup;
 			children = (
 				5130D9B82968B93A009B4B88 /* ORTSuperResolution.app */,
+				51AB38AC2981FA5E004E33B0 /* ORTSuperResolutionTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -79,6 +101,14 @@
 				5130D9C22968B93C009B4B88 /* Preview Assets.xcassets */,
 			);
 			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+		51AB38AD2981FA5E004E33B0 /* ORTSuperResolutionTests */ = {
+			isa = PBXGroup;
+			children = (
+				51AB38AE2981FA5E004E33B0 /* ORTSuperResolutionTests.swift */,
+			);
+			path = ORTSuperResolutionTests;
 			sourceTree = "<group>";
 		};
 		A16DBB08BBAF3DC3572038B4 /* Pods */ = {
@@ -108,6 +138,24 @@
 			productReference = 5130D9B82968B93A009B4B88 /* ORTSuperResolution.app */;
 			productType = "com.apple.product-type.application";
 		};
+		51AB38AB2981FA5E004E33B0 /* ORTSuperResolutionTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 51AB38B22981FA5E004E33B0 /* Build configuration list for PBXNativeTarget "ORTSuperResolutionTests" */;
+			buildPhases = (
+				51AB38A82981FA5E004E33B0 /* Sources */,
+				51AB38A92981FA5E004E33B0 /* Frameworks */,
+				51AB38AA2981FA5E004E33B0 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				51AB38B12981FA5E004E33B0 /* PBXTargetDependency */,
+			);
+			name = ORTSuperResolutionTests;
+			productName = ORTSuperResolutionTests;
+			productReference = 51AB38AC2981FA5E004E33B0 /* ORTSuperResolutionTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -121,6 +169,10 @@
 					5130D9B72968B93A009B4B88 = {
 						CreatedOnToolsVersion = 14.1;
 						LastSwiftMigration = 1410;
+					};
+					51AB38AB2981FA5E004E33B0 = {
+						CreatedOnToolsVersion = 14.1;
+						TestTargetID = 5130D9B72968B93A009B4B88;
 					};
 				};
 			};
@@ -138,6 +190,7 @@
 			projectRoot = "";
 			targets = (
 				5130D9B72968B93A009B4B88 /* ORTSuperResolution */,
+				51AB38AB2981FA5E004E33B0 /* ORTSuperResolutionTests */,
 			);
 		};
 /* End PBXProject section */
@@ -154,6 +207,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		51AB38AA2981FA5E004E33B0 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -167,7 +227,23 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		51AB38A82981FA5E004E33B0 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				51AB38AF2981FA5E004E33B0 /* ORTSuperResolutionTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		51AB38B12981FA5E004E33B0 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 5130D9B72968B93A009B4B88 /* ORTSuperResolution */;
+			targetProxy = 51AB38B02981FA5E004E33B0 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		5130D9C42968B93C009B4B88 /* Debug */ = {
@@ -221,7 +297,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 16.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.5;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -277,7 +353,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 16.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.5;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
@@ -306,6 +382,7 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 14.5;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -340,6 +417,7 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 14.5;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -352,6 +430,44 @@
 				SWIFT_OBJC_BRIDGING_HEADER = "ORTSuperResolution/ORTSuperResolution-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		51AB38B32981FA5E004E33B0 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = UBF8T346G9;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.5;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.MS.ORTSuperResolutionTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/ORTSuperResolution.app/ORTSuperResolution";
+			};
+			name = Debug;
+		};
+		51AB38B42981FA5E004E33B0 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = UBF8T346G9;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.5;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.MS.ORTSuperResolutionTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/ORTSuperResolution.app/ORTSuperResolution";
 			};
 			name = Release;
 		};
@@ -372,6 +488,15 @@
 			buildConfigurations = (
 				5130D9C72968B93C009B4B88 /* Debug */,
 				5130D9C82968B93C009B4B88 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		51AB38B22981FA5E004E33B0 /* Build configuration list for PBXNativeTarget "ORTSuperResolutionTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				51AB38B32981FA5E004E33B0 /* Debug */,
+				51AB38B42981FA5E004E33B0 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
