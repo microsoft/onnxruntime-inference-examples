@@ -46,8 +46,6 @@ internal class SuperResPerformer(
                 result.outputBitmap = outputImageBitmap
             }
         }
-        ortSession.close()
-
         return result
     }
 

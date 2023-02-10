@@ -19,6 +19,7 @@ import java.util.concurrent.Executors
 
 class MainActivity : AppCompatActivity() {
     private var ortEnv: OrtEnvironment = OrtEnvironment.getEnvironment()
+    private lateinit var ortSession: OrtSession
     private var outputImage: ImageView? = null
     private var superResolutionButton: Button? = null
 
@@ -30,11 +31,16 @@ class MainActivity : AppCompatActivity() {
         outputImage = findViewById(R.id.imageView2);
         superResolutionButton = findViewById(R.id.super_resolution_button)
 
+        // Initialize Ort Session and register custom ops and register the onnxruntime extensions
+        // package that contains the custom operators.
+        // Note: These are used to decode the input image into the format the original model requires,
+        // and to encode the model output into png format
         val sessionOptions: OrtSession.SessionOptions = OrtSession.SessionOptions()
         sessionOptions.registerCustomOpLibrary(OrtxPackage.getLibraryPath())
+        ortSession = ortEnv.createSession(readModel(), sessionOptions)
 
         superResolutionButton?.setOnClickListener {
-            performSuperResolution(ortEnv.createSession(readModel(), sessionOptions))
+            performSuperResolution(ortSession)
             Toast.makeText(baseContext, "Super resolution performed!", Toast.LENGTH_SHORT).show()
         }
     }
@@ -42,6 +48,7 @@ class MainActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         ortEnv.close()
+        ortSession.close()
     }
 
     private fun updateUI(result: Result) {
