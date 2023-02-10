@@ -31,8 +31,7 @@ class MainActivity : AppCompatActivity() {
         outputImage = findViewById(R.id.imageView2);
         superResolutionButton = findViewById(R.id.super_resolution_button)
 
-        // Initialize Ort Session and register custom ops and register the onnxruntime extensions
-        // package that contains the custom operators.
+        // Initialize Ort Session and register the onnxruntime extensions package that contains the custom operators.
         // Note: These are used to decode the input image into the format the original model requires,
         // and to encode the model output into png format
         val sessionOptions: OrtSession.SessionOptions = OrtSession.SessionOptions()
