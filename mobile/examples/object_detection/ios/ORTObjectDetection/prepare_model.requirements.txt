@@ -1,4 +1,4 @@
-onnx==1.10.0
+onnx==1.13.0
 onnxruntime==1.13.1
 protobuf==3.19.6
 tensorflow==2.9.3
