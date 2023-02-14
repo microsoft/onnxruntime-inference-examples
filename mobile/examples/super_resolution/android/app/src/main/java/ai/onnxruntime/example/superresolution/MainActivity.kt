@@ -51,7 +51,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun readInputImage(): InputStream {
-        return assets.open("test_superresolution.png")
+        return assets.open("cat_224x224.png")
     }
 
     private fun createOrtSession(): OrtSession {
