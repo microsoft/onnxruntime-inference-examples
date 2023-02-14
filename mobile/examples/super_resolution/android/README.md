@@ -39,5 +39,4 @@ Note: When update to pre-release/release version ort-extensions android package,
 #
 Here's an example screenshot of the app.
 
-<img width=20% src="images/sample_screenshot_1.png" alt="App Screenshot 1" />
-<img width=20% src="images/sample_screenshot_2.png" alt="App Screenshot 2" />
+<img width=20% src="images/Screenshot_1.png" alt="App Screenshot 1" />
