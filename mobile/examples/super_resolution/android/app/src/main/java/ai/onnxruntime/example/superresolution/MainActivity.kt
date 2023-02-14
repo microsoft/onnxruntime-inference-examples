@@ -5,6 +5,7 @@ import ai.onnxruntime.extensions.OrtxPackage
 import android.annotation.SuppressLint
 import android.graphics.BitmapFactory
 import android.os.Bundle
+import android.util.Log
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.Toast
@@ -43,8 +44,15 @@ class MainActivity : AppCompatActivity() {
         ortSession = ortEnv.createSession(readModel(), sessionOptions)
 
         superResolutionButton?.setOnClickListener {
-            performSuperResolution(ortSession)
-            Toast.makeText(baseContext, "Super resolution performed!", Toast.LENGTH_SHORT).show()
+            try {
+                performSuperResolution(ortSession)
+                Toast.makeText(baseContext, "Super resolution performed!", Toast.LENGTH_SHORT)
+                    .show()
+            } catch (e: Exception) {
+                Log.e(TAG, "Exception caught when perform super resolution", e)
+                Toast.makeText(baseContext, "Failed to perform super resolution", Toast.LENGTH_SHORT)
+                    .show()
+            }
         }
     }
 
