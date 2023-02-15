@@ -46,7 +46,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun readModel(): ByteArray {
-        val modelID = R.raw.pt_super_resolution_op16
+        val modelID = R.raw.pytorch_superresolution_with_pre_post_processing_op18
         return resources.openRawResource(modelID).readBytes()
     }
 
