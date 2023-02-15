@@ -31,7 +31,7 @@ class ExampleInstrumentedTest {
         // Context of the app under test.
         val appContext = InstrumentationRegistry.getInstrumentation().targetContext
         val resources = appContext.resources
-        val modelBytes = resources.openRawResource(R.raw.pt_super_resolution_op16).readBytes()
+        val modelBytes = resources.openRawResource(R.raw.pytorch_superresolution_with_pre_post_processing_op18).readBytes()
         val env = OrtEnvironment.getEnvironment()
         env.use {
             assertNotNull(env)
