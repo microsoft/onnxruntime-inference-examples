@@ -15,10 +15,9 @@ internal data class Result(
 ) {}
 
 internal class SuperResPerformer(
-    private val ortSession: OrtSession
 ) {
 
-    fun upscale(inputStream: InputStream, ortEnv: OrtEnvironment): Result {
+    fun upscale(inputStream: InputStream, ortEnv: OrtEnvironment, ortSession: OrtSession): Result {
         var result = Result()
 
         // Step 1: convert image into byte array (raw image bytes)
@@ -27,26 +26,24 @@ internal class SuperResPerformer(
         // Step 2: get the shape of the byte array and make ort tensor
         val shape = longArrayOf(rawImageBytes.size.toLong())
 
-        ortEnv.use {
-            val inputTensor = OnnxTensor.createTensor(
-                ortEnv,
-                ByteBuffer.wrap(rawImageBytes),
-                shape,
-                OnnxJavaType.UINT8
-            )
-            inputTensor.use {
-                // Step 3: call ort inferenceSession run
-                val output = ortSession.run(Collections.singletonMap("image", inputTensor))
+        val inputTensor = OnnxTensor.createTensor(
+            ortEnv,
+            ByteBuffer.wrap(rawImageBytes),
+            shape,
+            OnnxJavaType.UINT8
+        )
+        inputTensor.use {
+            // Step 3: call ort inferenceSession run
+            val output = ortSession.run(Collections.singletonMap("image", inputTensor))
 
-                // Step 4: output analysis
-                output.use {
-                    val rawOutput = (output?.get(0)?.value) as ByteArray
-                    val outputImageBitmap =
-                        byteArrayToBitmap(rawOutput)
+            // Step 4: output analysis
+            output.use {
+                val rawOutput = (output?.get(0)?.value) as ByteArray
+                val outputImageBitmap =
+                    byteArrayToBitmap(rawOutput)
 
-                    // Step 5: set output result
-                    result.outputBitmap = outputImageBitmap
-                }
+                // Step 5: set output result
+                result.outputBitmap = outputImageBitmap
             }
         }
         return result
@@ -54,9 +51,5 @@ internal class SuperResPerformer(
 
     private fun byteArrayToBitmap(data: ByteArray): Bitmap {
         return BitmapFactory.decodeByteArray(data, 0, data.size)
-    }
-
-    protected fun finalize() {
-        ortSession.close()
     }
 }
