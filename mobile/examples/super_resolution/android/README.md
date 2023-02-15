@@ -37,6 +37,8 @@ Note: When update to pre-release/release version ort-extensions android package,
   Now you can try and test the super resolution android app by clicking the perform action button.
 
 #
-Here's an example screenshot of the app.
+Here are some sample example screenshots of the app.
 
 <img width=20% src="images/Screenshot_1.png" alt="App Screenshot 1" />
+
+<img width=20% src="images/Screenshot_2.png" alt="App Screenshot 2" />
