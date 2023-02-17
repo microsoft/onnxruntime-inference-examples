@@ -53,3 +53,10 @@ The example app uses object detection which is able to continuously detect the o
 The [Xamarin.Forms](https://dotnet.microsoft.com/apps/xamarin/xamarin-forms) example app demonstrates the use of several vision-related models, from the ONNX Model Zoo collection.
 
 - [Xamarin VisionSample](examples/Xamarin)
+
+### Super Resolution
+
+The example application accomplishes the task of recovering a high resolution (HR) image from its low resolution counterpart with Ort-Extensions support for pre/post processing. Currently supports on platform Android and iOS.
+
+- [Android Super Resolution](examples/super_resolution/android)
+- [iOS Super Resolution](examples/speech_recognition/ios)
