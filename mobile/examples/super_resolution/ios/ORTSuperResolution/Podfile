@@ -7,8 +7,7 @@ target 'ORTSuperResolution' do
   # Pods for OrtSuperResolution
   pod 'onnxruntime-c'
   
-  # Release version pod for ort-ext
-  pod 'onnxruntime-extensions-c', '0.6.0'
+  pod 'onnxruntime-extensions-c'
   
 end
 
