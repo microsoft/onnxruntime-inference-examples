@@ -35,7 +35,7 @@
         
         // Step 1: Load model
         
-        NSString *model_path = [NSBundle.mainBundle pathForResource:@"pt_super_resolution_with_pre_post_processing_opset16"
+        NSString *model_path = [NSBundle.mainBundle pathForResource:@"pytorch_superresolution_with_pre_post_processing_op18"
                                                              ofType:@"onnx"];
         if (model_path == nullptr) {
             throw std::runtime_error("Failed to get model path");
