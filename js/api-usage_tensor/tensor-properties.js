@@ -30,7 +30,7 @@ function getMyTensors() {
     const buffer01 = new Float32Array(24).fill(1);
 
     return [
-        new Tensor(new Tensor('float32', buffer01, [2, 3, 4])),
+        new Tensor('float32', buffer01, [2, 3, 4]),
         new Tensor('bool', [true], []),
         new Tensor('int32', [1, 2, 3, 4, 5, 6], [2, 3])
     ];
