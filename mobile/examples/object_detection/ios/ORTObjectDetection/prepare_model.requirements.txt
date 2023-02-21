@@ -1,4 +1,4 @@
 onnx==1.13.0
 onnxruntime==1.13.1
-tensorflow==2.9.3
-tf2onnx==1.9.3
+tensorflow==2.11.0
+tf2onnx==1.13.0
