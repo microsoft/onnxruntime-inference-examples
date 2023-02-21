@@ -21,13 +21,12 @@
             <ImageView
                 android:id="@+id/imageView1"
                 android:layout_width="match_parent"
-                android:layout_height="385dp"
+                android:layout_height="280dp"
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="44dp"
                 android:layout_marginEnd="16dp"
                 android:layout_marginBottom="16dp"
-                android:contentDescription="@string/input_image"
-                app:srcCompat="@drawable/test_superresolution" />
+                android:contentDescription="@string/input_image" />
 
             <Button
                 android:id="@+id/super_resolution_button"
@@ -42,7 +41,7 @@
             <ImageView
                 android:id="@+id/imageView2"
                 android:layout_width="match_parent"
-                android:layout_height="383dp"
+                android:layout_height="300dp"
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="8dp"
                 android:layout_marginEnd="16dp"
