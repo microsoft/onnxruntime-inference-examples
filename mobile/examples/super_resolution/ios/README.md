@@ -28,5 +28,4 @@ The model used here is from source: [Pytorch Super Resolution](https://pytorch.o
 #
 Here's an example screenshot of the app:
 
-<img width=25% src="images/Screenshot1.png" alt="App Screenshot" />
-<img width=25% src="images/Screenshot2.png" alt="App Screenshot" />
+<img width=25% src="images/Sample_Screenshot_1.png" alt="App Screenshot" />

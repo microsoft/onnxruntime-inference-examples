@@ -59,4 +59,4 @@ The [Xamarin.Forms](https://dotnet.microsoft.com/apps/xamarin/xamarin-forms) exa
 The example application accomplishes the task of recovering a high resolution (HR) image from its low resolution counterpart with Ort-Extensions support for pre/post processing. Currently supports on platform Android and iOS.
 
 - [Android Super Resolution](examples/super_resolution/android)
-- [iOS Super Resolution](examples/speech_recognition/ios)
+- [iOS Super Resolution](examples/super_resolution/ios)

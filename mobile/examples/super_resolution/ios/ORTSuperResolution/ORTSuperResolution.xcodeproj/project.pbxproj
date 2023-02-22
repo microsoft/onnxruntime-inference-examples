@@ -7,12 +7,13 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		510A53D6296DE390000DB268 /* pt_super_resolution_with_pre_post_processing_opset16.onnx in Resources */ = {isa = PBXBuildFile; fileRef = 510A53D5296DE390000DB268 /* pt_super_resolution_with_pre_post_processing_opset16.onnx */; };
 		510A53E8296FE46F000DB268 /* cat_224x224.png in Resources */ = {isa = PBXBuildFile; fileRef = 510A53E7296FE46F000DB268 /* cat_224x224.png */; };
 		5130D9BC2968B93A009B4B88 /* ORTSuperResolutionApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5130D9BB2968B93A009B4B88 /* ORTSuperResolutionApp.swift */; };
 		5130D9BE2968B93A009B4B88 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5130D9BD2968B93A009B4B88 /* ContentView.swift */; };
 		5130D9C02968B93C009B4B88 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5130D9BF2968B93C009B4B88 /* Assets.xcassets */; };
 		5130D9C32968B93C009B4B88 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5130D9C22968B93C009B4B88 /* Preview Assets.xcassets */; };
+		5197BEA129A0492D004B83DE /* pytorch_superresolution_with_pre_post_processing_opset18.onnx in Resources */ = {isa = PBXBuildFile; fileRef = 5197BEA029A0492D004B83DE /* pytorch_superresolution_with_pre_post_processing_opset18.onnx */; };
+		5197BEA229A0492D004B83DE /* pytorch_superresolution_with_pre_post_processing_opset18.onnx in Resources */ = {isa = PBXBuildFile; fileRef = 5197BEA029A0492D004B83DE /* pytorch_superresolution_with_pre_post_processing_opset18.onnx */; };
 		51AB38AF2981FA5E004E33B0 /* ORTSuperResolutionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51AB38AE2981FA5E004E33B0 /* ORTSuperResolutionTests.swift */; };
 		51D5968B2968DE9900F1CD43 /* ORTSuperResolutionPerformer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 51D5968A2968DE9900F1CD43 /* ORTSuperResolutionPerformer.mm */; };
 /* End PBXBuildFile section */
@@ -28,13 +29,13 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		510A53D5296DE390000DB268 /* pt_super_resolution_with_pre_post_processing_opset16.onnx */ = {isa = PBXFileReference; lastKnownFileType = file; path = pt_super_resolution_with_pre_post_processing_opset16.onnx; sourceTree = "<group>"; };
 		510A53E7296FE46F000DB268 /* cat_224x224.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = cat_224x224.png; sourceTree = "<group>"; };
 		5130D9B82968B93A009B4B88 /* ORTSuperResolution.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ORTSuperResolution.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		5130D9BB2968B93A009B4B88 /* ORTSuperResolutionApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ORTSuperResolutionApp.swift; sourceTree = "<group>"; };
 		5130D9BD2968B93A009B4B88 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		5130D9BF2968B93C009B4B88 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		5130D9C22968B93C009B4B88 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		5197BEA029A0492D004B83DE /* pytorch_superresolution_with_pre_post_processing_opset18.onnx */ = {isa = PBXFileReference; lastKnownFileType = file; path = pytorch_superresolution_with_pre_post_processing_opset18.onnx; sourceTree = "<group>"; };
 		51AB38AC2981FA5E004E33B0 /* ORTSuperResolutionTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ORTSuperResolutionTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		51AB38AE2981FA5E004E33B0 /* ORTSuperResolutionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ORTSuperResolutionTests.swift; sourceTree = "<group>"; };
 		51D596892968DE9900F1CD43 /* ORTSuperResolutionPerformer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ORTSuperResolutionPerformer.h; sourceTree = "<group>"; };
@@ -82,8 +83,8 @@
 		5130D9BA2968B93A009B4B88 /* ORTSuperResolution */ = {
 			isa = PBXGroup;
 			children = (
-				510A53D5296DE390000DB268 /* pt_super_resolution_with_pre_post_processing_opset16.onnx */,
 				510A53E7296FE46F000DB268 /* cat_224x224.png */,
+				5197BEA029A0492D004B83DE /* pytorch_superresolution_with_pre_post_processing_opset18.onnx */,
 				51D5968A2968DE9900F1CD43 /* ORTSuperResolutionPerformer.mm */,
 				51D596892968DE9900F1CD43 /* ORTSuperResolutionPerformer.h */,
 				5130D9BB2968B93A009B4B88 /* ORTSuperResolutionApp.swift */,
@@ -200,10 +201,10 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				510A53D6296DE390000DB268 /* pt_super_resolution_with_pre_post_processing_opset16.onnx in Resources */,
 				5130D9C32968B93C009B4B88 /* Preview Assets.xcassets in Resources */,
 				5130D9C02968B93C009B4B88 /* Assets.xcassets in Resources */,
 				510A53E8296FE46F000DB268 /* cat_224x224.png in Resources */,
+				5197BEA129A0492D004B83DE /* pytorch_superresolution_with_pre_post_processing_opset18.onnx in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -211,6 +212,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5197BEA229A0492D004B83DE /* pytorch_superresolution_with_pre_post_processing_opset18.onnx in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
