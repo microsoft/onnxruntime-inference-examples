@@ -46,7 +46,7 @@ class MainActivity : AppCompatActivity() {
                     "without chewing it. After that they are not able to move," +
                     " and they sleep through the six months that they need for digestion.\""
         );
-        QuestionText?.setHint("From which book I saw a magnificent picture?")
+        QuestionText?.setHint("From which book did I see a magnificent picture?")
 
         // Initialize Ort Session and register the onnxruntime extensions package that contains the custom operators.
         // Note: These are used to decode the input image into the format the original model requires,
@@ -88,8 +88,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun readQuestion(): CharSequence {
-        var user_text = QuestionText?.text
-        return if (user_text?.isEmpty() == true) QuestionText?.hint!! else user_text!!
+        var user_text = QuestionText?.text!!
+        return if (user_text.isEmpty() == true) QuestionText?.hint!! else user_text
     }
 
     private fun performQA(ortSession: OrtSession) {

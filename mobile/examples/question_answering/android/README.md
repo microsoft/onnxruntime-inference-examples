@@ -26,20 +26,23 @@ Clone this repository to get the sample application.
 
 ### Step 2: Prepare the model and required packages
 
-- The required aar package is under lib's folder `mobile\examples\question_answering\android\app\libs`.
 - The model used is under `mobile\examples\question_answering\android\app\src\main\res\raw`.
 
-Preparing model by running `python prepare_models.py` in the directory. There are four steps. 
+Preparing model by running `python prepare_models.py` in the directory, and the process include four steps.
 1. download model from huggingface. 
 2. convert model to onnx. 
 3. quantize onnx model. 
 4. add pre/post processing to onnx model.
 
+NOTE: Please install onnxruntime-extensions package following [this](https://github.com/microsoft/onnxruntime-extensions) according to your platform.
+
+This script works for both Mac and Linux by default.
+
+```bash
 Model will be placed at `mobile\examples\question_answering\android\app\src\main\res\raw` automatically.
 ```bash
 cd mobile/examples/question_answering/android
-python -m pip install -r ./prepare_models.requirements.txt
-python ./prepare_models.py
+bash prepare_models.sh
 ```
 
 
