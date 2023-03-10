@@ -2,7 +2,7 @@
 
 ## Overview
 
-This is a basic QuestionAnswering example application for [ONNX Runtime](https://github.com/microsoft/onnxruntime) on Android with [Ort-Extensions](https://github.com/microsoft/onnxruntime-extensions) support for pre/post processing. The demo app accomplishes the task of findint the answer from a given text.
+This is a basic QuestionAnswering example application for [ONNX Runtime](https://github.com/microsoft/onnxruntime) on Android with [Ort-Extensions](https://github.com/microsoft/onnxruntime-extensions) support for pre/post processing. The demo app accomplishes the task of answering the question provided by users.
 
 ### Model
 The model used here is from source: [HuggingFace](https://huggingface.co/docs/transformers/model_doc/mobilebert) and accommodated into [ONNX](https://github.com/onnx/onnx) version with pre/post processing support.
@@ -28,7 +28,7 @@ Clone this repository to get the sample application.
 
 - The model used is under `mobile\examples\question_answering\android\app\src\main\res\raw`.
 
-Preparing model by running `python prepare_models.py` in the directory, and the process include four steps.
+`prepare_models.py` in the directory will do the model preparing work. The whole process include four steps.
 1. download model from huggingface. 
 2. convert model to onnx. 
 3. quantize onnx model. 
@@ -36,7 +36,7 @@ Preparing model by running `python prepare_models.py` in the directory, and the 
 
 NOTE: Please install onnxruntime-extensions package following [this](https://github.com/microsoft/onnxruntime-extensions) according to your platform.
 
-This script works for both Mac and Linux by default.
+This script works for both Mac and Linux by default. If you want to work it in windows, you should prepare the environment by yourself and run `prepare_models.py` in windows.
 
 ```bash
 Model will be placed at `mobile\examples\question_answering\android\app\src\main\res\raw` automatically.
@@ -51,7 +51,7 @@ bash prepare_models.sh
 
   Then select `Run -> Run app` and this will prompt the app to be built and installed on your device or emulator.
 
-  Now you can try and test the super question answering android app by clicking the "GO" action button.
+  Now you can try and test the question answering android app by clicking the ">" action button.
 
 #
 Here are some sample example screenshots of the app.

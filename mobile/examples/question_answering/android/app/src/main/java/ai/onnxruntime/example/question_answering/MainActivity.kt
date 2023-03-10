@@ -18,25 +18,20 @@ import java.util.*
 class MainActivity : AppCompatActivity() {
     private var ortEnv: OrtEnvironment = OrtEnvironment.getEnvironment()
     private lateinit var ortSession: OrtSession
-    private var TitleText: TextView? = null
-    private var ArticleText: TextView? = null
-    private var AnswerText: TextView? = null
-    private var QuestionText: TextView? = null
-    private var DoQAButton: Button? = null
+    private val TitleText: TextView by lazy {findViewById(R.id.TitleView)}
+    private val ArticleText: TextView by lazy {findViewById(R.id.ArticleView)}
+    private val AnswerText: TextView by lazy {findViewById(R.id.AnswerView)}
+    private val QuestionText: TextView by lazy {findViewById(R.id.QuestionView)}
+    private val DoQAButton: Button by lazy {findViewById(R.id.PerformQaButton)}
 
     @SuppressLint("UseCompatLoadingForDrawables")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        TitleText = findViewById(R.id.TitleView)
-        ArticleText = findViewById(R.id.ArticleView)
-        AnswerText = findViewById(R.id.AnswerView)
-        QuestionText = findViewById(R.id.QuestionView)
-        DoQAButton = findViewById(R.id.PerformQaButton)
         // from <The Little Prince>, chapter one, and the first paragraph
-        TitleText?.setText("<The Little Prince>")
-        ArticleText?.setText(
+        TitleText.setText("<The Little Prince>")
+        ArticleText.setText(
             "we are introduced to the narrator, a pilot, and his ideas about grown-ups." +
                     "Once when I was six years old I saw a magnificent picture in a book," +
                     " called True Stories from Nature, about the primeval forest. " +
@@ -46,7 +41,7 @@ class MainActivity : AppCompatActivity() {
                     "without chewing it. After that they are not able to move," +
                     " and they sleep through the six months that they need for digestion.\""
         );
-        QuestionText?.setHint("From which book did I see a magnificent picture?")
+        QuestionText.setHint("From which book did I see a magnificent picture?")
 
         // Initialize Ort Session and register the onnxruntime extensions package that contains the custom operators.
         // Note: These are used to decode the input image into the format the original model requires,
@@ -55,7 +50,7 @@ class MainActivity : AppCompatActivity() {
         sessionOptions.registerCustomOpLibrary(OrtxPackage.getLibraryPath())
         ortSession = ortEnv.createSession(readModel(), sessionOptions)
 
-        DoQAButton?.setOnClickListener {
+        DoQAButton.setOnClickListener {
             try {
                 performQA(ortSession)
             } catch (e: Exception) {
@@ -77,7 +72,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun updateUI(result: Result) {
         val default_ans: String = "No answer found, try another question?"
-        AnswerText?.setText(
+        AnswerText.setText(
             if (result.outputAnswer.equals("[CLS]")) default_ans else result.outputAnswer
         )
     }
@@ -88,13 +83,13 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun readQuestion(): CharSequence {
-        var user_text = QuestionText?.text!!
-        return if (user_text.isEmpty() == true) QuestionText?.hint!! else user_text
+        var user_text = QuestionText.text
+        return if (user_text.isEmpty() == true) QuestionText.hint else user_text
     }
 
     private fun performQA(ortSession: OrtSession) {
         var qaPerformer = QAPerformer()
-        var result = qaPerformer.answer(ArticleText?.text!!, readQuestion(), ortEnv, ortSession)
+        var result = qaPerformer.answer(ArticleText.text, readQuestion(), ortEnv, ortSession)
         updateUI(result);
     }
 
