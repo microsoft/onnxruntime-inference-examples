@@ -54,9 +54,11 @@ cmake --install .\build\Windows\RelWithDebInfo --config RelWithDebInfo
 Open Developer Command Prompt or Developer PowerShell for the Visual Studio version you are going to use, 
 change your current directory to samples\c_cxx, and run the below command. 
 
-You may omit the "-DLIBPNG_ROOTDIR=..." argument if you don't have the libpng library.
-You may omit "-DONNXRUNTIME_ROOTDIR=..." if you installed to "C:\Program Files\onnxruntime", 
+- You may omit the "-DLIBPNG_ROOTDIR=..." argument if you don't have the libpng library.
+- You may omit "-DONNXRUNTIME_ROOTDIR=..." if you installed to "C:\Program Files\onnxruntime", 
 otherwise adjust the value to match your ONNX Runtime install location.
+- You may append "-Donnxruntime_USE_CUDA=ON" or "-Donnxruntime_USE_DML=ON" to the last command args if your 
+onnxruntime binary was built with CUDA or DirectML support respectively.
 
 ```bat
 mkdir build && cd build
