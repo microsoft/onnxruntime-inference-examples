@@ -21,7 +21,7 @@ endif()
 
 add_executable(image_classifier main.cc runnable_task.h data_processing.h ${IMAGE_SRC}
         async_ring_buffer.h image_loader.cc image_loader.h cached_interpolation.h single_consumer.h)
-        
+
 if(JPEG_FOUND)
   target_compile_definitions(image_classifier PRIVATE HAVE_JPEG)
   SET(IMAGE_HEADERS ${JPEG_INCLUDE_DIR})
@@ -36,5 +36,4 @@ endif()
 
 target_link_libraries(image_classifier PRIVATE onnxruntime slim_fs_lib ${IMAGE_LIBS})
 
-
-
+copy_ort_dlls(image_classifier)
