@@ -24,18 +24,18 @@ set(CMAKE_CXX_STANDARD 17)
 if(NOT ONNXRUNTIME_ROOTDIR)
   if(WIN32)
     set(ONNXRUNTIME_ROOTDIR "C:/Program Files/onnxruntime")
-    include_directories("${ONNXRUNTIME_ROOTDIR}/include")
 else()
     set(ONNXRUNTIME_ROOTDIR "/usr/local")
-    include_directories("${ONNXRUNTIME_ROOTDIR}/include/onnxruntime")
   endif()
 endif()
 
-# The ORT package has a different include directory structure to a local install via cmake. 
+# The ORT package has a different include directory structure to a local install via cmake.
 # We added the path for the pre-built package above. Add the path for a local install to support either usage.
 # TODO: If we want to support additional EPs being loadable from a local install we also need to add EP specific
 # directories under /include/onnxruntime/core/providers
-include_directories("${ONNXRUNTIME_ROOTDIR}/include/onnxruntime/core/session")
+include_directories("${ONNXRUNTIME_ROOTDIR}/include"                           # Pre-built package
+                    "${ONNXRUNTIME_ROOTDIR}/include/onnxruntime"               # Linux local install to /usr/local
+                    "${ONNXRUNTIME_ROOTDIR}/include/onnxruntime/core/session") # Windows local install
 
 link_directories("${ONNXRUNTIME_ROOTDIR}/lib")
 
