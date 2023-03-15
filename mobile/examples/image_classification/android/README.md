@@ -9,9 +9,7 @@ This example is loosely based on [Google CodeLabs - Getting Started with CameraX
 We use pre-trained [MobileNet V2 models](https://github.com/onnx/models/tree/main/vision/classification/mobilenet) from the ONNX model zoo in this sample app.
 
 ## Requirements
-- Android Studio 4.1+ (installed on Mac/Windows/Linux)
-- Android SDK 29+
-- Android NDK r21+
+- Android Studio Electric Eel 2022.1.1+ (installed on Mac/Windows/Linux)
 - Android device with a camera in [developer mode](https://developer.android.com/studio/debug/dev-options) with USB debugging enabled
 
 ## Build And Run
