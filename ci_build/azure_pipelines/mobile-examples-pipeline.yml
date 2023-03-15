@@ -185,6 +185,13 @@ jobs:
   steps:
   - template: templates/use-python-step.yml
 
+  - task: JavaToolInstaller@0
+    displayName: Use jdk 11
+    inputs:
+      versionSpec: "11"
+      jdkArchitectureOption: "x64"
+      jdkSourceOption: "PreInstalled"
+
   - bash: |
       set -e
       pip install -r ./prepare_models.requirements.txt
