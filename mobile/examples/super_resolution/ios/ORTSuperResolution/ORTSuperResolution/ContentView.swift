@@ -26,19 +26,21 @@ struct ContentView: View {
                         .border(Color.purple, width: 4)
                         .background(Color.purple)
                     
-                    Text("Input low resolution image: ").frame(width: 350, height: 40, alignment:.leading)
+                    Text("Low resolution image: ").frame(width: 350, height: 40, alignment:.leading)
                     
-                    Image("cat_224x224").frame(width: 250, height: 250)
+                    Image("cat_224x224").resizable().aspectRatio(1, contentMode: .fit).frame(width: 250, height: 250)
                     
                     Button("Perform Super Resolution") {
                         performSuperRes.toggle()
                     }
                     
                     if performSuperRes {
-                        Text("Output high resolution image: ").frame(width: 350, height: 40, alignment:.leading)
+                        Text("Higher resolution image: ").frame(width: 350, height: 40, alignment:.leading)
                         
                         if let outputImage = runOrtSuperResolution() {
-                            Image(uiImage: outputImage)
+                            Image(uiImage: outputImage).resizable()
+                                .aspectRatio(1, contentMode: .fit).frame(width: 250, height: 250)
+                                
                         } else {
                             Text("Unable to perform super resolution. ").frame(width: 350, height: 40, alignment:.leading)
                         }
