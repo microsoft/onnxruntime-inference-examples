@@ -53,7 +53,7 @@ internal class ORTAnalyzer(
 
         // Get the reduced sum
         for (i in labelVals.indices) {
-            labelVals[i] = exp(labelVals[i] - max!!)
+            labelVals[i] = exp(labelVals[i] - max)
             sum += labelVals[i]
         }
 
@@ -75,7 +75,7 @@ internal class ORTAnalyzer(
     override fun analyze(image: ImageProxy) {
         // Convert the input image to bitmap and resize to 224x224 for model input
         val imgBitmap = image.toBitmap()
-        val rawBitmap = imgBitmap?.let { Bitmap.createScaledBitmap(it, 224, 224, false) }
+        val rawBitmap = imgBitmap.let { Bitmap.createScaledBitmap(it, 224, 224, false) }
         val bitmap = rawBitmap?.rotate(image.imageInfo.rotationDegrees.toFloat())
 
         if (bitmap != null) {
