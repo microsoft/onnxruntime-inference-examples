@@ -1,4 +1,4 @@
-This directory contains a few C/C++ sample applications for demoing onnxruntime usage:
+This directory contains a few C/C++ sample applications for demonstrating onnxruntime usage:
 
 1. (Windows and Linux) fns_candy_style_transfer: A C application that uses the FNS-Candy style transfer model to re-style images. It is written purely in C, no C++.
 2. (Windows only) MNIST: A windows GUI application for doing handwriting recognition
@@ -9,9 +9,11 @@ This directory contains a few C/C++ sample applications for demoing onnxruntime 
 
 # How to build
 
+Note: These build instructions are for the Windows examples only.
+
 ## Prerequisites
 1. Visual Studio 2019 or 2022
-2. cmake (version >= 3.24)
+2. cmake(version >=3.13)
 3. (optional) [libpng 1.6](https://libpng.sourceforge.io/)
 
 ## Install ONNX Runtime
