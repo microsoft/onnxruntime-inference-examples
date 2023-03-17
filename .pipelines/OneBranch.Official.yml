@@ -8,33 +8,33 @@
 # Support:        https://aka.ms/onebranchsup                                   #
 #################################################################################
 
-trigger: none 
+trigger: none
 
 parameters: # parameters are shown up in ADO UI in a build queue time
 - name: 'debug'
   displayName: 'Enable debug output'
   type: boolean
   default: false
-  
+
 - name: 'ortversion'
   displayName: 'ONNX Runtime Version'
   type: string
   default: '1.13.1'
 
 variables:
-  CDP_DEFINITION_BUILD_COUNT: $[counter('', 0)] 
+  CDP_DEFINITION_BUILD_COUNT: $[counter('', 0)]
   system.debug: ${{ parameters.debug }}
   ENABLE_PRS_DELAYSIGN: 1
   ROOT: $(Build.SourcesDirectory)
   REPOROOT: $(Build.SourcesDirectory)
   OUTPUTROOT: $(REPOROOT)\out
   NUGET_XMLDOC_MODE: none
-  WindowsContainerImage: 'cdpxwin1809.azurecr.io/global/vse2019:latest'
+  WindowsContainerImage: 'onebranch.azurecr.io/windows/ltsc2019/vse2022:latest'
   LinuxContainerImage: 'onebranch.azurecr.io/linux/ubuntu-2004:latest'
   DEBIAN_FRONTEND: noninteractive
 
 resources:
-  repositories: 
+  repositories:
     - repository: templates
       type: git
       name: OneBranch.Pipelines/GovernedTemplates
@@ -46,7 +46,7 @@ resources:
       endpoint: microsoft
 
 extends:
-  template: v2/OneBranch.Official.CrossPlat.yml@templates 
+  template: v2/OneBranch.Official.CrossPlat.yml@templates
   parameters:
     cloudvault:
       enabled: false
@@ -72,9 +72,9 @@ extends:
           type: linux
 
         variables:
-          ob_outputDirectory: '$(Build.SourcesDirectory)/out' 
+          ob_outputDirectory: '$(Build.SourcesDirectory)/out'
 
-        steps: 
+        steps:
           - task: onebranch.pipeline.version@1
             displayName: 'Setup BuildNumber'
             inputs:
@@ -84,7 +84,7 @@ extends:
               exclude_commit: true
 
           - task: Bash@3
-            displayName: 'Download ONNX Runtime Binaries'            
+            displayName: 'Download ONNX Runtime Binaries'
             inputs:
               targetType: filePath
               filePath: ci_build/download_ort_release_and_install_deps.sh
@@ -102,11 +102,11 @@ extends:
       jobs:
       - job: main
         pool:
-          type: windows  
-        
+          type: windows
+
         variables:
           ob_outputDirectory: '$(REPOROOT)\out'
-          ob_sdl_binskim_break: true 
+          ob_sdl_binskim_break: true
           ${{ if eq(variables['Build.SourceBranch'], 'refs/heads/master') }}:
             ob_symbolsPublishing_enabled: true
         steps:
@@ -120,10 +120,10 @@ extends:
                 set vsdevcmd="%%i\Common7\Tools\vsdevcmd.bat"
               )
             )
-            
+
             @echo vslatest %vslatest%
             @echo vsdevcmd %vsdevcmd%
-            
+
             @echo ##vso[task.setvariable variable=vslatest]%vslatest%
             @echo ##vso[task.setvariable variable=vsdevcmd]%vsdevcmd%
           displayName: 'locate vsdevcmd via vswhere'
@@ -144,7 +144,7 @@ extends:
             mkdir build
             cd build
             cmake $(REPOROOT)\c_cxx -A x64 -T host=x64 -DCMAKE_TOOLCHAIN_FILE=$(Build.SourcesDirectory)/vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows-static "-DONNXRUNTIME_ROOTDIR=$(Build.BinariesDirectory)/onnxruntimebin"
-              
+
         - task: VSBuild@1
           displayName: 'Build'
           inputs:
