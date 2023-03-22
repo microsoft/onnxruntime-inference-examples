@@ -23,7 +23,7 @@ def get_model_from_huggingface(model_name: str = "csarron/mobilebert-uncased-squ
     return model_path
 
 
-def quantize_bert(model_path: Path):
+def quantize_model(model_path: Path):
     """
     Step 2. Quantize the model, so that it can be run on mobile devices with smaller memory footprint
     """
@@ -60,5 +60,5 @@ def add_pre_post_process(quantized_model_path: Path, model_name: str = "csarron/
 
 if __name__ == "__main__":
     model = get_model_from_huggingface()
-    quantized_model = quantize_bert(model)
+    quantized_model = quantize_model(model)
     output_model = add_pre_post_process(quantized_model)

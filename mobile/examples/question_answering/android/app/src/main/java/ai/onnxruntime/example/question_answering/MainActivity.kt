@@ -44,8 +44,7 @@ class MainActivity : AppCompatActivity() {
         QuestionText.setHint("From which book did I see a magnificent picture?")
 
         // Initialize Ort Session and register the onnxruntime extensions package that contains the custom operators.
-        // Note: These are used to decode the input image into the format the original model requires,
-        // and to encode the model output into png format
+        // Note: These are used to load tokenizer and post-processor ops
         val sessionOptions: OrtSession.SessionOptions = OrtSession.SessionOptions()
         sessionOptions.registerCustomOpLibrary(OrtxPackage.getLibraryPath())
         ortSession = ortEnv.createSession(readModel(), sessionOptions)
