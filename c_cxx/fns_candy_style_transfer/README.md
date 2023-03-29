@@ -1,6 +1,10 @@
 # FNS Candy
 
-FNS Candy is a style transfer model. In this sample application, we use the ONNX Runtime C API to process an image using the FNS Candy model in ONNX format.
+FNS Candy is a style transfer model. In this sample application, we use the ONNX Runtime C API to process an image using the FNS (Fast Neural Style) Candy model in ONNX format. It adds a candy looking style to any image.
+
+![Heart shaped image made of read and white hearts](before-candy-image.png)
+
+![Candy style heart shape](after-candy-image.png)
 
 ## Build Instructions
 
