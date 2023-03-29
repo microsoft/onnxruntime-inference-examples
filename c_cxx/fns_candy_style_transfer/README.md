@@ -21,7 +21,7 @@ Then, prepare an image:
 
 ## Run
 
-Copy `onnxruntime.dll` into the same folder as `fns_candy_style_transfer.exe`.
+Copy `onnxruntime.dll` from your ONNXRUNTIME_ROOTDIR into the same folder as `fns_candy_style_transfer.exe`.
 
 Command to run the application:
 

@@ -19,11 +19,13 @@ Note: These build instructions are for the Windows examples only.
 
 ## Install ONNX Runtime
 
-### Option 1: download a prebuilt package
+### Option 1: Download a release package
 
-You may get a prebuilt onnxruntime package from https://github.com/microsoft/onnxruntime/releases/.
-For example, you may download onnxruntime-win-x64-\*\*\*.zip and unzip it to any folder.
-The folder you unzip it to will be your ONNXRUNTIME_ROOTDIR path. 
+* Download an onnxruntime package (onnxruntime-win-x64-\*\*\*.zip) from https://github.com/microsoft/onnxruntime/releases/.
+
+* Unzip to any folder
+
+* Set ONNXRUNTIME_ROOTDIR to the root of the folder as an absolute path
 
 ### Option 2: build from source
 
