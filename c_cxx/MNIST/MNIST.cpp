@@ -32,8 +32,10 @@ static void softmax(T& input) {
 struct MNIST {
   MNIST() {
     auto memory_info = Ort::MemoryInfo::CreateCpu(OrtDeviceAllocator, OrtMemTypeCPU);
-    input_tensor_ = Ort::Value::CreateTensor<float>(memory_info, input_image_.data(), input_image_.size(), input_shape_.data(), input_shape_.size());
-    output_tensor_ = Ort::Value::CreateTensor<float>(memory_info, results_.data(), results_.size(), output_shape_.data(), output_shape_.size());
+    input_tensor_ = Ort::Value::CreateTensor<float>(memory_info, input_image_.data(), input_image_.size(),
+                                                    input_shape_.data(), input_shape_.size());
+    output_tensor_ = Ort::Value::CreateTensor<float>(memory_info, results_.data(), results_.size(),
+                                                     output_shape_.data(), output_shape_.size());
   }
 
   std::ptrdiff_t Run() {
@@ -56,7 +58,7 @@ struct MNIST {
 
  private:
   Ort::Env env;
-  Ort::Session session_{env, L"model.onnx", Ort::SessionOptions{nullptr}};
+  Ort::Session session_{env, L"mnist.onnx", Ort::SessionOptions{nullptr}};
 
   Ort::Value input_tensor_{nullptr};
   std::array<int64_t, 4> input_shape_{1, 1, width_, height_};
@@ -150,7 +152,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE /*hPrevInstan
   RECT rect{0, 0, MNIST::width_, MNIST::height_};
   FillRect(hdc_dib_, &rect, (HBRUSH)GetStockObject(WHITE_BRUSH));
 
-  HWND hWnd = CreateWindow(L"ONNXTest", L"ONNX Runtime Sample - MNIST", WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, 512, 256, nullptr, nullptr, hInstance, nullptr);
+  HWND hWnd = CreateWindow(L"ONNXTest", L"ONNX Runtime Sample - MNIST", WS_OVERLAPPEDWINDOW, CW_USEDEFAULT,
+                           CW_USEDEFAULT, 512, 256, nullptr, nullptr, hInstance, nullptr);
   if (!hWnd)
     return FALSE;
 
@@ -178,10 +181,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
       HDC hdc = BeginPaint(hWnd, &ps);
 
       // Draw the image
-      StretchBlt(hdc, drawing_area_inset_, drawing_area_inset_, drawing_area_width_, drawing_area_height_, hdc_dib_, 0, 0, MNIST::width_, MNIST::height_, SRCCOPY);
+      StretchBlt(hdc, drawing_area_inset_, drawing_area_inset_, drawing_area_width_, drawing_area_height_, hdc_dib_, 0,
+                 0, MNIST::width_, MNIST::height_, SRCCOPY);
       SelectObject(hdc, GetStockObject(BLACK_PEN));
       SelectObject(hdc, GetStockObject(NULL_BRUSH));
-      Rectangle(hdc, drawing_area_inset_, drawing_area_inset_, drawing_area_inset_ + drawing_area_width_, drawing_area_inset_ + drawing_area_height_);
+      Rectangle(hdc, drawing_area_inset_, drawing_area_inset_, drawing_area_inset_ + drawing_area_width_,
+                drawing_area_inset_ + drawing_area_height_);
 
       constexpr int graphs_left = drawing_area_inset_ + drawing_area_width_ + 5;
       constexpr int graph_width = 64;
@@ -194,7 +199,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
       int graphs_zero = static_cast<int>(graphs_left - least * graph_width / range);
 
       // Hilight the winner
-      RECT rc{graphs_left, static_cast<LONG>(mnist_->result_) * 16, graphs_left + graph_width + 128, static_cast<LONG>(mnist_->result_ + 1) * 16};
+      RECT rc{graphs_left, static_cast<LONG>(mnist_->result_) * 16, graphs_left + graph_width + 128,
+              static_cast<LONG>(mnist_->result_ + 1) * 16};
       FillRect(hdc, &rc, brush_winner_);
 
       // For every entry, draw the odds and the graph for it
