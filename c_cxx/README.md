@@ -1,11 +1,15 @@
-# C/C++ sample applications for demonstrating onnxruntime usage
+# C/C++ sample applications
 
-1. (Windows and Linux) fns_candy_style_transfer: A C application that uses the FNS-Candy style transfer model to re-style images. It is written purely in C, no C++.
-2. (Windows only) MNIST: A windows GUI application for doing handwriting recognition
-3. (Windows only) imagenet: An end-to-end sample for the [ImageNet Large Scale Visual Recognition Challenge 2012](http://www.image-net.org/challenges/LSVRC/2012/) - requires ATL libraries to be installed as a part of the VS Studio installation.
-4. model-explorer: A commandline C++ application that generates random data and performs model inference. A second C++ application demonstrates how to perform batch processing. (TODO: Add CI build for it)
-5. OpenVINO_EP: Using OpenVino execution provider on the squeezenet model (TODO: Add CI build for it)
-6. opschema_lib_use (TODO: Add CI build for it)
+These applications demonstrate the ONNX Runtime [C/C++ API](https://onnxruntime.ai/docs/api/c)
+
+|Application|Description|API|Targets|
+|-----------|-----------|---|-----------------|
+| [Style transfer](fns_candy_style_transfer) | Apply a 'candy' style to any image |C| Windows, Linux|
+| [Image classification using Inceptionv3](Snpe_EP) | Classify an image | C++ | Windows, Android |
+| [Image classification using Inceptionv4](imagenet) | Classify a batch of images and optionally train with your own data | C++ | Any|
+| [Number recognition](MNIST) | Recognize number with a GUI |C++|Windows|
+| [Image classification with Squeezenet](OpenVINO_EP/Windows/squeezenet_classification) | Classify individual images |C++|Linux, Windows on Intel hardware|
+| [Model explorer](OpenVINO_EP/Windows/model-explorer/)| Explore model inputs and outputs |C++|Linux, Windows|
 
 ## How to build
 
