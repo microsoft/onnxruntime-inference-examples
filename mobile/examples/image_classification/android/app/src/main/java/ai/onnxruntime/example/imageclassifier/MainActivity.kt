@@ -4,6 +4,7 @@
 package ai.onnxruntime.example.imageclassifier
 
 import ai.onnxruntime.*
+import ai.onnxruntime.example.imageclassifier.databinding.ActivityMainBinding
 import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Bundle
@@ -14,13 +15,14 @@ import androidx.camera.core.*
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.*
 import java.lang.Runnable
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
 class MainActivity : AppCompatActivity() {
+    private lateinit var binding: ActivityMainBinding
+
     private val backgroundExecutor: ExecutorService by lazy { Executors.newSingleThreadExecutor() }
     private val labelData: List<String> by lazy { readLabels() }
     private val scope = CoroutineScope(Job() + Dispatchers.Main)
@@ -32,7 +34,9 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        val view = binding.root
+        setContentView(view)
         ortEnv = OrtEnvironment.getEnvironment()
         // Request Camera permission
         if (allPermissionsGranted()) {
@@ -43,7 +47,7 @@ class MainActivity : AppCompatActivity() {
             )
         }
 
-        enable_quantizedmodel_toggle.setOnCheckedChangeListener { _, isChecked ->
+        binding.enableQuantizedmodelToggle.setOnCheckedChangeListener { _, isChecked ->
             enableQuantizedModel = isChecked
             setORTAnalyzer()
         }
@@ -60,7 +64,7 @@ class MainActivity : AppCompatActivity() {
                     .setTargetAspectRatio(AspectRatio.RATIO_16_9)
                     .build()
                     .also {
-                        it.setSurfaceProvider(viewFinder.surfaceProvider)
+                        it.setSurfaceProvider(binding.viewFinder.surfaceProvider)
                     }
 
             imageCapture = ImageCapture.Builder()
@@ -123,21 +127,21 @@ class MainActivity : AppCompatActivity() {
             return
 
         runOnUiThread {
-            percentMeter.progress = (result.detectedScore[0] * 100).toInt()
-            detected_item_1.text = labelData[result.detectedIndices[0]]
-            detected_item_value_1.text = "%.2f%%".format(result.detectedScore[0] * 100)
+            binding.percentMeter.progress = (result.detectedScore[0] * 100).toInt()
+            binding.detectedItem1.text = labelData[result.detectedIndices[0]]
+            binding.detectedItemValue1.text = "%.2f%%".format(result.detectedScore[0] * 100)
 
             if (result.detectedIndices.size > 1) {
-                detected_item_2.text = labelData[result.detectedIndices[1]]
-                detected_item_value_2.text = "%.2f%%".format(result.detectedScore[1] * 100)
+                binding.detectedItem2.text = labelData[result.detectedIndices[1]]
+                binding.detectedItemValue2.text = "%.2f%%".format(result.detectedScore[1] * 100)
             }
 
             if (result.detectedIndices.size > 2) {
-                detected_item_3.text = labelData[result.detectedIndices[2]]
-                detected_item_value_3.text = "%.2f%%".format(result.detectedScore[2] * 100)
+                binding.detectedItem3.text = labelData[result.detectedIndices[2]]
+                binding.detectedItemValue3.text = "%.2f%%".format(result.detectedScore[2] * 100)
             }
 
-            inference_time_value.text = result.processTimeMs.toString() + "ms"
+            binding.inferenceTimeValue.text = result.processTimeMs.toString() + "ms"
         }
     }
 

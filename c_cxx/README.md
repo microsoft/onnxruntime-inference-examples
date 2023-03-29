@@ -9,74 +9,73 @@
 
 ## How to build
 
+Note: These build instructions are for the Windows examples only.
+
 ### Prerequisites
 
-1. Visual Studio 2015/2017/2019
+1. Visual Studio 2019 or 2022
 2. cmake(version >=3.13)
 3. (optional) [libpng 1.6](https://libpng.sourceforge.io/)
 
-### Install ONNX Runtime
+## Install ONNX Runtime
 
-#### Option 1: Download release version
+### Option 1: download a prebuilt package
 
-Download an ONNX Runtime release from https://github.com/microsoft/onnxruntime/releases/. 
-
+You may get a prebuilt onnxruntime package from https://github.com/microsoft/onnxruntime/releases/.
 For example, you may download onnxruntime-win-x64-\*\*\*.zip and unzip it to any folder.
+The folder you unzip it to will be your ONNXRUNTIME_ROOTDIR path. 
 
-#### Option 2: Build from source
+### Option 2: build from source
 
-If you'd like to build it by yourself, [build instructions are here](https://www.onnxruntime.ai/docs/build/). Please note you need to add the "--build_shared_lib" flag to your build command. Like this:
+If you'd like to build from source, the full build instructions are [here](https://www.onnxruntime.ai/docs/build/).
 
-Open Developer Command Prompt for Visual Studio version you are going to use. This will setup necessary environment for the compiler and other things to be found.
+Please note you need to include the "--build_shared_lib" flag in your build command. 
+
+e.g. from Developer Command Prompt or Developer PowerShell for the Visual Studio version you are going to use,
+build ONNX Runtime at least these options:
 
 ```bat
-build.bat --config RelWithDebInfo --build_shared_lib --parallel 
+.\build.bat --config RelWithDebInfo --build_shared_lib --parallel
 ```
 
-By default this will build a project with "C:\Program Files (x86)\onnxruntime" install destination. This is a protected folder on Windows. If you do not want to run installation with elevated privileges you will need to override the default installation location by passing extra CMake arguments. For example:
+By default the build output will go in the `.\build\Windows\<config>` folder, and
+"C:\Program Files\onnxruntime" will be the installation location.
+
+You can override the installation location by specifying CMAKE_INSTALL_PREFIX via the cmake_extra_defines parameter. For example:
 
 ```bat
-build.bat --config RelWithDebInfo --build_dir .\build  --build_shared_lib --parallel  --cmake_extra_defines CMAKE_INSTALL_PREFIX=c:\dev\ort_install
+.\build.bat --config RelWithDebInfo --build_shared_lib --parallel --cmake_extra_defines CMAKE_INSTALL_PREFIX=D:\onnxruntime
 ```
 
-By default products of the build on Windows go to .\build\Windows\<config> folder. In the case above it would be .\build\RelWithDebInfo since the build folder is mentioned explicitly.
-
-If you did not specify alternative installation location above you would need to open an elevated command prompt to install onnxruntime.
-
-Run the following commands.
+Run the below command to install onnxruntime. If installing to "C:\Program Files\onnxruntime" you will need to run the command from an elevated command prompt.
 
 ```bat
-cmake --install .\build\RelWithDebInfo --config RelWithDebInfo
+cmake --install .\build\Windows\RelWithDebInfo --config RelWithDebInfo
 ```
 
 ### Build the samples
 
 The location of the ONNX Runtime header files is specified by the ONNXRUNTIME_ROOTDIR environment variable.
 
-Open Developer Command Prompt for Visual Studio version you are going to use, change your current directory to samples\c_cxx, then run
+Open Developer Command Prompt or Developer PowerShell for the Visual Studio version you are going to use, change your current directory to samples\c_cxx, and run the following command:
 
 ```bat
 mkdir build && cd build
-cmake .. -A x64 -T host=x64 -DLIBPNG_ROOTDIR=C:\path\to\your\libpng\binary -DONNXRUNTIME_ROOTDIR=c:\dev\ort_install
+cmake .. -A x64 -T host=x64 -DONNXRUNTIME_ROOTDIR=D:\onnxruntime -DLIBPNG_ROOTDIR=C:\path\to\your\libpng\binary
 ```
 
-You may omit the "-DLIBPNG_ROOTDIR=..." argument if you don't have the libpng library.
-You may omit "-DONNXRUNTIME_ROOTDIR=..." if you installed to a default location.
+* You can omit the "-DLIBPNG_ROOTDIR=..." argument if you don't have the libpng library.
+* You can omit "-DONNXRUNTIME_ROOTDIR=..." if you installed to "C:\Program Files\onnxruntime", otherwise adjust the value to match your ONNX Runtime install location.
+* Append "-Donnxruntime_USE_CUDA=ON" or "-Donnxruntime_USE_DML=ON" to the last command args if your onnxruntime binary was built with CUDA or DirectML support respectively.
 
-You may append "-Donnxruntime_USE_CUDA=ON" or "-Donnxruntime_USE_DML=ON" to the last command args if your onnxruntime binary was built with CUDA or DirectML support respectively.
-
-You can then either open the solution in a Visual Studio and build it from there
+You can then open and build the solution using Visual Studio:
 
 ```bat
 devenv onnxruntime_samples.sln
 ```
 
-Or build it using msbuild
+or build it from the command line using msbuild
 
 ```bat
 msbuild onnxruntime_samples.sln /p:Configuration=Debug|Release
-cmake --install .\build\Debug|Release --config Debug
 ```
-
-To run the samples make sure that your Install Folder Bin is in the path so your sample executable can find onnxruntime dll and libpng if you used it.
-
