@@ -1,0 +1,414 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		2AB257CBA61B80D9825DC5F7 /* Pods_ORTQuestionAnswering.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7ABFE8E890BEA3B962A8B904 /* Pods_ORTQuestionAnswering.framework */; };
+		519D04AB29D75C230092C5B4 /* ORTQuestionAnsweringPerformer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 519D04AA29D75C230092C5B4 /* ORTQuestionAnsweringPerformer.mm */; };
+		519D04AD29D76AE80092C5B4 /* csarron_mobilebert_uncased_squad_v2_quant_with_pre_post_processing.onnx in Resources */ = {isa = PBXBuildFile; fileRef = 519D04A629D75B900092C5B4 /* csarron_mobilebert_uncased_squad_v2_quant_with_pre_post_processing.onnx */; };
+		51E1987029D758650043B708 /* ORTQuestionAnsweringApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51E1986F29D758650043B708 /* ORTQuestionAnsweringApp.swift */; };
+		51E1987229D758650043B708 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51E1987129D758650043B708 /* ContentView.swift */; };
+		51E1987429D758670043B708 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 51E1987329D758670043B708 /* Assets.xcassets */; };
+		51E1987729D758670043B708 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 51E1987629D758670043B708 /* Preview Assets.xcassets */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		200FCDB1C159E439F2C486FA /* Pods-ORTQuestionAnswering.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ORTQuestionAnswering.debug.xcconfig"; path = "Target Support Files/Pods-ORTQuestionAnswering/Pods-ORTQuestionAnswering.debug.xcconfig"; sourceTree = "<group>"; };
+		519D04A629D75B900092C5B4 /* csarron_mobilebert_uncased_squad_v2_quant_with_pre_post_processing.onnx */ = {isa = PBXFileReference; lastKnownFileType = file; path = csarron_mobilebert_uncased_squad_v2_quant_with_pre_post_processing.onnx; sourceTree = "<group>"; };
+		519D04A929D75C230092C5B4 /* ORTQuestionAnswering-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "ORTQuestionAnswering-Bridging-Header.h"; sourceTree = "<group>"; };
+		519D04AA29D75C230092C5B4 /* ORTQuestionAnsweringPerformer.mm */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; path = ORTQuestionAnsweringPerformer.mm; sourceTree = "<group>"; };
+		519D04AC29D76A110092C5B4 /* ORTQuestionAnsweringPerformer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ORTQuestionAnsweringPerformer.h; sourceTree = "<group>"; };
+		51E1986C29D758650043B708 /* ORTQuestionAnswering.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ORTQuestionAnswering.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		51E1986F29D758650043B708 /* ORTQuestionAnsweringApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ORTQuestionAnsweringApp.swift; sourceTree = "<group>"; };
+		51E1987129D758650043B708 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		51E1987329D758670043B708 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		51E1987629D758670043B708 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		7ABFE8E890BEA3B962A8B904 /* Pods_ORTQuestionAnswering.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_ORTQuestionAnswering.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		D0B8B5455E2A8B9DDDEA3E70 /* Pods-ORTQuestionAnswering.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ORTQuestionAnswering.release.xcconfig"; path = "Target Support Files/Pods-ORTQuestionAnswering/Pods-ORTQuestionAnswering.release.xcconfig"; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		51E1986929D758650043B708 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2AB257CBA61B80D9825DC5F7 /* Pods_ORTQuestionAnswering.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		3C3EEBEF25DA55EC853AD2ED /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				7ABFE8E890BEA3B962A8B904 /* Pods_ORTQuestionAnswering.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		3DD84F8B8FBEB4CE07CFAB3F /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				200FCDB1C159E439F2C486FA /* Pods-ORTQuestionAnswering.debug.xcconfig */,
+				D0B8B5455E2A8B9DDDEA3E70 /* Pods-ORTQuestionAnswering.release.xcconfig */,
+			);
+			path = Pods;
+			sourceTree = "<group>";
+		};
+		51E1986329D758650043B708 = {
+			isa = PBXGroup;
+			children = (
+				51E1986E29D758650043B708 /* ORTQuestionAnswering */,
+				51E1986D29D758650043B708 /* Products */,
+				3DD84F8B8FBEB4CE07CFAB3F /* Pods */,
+				3C3EEBEF25DA55EC853AD2ED /* Frameworks */,
+			);
+			sourceTree = "<group>";
+		};
+		51E1986D29D758650043B708 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				51E1986C29D758650043B708 /* ORTQuestionAnswering.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		51E1986E29D758650043B708 /* ORTQuestionAnswering */ = {
+			isa = PBXGroup;
+			children = (
+				51E1986F29D758650043B708 /* ORTQuestionAnsweringApp.swift */,
+				519D04A629D75B900092C5B4 /* csarron_mobilebert_uncased_squad_v2_quant_with_pre_post_processing.onnx */,
+				51E1987129D758650043B708 /* ContentView.swift */,
+				51E1987329D758670043B708 /* Assets.xcassets */,
+				51E1987529D758670043B708 /* Preview Content */,
+				519D04AA29D75C230092C5B4 /* ORTQuestionAnsweringPerformer.mm */,
+				519D04A929D75C230092C5B4 /* ORTQuestionAnswering-Bridging-Header.h */,
+				519D04AC29D76A110092C5B4 /* ORTQuestionAnsweringPerformer.h */,
+			);
+			path = ORTQuestionAnswering;
+			sourceTree = "<group>";
+		};
+		51E1987529D758670043B708 /* Preview Content */ = {
+			isa = PBXGroup;
+			children = (
+				51E1987629D758670043B708 /* Preview Assets.xcassets */,
+			);
+			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		51E1986B29D758650043B708 /* ORTQuestionAnswering */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 51E1987A29D758670043B708 /* Build configuration list for PBXNativeTarget "ORTQuestionAnswering" */;
+			buildPhases = (
+				EA45B30329EC2F1204819D3E /* [CP] Check Pods Manifest.lock */,
+				51E1986829D758650043B708 /* Sources */,
+				51E1986929D758650043B708 /* Frameworks */,
+				51E1986A29D758650043B708 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = ORTQuestionAnswering;
+			productName = ORTQuestionAnswering;
+			productReference = 51E1986C29D758650043B708 /* ORTQuestionAnswering.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		51E1986429D758650043B708 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1420;
+				LastUpgradeCheck = 1420;
+				TargetAttributes = {
+					51E1986B29D758650043B708 = {
+						CreatedOnToolsVersion = 14.2;
+						LastSwiftMigration = 1420;
+					};
+				};
+			};
+			buildConfigurationList = 51E1986729D758650043B708 /* Build configuration list for PBXProject "ORTQuestionAnswering" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 51E1986329D758650043B708;
+			productRefGroup = 51E1986D29D758650043B708 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				51E1986B29D758650043B708 /* ORTQuestionAnswering */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		51E1986A29D758650043B708 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				519D04AD29D76AE80092C5B4 /* csarron_mobilebert_uncased_squad_v2_quant_with_pre_post_processing.onnx in Resources */,
+				51E1987729D758670043B708 /* Preview Assets.xcassets in Resources */,
+				51E1987429D758670043B708 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		EA45B30329EC2F1204819D3E /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-ORTQuestionAnswering-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		51E1986829D758650043B708 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				51E1987229D758650043B708 /* ContentView.swift in Sources */,
+				51E1987029D758650043B708 /* ORTQuestionAnsweringApp.swift in Sources */,
+				519D04AB29D75C230092C5B4 /* ORTQuestionAnsweringPerformer.mm in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		51E1987829D758670043B708 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.2;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		51E1987929D758670043B708 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.2;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		51E1987B29D758670043B708 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 200FCDB1C159E439F2C486FA /* Pods-ORTQuestionAnswering.debug.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"ORTQuestionAnswering/Preview Content\"";
+				DEVELOPMENT_TEAM = UBF8T346G9;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.MS.ORTQuestionAnswering;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "ORTQuestionAnswering/ORTQuestionAnswering-Bridging-Header.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		51E1987C29D758670043B708 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = D0B8B5455E2A8B9DDDEA3E70 /* Pods-ORTQuestionAnswering.release.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"ORTQuestionAnswering/Preview Content\"";
+				DEVELOPMENT_TEAM = UBF8T346G9;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.MS.ORTQuestionAnswering;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "ORTQuestionAnswering/ORTQuestionAnswering-Bridging-Header.h";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		51E1986729D758650043B708 /* Build configuration list for PBXProject "ORTQuestionAnswering" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				51E1987829D758670043B708 /* Debug */,
+				51E1987929D758670043B708 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		51E1987A29D758670043B708 /* Build configuration list for PBXNativeTarget "ORTQuestionAnswering" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				51E1987B29D758670043B708 /* Debug */,
+				51E1987C29D758670043B708 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 51E1986429D758650043B708 /* Project object */;
+}
