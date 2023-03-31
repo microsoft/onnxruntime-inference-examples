@@ -4,6 +4,8 @@ import ai.onnxruntime.*
 import ai.onnxruntime.extensions.OrtxPackage
 import android.annotation.SuppressLint
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
 import android.widget.Button
 import android.widget.TextView
@@ -41,6 +43,20 @@ class MainActivity : AppCompatActivity() {
                     "without chewing it. After that they are not able to move," +
                     " and they sleep through the six months that they need for digestion.\""
         );
+        ArticleText.addTextChangedListener(object:TextWatcher {
+            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+
+            }
+
+            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+
+            }
+
+            override fun afterTextChanged(s: Editable) {
+                TitleText.setText("Customized context")
+            }
+
+        })
         QuestionText.setHint("From which book did I see a magnificent picture?")
 
         // Initialize Ort Session and register the onnxruntime extensions package that contains the custom operators.
@@ -70,7 +86,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun updateUI(result: Result) {
-        val default_ans: String = "No answer found, try another question?"
+        val default_ans: String = "No answer found."
         AnswerText.setText(
             if (result.outputAnswer.equals("[CLS]")) default_ans else result.outputAnswer
         )

@@ -5,11 +5,11 @@
 This is a basic QuestionAnswering example application for [ONNX Runtime](https://github.com/microsoft/onnxruntime) on Android with [Ort-Extensions](https://github.com/microsoft/onnxruntime-extensions) support for pre/post processing. The demo app accomplishes the task of answering the question provided by users.
 
 ### Model
-The model used here is from source: [HuggingFace](https://huggingface.co/docs/transformers/model_doc/mobilebert) and accommodated into [ONNX](https://github.com/onnx/onnx) version with pre/post processing support.
+The model used here is from the source: [HuggingFace](https://huggingface.co/docs/transformers/model_doc/mobilebert)](https://huggingface.co/docs/transformers/model_doc/mobilebert) and accommodated into [ONNX](https://github.com/onnx/onnx) version with pre/post processing support.
 
 
 ### Requirements
-- Android Studio Dolphin | 2021.3.1 Patch + (installed on Mac/Windows/Linux)
+- Android Studio Dolphin | Android Studio Electric Eel | 2022.1.1 Patch 2+ (installed on Mac/Windows/Linux)
 - Android SDK 29+
 - Android NDK r22+
 - An Android device or an Android Emulator
@@ -28,7 +28,7 @@ Clone this repository to get the sample application.
 
 - The model used is under `mobile\examples\question_answering\android\app\src\main\res\raw`.
 
-`prepare_models.py` in the directory will do the model preparing work. The whole process include four steps.
+`prepare_models.py` in the directory will do the model-preparing work. The whole procedure includes four steps.
 1. download model from huggingface. 
 2. convert model to onnx. 
 3. quantize onnx model. 
@@ -38,8 +38,8 @@ NOTE: Please install onnxruntime-extensions package following [this](https://git
 
 This script works for both Mac and Linux by default. If you want to work it in windows, you should prepare the environment by yourself and run `prepare_models.py` in windows.
 
-```bash
 Model will be placed at `mobile\examples\question_answering\android\app\src\main\res\raw` automatically.
+
 ```bash
 cd mobile/examples/question_answering/android
 bash prepare_models.sh
