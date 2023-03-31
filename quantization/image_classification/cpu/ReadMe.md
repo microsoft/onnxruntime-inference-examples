@@ -12,6 +12,8 @@ three parts:
 Pre-processing prepares a float32 model for quantization. Run the following command to pre-process
 model `mobilenetv2-7.onnx`.
 
+Model `resnet50-v1-12.onnx` can be downloaded from [ONNX repo](https://github.com/onnx/models/tree/main/vision/classification/resnet/model).
+
 ```console
 python -m onnxruntime.quantization.preprocess --input mobilenetv2-7.onnx --output mobilenetv2-7-infer.onnx
 ```
@@ -63,9 +65,9 @@ weight tensors of the float32 model vs those of the quantized model.  If a input
 is provided, our debugger can also run both models with the same input and compare their
 corresponding tensors:
 
-'''console
+```console
 python run_qdq_debug.py --float_model mobilenetv2-7-infer.onnx --qdq_model mobilenetv2-7.quant.onnx --calibrate_dataset ./test_images/
-'''
+```
 
 If you have quantized a model with optimization turned on, and found the debugging tool can not
 match certain float32 model tensors with their quantized counterparts, you can try to run the
