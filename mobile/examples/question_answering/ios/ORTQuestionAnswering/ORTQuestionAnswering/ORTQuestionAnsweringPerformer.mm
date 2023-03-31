@@ -94,7 +94,6 @@
         }
 
         // TODO: Step 6: Set output answer text
-        
         output_text = @"This is string 1.";
           
     } catch (std::exception &e) {

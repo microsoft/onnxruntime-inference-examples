@@ -1,9 +1,5 @@
-//
-//  ORTQuestionAnswering-Bridging-Header.h
-//  ORTQuestionAnswering
-//
-//  Created by rachguo on 3/31/23.
-//
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
 
 #ifndef ORTQuestionAnswering_Bridging_Header_h
 #define ORTQuestionAnswering_Bridging_Header_h

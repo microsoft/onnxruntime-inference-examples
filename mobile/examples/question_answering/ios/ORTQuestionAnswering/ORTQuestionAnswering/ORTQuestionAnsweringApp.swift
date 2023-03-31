@@ -1,9 +1,5 @@
-//
-//  ORTQuestionAnsweringApp.swift
-//  ORTQuestionAnswering
-//
-//  Created by rachguo on 3/31/23.
-//
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
 
 import SwiftUI
 
