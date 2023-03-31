@@ -31,32 +31,30 @@
 #include <onnxruntime_cxx_api.h>
 
 // pretty prints a shape dimension vector
-std::string print_shape(const std::vector<int64_t>& v) {
+std::string print_shape(const std::vector<std::int64_t>& v) {
   std::stringstream ss("");
-  for (size_t i = 0; i < v.size() - 1; i++) ss << v[i] << "x";
+  for (std::size_t i = 0; i < v.size() - 1; i++) ss << v[i] << "x";
   ss << v[v.size() - 1];
   return ss.str();
 }
 
-int calculate_product(const std::vector<int64_t>& v) {
+int calculate_product(const std::vector<std::int64_t>& v) {
   int total = 1;
   for (auto& i : v) total *= i;
   return total;
 }
 
 template <typename T>
-Ort::Value vec_to_tensor(std::vector<T>& data, const std::vector<int64_t>& shape) {
+Ort::Value vec_to_tensor(std::vector<T>& data, const std::vector<std::int64_t>& shape) {
   Ort::MemoryInfo mem_info =
       Ort::MemoryInfo::CreateCpu(OrtAllocatorType::OrtArenaAllocator, OrtMemType::OrtMemTypeDefault);
   auto tensor = Ort::Value::CreateTensor<T>(mem_info, data.data(), data.size(), shape.data(), shape.size());
   return tensor;
 }
 
-using namespace std;
-
 int main(int argc, char** argv) {
   if (argc != 2) {
-    cout << "Usage: ./onnx-api-example <onnx_model.onnx>" << endl;
+    std::cout << "Usage: ./onnx-api-example <onnx_model.onnx>" << std::endl;
     return -1;
   }
 
@@ -75,8 +73,8 @@ int main(int argc, char** argv) {
 
   // print name/shape of inputs
   Ort::AllocatorWithDefaultOptions allocator;
-  vector<string> input_names;
-  vector<int64_t> input_shapes;
+  std::vector<std::string> input_names;
+  std::vector<std::int64_t> input_shapes;
   std::cout << "Input Node Name/Shape (" << input_names.size() << "):" << std::endl;
   for (std::size_t i = 0; i < session.GetInputCount(); i++) {
     input_names.emplace_back(session.GetInputNameAllocated(i, allocator).get());
@@ -92,11 +90,11 @@ int main(int argc, char** argv) {
 
   // print name/shape of outputs
   std::vector<std::string> output_names;
-  std::cout << "Output Node Name/Shape (" << output_names.size() << "):" << endl;
+  std::cout << "Output Node Name/Shape (" << output_names.size() << "):" << std::endl;
   for (std::size_t i = 0; i < session.GetOutputCount(); i++) {
     output_names.emplace_back(session.GetOutputNameAllocated(i, allocator).get());
     auto output_shapes = session.GetOutputTypeInfo(i).GetTensorTypeAndShapeInfo().GetShape();
-    cout << "\t" << output_names.at(i) << " : " << print_shape(output_shapes) << endl;
+    std::cout << "\t" << output_names.at(i) << " : " << print_shape(output_shapes) << std::endl;
   }
 
   // Assume model has 1 input node and 1 output node.
@@ -114,28 +112,28 @@ int main(int argc, char** argv) {
 
   // double-check the dimensions of the input tensor
   assert(input_tensors[0].IsTensor() && input_tensors[0].GetTensorTypeAndShapeInfo().GetShape() == input_shape);
-  cout << "\ninput_tensor shape: " << print_shape(input_tensors[0].GetTensorTypeAndShapeInfo().GetShape()) << endl;
+  std::cout << "\ninput_tensor shape: " << print_shape(input_tensors[0].GetTensorTypeAndShapeInfo().GetShape()) << std::endl;
 
   // pass data through model
   std::vector<const char*> input_names_char(input_names.size(), nullptr);
   std::transform(std::begin(input_names), std::end(input_names), std::begin(input_names_char),
                  [&](const std::string& str) { return str.c_str(); });
 
-  vector<const char*> output_names_char(output_names.size(), nullptr);
+  std::vector<const char*> output_names_char(output_names.size(), nullptr);
   std::transform(std::begin(output_names), std::end(output_names), std::begin(output_names_char),
                  [&](const std::string& str) { return str.c_str(); });
 
-  cout << "Running model..." << std::endl;
+  std::cout << "Running model..." << std::endl;
   try {
     auto output_tensors = session.Run(Ort::RunOptions{nullptr}, input_names_char.data(), input_tensors.data(),
                                       input_names_char.size(), output_names_char.data(), output_names_char.size());
-    cout << "Done!" << endl;
+    std::cout << "Done!" << std::endl;
 
     // double-check the dimensions of the output tensors
     // NOTE: the number of output tensors is equal to the number of output nodes specifed in the Run() call
     assert(output_tensors.size() == output_names.size() && output_tensors[0].IsTensor());
   } catch (const Ort::Exception& exception) {
-    cout << "ERROR running model inference: " << exception.what() << endl;
+      std::cout << "ERROR running model inference: " << exception.what() << std::endl;
     exit(-1);
   }
 }
