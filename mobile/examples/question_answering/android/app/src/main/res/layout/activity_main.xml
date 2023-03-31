@@ -9,13 +9,22 @@
 
     <TextView
         android:id="@+id/TitleView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_width="0dp"
+        android:layout_height="27dp"
         android:background="#F6EED0"
         android:gravity="center"
         android:text="TextView"
         android:textColor="#AE8D13"
         android:textSize="20sp" />
+
+    <Spinner
+        android:id="@+id/EPspinner"
+        android:layout_width="0dp"
+        android:layout_height="27dp"
+        android:background="@color/purple_200"
+        android:entries="@array/spinnerclass"
+        app:layout_constraintLeft_toRightOf="@id/TitleView"
+        tools:layout_editor_absoluteY="3dp" />
 
     <EditText
         android:id="@+id/ArticleView"

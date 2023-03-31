@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="spinnerclass">
+        <item>CPU EP</item>
+        <item>NNAPI EP</item>
+        <item>XNNAPCK EP</item>
+    </string-array>
+</resources>

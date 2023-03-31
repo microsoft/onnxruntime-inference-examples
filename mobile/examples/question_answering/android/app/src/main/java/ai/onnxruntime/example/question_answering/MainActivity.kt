@@ -7,9 +7,8 @@ import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
-import android.widget.Button
-import android.widget.TextView
-import android.widget.Toast
+import android.view.View
+import android.widget.*
 import androidx.activity.*
 import androidx.appcompat.app.AppCompatActivity
 import kotlinx.android.synthetic.main.activity_main.*
@@ -21,10 +20,12 @@ class MainActivity : AppCompatActivity() {
     private var ortEnv: OrtEnvironment = OrtEnvironment.getEnvironment()
     private lateinit var ortSession: OrtSession
     private val TitleText: TextView by lazy {findViewById(R.id.TitleView)}
+    private val EpSpinner: Spinner by lazy {findViewById(R.id.EPspinner)}
     private val ArticleText: TextView by lazy {findViewById(R.id.ArticleView)}
     private val AnswerText: TextView by lazy {findViewById(R.id.AnswerView)}
     private val QuestionText: TextView by lazy {findViewById(R.id.QuestionView)}
     private val DoQAButton: Button by lazy {findViewById(R.id.PerformQaButton)}
+    private var Cur_EP:String = ""
 
     @SuppressLint("UseCompatLoadingForDrawables")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -33,6 +34,16 @@ class MainActivity : AppCompatActivity() {
 
         // from <The Little Prince>, chapter one, and the first paragraph
         TitleText.setText("<The Little Prince>")
+        EpSpinner.onItemSelectedListener= object : AdapterView.OnItemSelectedListener{
+            override fun onNothingSelected(p0: AdapterView<*>?) {}
+            override fun onItemSelected(p0: AdapterView<*>?, p1: View?, p2: Int, p3: Long) {
+                val ep_content = EpSpinner.getItemAtPosition(p2).toString()
+                val ep_name = ep_content.split(" ")[0]
+                Toast.makeText(baseContext, ep_name, Toast.LENGTH_SHORT).show()
+                createOrtSession(ep_content)
+            }
+        }
+
         ArticleText.setText(
             "we are introduced to the narrator, a pilot, and his ideas about grown-ups." +
                     "Once when I was six years old I saw a magnificent picture in a book," +
@@ -42,14 +53,13 @@ class MainActivity : AppCompatActivity() {
                     "In the book it said: \"Boa constrictors swallow their prey whole, " +
                     "without chewing it. After that they are not able to move," +
                     " and they sleep through the six months that they need for digestion.\""
-        );
+        )
         ArticleText.addTextChangedListener(object:TextWatcher {
             override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
 
             }
 
             override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-
             }
 
             override fun afterTextChanged(s: Editable) {
@@ -59,11 +69,7 @@ class MainActivity : AppCompatActivity() {
         })
         QuestionText.setHint("From which book did I see a magnificent picture?")
 
-        // Initialize Ort Session and register the onnxruntime extensions package that contains the custom operators.
-        // Note: These are used to load tokenizer and post-processor ops
-        val sessionOptions: OrtSession.SessionOptions = OrtSession.SessionOptions()
-        sessionOptions.registerCustomOpLibrary(OrtxPackage.getLibraryPath())
-        ortSession = ortEnv.createSession(readModel(), sessionOptions)
+        createOrtSession(EpSpinner.selectedItem.toString())
 
         DoQAButton.setOnClickListener {
             try {
@@ -77,6 +83,28 @@ class MainActivity : AppCompatActivity() {
                 ).show()
             }
         }
+    }
+
+    private fun createOrtSession(ep:String){
+        if (Cur_EP.equals(ep)){
+            return
+        }
+        Cur_EP = ep
+        // Initialize Ort Session and register the onnxruntime extensions package that contains the custom operators.
+        // Note: These are used to load tokenizer and post-processor ops
+        val sessionOptions: OrtSession.SessionOptions = OrtSession.SessionOptions()
+        if (ep.contains("CPU")){
+
+        }else if (ep.contains("NNAPI")) {
+            sessionOptions.addNnapi()
+        }else if (ep.contains("XNNAPCK")) {
+            val po = mapOf<String, String>()
+            sessionOptions.addXnnpack(po)
+        }
+        sessionOptions.setSessionLogLevel(OrtLoggingLevel.ORT_LOGGING_LEVEL_VERBOSE)
+        sessionOptions.setSessionLogVerbosityLevel(0)
+        sessionOptions.registerCustomOpLibrary(OrtxPackage.getLibraryPath())
+        ortSession = ortEnv.createSession(readModel(), sessionOptions)
     }
 
     override fun onDestroy() {
