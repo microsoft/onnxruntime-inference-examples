@@ -83,6 +83,12 @@ int main(int argc, char** argv) {
     input_shapes = session.GetInputTypeInfo(i).GetTensorTypeAndShapeInfo().GetShape();
     std::cout << "\t" << input_names.at(i) << " : " << print_shape(input_shapes) << std::endl;
   }
+  // some models might have negative shape values to indicate dynamic shape, e.g., for variable batch size.
+  for (auto& s : input_shapes) {
+    if (s < 0) {
+      s = 1;
+    }
+  }
 
   // print name/shape of outputs
   std::vector<std::string> output_names;
