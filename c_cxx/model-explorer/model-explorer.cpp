@@ -10,6 +10,7 @@
  *
  * Assumptions made in this example:
  *  1) The onnx model has 1 input node and 1 output node
+ *  2) The onnx model should have float input
  *
  *
  * In this example, we do the following:
