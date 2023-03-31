@@ -8,9 +8,10 @@ The source code for this sample is available [here](https://github.com/microsoft
 
 3. There is one more sample [here](https://github.com/microsoft/onnxruntime-inference-examples/tree/main/c_cxx/OpenVINO_EP/Linux/squeezenet_classification/squeezenet_cpp_app_io.cpp) with IO Buffer optimization enabled. With IO Buffer interfaces we can avoid any memory copy overhead when plugging OpenVINO™ inference into an existing GPU pipeline. It also enables OpenCL kernels to participate in the pipeline to become native buffer consumers or producers of the OpenVINO™ inference. Refer [here](https://docs.openvino.ai/latest/openvino_docs_OV_UG_supported_plugins_GPU_RemoteTensor_API.html) for more details. This sample is for GPUs only.
 
-# How to build
+## How to build
 
-## Prerequisites
+### Prerequisites
+
 1. [The Intel<sup>®</sup> Distribution of OpenVINO toolkit](https://docs.openvinotoolkit.org/latest/index.html)
 2. Use opencv (use the same opencv package that comes builtin with Intel<sup>®</sup> Distribution of OpenVINO toolkit)
 3. Use opencl for IO buffer sample (squeezenet_cpp_app_io.cpp).
@@ -19,33 +20,38 @@ The source code for this sample is available [here](https://github.com/microsoft
    This example was adapted from [ONNX Model Zoo](https://github.com/onnx/models).Download the latest version of the [Squeezenet](https://github.com/onnx/models/tree/master/vision/classification/squeezenet) model from here.
 
 
-## Install ONNX Runtime for OpenVINO Execution Provider
+### Install ONNX Runtime for OpenVINO Execution Provider
 
-## Build steps
+### Build steps
+
 [build instructions](https://onnxruntime.ai/docs/build/eps.html#openvino)
 
-## Reference Documentation
+### Reference Documentation
+
 [Documentation](https://onnxruntime.ai/docs/execution-providers/OpenVINO-ExecutionProvider.html)
 
 If you build it by yourself, you must append the "--build_shared_lib" flag to your build command. Also for running the sample with IO Buffer optimization feature, make sure you set the OpenCL paths. For example if you are setting the path from openvino source build folder, the paths will be like:
-```
+
+```bash
 export OPENCL_LIBS=path/to/your/directory/openvino/bin/intel64/Debug/lib/
 export OPENCL_INCS=path/to/your/directory/openvino/thirdparty/ocl/clhpp_headers/include/
 ```
 
-```
+```bash
 ./build.sh --config Release --use_openvino CPU_FP32 --build_shared_lib
 ```
 
-## Build the sample C++ Application
+### Build the sample C++ Application
+
 1. Navigate to the directory /onnxruntime/build/Linux/Release/
 
 2. Now copy all the files required to run this sample at this same location (/onnxruntime/build/Linux/Release/)
 
-3. compile the sample
+3. Compile the sample
 
    - For general sample
-      ```
+
+      ```bash
       g++ -o run_squeezenet squeezenet_cpp_app.cpp -I ../../../include/onnxruntime/core/session/ -I /path/to/opencv/include/ -I /path/to/opencv/lib/ -L ./ -lonnxruntime_providers_openvino -lonnxruntime_providers_shared -lonnxruntime -L /path/to/opencv/lib/ -lopencv_imgcodecs -lopencv_dnn -lopencv_core -lopencv_imgproc
       ```
       **Note:**
@@ -55,12 +61,12 @@ export OPENCL_INCS=path/to/your/directory/openvino/thirdparty/ocl/clhpp_headers/
 
    - For the sample using IO Buffer Optimization feature
       Set the OpenCL lib and headers path. For example if you are setting the path from openvino source build folder, the paths will be like:
-      ```
+      ```bash
       export OPENCL_LIBS=path/to/your/directory/openvino/bin/intel64/Debug/lib/
       export OPENCL_INCS=path/to/your/directory/openvino/thirdparty/ocl/clhpp_headers/include/
       ```
       Now based on the above path, compile command will be:
-      ```
+      ```bash
       g++ -o run_squeezenet squeezenet_cpp_app_io.cpp -I ../../../include/onnxruntime/core/session/ -I $OPENCL_INCS -I $OPENCL_INCS/../../cl_headers/ -I /path/to/opencv/include/ -I /path/to/opencv/lib/ -L ./ -lonnxruntime_providers_openvino -lonnxruntime_providers_shared -lonnxruntime -L /path/to/opencv/lib/ -lopencv_imgcodecs -lopencv_dnn -lopencv_core -lopencv_imgproc -L $OPENCL_LIBS -lOpenCL
       ```
       **Note:**
