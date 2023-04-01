@@ -50,25 +50,26 @@
         NSString *input_article_text = @"We are introduced to the narrator, a pilot, and his ideas about grown-ups. Once when I was six years old I saw a magnificent picture in a book, called True Stories from Nature, about the primeval forest. It was a picture of a boa constrictor in the act of swallowing an animal. Here is a copy of the drawing.In the book it said: 'Boa constrictors swallow their prey whole, without chewing it. After that they are not able to move, and they sleep through the six months that they need for digestion.'";
         
         // TODO: Configure to read user input text from ContentView.
-        NSString *input_user_question_text = @"From which book did I see a magnificant picture?";
+        NSString *input_user_question_text = @"From which book did I see a magnificent picture?";
         
         // Step 3: Prepare input tensors and input/output names
         
-        NSMutableData *input_data = [[NSMutableData alloc] init];
-
-        NSData *string_data_1 = [input_user_question_text dataUsingEncoding:NSUTF8StringEncoding];
-        [input_data appendData:string_data_1];
-        NSData *string_data_2 = [input_article_text dataUsingEncoding:NSUTF8StringEncoding];
-        [input_data appendData:string_data_2];
+        std::vector<int64_t> input_dims{1, 2};
+        Ort::AllocatorWithDefaultOptions ortAllocator;
+            
+        auto input_tensor = Ort::Value::CreateTensor(ortAllocator, input_dims.data(), input_dims.size(), ONNX_TENSOR_ELEMENT_DATA_TYPE_STRING);
+            
+        std::vector<std::string> question_article_vec;
+        question_article_vec.reserve(2);
+        question_article_vec.push_back([input_user_question_text UTF8String]);
+        question_article_vec.push_back([input_article_text UTF8String]);
         
-        const int64_t input_data_length = input_data.length;
-        std::vector<int64_t> input_shape = {1, 2};
-        int64_t* inputShapePtr = input_shape.data();
-        
-        const auto memoryInfo =
-        Ort::MemoryInfo::CreateCpu(OrtDeviceAllocator, OrtMemTypeCPU);
+        std::vector<const char*> p_str;
+        for (const auto& s : question_article_vec) {
+          p_str.push_back(s.c_str());
+        }
 
-        const auto input_tensor = Ort::Value::CreateTensor(memoryInfo, [input_data mutableBytes], [input_data length], inputShapePtr, 2, ONNX_TENSOR_ELEMENT_DATA_TYPE_STRING);
+        input_tensor.FillStringTensor(p_str.data(), p_str.size());
 
         constexpr auto input_names = std::array{"input_text"};
         constexpr auto output_names = std::array{"text"};
@@ -93,9 +94,11 @@
             throw std::runtime_error("Unexpected output element type");
         }
 
-        // TODO: Step 6: Set output answer text
-        output_text = @"This is string 1.";
-          
+        // Step 6: Set output answer text
+        
+        const std::string* output_string_raw = output_tensor.GetTensorData<std::string>();
+        output_text = [NSString stringWithCString:output_string_raw->c_str() encoding:NSUTF8StringEncoding];
+     
     } catch (std::exception &e) {
         NSLog(@"%s error: %s", __FUNCTION__, e.what());
         

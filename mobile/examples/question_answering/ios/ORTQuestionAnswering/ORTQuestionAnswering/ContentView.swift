@@ -5,7 +5,7 @@ import SwiftUI
 
 struct ContentView: View {
     @State private var performQA = false
-    @State private var userQuestion: String = "From which book did I see a magnificant picture?"
+    @State private var userQuestion: String = "From which book did I see a magnificent picture?"
     
     func runOrtQuestionAnswering() -> String? {
         do {
@@ -38,15 +38,15 @@ struct ContentView: View {
                     TextField("User input: ", text: $userQuestion).font(.subheadline).frame(width: 350, height: 20, alignment:.leading).padding()
                         .foregroundColor(.gray)
                     
+                    Spacer()
+                    
                     Button("Get Answer!") {
                        performQA.toggle()
                     }
                     
                     if performQA {
-                        Text("Performed! ").font(.subheadline).foregroundColor(.red).frame(width: 350, height: 40, alignment:.leading)
-
                         if let outputAnswerText = runOrtQuestionAnswering() {
-                            Text(outputAnswerText).frame(width: 350, height: 100, alignment: .leading)
+                            Text(outputAnswerText).font(.headline).foregroundColor(.red).frame(width: 350, height: 100, alignment: .leading)
                         } else {
                            Text("Unable to perform super resolution. ").frame(width: 350, height: 40, alignment:.leading)
                         }
