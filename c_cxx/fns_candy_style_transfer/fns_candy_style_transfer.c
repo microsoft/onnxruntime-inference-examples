@@ -203,18 +203,15 @@ int main(int argc, char* argv[]) {
       puts("DirectML is not enabled in this build.");
       return -1;
 #endif
-    } else {
-      usage();
-      puts("Invalid execution provider option.");
-      return -1;
-    }
-  } else {
-    printf("Try to enable CUDA first\n");
-    ret = enable_cuda(session_options);
-    if (ret) {
-      fprintf(stderr, "CUDA is not available\n");
-    } else {
-      printf("CUDA is enabled\n");
+    } else if (tcscmp(execution_provider, ORT_TSTR("cuda")) == 0) {
+      printf("Try to enable CUDA first\n");
+      ret = enable_cuda(session_options);
+      if (ret) {
+        fprintf(stderr, "CUDA is not available\n");
+        return -1;
+      } else {
+        printf("CUDA is enabled\n");
+      }
     }
   }
 
