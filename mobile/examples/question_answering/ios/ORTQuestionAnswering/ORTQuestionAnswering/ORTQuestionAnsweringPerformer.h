@@ -11,7 +11,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface ORTQuestionAnsweringPerformer : NSObject
 
-+ (nullable NSString*)performQuestionAnsweringWithError:(NSError**)error;
++ (nullable NSString *)performQuestionAnswering:(NSString *)input_user_question error:(NSError **)error;
 
 @end
 
