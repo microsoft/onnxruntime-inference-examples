@@ -46,9 +46,6 @@
         
         auto sess = Ort::Session(ort_env, [model_path UTF8String], session_options);
         
-        // Set up input article and read input user question
-        NSString *input_article = @"We are introduced to the narrator, a pilot, and his ideas about grown-ups. Once when I was six years old I saw a magnificent picture in a book, called True Stories from Nature, about the primeval forest. It was a picture of a boa constrictor in the act of swallowing an animal. Here is a copy of the drawing.In the book it said: 'Boa constrictors swallow their prey whole, without chewing it. After that they are not able to move, and they sleep through the six months that they need for digestion.'";
-                
         // Step 3: Prepare input tensors and input/output names
         
         std::vector<int64_t> input_dims{1, 2};
