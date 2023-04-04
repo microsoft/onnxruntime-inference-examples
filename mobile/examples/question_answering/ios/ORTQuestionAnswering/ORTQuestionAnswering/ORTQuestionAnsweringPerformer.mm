@@ -18,7 +18,7 @@
 @implementation ORTQuestionAnsweringPerformer
 
 
-+ (nullable NSString *)performQuestionAnswering:(NSString *)input_user_question error:(NSError **)error{
++ (nullable NSString *)performQuestionAnswering:(NSString *)input_user_question context:(NSString *)input_article error:(NSError **)error{
     
     NSString *output_text = nil;
     
