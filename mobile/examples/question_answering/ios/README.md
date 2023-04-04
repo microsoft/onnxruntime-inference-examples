@@ -39,7 +39,7 @@ The model used here is from source: [HuggingFace](https://huggingface.co/docs/tr
 
 4. Open `<ONNXRuntime-inference-example-root>/mobile/examples/question_answering/ios/ORTQuestionAnswering.xcworkspace` in Xcode and make sure to select your corresponding development team under `Target-General-Signing` for a proper codesign procedure to run the app (only on device required, if running on iOS simulator can skip this step.)
 
-5. Connect your iOS device/simulator, build and run the app. Click `Get Answers!` button to see performed result on displayed sample image. A default hint message will be displayed on the initial screen.
+5. Connect your iOS device/simulator, build and run the app. Click `Get Answers!` button to see performed answer based on the given context. A default hint message will be displayed on initial screen.
 
 #
 Here's an example screenshot of the app:
