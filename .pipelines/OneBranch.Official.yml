@@ -37,7 +37,7 @@ resources:
   repositories: 
     - repository: templates
       type: git
-      name: OneBranch.Pipelines/GovernedTemplates
+      name: shahicasperOneBranch.Pipelines/GovernedTemplates
       ref: refs/heads/main
     - repository: vcpkg
       type: github
