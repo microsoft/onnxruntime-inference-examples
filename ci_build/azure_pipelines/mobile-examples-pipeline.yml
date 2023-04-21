@@ -171,7 +171,7 @@ jobs:
 # mobile/examples/image_classification/android
 - job: ImageClassificationAndroid
   pool:
-    vmImage: "macOS-11"
+    vmImage: "macOS-12"
 
   strategy:
     matrix:
@@ -184,6 +184,13 @@ jobs:
 
   steps:
   - template: templates/use-python-step.yml
+
+  - task: JavaToolInstaller@0
+    displayName: Use jdk 11
+    inputs:
+      versionSpec: "11"
+      jdkArchitectureOption: "x64"
+      jdkSourceOption: "PreInstalled"
 
   - bash: |
       set -e
@@ -204,7 +211,7 @@ jobs:
   - script: |
       python3 ./ci_build/python/run_android_emulator.py \
         --android-sdk-root ${ANDROID_SDK_ROOT} \
-        --create-avd --system-image "system-images;android-30;google_apis;x86_64" \
+        --create-avd --system-image "system-images;android-30;default;x86_64" \
         --start --emulator-extra-args="-partition-size 4096" \
         --emulator-pid-file $(Build.BinariesDirectory)/emulator.pid
     displayName: "Start Android emulator"
@@ -235,7 +242,7 @@ jobs:
   - script: |
       python3 ./ci_build/python/run_android_emulator.py \
         --android-sdk-root ${ANDROID_SDK_ROOT} \
-        --create-avd --system-image "system-images;android-30;google_apis;x86_64" \
+        --create-avd --system-image "system-images;android-30;default;x86_64" \
         --start --emulator-extra-args="-partition-size 4096" \
         --emulator-pid-file $(Build.BinariesDirectory)/emulator.pid
     displayName: "Start Android emulator"
@@ -280,3 +287,44 @@ jobs:
     parameters:
       xcWorkspacePath: 'mobile/examples/super_resolution/ios/ORTSuperResolution/ORTSuperResolution.xcworkspace'
       scheme: 'ORTSuperResolution'
+
+- job: QuestionAnsweringAndroid
+  pool:
+    vmImage: "macOS-11"
+
+  steps:
+  - template: templates/use-python-step.yml
+  - bash: |
+      set -e
+      bash ./prepare_model.sh
+    workingDirectory: 'mobile/examples/question_answering/android'
+    displayName: "Generate model"
+    
+  - script: |
+      python3 ./ci_build/python/run_android_emulator.py \
+        --android-sdk-root ${ANDROID_SDK_ROOT} \
+        --create-avd --system-image "system-images;android-30;default;x86_64" \
+        --start --emulator-extra-args="-partition-size 4096" \
+        --emulator-pid-file $(Build.BinariesDirectory)/emulator.pid
+    displayName: "Start Android emulator"
+  
+  - task: JavaToolInstaller@0
+    displayName: Use jdk 11
+    inputs:
+      versionSpec: "11"
+      jdkArchitectureOption: "x64"
+      jdkSourceOption: "PreInstalled"
+
+  - bash: |
+      set -e
+      ./gradlew connectedDebugAndroidTest --no-daemon
+    workingDirectory: mobile/examples/question_answering/android
+    displayName: "Build and run tests"
+
+  - script: |
+      python ./ci_build/python/run_android_emulator.py \
+        --android-sdk-root ${ANDROID_SDK_ROOT} \
+        --stop \
+        --emulator-pid-file $(Build.BinariesDirectory)/emulator.pid
+    displayName: "Stop Android emulator"
+    condition: always()
