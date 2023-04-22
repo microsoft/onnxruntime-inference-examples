@@ -28,7 +28,7 @@ This is a basic example usage react native expo application for [ONNX Runtime](h
 
    **NOTE:**
    - `<SOURCE_ROOT>` refers to the root folder of the source code, where this `README.md` file sits.
-   i.e. `/mobile/examples/ort_extensions_react_native_usage/ort-ex-rn-usage`
+   i.e. `/mobile/examples/ort_extensions_react_native_usage/ort-ext-rn-usage`
 
 2. Install onnxruntime-react-native
 
@@ -39,7 +39,7 @@ This is a basic example usage react native expo application for [ONNX Runtime](h
 
     1. Put the file under `<SOURCE_ROOT>/assets`.
 
-       In this tutorial, we use test sample ONNX model with custom op decode_image (`decode_image.ort`).
+       In this tutorial, we use test sample ONNX model with custom op decode_image (`decode_image.onnx`).
 
     2. add a new file `metro.config.js` under `<SOURCE_ROOT>` and add the following lines to the file:
 
