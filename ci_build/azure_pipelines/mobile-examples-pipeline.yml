@@ -39,7 +39,7 @@ jobs:
 # mobile/examples/basic_usage/ios
 - job: BasicUsageIos
   pool:
-    vmImage: "macOS-11"
+    vmImage: "macOS-12"
 
   dependsOn: ProcessParameters
 
@@ -85,7 +85,7 @@ jobs:
 # mobile/examples/speech_recognition/ios
 - job: SpeechRecognitionIos
   pool:
-    vmImage: "macOS-11"
+    vmImage: "macOS-12"
 
   dependsOn: ProcessParameters
 
@@ -128,7 +128,7 @@ jobs:
 # mobile/examples/object_detection/ios
 - job: ObjectDetectionIos
   pool:
-    vmImage: "macOS-11"
+    vmImage: "macOS-12"
 
   dependsOn: ProcessParameters
 
@@ -234,7 +234,7 @@ jobs:
 # mobile/examples/super_resolution/android 
 - job: SuperResolutionAndroid
   pool:
-    vmImage: "macOS-11"
+    vmImage: "macOS-12"
 
   steps:
   - template: templates/use-python-step.yml
@@ -275,7 +275,7 @@ jobs:
 # mobile/examples/super_resolution/ios
 - job: SuperResolutionIos
   pool:
-    vmImage: "macOS-11"
+    vmImage: "macOS-12"
 
   steps:
   
@@ -290,7 +290,7 @@ jobs:
 
 - job: QuestionAnsweringAndroid
   pool:
-    vmImage: "macOS-11"
+    vmImage: "macOS-12"
 
   steps:
   - template: templates/use-python-step.yml
