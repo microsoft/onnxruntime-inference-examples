@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "OrtReactNativeHelloWorld",
-    "slug": "OrtReactNativeHelloWorld",
+    "name": "OrtReactNativeWithExt",
+    "slug": "OrtReactNativeWithExt",
     "plugins": ["onnxruntime-react-native"],
     "version": "1.0.0",
     "orientation": "portrait",
@@ -19,14 +19,14 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.example.helloworld"
+      "bundleIdentifier": "com.example.ortwithextensions"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"
       },
-      "package": "com.example.helloworld"
+      "package": "com.example.ortwithextensions"
     },
     "web": {
       "favicon": "./assets/favicon.png"

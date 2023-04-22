@@ -64,7 +64,7 @@ async function runModel() {
 export default function App() {
   return (
     <View style={styles.container}>
-      <Text>using ONNX Runtime for React Native</Text>
+      <Text>using ONNX Runtime with extensions for React Native</Text>
       <Button title='Load model' onPress={loadModel}></Button>
       <Button title='Run' onPress={runModel}></Button>
       <StatusBar style="auto" />
