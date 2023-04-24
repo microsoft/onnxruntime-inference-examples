@@ -1,9 +1,5 @@
-//
-//  ORTQuestionAnsweringTests.swift
-//  ORTQuestionAnsweringTests
-//
-//  Created by rachguo on 4/24/23.
-//
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
 
 import XCTest
 
