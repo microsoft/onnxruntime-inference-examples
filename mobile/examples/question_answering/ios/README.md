@@ -23,7 +23,7 @@ The model used here is from source: [HuggingFace](https://huggingface.co/docs/tr
 
 3. Prepare the required model used in this sample.
     
-    Use provided `prepare_models.py` script to do the model-preparing work. The whole procedure includes four steps.
+    Use provided `prepare_model.py` script under `mobile/examples/question_answering/android/` to do the model-preparing work. The whole procedure includes four steps.
     1. download model from huggingface. 
     2. convert model to onnx. 
     3. quantize onnx model. 
@@ -35,7 +35,7 @@ The model used here is from source: [HuggingFace](https://huggingface.co/docs/tr
     cd mobile/examples/question_answering/android
     bash prepare_models.sh
     ```
-    TODO: currently the model will be placed inside the android directory, move the model to directory `mobile/examples/question_answering/ios/ORTQuestionAnswering/ORTQuestionAnswering/csarron_mobilebert_uncased_squad_v2_quant_with_pre_post_processing.onnx`
+    Note: Currently the model is already provided under `mobile/examples/question_answering/ios/ORTQuestionAnswering/ORTQuestionAnswering/csarron_mobilebert_uncased_squad_v2_quant_with_pre_post_processing.onnx`
 
 4. Open `<ONNXRuntime-inference-example-root>/mobile/examples/question_answering/ios/ORTQuestionAnswering.xcworkspace` in Xcode and make sure to select your corresponding development team under `Target-General-Signing` for a proper codesign procedure to run the app (only on device required, if running on iOS simulator can skip this step.)
 
