@@ -9,17 +9,30 @@
 /* Begin PBXBuildFile section */
 		519D04AB29D75C230092C5B4 /* ORTQuestionAnsweringPerformer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 519D04AA29D75C230092C5B4 /* ORTQuestionAnsweringPerformer.mm */; };
 		519D04AD29D76AE80092C5B4 /* csarron_mobilebert_uncased_squad_v2_quant_with_pre_post_processing.onnx in Resources */ = {isa = PBXBuildFile; fileRef = 519D04A629D75B900092C5B4 /* csarron_mobilebert_uncased_squad_v2_quant_with_pre_post_processing.onnx */; };
+		51B89CAD29F727C9000D1696 /* ORTQuestionAnsweringTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51B89CAC29F727C9000D1696 /* ORTQuestionAnsweringTests.swift */; };
 		51E1987029D758650043B708 /* ORTQuestionAnsweringApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51E1986F29D758650043B708 /* ORTQuestionAnsweringApp.swift */; };
 		51E1987229D758650043B708 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51E1987129D758650043B708 /* ContentView.swift */; };
 		51E1987429D758670043B708 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 51E1987329D758670043B708 /* Assets.xcassets */; };
 		51E1987729D758670043B708 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 51E1987629D758670043B708 /* Preview Assets.xcassets */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		51B89CAE29F727C9000D1696 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 51E1986429D758650043B708 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 51E1986B29D758650043B708;
+			remoteInfo = ORTQuestionAnswering;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
 		519D04A629D75B900092C5B4 /* csarron_mobilebert_uncased_squad_v2_quant_with_pre_post_processing.onnx */ = {isa = PBXFileReference; lastKnownFileType = file; path = csarron_mobilebert_uncased_squad_v2_quant_with_pre_post_processing.onnx; sourceTree = "<group>"; };
 		519D04A929D75C230092C5B4 /* ORTQuestionAnswering-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "ORTQuestionAnswering-Bridging-Header.h"; sourceTree = "<group>"; };
 		519D04AA29D75C230092C5B4 /* ORTQuestionAnsweringPerformer.mm */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; path = ORTQuestionAnsweringPerformer.mm; sourceTree = "<group>"; };
 		519D04AC29D76A110092C5B4 /* ORTQuestionAnsweringPerformer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ORTQuestionAnsweringPerformer.h; sourceTree = "<group>"; };
+		51B89CAA29F727C9000D1696 /* ORTQuestionAnsweringTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ORTQuestionAnsweringTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		51B89CAC29F727C9000D1696 /* ORTQuestionAnsweringTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ORTQuestionAnsweringTests.swift; sourceTree = "<group>"; };
 		51E1986C29D758650043B708 /* ORTQuestionAnswering.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ORTQuestionAnswering.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		51E1986F29D758650043B708 /* ORTQuestionAnsweringApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ORTQuestionAnsweringApp.swift; sourceTree = "<group>"; };
 		51E1987129D758650043B708 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -28,6 +41,13 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		51B89CA729F727C9000D1696 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		51E1986929D758650043B708 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -45,10 +65,19 @@
 			path = Pods;
 			sourceTree = "<group>";
 		};
+		51B89CAB29F727C9000D1696 /* ORTQuestionAnsweringTests */ = {
+			isa = PBXGroup;
+			children = (
+				51B89CAC29F727C9000D1696 /* ORTQuestionAnsweringTests.swift */,
+			);
+			path = ORTQuestionAnsweringTests;
+			sourceTree = "<group>";
+		};
 		51E1986329D758650043B708 = {
 			isa = PBXGroup;
 			children = (
 				51E1986E29D758650043B708 /* ORTQuestionAnswering */,
+				51B89CAB29F727C9000D1696 /* ORTQuestionAnsweringTests */,
 				51E1986D29D758650043B708 /* Products */,
 				3DD84F8B8FBEB4CE07CFAB3F /* Pods */,
 			);
@@ -58,6 +87,7 @@
 			isa = PBXGroup;
 			children = (
 				51E1986C29D758650043B708 /* ORTQuestionAnswering.app */,
+				51B89CAA29F727C9000D1696 /* ORTQuestionAnsweringTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -88,6 +118,24 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		51B89CA929F727C9000D1696 /* ORTQuestionAnsweringTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 51B89CB229F727C9000D1696 /* Build configuration list for PBXNativeTarget "ORTQuestionAnsweringTests" */;
+			buildPhases = (
+				51B89CA629F727C9000D1696 /* Sources */,
+				51B89CA729F727C9000D1696 /* Frameworks */,
+				51B89CA829F727C9000D1696 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				51B89CAF29F727C9000D1696 /* PBXTargetDependency */,
+			);
+			name = ORTQuestionAnsweringTests;
+			productName = ORTQuestionAnsweringTests;
+			productReference = 51B89CAA29F727C9000D1696 /* ORTQuestionAnsweringTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		51E1986B29D758650043B708 /* ORTQuestionAnswering */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 51E1987A29D758670043B708 /* Build configuration list for PBXNativeTarget "ORTQuestionAnswering" */;
@@ -115,6 +163,10 @@
 				LastSwiftUpdateCheck = 1420;
 				LastUpgradeCheck = 1420;
 				TargetAttributes = {
+					51B89CA929F727C9000D1696 = {
+						CreatedOnToolsVersion = 14.2;
+						TestTargetID = 51E1986B29D758650043B708;
+					};
 					51E1986B29D758650043B708 = {
 						CreatedOnToolsVersion = 14.2;
 						LastSwiftMigration = 1420;
@@ -135,11 +187,19 @@
 			projectRoot = "";
 			targets = (
 				51E1986B29D758650043B708 /* ORTQuestionAnswering */,
+				51B89CA929F727C9000D1696 /* ORTQuestionAnsweringTests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		51B89CA829F727C9000D1696 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		51E1986A29D758650043B708 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -153,6 +213,14 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		51B89CA629F727C9000D1696 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				51B89CAD29F727C9000D1696 /* ORTQuestionAnsweringTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		51E1986829D758650043B708 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -165,7 +233,51 @@
 		};
 /* End PBXSourcesBuildPhase section */
 
+/* Begin PBXTargetDependency section */
+		51B89CAF29F727C9000D1696 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 51E1986B29D758650043B708 /* ORTQuestionAnswering */;
+			targetProxy = 51B89CAE29F727C9000D1696 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
 /* Begin XCBuildConfiguration section */
+		51B89CB029F727C9000D1696 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = UBF8T346G9;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.MS.ORTQuestionAnsweringTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/ORTQuestionAnswering.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/ORTQuestionAnswering";
+			};
+			name = Debug;
+		};
+		51B89CB129F727C9000D1696 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = UBF8T346G9;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.MS.ORTQuestionAnsweringTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/ORTQuestionAnswering.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/ORTQuestionAnswering";
+			};
+			name = Release;
+		};
 		51E1987829D758670043B708 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -346,6 +458,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		51B89CB229F727C9000D1696 /* Build configuration list for PBXNativeTarget "ORTQuestionAnsweringTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				51B89CB029F727C9000D1696 /* Debug */,
+				51B89CB129F727C9000D1696 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		51E1986729D758650043B708 /* Build configuration list for PBXProject "ORTQuestionAnswering" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
