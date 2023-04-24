@@ -44,7 +44,6 @@ struct ContentView: View {
                     
                     Button("Get Answer!") {
                         recordedUserInput = userQuestion
-                        userQuestion = ""
                     }
                     
                     Spacer()
