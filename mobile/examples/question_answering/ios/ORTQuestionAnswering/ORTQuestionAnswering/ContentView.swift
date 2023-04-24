@@ -4,8 +4,8 @@
 import SwiftUI
 
 struct ContentView: View {
-    @State private var performQA = false
     @State private var userQuestion: String = "From which book did I see a magnificent picture?"
+    @State private var recordedUserInput: String = ""
     
     private var userContext: String = "Article: We are introduced to the narrator, a pilot, and his ideas about grown-ups. Once when I was six years old I saw a magnificent picture in a book, called True Stories from Nature, about the primeval forest. It was a picture of a boa constrictor in the act of swallowing an animal. Here is a copy of the drawing.In the book it said: 'Boa constrictors swallow their prey whole, without chewing it. After that they are not able to move, and they sleep through the six months that they need for digestion.'"
     
@@ -43,17 +43,17 @@ struct ContentView: View {
                     Spacer()
                     
                     Button("Get Answer!") {
-                        performQA.toggle()
+                        recordedUserInput = userQuestion
+                        userQuestion = ""
                     }
                     
-                    if performQA {
-                        if let outputAnswerText = runOrtQuestionAnswering(userQuestion: userQuestion) {
-                            Text(outputAnswerText).font(.headline).foregroundColor(.red).frame(width: 350, height: 100, alignment: .leading)
-                        } else {
-                            Text("Unable to perform question answering. ").frame(width: 350, height: 40, alignment:.leading)
-                        }
-                    }
                     Spacer()
+                    
+                    if let outputAnswerText = runOrtQuestionAnswering(userQuestion: recordedUserInput) {
+                        Text(outputAnswerText).font(.headline).foregroundColor(.red).frame(width: 350, height: 100, alignment: .leading)
+                    } else {
+                        Text("Unable to perform question answering. ").frame(width: 350, height: 40, alignment:.leading)
+                    }
                 }
             }
             .padding()
