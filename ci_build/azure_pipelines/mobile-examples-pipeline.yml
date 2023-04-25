@@ -328,3 +328,17 @@ jobs:
         --emulator-pid-file $(Build.BinariesDirectory)/emulator.pid
     displayName: "Stop Android emulator"
     condition: always()
+
+- job: QuestionAnsweringIos
+  pool:
+    vmImage: "macOS-12"
+
+  steps:
+  - script: pod install
+    workingDirectory: 'mobile/examples/question_answering/ios/ORTQuestionAnswering'
+    displayName: "Install CocoaPods pods"
+
+  - template: templates/xcode-build-and-test-step.yml
+    parameters:
+      xcWorkspacePath: 'mobile/examples/question_answering/ios/ORTQuestionAnswering/ORTQuestionAnswering.xcworkspace'
+      scheme: 'ORTQuestionAnswering'
