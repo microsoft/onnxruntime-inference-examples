@@ -2,7 +2,7 @@
 
 ## Overview
 
-This is a basic Question Answering example application for [ONNX Runtime](https://github.com/microsoft/onnxruntime) on Android with [Ort-Extensions](https://github.com/microsoft/onnxruntime-extensions) support for pre/post processing. The demo app accomplishes the task of basic QA, i.e. gives answers based on user provided context.
+This is a basic Question Answering example application for [ONNX Runtime](https://github.com/microsoft/onnxruntime) on iOS with [Ort-Extensions](https://github.com/microsoft/onnxruntime-extensions) support for pre/post processing. The demo app accomplishes the task of basic QA, i.e. gives answers based on user provided context.
 
 The model used here is from source: [HuggingFace](https://huggingface.co/docs/transformers/model_doc/mobilebert) and accomodated into [ONNX](https://github.com/onnx/onnx) version with pre/post processing support.
 
