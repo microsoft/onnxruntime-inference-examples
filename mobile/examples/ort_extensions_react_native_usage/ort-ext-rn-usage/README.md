@@ -75,44 +75,10 @@ This is a basic example usage react native expo application for [ONNX Runtime](h
    1. In `<SOURCE_ROOT>/package.json` file, specify the field to build expo project with ort-extensions package:
 
         ```
-        "ortPackageName": "onnxruntime-ext"
+        "ortExtensionsEnabled": true
         ```
-
-   2. Set up Android project to register custom ops for ort-extensions.
-
-      In `<SOURCE_ROOT>/node_modules/onnxruntime-react-native/android/src/main/java/ai/onnxruntime/reactnative/OnnxruntimeModule.java`,
-
-      Uncomment the following line:
-
-      ```diff
-      // Optional call to register custom ops
-      - // sessionOptions.registerCustomOpLibrary(ai.onnxruntime.extensions.OrtxPackage.getLibraryPath());
-      + sessionOptions.registerCustomOpLibrary(ai.onnxruntime.extensions.OrtxPackage.getLibraryPath());
-      ```
-
-   3. Set up iOS project to register custom ops for ort-extensions.
-
-      - In `<SOURCE_ROOT>/node_modules/onnxruntime-react-native/ios/OnnxruntimeModule.mm`,
-
-        Uncomment the following lines:
-
-        ```diff
-        // Optional include of ort extensions header
-        - // #include <onnxruntime_extensions.h>
-        + #include <onnxruntime_extensions.h>
-        ```
-
-        ```diff
-        /*
-           Optional call of to enable usage of ort extensions custom ops
-        */
-        - // if (RegisterCustomOps(sessionOptions, OrtGetApiBase()) != nullptr) {
-        - // throw std::runtime_error("RegisterCustomOps failed");
-        - // }
-        + if (RegisterCustomOps(sessionOptions, OrtGetApiBase()) != nullptr) {
-        +    throw std::runtime_error("RegisterCustomOps failed");
-        + }
-        ```
+    Note: This will enable the project to build and run based on the configuration including all pre/processing support 
+    from ONNX Runtime Extensions.
 
 6. Add code in `App.tsx` to use onnxruntime-react-native with extensions.
 
