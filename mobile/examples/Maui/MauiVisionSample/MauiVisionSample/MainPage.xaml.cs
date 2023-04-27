@@ -17,9 +17,11 @@ public partial class MainPage : ContentPage
 {
     IVisionSample _mobilenet;
     IVisionSample _ultraface;
+    IVisionSample _superresolution;
 
     IVisionSample Mobilenet => _mobilenet ??= new MobilenetSample();
     IVisionSample Ultraface => _ultraface ??= new UltrafaceSample();
+    IVisionSample SuperResolution => _superresolution ??= new SuperResolutionSample();
 
     public MainPage()
 	{
@@ -51,6 +53,11 @@ public partial class MainPage : ContentPage
         if (FileSystem.Current.AppPackageFileExistsAsync(UltrafaceSample.ModelFilename).Result)
         {
             Models.Items.Add(Ultraface.Name);
+        }
+
+        if (FileSystem.Current.AppPackageFileExistsAsync(SuperResolutionSample.ModelFilename).Result)
+        {
+            Models.Items.Add(SuperResolution.Name);
         }
 
         if (Models.Items.Any())
@@ -91,6 +98,7 @@ public partial class MainPage : ContentPage
         {
             MobilenetSample.Identifier => Mobilenet,
             UltrafaceSample.Identifier => Ultraface,
+            SuperResolutionSample.Identifier => SuperResolution,
             _ => null
         };
 
@@ -136,6 +144,7 @@ public partial class MainPage : ContentPage
             {
                 MobilenetSample.Identifier => Mobilenet,
                 UltrafaceSample.Identifier => Ultraface,
+                SuperResolutionSample.Identifier => SuperResolution,
                 _ => null
             };
 
@@ -163,6 +172,7 @@ public partial class MainPage : ContentPage
         {
             MobilenetSample.Identifier => "wolves.jpg",
             UltrafaceSample.Identifier => "satya.jpg",
+            SuperResolutionSample.Identifier => "unicorn.jpg",
             _ => null
         };
 

@@ -55,7 +55,9 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <PackageReference Include="Microsoft.ML.OnnxRuntime" Version="1.12.1" />
+	  <PackageReference Include="Microsoft.ML.OnnxRuntime" Version="1.15.0-dev-20230426-1045-dd1ddcc577" />
+	  <PackageReference Include="Microsoft.ML.OnnxRuntime.Extensions" Version="1.15.0-dev-4" />
+	  <PackageReference Include="Microsoft.ML.OnnxRuntime.Managed" Version="1.15.0-dev-20230426-1045-dd1ddcc577" />
 	  <PackageReference Include="SkiaSharp" Version="2.88.1" />
 	</ItemGroup>
 

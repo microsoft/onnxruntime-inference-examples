@@ -48,6 +48,11 @@ namespace MauiVisionSample
 
                     var options = new SessionOptions();
 
+                    if (_name == SuperResolutionSample.Identifier)
+                    {
+                        options.RegisterOrtExtensions();
+                    }
+
                     if (executionProvider == ExecutionProviders.CPU)
                     {
                         // CPU Execution Provider is always enabled
@@ -95,7 +100,15 @@ namespace MauiVisionSample
         async Task Initialize()
         {
             _model = await Utils.LoadResource(_modelName);
-            _session = new InferenceSession(_model);  // CPU execution provider is always enabled
+
+            var options = new SessionOptions();
+
+            if (_name == SuperResolutionSample.Identifier)
+            {
+                options.RegisterOrtExtensions();
+            }
+
+            _session = new InferenceSession(_model, options);  // CPU execution provider is always enabled
             _curExecutionProvider = ExecutionProviders.CPU;
         }
     }
