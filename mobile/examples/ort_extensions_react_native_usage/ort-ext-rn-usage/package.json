@@ -1,7 +1,7 @@
 {
   "name": "ort-ext-rn-usage",
   "version": "1.0.0",
-  "onnxruntimeExtensionsEnabled": true,
+  "onnxruntimeExtensionsEnabled": "true",
   "scripts": {
     "start": "expo start --dev-client",
     "android": "expo run:android",
