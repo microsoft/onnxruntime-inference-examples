@@ -19,7 +19,8 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.example.ortwithextensions"
+      "bundleIdentifier": "com.example.ortwithextensions",
+      "deploymentTarget": "12.4"
     },
     "android": {
       "adaptiveIcon": {
