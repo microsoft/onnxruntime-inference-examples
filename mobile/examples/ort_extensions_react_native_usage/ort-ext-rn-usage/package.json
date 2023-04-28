@@ -1,7 +1,7 @@
 {
   "name": "ort-rn-hello-world",
   "version": "1.0.0",
-  "ortPackageName": "onnxruntime-ext",
+  "onnxruntimeExtensionsEnabled": true,
   "scripts": {
     "start": "expo start --dev-client",
     "android": "expo run:android",

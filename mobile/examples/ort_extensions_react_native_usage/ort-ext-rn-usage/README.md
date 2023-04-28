@@ -75,7 +75,7 @@ This is a basic example usage react native expo application for [ONNX Runtime](h
    1. In `<SOURCE_ROOT>/package.json` file, specify the field to build expo project with ort-extensions package:
 
         ```
-        "ortExtensionsEnabled": true
+        "onnxruntimeExtensionsEnabled": true
         ```
     Note: This will enable the project to build and run based on the configuration including all pre/processing support 
     from ONNX Runtime Extensions.
