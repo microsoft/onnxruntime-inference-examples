@@ -1,11 +1,13 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-#include "image_loader.h"
-#include <sstream>
+#include <atlbase.h>
 #include <wincodec.h>
 #include <wincodecsdk.h>
-#include <atlbase.h>
+
+#include <sstream>
+
+#include "image_loader.h"
 
 bool CreateImageLoader(void** out) {
   IWICImagingFactory* piFactory;
@@ -82,7 +84,7 @@ OrtStatus* LoadImageFromFileAndCrop(void* loader, const ORTCHAR_T* filename, dou
     rect.Width = bbox_w_size;
 
     ATLENSURE_SUCCEEDED(ppIFormatConverter->CopyPixels(&rect, stride, static_cast<UINT>(data.size()), data.data()));
-    float* float_file_data = (float*)malloc(data.size() * sizeof(float));
+    float* float_file_data = new float[data.size()];
     size_t len = data.size();
     for (size_t i = 0; i != len; ++i) {
       float_file_data[i] = static_cast<float>(data[i]) / 255;
