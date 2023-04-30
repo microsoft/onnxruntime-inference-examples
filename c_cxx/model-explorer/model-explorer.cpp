@@ -53,19 +53,17 @@ Ort::Value vec_to_tensor(std::vector<T>& data, const std::vector<std::int64_t>& 
   return tensor;
 }
 
-int main(int argc, char** argv) {
+#ifdef _WIN32
+int wmain(int argc, ORTCHAR_T* argv[]) {
+#else
+int main(int argc, ORTCHAR_T* argv[]) {
+#endif
   if (argc != 2) {
     std::cout << "Usage: ./onnx-api-example <onnx_model.onnx>" << std::endl;
     return -1;
   }
 
-#ifdef _WIN32
-  std::string str = argv[1];
-  std::wstring wide_string = std::wstring(str.begin(), str.end());
-  std::basic_string<ORTCHAR_T> model_file = std::basic_string<ORTCHAR_T>(wide_string);
-#else
-  std::string model_file = argv[1];
-#endif
+  std::basic_string<ORTCHAR_T> model_file = argv[1];
 
   // onnxruntime setup
   Ort::Env env(ORT_LOGGING_LEVEL_WARNING, "example-model-explorer");
