@@ -16,6 +16,8 @@ Click links for README of each examples.
 
 * [Quick Start - Nodejs Binding](quick-start_onnxruntime-node) - a demonstration of basic usage of ONNX Runtime Node.js binding.
 
+* [Quick Start - Nodejs Binding Bundle](quick-start_onnxruntime-node-bundler) - a demonstration of basic usage of ONNX Runtime Node.js binding using bundler.
+
 * [Quick Start - Web (using script tag)](quick-start_onnxruntime-web-script-tag) - a demonstration of basic usage of ONNX Runtime Web using script tag.
 
 * [Quick Start - Web (using bundler)](quick-start_onnxruntime-web-bundler) - a demonstration of basic usage of ONNX Runtime Web using a bundler.
@@ -23,6 +25,8 @@ Click links for README of each examples.
 ### API usage
 
 * [API usage - Tensor](api-usage_tensor) - a demonstration of basic usage of `Tensor`.
+
+* [API usage - Tensor <--> Image conversion](api-usage-tensor-image) - a demonstration of conversions from Image elements to and from `Tensor`.
 
 * [API usage - InferenceSession](api-usage_inference-session) - a demonstration of basic usage of `InferenceSession`.
 

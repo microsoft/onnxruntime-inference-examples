@@ -77,9 +77,9 @@ void ResizeImageInMemory(const T* input_data, float* output_data, int in_height,
     xs[i].upper *= channels;
   }
 
-  const int64_t in_row_size = in_width * channels;
-  const int64_t in_batch_num_values = in_height * in_row_size;
-  const int64_t out_row_size = out_width * channels;
+  const int64_t in_row_size = static_cast<int64_t>(in_width) * channels;
+  const int64_t in_batch_num_values = static_cast<int64_t>(in_height) * in_row_size;
+  const int64_t out_row_size = static_cast<int64_t>(out_width) * channels;
 
   const T* input_b_ptr = input_data;
   float* output_y_ptr = output_data;

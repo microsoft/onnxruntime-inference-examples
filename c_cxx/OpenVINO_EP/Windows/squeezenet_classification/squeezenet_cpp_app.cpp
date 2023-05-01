@@ -21,6 +21,16 @@ Portions of this software are copyright of their respective authors and released
 #include <string>
 #include <vector>
 #include <stdexcept> // To use runtime_error
+#include <Windows.h>
+#include <psapi.h>
+
+std::size_t GetPeakWorkingSetSize() {
+    PROCESS_MEMORY_COUNTERS pmc;
+    if (GetProcessMemoryInfo(GetCurrentProcess(), &pmc, sizeof(pmc))) {
+        return pmc.PeakWorkingSetSize;
+    }
+    return 0;
+}
 
 template <typename T>
 T vectorProduct(const std::vector<T>& v)
@@ -387,5 +397,7 @@ int main(int argc, char* argv[])
     std::cout << "Minimum Inference Latency: "
               << std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() / static_cast<float>(numTests)
               << " ms" << std::endl;
+    size_t mem_size = GetPeakWorkingSetSize();
+    std::cout << "Peak working set size: " << mem_size << " bytes" << std::endl;
     return 0;
 }

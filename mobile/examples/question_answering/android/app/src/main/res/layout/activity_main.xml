@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+
+
+    <TextView
+        android:id="@+id/TitleView"
+        android:layout_width="0dp"
+        android:layout_height="27dp"
+        android:background="#F6EED0"
+        android:gravity="center"
+        android:text="TextView"
+        android:textColor="#AE8D13"
+        android:textSize="20sp" />
+
+    <Spinner
+        android:id="@+id/EPspinner"
+        android:layout_width="0dp"
+        android:layout_height="27dp"
+        android:background="@color/purple_200"
+        android:entries="@array/spinnerclass"
+        app:layout_constraintLeft_toRightOf="@id/TitleView"
+        tools:layout_editor_absoluteY="3dp" />
+
+    <EditText
+        android:id="@+id/ArticleView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#F6EED0"
+        android:ems="10"
+        android:inputType="textLongMessage|textMultiLine|textPersonName"
+        android:text="Name"
+        app:layout_constraintTop_toBottomOf="@+id/TitleView" />
+
+    <TextView
+        android:id="@+id/AnswerView"
+        android:layout_width="match_parent"
+        android:layout_height="67dp"
+        android:background="#FBF8F8"
+        android:text=""
+        android:textColor="#EA6666"
+        android:textSize="18dp"
+        app:layout_constraintTop_toBottomOf="@+id/ArticleView" />
+
+    <EditText
+        android:id="@+id/QuestionView"
+        android:layout_width="308dp"
+        android:layout_height="78dp"
+        android:ems="10"
+        android:inputType="textMultiLine"
+        android:text=""
+        android:textSize="18dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/PerformQaButton"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/AnswerView" />
+
+    <Button
+        android:id="@+id/PerformQaButton"
+        android:layout_width="60dp"
+        android:layout_height="82dp"
+        android:background="@drawable/arrow"
+        android:elevation="2dp"
+        android:text="@string/perform_qa"
+        app:layout_constraintBaseline_toBaselineOf="@id/QuestionView"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/QuestionView"
+        app:layout_constraintTop_toBottomOf="@+id/AnswerView" />
+    
+
+</androidx.constraintlayout.widget.ConstraintLayout>

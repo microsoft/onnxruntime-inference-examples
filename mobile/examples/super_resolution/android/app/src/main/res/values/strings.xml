@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">ORT SuperResolution</string>
+    <string name="perform_super_resolution">Perform Super Resolution</string>
+    <string name="input_image">Input Image</string>
+    <string name="output_image">Output Image</string>
+    <string name="textview1">Input low resolution image:</string>
+</resources>

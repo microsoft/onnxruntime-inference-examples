@@ -1,0 +1,19 @@
+{
+  "name": "quick-start_onnxruntime-web-bundler",
+  "private": true,
+  "version": "1.0.0",
+  "description": "This example is a demonstration of basic usage of ONNX Runtime Node using a bundler.",
+  "scripts": {
+    "build": "webpack --config ./webpack.config.js --mode production",
+    "dev": "webpack --config ./webpack.config.js --mode development"
+  },
+  "dependencies": {
+    "onnxruntime-node": "^1.14.0"
+  },
+  "devDependencies": {
+    "copy-webpack-plugin": "^8.1.1",
+    "webpack": "^5.75.0",
+    "webpack-cli": "^4.6.0",
+    "webpack-node-externals": "^3.0.0"
+  }
+}

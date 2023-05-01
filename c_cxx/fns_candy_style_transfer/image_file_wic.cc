@@ -5,9 +5,10 @@
 
 #include <filesystem>
 #include <vector>
+#include <wil/com.h>
 
 #include "image_file.h"
-#include "wil/com.h"
+
 
 /**
  *  Read the file from `input_file` and auto-scale it to 720x720

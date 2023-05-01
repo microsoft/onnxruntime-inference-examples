@@ -4,7 +4,9 @@
 
 2. The sample involves presenting an image to the ONNX Runtime (RT), which uses the OpenVINO Execution Provider for ONNX RT to run inference on various Intel hardware devices like Intel CPU, GPU, VPU and more. The sample uses OpenCV for image processing and ONNX Runtime OpenVINO EP for inference. After the sample image is inferred, the terminal will output the predicted label classes in order of their confidence.
 
-The source code for this sample is available [here](https://github.com/microsoft/onnxruntime-inference-examples/tree/main/c_cxx/OpenVINO_EP/Linux/squeezenet_classification).
+The source code for this sample is available [here](https://github.com/microsoft/onnxruntime-inference-examples/tree/main/c_cxx/OpenVINO_EP/Linux/squeezenet_classification/squeezenet_cpp_app.cpp).
+
+3. There is one more sample [here](https://github.com/microsoft/onnxruntime-inference-examples/tree/main/c_cxx/OpenVINO_EP/Linux/squeezenet_classification/squeezenet_cpp_app_io.cpp) with IO Buffer optimization enabled. With IO Buffer interfaces we can avoid any memory copy overhead when plugging OpenVINO™ inference into an existing GPU pipeline. It also enables OpenCL kernels to participate in the pipeline to become native buffer consumers or producers of the OpenVINO™ inference. Refer [here](https://docs.openvino.ai/latest/openvino_docs_OV_UG_supported_plugins_GPU_RemoteTensor_API.html) for more details. This sample is for GPUs only.
 
 # How to build
 
@@ -65,6 +67,10 @@ export OPENCL_INCS=path/to/your/directory/openvino/thirdparty/ocl/clhpp_headers/
       If you are using the opencv from openvino package, below are the paths:
       * For latest version (2022.1.0), run download_opencv.sh in /path/to/openvino/extras/script and the opencv folder will be downloaded at /path/to/openvino/extras.
       * For older openvino version, opencv folder is available at openvino directory itself.
+      * The current cmake files are adjusted with the opencv folders coming along with openvino packages. Plase make sure you are updating the opencv paths according to your custom builds.
+      
+      For the squeezenet IO buffer sample:
+      Make sure you are creating the opencl context for the right GPU device in a multi-GPU environment.
 
 4. Run the sample
 

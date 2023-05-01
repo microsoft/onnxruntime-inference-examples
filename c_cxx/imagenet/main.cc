@@ -128,9 +128,9 @@ class Validator : public OutputCollector<TCharString> {
 
     Ort::TypeInfo info = session_.GetInputTypeInfo(0);
     auto tensor_info = info.GetTensorTypeAndShapeInfo();
-    size_t dim_count = tensor_info.GetDimensionsCount();
-    assert(dim_count == 4);
     std::vector<int64_t> dims = tensor_info.GetShape();
+    assert(dims.size() == 4);
+
     if (dims[1] != dims[2] || dims[3] != 3) {
       throw std::runtime_error("This model is not supported by this program. input tensor need be in NHWC format");
     }

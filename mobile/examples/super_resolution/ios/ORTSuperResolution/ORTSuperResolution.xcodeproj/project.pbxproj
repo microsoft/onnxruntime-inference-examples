@@ -1,0 +1,509 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 55;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		510A53E8296FE46F000DB268 /* cat_224x224.png in Resources */ = {isa = PBXBuildFile; fileRef = 510A53E7296FE46F000DB268 /* cat_224x224.png */; };
+		5130D9BC2968B93A009B4B88 /* ORTSuperResolutionApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5130D9BB2968B93A009B4B88 /* ORTSuperResolutionApp.swift */; };
+		5130D9BE2968B93A009B4B88 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5130D9BD2968B93A009B4B88 /* ContentView.swift */; };
+		5130D9C02968B93C009B4B88 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5130D9BF2968B93C009B4B88 /* Assets.xcassets */; };
+		5130D9C32968B93C009B4B88 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5130D9C22968B93C009B4B88 /* Preview Assets.xcassets */; };
+		5197BEA129A0492D004B83DE /* pytorch_superresolution_with_pre_post_processing_opset18.onnx in Resources */ = {isa = PBXBuildFile; fileRef = 5197BEA029A0492D004B83DE /* pytorch_superresolution_with_pre_post_processing_opset18.onnx */; };
+		5197BEA229A0492D004B83DE /* pytorch_superresolution_with_pre_post_processing_opset18.onnx in Resources */ = {isa = PBXBuildFile; fileRef = 5197BEA029A0492D004B83DE /* pytorch_superresolution_with_pre_post_processing_opset18.onnx */; };
+		51AB38AF2981FA5E004E33B0 /* ORTSuperResolutionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51AB38AE2981FA5E004E33B0 /* ORTSuperResolutionTests.swift */; };
+		51D5968B2968DE9900F1CD43 /* ORTSuperResolutionPerformer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 51D5968A2968DE9900F1CD43 /* ORTSuperResolutionPerformer.mm */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		51AB38B02981FA5E004E33B0 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 5130D9B02968B93A009B4B88 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 5130D9B72968B93A009B4B88;
+			remoteInfo = ORTSuperResolution;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		510A53E7296FE46F000DB268 /* cat_224x224.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = cat_224x224.png; sourceTree = "<group>"; };
+		5130D9B82968B93A009B4B88 /* ORTSuperResolution.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ORTSuperResolution.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		5130D9BB2968B93A009B4B88 /* ORTSuperResolutionApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ORTSuperResolutionApp.swift; sourceTree = "<group>"; };
+		5130D9BD2968B93A009B4B88 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		5130D9BF2968B93C009B4B88 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		5130D9C22968B93C009B4B88 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		5197BEA029A0492D004B83DE /* pytorch_superresolution_with_pre_post_processing_opset18.onnx */ = {isa = PBXFileReference; lastKnownFileType = file; path = pytorch_superresolution_with_pre_post_processing_opset18.onnx; sourceTree = "<group>"; };
+		51AB38AC2981FA5E004E33B0 /* ORTSuperResolutionTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ORTSuperResolutionTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		51AB38AE2981FA5E004E33B0 /* ORTSuperResolutionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ORTSuperResolutionTests.swift; sourceTree = "<group>"; };
+		51D596892968DE9900F1CD43 /* ORTSuperResolutionPerformer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ORTSuperResolutionPerformer.h; sourceTree = "<group>"; };
+		51D5968A2968DE9900F1CD43 /* ORTSuperResolutionPerformer.mm */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; path = ORTSuperResolutionPerformer.mm; sourceTree = "<group>"; };
+		51D5968C2968E16000F1CD43 /* ORTSuperResolution-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "ORTSuperResolution-Bridging-Header.h"; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		5130D9B52968B93A009B4B88 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		51AB38A92981FA5E004E33B0 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		5130D9AF2968B93A009B4B88 = {
+			isa = PBXGroup;
+			children = (
+				5130D9BA2968B93A009B4B88 /* ORTSuperResolution */,
+				51AB38AD2981FA5E004E33B0 /* ORTSuperResolutionTests */,
+				5130D9B92968B93A009B4B88 /* Products */,
+				A16DBB08BBAF3DC3572038B4 /* Pods */,
+			);
+			sourceTree = "<group>";
+		};
+		5130D9B92968B93A009B4B88 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				5130D9B82968B93A009B4B88 /* ORTSuperResolution.app */,
+				51AB38AC2981FA5E004E33B0 /* ORTSuperResolutionTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		5130D9BA2968B93A009B4B88 /* ORTSuperResolution */ = {
+			isa = PBXGroup;
+			children = (
+				510A53E7296FE46F000DB268 /* cat_224x224.png */,
+				5197BEA029A0492D004B83DE /* pytorch_superresolution_with_pre_post_processing_opset18.onnx */,
+				51D5968A2968DE9900F1CD43 /* ORTSuperResolutionPerformer.mm */,
+				51D596892968DE9900F1CD43 /* ORTSuperResolutionPerformer.h */,
+				5130D9BB2968B93A009B4B88 /* ORTSuperResolutionApp.swift */,
+				5130D9BD2968B93A009B4B88 /* ContentView.swift */,
+				51D5968C2968E16000F1CD43 /* ORTSuperResolution-Bridging-Header.h */,
+				5130D9BF2968B93C009B4B88 /* Assets.xcassets */,
+				5130D9C12968B93C009B4B88 /* Preview Content */,
+			);
+			path = ORTSuperResolution;
+			sourceTree = "<group>";
+		};
+		5130D9C12968B93C009B4B88 /* Preview Content */ = {
+			isa = PBXGroup;
+			children = (
+				5130D9C22968B93C009B4B88 /* Preview Assets.xcassets */,
+			);
+			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+		51AB38AD2981FA5E004E33B0 /* ORTSuperResolutionTests */ = {
+			isa = PBXGroup;
+			children = (
+				51AB38AE2981FA5E004E33B0 /* ORTSuperResolutionTests.swift */,
+			);
+			path = ORTSuperResolutionTests;
+			sourceTree = "<group>";
+		};
+		A16DBB08BBAF3DC3572038B4 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Pods;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		5130D9B72968B93A009B4B88 /* ORTSuperResolution */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 5130D9C62968B93C009B4B88 /* Build configuration list for PBXNativeTarget "ORTSuperResolution" */;
+			buildPhases = (
+				5130D9B42968B93A009B4B88 /* Sources */,
+				5130D9B52968B93A009B4B88 /* Frameworks */,
+				5130D9B62968B93A009B4B88 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = ORTSuperResolution;
+			productName = ORTSuperResolution;
+			productReference = 5130D9B82968B93A009B4B88 /* ORTSuperResolution.app */;
+			productType = "com.apple.product-type.application";
+		};
+		51AB38AB2981FA5E004E33B0 /* ORTSuperResolutionTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 51AB38B22981FA5E004E33B0 /* Build configuration list for PBXNativeTarget "ORTSuperResolutionTests" */;
+			buildPhases = (
+				51AB38A82981FA5E004E33B0 /* Sources */,
+				51AB38A92981FA5E004E33B0 /* Frameworks */,
+				51AB38AA2981FA5E004E33B0 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				51AB38B12981FA5E004E33B0 /* PBXTargetDependency */,
+			);
+			name = ORTSuperResolutionTests;
+			productName = ORTSuperResolutionTests;
+			productReference = 51AB38AC2981FA5E004E33B0 /* ORTSuperResolutionTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		5130D9B02968B93A009B4B88 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1410;
+				LastUpgradeCheck = 1410;
+				TargetAttributes = {
+					5130D9B72968B93A009B4B88 = {
+						CreatedOnToolsVersion = 14.1;
+						LastSwiftMigration = 1410;
+					};
+					51AB38AB2981FA5E004E33B0 = {
+						CreatedOnToolsVersion = 14.1;
+						TestTargetID = 5130D9B72968B93A009B4B88;
+					};
+				};
+			};
+			buildConfigurationList = 5130D9B32968B93A009B4B88 /* Build configuration list for PBXProject "ORTSuperResolution" */;
+			compatibilityVersion = "Xcode 13.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 5130D9AF2968B93A009B4B88;
+			productRefGroup = 5130D9B92968B93A009B4B88 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				5130D9B72968B93A009B4B88 /* ORTSuperResolution */,
+				51AB38AB2981FA5E004E33B0 /* ORTSuperResolutionTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		5130D9B62968B93A009B4B88 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				5130D9C32968B93C009B4B88 /* Preview Assets.xcassets in Resources */,
+				5130D9C02968B93C009B4B88 /* Assets.xcassets in Resources */,
+				510A53E8296FE46F000DB268 /* cat_224x224.png in Resources */,
+				5197BEA129A0492D004B83DE /* pytorch_superresolution_with_pre_post_processing_opset18.onnx in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		51AB38AA2981FA5E004E33B0 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				5197BEA229A0492D004B83DE /* pytorch_superresolution_with_pre_post_processing_opset18.onnx in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		5130D9B42968B93A009B4B88 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				51D5968B2968DE9900F1CD43 /* ORTSuperResolutionPerformer.mm in Sources */,
+				5130D9BE2968B93A009B4B88 /* ContentView.swift in Sources */,
+				5130D9BC2968B93A009B4B88 /* ORTSuperResolutionApp.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		51AB38A82981FA5E004E33B0 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				51AB38AF2981FA5E004E33B0 /* ORTSuperResolutionTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		51AB38B12981FA5E004E33B0 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 5130D9B72968B93A009B4B88 /* ORTSuperResolution */;
+			targetProxy = 51AB38B02981FA5E004E33B0 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		5130D9C42968B93C009B4B88 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COMPRESS_PNG_FILES = NO;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.5;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				STRIP_PNG_TEXT = NO;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		5130D9C52968B93C009B4B88 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COMPRESS_PNG_FILES = NO;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.5;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				STRIP_PNG_TEXT = NO;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		5130D9C72968B93C009B4B88 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COMPRESS_PNG_FILES = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"ORTSuperResolution/Preview Content\"";
+				DEVELOPMENT_TEAM = UBF8T346G9;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 14.5;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.MS.ORTSuperResolution;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRIP_PNG_TEXT = NO;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "ORTSuperResolution/ORTSuperResolution-Bridging-Header.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		5130D9C82968B93C009B4B88 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COMPRESS_PNG_FILES = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"ORTSuperResolution/Preview Content\"";
+				DEVELOPMENT_TEAM = UBF8T346G9;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 14.5;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.MS.ORTSuperResolution;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRIP_PNG_TEXT = NO;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "ORTSuperResolution/ORTSuperResolution-Bridging-Header.h";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		51AB38B32981FA5E004E33B0 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = UBF8T346G9;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.5;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.MS.ORTSuperResolutionTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/ORTSuperResolution.app/ORTSuperResolution";
+			};
+			name = Debug;
+		};
+		51AB38B42981FA5E004E33B0 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = UBF8T346G9;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.5;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.MS.ORTSuperResolutionTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/ORTSuperResolution.app/ORTSuperResolution";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		5130D9B32968B93A009B4B88 /* Build configuration list for PBXProject "ORTSuperResolution" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				5130D9C42968B93C009B4B88 /* Debug */,
+				5130D9C52968B93C009B4B88 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		5130D9C62968B93C009B4B88 /* Build configuration list for PBXNativeTarget "ORTSuperResolution" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				5130D9C72968B93C009B4B88 /* Debug */,
+				5130D9C82968B93C009B4B88 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		51AB38B22981FA5E004E33B0 /* Build configuration list for PBXNativeTarget "ORTSuperResolutionTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				51AB38B32981FA5E004E33B0 /* Debug */,
+				51AB38B42981FA5E004E33B0 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 5130D9B02968B93A009B4B88 /* Project object */;
+}
