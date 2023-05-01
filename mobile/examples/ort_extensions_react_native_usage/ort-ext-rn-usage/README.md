@@ -75,7 +75,7 @@ This is a basic example usage react native expo application for [ONNX Runtime](h
    1. In `<SOURCE_ROOT>/package.json` file, specify the field to build expo project with ort-extensions package:
 
         ```
-        "onnxruntimeExtensionsEnabled": true
+        "onnxruntimeExtensionsEnabled": "true"
         ```
     Note: This will enable the project to build and run based on the configuration including all pre/processing support 
     from ONNX Runtime Extensions.
@@ -102,12 +102,4 @@ This is a basic example usage react native expo application for [ONNX Runtime](h
 
     ```sh
     expo run:ios
-    ```
-    Note: for iOS project, need to apply the following manual step currently:
-    
-    In `<SOURCE_ROOT>/ios/Pods/onnxruntime-extensions-c/Headers/onnxruntime_extensions.h`,
-    
-    ```diff
-    -  #include "onnxruntime_cxx_api.h"
-    +  #include <onnxruntime/onnxruntime_cxx_api.h>
     ```
