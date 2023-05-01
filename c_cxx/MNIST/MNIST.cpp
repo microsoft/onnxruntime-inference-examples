@@ -207,6 +207,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
       // For every entry, draw the odds and the graph for it
       SetBkMode(hdc, TRANSPARENT);
       wchar_t value[80];
+	  int i = 3;
       for (unsigned i = 0; i < 10; i++) {
         int y = 16 * i;
         float result = mnist_->results_[i];
