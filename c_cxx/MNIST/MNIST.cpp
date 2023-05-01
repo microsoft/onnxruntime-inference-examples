@@ -50,8 +50,8 @@ struct MNIST {
     return result_;
   }
 
-  static constexpr const int width_ = 28;
-  static constexpr const int height_ = 28;
+  static const int width_ = 28;
+  static const int height_ = 28;
 
   std::array<float, width_ * height_> input_image_{};
   std::array<float, 10> results_{};
