@@ -26,7 +26,7 @@ The source code for this sample is available [here](https://github.com/microsoft
 ## Install ONNX Runtime for OpenVINO™ Execution Provider
 Please install the onnxruntime-openvino python package from [here](https://pypi.org/project/onnxruntime-openvino/1.11.0/). The package for Linux contains prebuilt OpenVINO Libs with ABI 0.
 ```
-pip3 install onnxruntime-openvino==1.11.0
+pip3 install onnxruntime-openvino
 ```
 
 ## Optional Build steps for ONNX Runtime
@@ -99,7 +99,7 @@ Just press the letter 'q' or Ctrl+C if on Windows
 
 ## References:
 
-[Download OpenVINO™ Execution Provider Latest pip wheels from here](https://pypi.org/project/onnxruntime-openvino/1.11.0/)
+[Download OpenVINO™ Execution Provider Latest pip wheels from here](https://pypi.org/project/onnxruntime-openvino/)
 
 [OpenVINO™ Execution Provider](https://www.intel.com/content/www/us/en/artificial-intelligence/posts/faster-inferencing-with-one-line-of-code.html)
 
