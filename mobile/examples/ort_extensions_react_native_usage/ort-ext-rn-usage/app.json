@@ -20,14 +20,15 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.example.ortwithextensions",
-      "deploymentTarget": "12.4"
+      "deploymentTarget": 12.4
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"
       },
-      "package": "com.example.ortwithextensions"
+      "package": "com.example.ortwithextensions",
+      "minSdkVersion": 24
     },
     "web": {
       "favicon": "./assets/favicon.png"

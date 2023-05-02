@@ -12,7 +12,7 @@
   "dependencies": {
     "expo": "~44.0.0",
     "expo-status-bar": "~1.2.0",
-    "onnxruntime-react-native": "1.15.0-dev.20230430-31e7d3d7d4",
+    "onnxruntime-react-native": "^1.15.0-dev.20230430-31e7d3d7d4",
     "react": "17.0.1",
     "react-dom": "17.0.1",
     "react-native": "0.64.3",
