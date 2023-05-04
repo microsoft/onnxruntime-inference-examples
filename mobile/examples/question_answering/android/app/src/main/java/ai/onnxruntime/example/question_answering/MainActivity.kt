@@ -20,7 +20,6 @@ class MainActivity : AppCompatActivity() {
     private var ortEnv: OrtEnvironment = OrtEnvironment.getEnvironment()
     private lateinit var ortSession: OrtSession
     private val TitleText: TextView by lazy {findViewById(R.id.TitleView)}
-    private val EpSpinner: Spinner by lazy {findViewById(R.id.EPspinner)}
     private val ArticleText: TextView by lazy {findViewById(R.id.ArticleView)}
     private val AnswerText: TextView by lazy {findViewById(R.id.AnswerView)}
     private val QuestionText: TextView by lazy {findViewById(R.id.QuestionView)}
@@ -34,15 +33,6 @@ class MainActivity : AppCompatActivity() {
 
         // from <The Little Prince>, chapter one, and the first paragraph
         TitleText.setText("<The Little Prince>")
-        EpSpinner.onItemSelectedListener= object : AdapterView.OnItemSelectedListener{
-            override fun onNothingSelected(p0: AdapterView<*>?) {}
-            override fun onItemSelected(p0: AdapterView<*>?, p1: View?, p2: Int, p3: Long) {
-                val ep_content = EpSpinner.getItemAtPosition(p2).toString()
-                val ep_name = ep_content.split(" ")[0]
-                Toast.makeText(baseContext, ep_name, Toast.LENGTH_SHORT).show()
-                createOrtSession(ep_content)
-            }
-        }
 
         ArticleText.setText(
             "we are introduced to the narrator, a pilot, and his ideas about grown-ups." +
@@ -69,7 +59,7 @@ class MainActivity : AppCompatActivity() {
         })
         QuestionText.setHint("From which book did I see a magnificent picture?")
 
-        createOrtSession(EpSpinner.selectedItem.toString())
+        createOrtSession("CPU")
 
         DoQAButton.setOnClickListener {
             try {
