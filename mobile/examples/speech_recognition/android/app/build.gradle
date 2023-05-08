@@ -38,8 +38,10 @@ dependencies {
     implementation 'com.google.android.material:material:1.8.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
 
-    implementation 'com.microsoft.onnxruntime:onnxruntime-android:latest.release'
-    implementation 'com.microsoft.onnxruntime:onnxruntime-extensions-android:latest.release'
+    //implementation 'com.microsoft.onnxruntime:onnxruntime-android:latest.release'
+    //implementation 'com.microsoft.onnxruntime:onnxruntime-extensions-android:latest.release'
+    implementation(name: "onnxruntime-android-1.15.0", ext: "aar")
+    implementation(name: "onnxruntime-extensions-android-0.8.0", ext: "aar")
 
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'

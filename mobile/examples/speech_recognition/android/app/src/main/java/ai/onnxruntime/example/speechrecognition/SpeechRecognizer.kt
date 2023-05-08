@@ -1,20 +1,56 @@
 package ai.onnxruntime.example.speechrecognition
 
+import ai.onnxruntime.OnnxTensor
 import ai.onnxruntime.OrtEnvironment
 import ai.onnxruntime.OrtSession
 import ai.onnxruntime.extensions.OrtxPackage
+import android.os.SystemClock
 
-class SpeechRecognizer() {
+class SpeechRecognizer(modelBytes: ByteArray) : AutoCloseable {
     private val session: OrtSession
+    private val baseInputs: Map<String, OnnxTensor>
 
     init {
         val env = OrtEnvironment.getEnvironment()
         val sessionOptions = OrtSession.SessionOptions()
         sessionOptions.registerCustomOpLibrary(OrtxPackage.getLibraryPath())
-        session = env.createSession("", sessionOptions)
+
+        session = env.createSession(modelBytes, sessionOptions)
+
+        val nMels: Long = 80
+        val nFrames: Long = 3000
+
+        baseInputs = mapOf(
+            "min_length" to createIntTensor(env, intArrayOf(1), tensorShape(1)),
+            "max_length" to createIntTensor(env, intArrayOf(200), tensorShape(1)),
+            "num_beams" to createIntTensor(env, intArrayOf(1), tensorShape(1)),
+            "num_return_sequences" to createIntTensor(env, intArrayOf(1), tensorShape(1)),
+            "length_penalty" to createFloatTensor(env, floatArrayOf(1.0f), tensorShape(1)),
+            "repetition_penalty" to createFloatTensor(env, floatArrayOf(1.0f), tensorShape(1)),
+            "attention_mask" to createIntTensor(env, IntArray((1 * nMels * nFrames).toInt()) { 0 },
+                tensorShape(1, nMels, nFrames)),
+        )
     }
 
-    fun recognize() : String {
-        return "hello"
+    data class Result(val text: String, val inferenceTimeInMs: Long)
+
+    fun run(audioTensor: OnnxTensor) : Result {
+        val inputs = mutableMapOf<String, OnnxTensor>()
+        baseInputs.toMap(inputs)
+        inputs["audio"] = audioTensor
+        val startTimeInMs = SystemClock.elapsedRealtime()
+        val outputs = session.run(inputs)
+        val elapsedTimeInMs = SystemClock.elapsedRealtime() - startTimeInMs
+        val recognizedText = outputs.use {
+            (outputs[0].value as Array<String>).first()
+        }
+        return Result(recognizedText, elapsedTimeInMs)
+    }
+
+    override fun close() {
+        baseInputs.values.forEach {
+            it.close()
+        }
+        session.close()
     }
 }
