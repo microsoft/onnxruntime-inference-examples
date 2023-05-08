@@ -62,6 +62,7 @@ The example application accomplishes the task of recovering a high resolution (H
 - [iOS Super Resolution](examples/super_resolution/ios)
 
 ### Question Answering
-The example app gives a demo of introducing question answering models with pre/post processing into mobile scenario. Currently supports on platform Android.
+The example app gives a demo of introducing question answering models with pre/post processing into mobile scenario. Currently supports on platform Android and iOS.
 
 - [Android Question answering](examples/question_answering/android)
+- [iOS Question answering](examples/question_answering/ios)
