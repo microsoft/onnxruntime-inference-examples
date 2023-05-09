@@ -7,6 +7,7 @@ import android.content.res.AssetFileDescriptor
 import android.media.AudioFormat
 import android.media.AudioRecord
 import android.media.MediaRecorder
+import android.util.Log
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.nio.FloatBuffer
@@ -34,7 +35,7 @@ class AudioTensorSource {
             val sampleRate = 16000
             val bytesPerFloat = 4
 
-            val minBufferSize = minOf(
+            val minBufferSize = maxOf(
                 AudioRecord.getMinBufferSize(sampleRate, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_FLOAT),
                 2 * recordingChunkLengthInSeconds * sampleRate * bytesPerFloat)
 
@@ -45,16 +46,16 @@ class AudioTensorSource {
                     .setEncoding(AudioFormat.ENCODING_PCM_FLOAT)
                     .setChannelMask(AudioFormat.CHANNEL_IN_MONO)
                     .build())
-                .setBufferSizeInBytes(2 * recordingChunkLengthInSeconds * sampleRate * bytesPerFloat)
+                .setBufferSizeInBytes(minBufferSize)
                 .build()
 
             try {
-                audioRecord.startRecording()
-
                 val maxRecordingLengthInSeconds = 30
 
                 val floatAudioData = FloatArray(maxRecordingLengthInSeconds * sampleRate) { 0.0f }
                 var floatAudioDataOffset = 0
+
+                audioRecord.startRecording()
 
                 while (!stopRecordingFlag.get() && floatAudioDataOffset < floatAudioData.size) {
                     val numFloatsToRead = minOf(
@@ -67,12 +68,16 @@ class AudioTensorSource {
                         AudioRecord.READ_BLOCKING
                     )
 
+                    Log.d(MainActivity.TAG, "AudioRecord.read(float[], ...) returned $readResult")
+
                     if (readResult >= 0) {
                         floatAudioDataOffset += readResult
                     } else {
                         throw RuntimeException("AudioRecord.read() returned error code $readResult")
                     }
                 }
+
+                audioRecord.stop()
 
                 val env = OrtEnvironment.getEnvironment()
                 val floatAudioDataBuffer = FloatBuffer.wrap(floatAudioData)
