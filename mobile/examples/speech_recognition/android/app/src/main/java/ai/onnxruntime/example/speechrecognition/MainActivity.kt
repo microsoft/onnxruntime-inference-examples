@@ -68,11 +68,19 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun updateAudioButtons(isRecording: Boolean) {
+    private fun resetDefaultAudioButtonState() {
         runOnUiThread {
-            useCannedAudioButton.isEnabled = !isRecording
-            recordAudioButton.isEnabled = !isRecording
-            stopRecordingAudioButton.isEnabled = isRecording
+            useCannedAudioButton.isEnabled = true
+            recordAudioButton.isEnabled = true
+            stopRecordingAudioButton.isEnabled = false
+        }
+    }
+
+    private fun disableAudioButtons() {
+        runOnUiThread {
+            useCannedAudioButton.isEnabled = false
+            recordAudioButton.isEnabled = false
+            stopRecordingAudioButton.isEnabled = false
         }
     }
 
@@ -81,14 +89,22 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         useCannedAudioButton.setOnClickListener {
-            try {
-                val audioTensor = resources.openRawResourceFd(R.raw.audio_mono_16khz_f32le).use {
-                    AudioTensorSource.fromRawPcmFile(it)
+            // Disable audio buttons first.
+            // The audio button state will be reset at the end of the use canned audio task.
+            disableAudioButtons()
+
+            workerThreadExecutor.submit {
+                try {
+                    val audioTensor = resources.openRawResourceFd(R.raw.audio_mono_16khz_f32le).use {
+                        AudioTensorSource.fromRawPcmFile(it)
+                    }
+                    val result = audioTensor.use { speechRecognizer.run(audioTensor) }
+                    setSuccessfulResult(result)
+                } catch (e: Exception) {
+                    setError(e)
+                } finally {
+                    resetDefaultAudioButtonState()
                 }
-                val result = audioTensor.use { speechRecognizer.run(audioTensor) }
-                setSuccessfulResult(result)
-            } catch (e: Exception) {
-                setError(e)
             }
         }
 
@@ -100,14 +116,16 @@ class MainActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
 
-            // Disable record button first.
+            // Disable audio buttons first.
             // The stop button will be enabled by the recording task.
-            recordAudioButton.isEnabled = false
+            disableAudioButtons()
 
             workerThreadExecutor.submit {
                 try {
                     stopRecordingFlag.set(false)
-                    updateAudioButtons(isRecording = true)
+                    runOnUiThread {
+                        stopRecordingAudioButton.isEnabled = true
+                    }
 
                     val audioTensor = AudioTensorSource.fromRecording(stopRecordingFlag)
                     val result = audioTensor.use { speechRecognizer.run(audioTensor) }
@@ -115,19 +133,20 @@ class MainActivity : AppCompatActivity() {
                 } catch (e: Exception) {
                     setError(e)
                 } finally {
-                    updateAudioButtons(isRecording = false)
+                    resetDefaultAudioButtonState()
                 }
             }
         }
 
         stopRecordingAudioButton.setOnClickListener {
-            // Disable stop button first.
-            // The record button will be enabled at the end of the recording task.
-            stopRecordingAudioButton.isEnabled = false
+            // Disable audio buttons first.
+            // The audio button state will be reset at the end of the record audio task.
+            disableAudioButtons()
+
             stopRecordingFlag.set(true)
         }
 
-        updateAudioButtons(isRecording = false)
+        resetDefaultAudioButtonState()
     }
 
     override fun onDestroy() {
