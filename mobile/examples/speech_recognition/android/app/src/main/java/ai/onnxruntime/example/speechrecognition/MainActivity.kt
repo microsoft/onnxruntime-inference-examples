@@ -21,7 +21,7 @@ class MainActivity : AppCompatActivity() {
     private val statusText: TextView by lazy { findViewById(R.id.status_text) }
 
     private val speechRecognizer: SpeechRecognizer by lazy {
-        resources.openRawResource(R.raw.whisper_tiny_beamsearch_int8).use {
+        resources.openRawResource(R.raw.whisper_cpu_int8_model).use {
             val modelBytes = it.readBytes()
             SpeechRecognizer(modelBytes)
         }

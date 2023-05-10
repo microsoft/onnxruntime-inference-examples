@@ -37,12 +37,12 @@ class SpeechRecognizer(modelBytes: ByteArray) : AutoCloseable {
     fun run(audioTensor: OnnxTensor) : Result {
         val inputs = mutableMapOf<String, OnnxTensor>()
         baseInputs.toMap(inputs)
-        inputs["audio"] = audioTensor
+        inputs["audio_pcm"] = audioTensor
         val startTimeInMs = SystemClock.elapsedRealtime()
         val outputs = session.run(inputs)
         val elapsedTimeInMs = SystemClock.elapsedRealtime() - startTimeInMs
         val recognizedText = outputs.use {
-            (outputs[0].value as Array<String>).first()
+            (outputs[0].value as Array<Array<String>>)[0][0]
         }
         return Result(recognizedText, elapsedTimeInMs)
     }
