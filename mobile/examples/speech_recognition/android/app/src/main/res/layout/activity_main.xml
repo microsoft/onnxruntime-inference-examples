@@ -8,68 +8,79 @@
 
     <TextView
         android:id="@+id/info_text"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Press the button!"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.26999998" />
-
-    <Button
-        android:id="@+id/use_canned_audio_button"
-        android:layout_width="wrap_content"
-        android:layout_height="48dp"
-        android:layout_marginTop="16dp"
-        android:text="Use audio from file"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/info_text" />
-
-    <TextView
-        android:id="@+id/result_text"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
         android:layout_marginEnd="16dp"
-        android:text="Result goes here."
+        android:text="@string/instructions"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.503"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/status_text" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <Button
-        android:id="@+id/record_audio_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="24dp"
-        android:layout_marginTop="8dp"
-        android:text="Record"
-        app:layout_constraintEnd_toStartOf="@+id/stop_recording_audio_button"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/use_canned_audio_button" />
-
-    <TextView
-        android:id="@+id/status_text"
+        android:id="@+id/use_canned_audio_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:text="Status goes here."
+        android:text="@string/use_audio_from_file"
+        app:icon="@android:drawable/ic_menu_save"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/record_audio_button" />
+        app:layout_constraintTop_toBottomOf="@+id/info_text" />
 
-    <Button
-        android:id="@+id/stop_recording_audio_button"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:id="@+id/audio_recording_buttons_linear_layout"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="24dp"
-        android:text="Stop"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="16dp"
+        android:gravity="center_horizontal"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toTopOf="@+id/status_text"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/record_audio_button"
-        app:layout_constraintTop_toBottomOf="@+id/use_canned_audio_button" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/use_canned_audio_button">
+
+        <Button
+            android:id="@+id/record_audio_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="0dp"
+            android:text="@string/record"
+            app:icon="@android:drawable/ic_btn_speak_now" />
+
+        <Button
+            android:id="@+id/stop_recording_audio_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="0dp"
+            android:text="@string/stop"
+            app:icon="@android:drawable/ic_menu_close_clear_cancel" />
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/status_text"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/audio_recording_buttons_linear_layout" />
+
+    <TextView
+        android:id="@+id/result_text"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/status_text" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,3 +1,7 @@
 <resources>
-    <string name="app_name">SpeechRecognition</string>
+    <string name="app_name">ONNX Runtime Speech Recognition</string>
+    <string name="use_audio_from_file">Use Audio from File</string>
+    <string name="record">Record</string>
+    <string name="stop">Stop</string>
+    <string name="instructions">Press a button to provide audio input and then the recognized speech will be displayed.\nThe maximum recording length is 30 seconds.</string>
 </resources>
