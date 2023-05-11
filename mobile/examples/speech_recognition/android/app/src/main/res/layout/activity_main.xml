@@ -19,12 +19,11 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <Button
-        android:id="@+id/use_canned_audio_button"
+        android:id="@+id/use_prerecorded_audio_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:text="@string/use_audio_from_file"
-        app:icon="@android:drawable/ic_menu_save"
+        android:text="@string/use_prerecorded_audio"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/info_text" />
@@ -40,7 +39,7 @@
         app:layout_constraintBottom_toTopOf="@+id/status_text"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/use_canned_audio_button">
+        app:layout_constraintTop_toBottomOf="@+id/use_prerecorded_audio_button">
 
         <Button
             android:id="@+id/record_audio_button"

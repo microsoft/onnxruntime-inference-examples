@@ -13,7 +13,7 @@ import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicBoolean
 
 class MainActivity : AppCompatActivity() {
-    private val useCannedAudioButton: Button by lazy { findViewById(R.id.use_canned_audio_button) }
+    private val usePrerecordedAudioButton: Button by lazy { findViewById(R.id.use_prerecorded_audio_button) }
     private val recordAudioButton: Button by lazy { findViewById(R.id.record_audio_button) }
     private val stopRecordingAudioButton: Button by lazy { findViewById(R.id.stop_recording_audio_button) }
 
@@ -70,7 +70,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun resetDefaultAudioButtonState() {
         runOnUiThread {
-            useCannedAudioButton.isEnabled = true
+            usePrerecordedAudioButton.isEnabled = true
             recordAudioButton.isEnabled = true
             stopRecordingAudioButton.isEnabled = false
         }
@@ -78,7 +78,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun disableAudioButtons() {
         runOnUiThread {
-            useCannedAudioButton.isEnabled = false
+            usePrerecordedAudioButton.isEnabled = false
             recordAudioButton.isEnabled = false
             stopRecordingAudioButton.isEnabled = false
         }
@@ -88,9 +88,9 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        useCannedAudioButton.setOnClickListener {
+        usePrerecordedAudioButton.setOnClickListener {
             // Disable audio buttons first.
-            // The audio button state will be reset at the end of the use canned audio task.
+            // The audio button state will be reset at the end of the use prerecorded audio task.
             disableAudioButtons()
 
             workerThreadExecutor.submit {
