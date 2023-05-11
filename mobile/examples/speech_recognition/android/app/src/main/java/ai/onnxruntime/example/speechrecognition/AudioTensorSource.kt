@@ -20,8 +20,10 @@ class AudioTensorSource {
             inputStream.use {
                 val rawBytes = inputStream.readBytes()
                 val rawByteBuffer = ByteBuffer.wrap(rawBytes)
-                assert(ByteOrder.nativeOrder() == ByteOrder.LITTLE_ENDIAN)
                 // TODO handle big-endian native order...
+                if (ByteOrder.nativeOrder() != ByteOrder.LITTLE_ENDIAN) {
+                    throw NotImplementedError("Reading PCM data is only supported when native byte order is little-endian.")
+                }
                 rawByteBuffer.order(ByteOrder.nativeOrder())
                 val floatBuffer = rawByteBuffer.asFloatBuffer()
                 val env = OrtEnvironment.getEnvironment()
