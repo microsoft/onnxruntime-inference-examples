@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">ONNX Runtime Speech Recognition</string>
+    <string name="app_name">Speech Recognition</string>
     <string name="use_prerecorded_audio">Use Prerecorded Audio</string>
     <string name="record">Record</string>
     <string name="stop">Stop</string>
