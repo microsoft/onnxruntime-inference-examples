@@ -1,6 +1,14 @@
 ﻿using Android.App;
 using Android.Runtime;
 
+
+// Needed for Picking photo/video
+[assembly: UsesPermission(Android.Manifest.Permission.ReadExternalStorage)]
+
+// Needed for Taking photo/video
+[assembly: UsesPermission(Android.Manifest.Permission.WriteExternalStorage)]
+[assembly: UsesPermission(Android.Manifest.Permission.Camera)]
+
 namespace MauiSuperResolution;
 
 [Application]

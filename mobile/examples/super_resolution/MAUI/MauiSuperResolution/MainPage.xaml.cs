@@ -51,20 +51,25 @@ public partial class MainPage : ContentPage
         _inferenceSessionCreationTask = CreateInferenceSession();
     }
 
-    ImageAcquisitionMode GetAcquisitionModeFromText(string tag) => tag switch
+    private void SampleButton_Clicked(object sender, EventArgs e)
     {
-        nameof(ImageAcquisitionMode.Capture) => ImageAcquisitionMode.Capture,
-        nameof(ImageAcquisitionMode.Pick) => ImageAcquisitionMode.Pick,
-        _ => ImageAcquisitionMode.Sample
-    };
+        Run(ImageAcquisitionMode.Sample);
+    }
 
-    // acquire input image and run model
-    void AcquireButton_Clicked(object sender, EventArgs e)
+    private void PickButton_Clicked(object sender, EventArgs e)
     {
-        ClearResult();
+        Run(ImageAcquisitionMode.Pick);
+    }
 
-        var mode = GetAcquisitionModeFromText((sender as Button).Text);
-        Run(mode).ContinueWith(
+    private void CaptureButton_Clicked(object sender, EventArgs e)
+    {
+        Run(ImageAcquisitionMode.Capture);
+    }
+
+    // helper to call the async Run with a failure handler
+    private void Run(ImageAcquisitionMode mode)
+    {
+        RunAsync(mode).ContinueWith(
             resultTask =>
             {
                 if (resultTask.IsFaulted)
@@ -75,8 +80,10 @@ public partial class MainPage : ContentPage
         );
     }
 
-    private async Task Run(ImageAcquisitionMode mode)
+    private async Task RunAsync(ImageAcquisitionMode mode)
     {
+        await ClearResult();
+
         byte[] imageBytes = await Utils.GetInputImageAsync(mode);
 
         if (imageBytes != null)
@@ -84,9 +91,6 @@ public partial class MainPage : ContentPage
             await MainThread.InvokeOnMainThreadAsync(
                 () => 
                 {
-                    // fit image to screen as it may be larger than the screen on a mobile device
-                    BeforeImage.Aspect = Aspect.AspectFit; 
-                    BeforeImage.Source = ImageSource.FromStream(() => new MemoryStream(imageBytes));
                     AfterCaption.Text = "Running inference... please be patient";                    
                 });
 
@@ -100,7 +104,7 @@ public partial class MainPage : ContentPage
 
             await SetBusy(false);
 
-            ShowResult(outputImageBytes);
+            ShowResult(imageBytes, outputImageBytes);
         };
     }
 
@@ -155,23 +159,29 @@ public partial class MainPage : ContentPage
 
     private async Task SetBusy(bool busy) =>
         await MainThread.InvokeOnMainThreadAsync(
-               () =>
-               {
-                   BusyIndicator.IsRunning = busy;
-                   BusyIndicator.IsVisible = busy;
-               });
+            () =>
+            {
+                BusyIndicator.IsRunning = busy;
+                BusyIndicator.IsVisible = busy;
+            });
 
 
-    private void ClearResult() => MainThread.BeginInvokeOnMainThread(
+    private async Task ClearResult() => 
+        await MainThread.InvokeOnMainThreadAsync(
+            () =>
+            {
+                // settting Source to null doesn't work as expected so set both to the ORT logo
+                BeforeImage.Aspect = OperatingSystem.IsWindows() ? Aspect.Center : Aspect.AspectFit;
+                BeforeImage.Source = "onnxruntime_logo.png";
+                AfterImage.Source = "onnxruntime_logo.png";
+            });
+
+    private void ShowResult(byte[] beforeBytes, byte[] afterBytes) => MainThread.BeginInvokeOnMainThread(
         () =>
         {
-            BeforeImage.Source = null;
-            AfterImage.Source = null;
-        });
+            BeforeImage.Aspect = Aspect.AspectFit;
+            BeforeImage.Source = ImageSource.FromStream(() => new MemoryStream(beforeBytes));
 
-    private void ShowResult(byte[] afterBytes) => MainThread.BeginInvokeOnMainThread(
-        () =>
-        {
             AfterCaption.Text = "Super Resolution Result";
             AfterImage.Source = ImageSource.FromStream(() => new MemoryStream(afterBytes));
         });

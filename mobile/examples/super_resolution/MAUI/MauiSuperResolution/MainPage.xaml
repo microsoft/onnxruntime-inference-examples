@@ -20,69 +20,28 @@
             Margin="5,0,5,5" />
 
         <ScrollView Grid.Row="1">
-            <Grid>
+            <Grid x:Name="ImageCaptionGrid">
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="*" />
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
 
-                <Image
-                    x:Name="BeforeImage"
-                    Grid.Row="0"
-                    Aspect="AspectFit"
-                    HorizontalOptions="CenterAndExpand"
-                    VerticalOptions="CenterAndExpand"
-                    Source="onnxruntime_logo.png"
-                    />
+                <Image x:Name="BeforeImage" Grid.Row="0" Aspect="Center" Source="onnxruntime_logo.png" />
             
-                <Label x:Name="BeforeCaption"
-                       Text="Original image"
-                       Grid.Row="1"
-                       Margin="0,20,0,0"
-                       HorizontalTextAlignment="Center" />
-                
-                <Image
-                    x:Name="AfterImage"
-                    Grid.Row="2"
-                    Aspect="AspectFit"
-                    HorizontalOptions="CenterAndExpand"
-                    VerticalOptions="CenterAndExpand"
-                    />
+                <Label x:Name="BeforeCaption" Text="Original image" Grid.Row="1" HorizontalTextAlignment="Center" />
 
-                <ActivityIndicator
-                    x:Name="BusyIndicator"
-                    IsRunning="False"
-                    Grid.Row="2"                    
-                    HorizontalOptions="CenterAndExpand"
-                    VerticalOptions="CenterAndExpand"
-                    Color="Orange" />
+                <Image x:Name="AfterImage" Grid.Row="2" Aspect="AspectFit"/>
+                <ActivityIndicator x:Name="BusyIndicator" Grid.Row="2" IsRunning="False" Color="Orange" />
 
-                <Label x:Name="AfterCaption"
-                       Text="SuperResolution output"
-                       Grid.Row="3"
-                       Margin="0,20,0,0"
+                <Label x:Name="AfterCaption" Text="SuperResolution output" Grid.Row="3"
                        HorizontalTextAlignment="Center" />
             </Grid>
         </ScrollView>
 
-        <Button
-            x:Name="SamplePhotoButton"
-            Grid.Row="2"
-            Text="Use sample image"
-            Clicked="AcquireButton_Clicked" />
-
-        <Button
-            x:Name="PickPhotoButton"
-            Grid.Row="3"
-            Text="Select photo"
-            Clicked="AcquireButton_Clicked" />
-
-        <Button
-            x:Name="TakePhotoButton"
-            Grid.Row="4"
-            Text="Take photo"
-            Clicked="AcquireButton_Clicked" />
+        <Button Grid.Row="2" Text="Use sample image" Clicked="SampleButton_Clicked" />
+        <Button Grid.Row="3" Text="Select photo" Clicked="PickButton_Clicked" />
+        <Button Grid.Row="4" Text="Take photo" Clicked="CaptureButton_Clicked" />
     </Grid>
 </ContentPage>
