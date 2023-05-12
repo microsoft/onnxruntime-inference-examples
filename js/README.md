@@ -33,3 +33,7 @@ Click links for README of each examples.
 * [API usage - SessionOptions](api-usage_session-options) - a demonstration of how to configure creation of an `InferenceSession` instance.
 
 * [API usage - `ort.env` flags](api-usage_ort-env-flags) - a demonstration of how to configure a set of global flags.
+
+### Simple Applications
+
+* [OpenAI Whisper](ort-whisper) - demonstrates how to run [whisper tiny.en](https://github.com/openai/whisper) in your browser using [onnxruntime-web](https://github.com/microsoft/onnxruntime) and the browser's audio interfaces.
