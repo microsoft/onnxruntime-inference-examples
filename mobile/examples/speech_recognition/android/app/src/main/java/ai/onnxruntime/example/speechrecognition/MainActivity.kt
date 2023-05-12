@@ -151,6 +151,11 @@ class MainActivity : AppCompatActivity() {
         resetDefaultAudioButtonState()
     }
 
+    override fun onPause() {
+        super.onPause()
+        stopRecordingFlag.set(true)
+    }
+
     override fun onDestroy() {
         super.onDestroy()
         workerThreadExecutor.shutdown()
@@ -159,6 +164,6 @@ class MainActivity : AppCompatActivity() {
 
     companion object {
         const val TAG = "ORTSpeechRecognizer"
-        const val RECORD_AUDIO_PERMISSION_REQUEST_CODE = 1
+        private const val RECORD_AUDIO_PERMISSION_REQUEST_CODE = 1
     }
 }
