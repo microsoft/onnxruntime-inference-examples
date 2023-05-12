@@ -27,14 +27,16 @@ class SpeechRecognizer(modelBytes: ByteArray) : AutoCloseable {
             "num_return_sequences" to createIntTensor(env, intArrayOf(1), tensorShape(1)),
             "length_penalty" to createFloatTensor(env, floatArrayOf(1.0f), tensorShape(1)),
             "repetition_penalty" to createFloatTensor(env, floatArrayOf(1.0f), tensorShape(1)),
-            "attention_mask" to createIntTensor(env, IntArray((1 * nMels * nFrames).toInt()) { 0 },
-                tensorShape(1, nMels, nFrames)),
+            "attention_mask" to createIntTensor(
+                env, IntArray((1 * nMels * nFrames).toInt()) { 0 },
+                tensorShape(1, nMels, nFrames)
+            ),
         )
     }
 
     data class Result(val text: String, val inferenceTimeInMs: Long)
 
-    fun run(audioTensor: OnnxTensor) : Result {
+    fun run(audioTensor: OnnxTensor): Result {
         val inputs = mutableMapOf<String, OnnxTensor>()
         baseInputs.toMap(inputs)
         inputs["audio_pcm"] = audioTensor

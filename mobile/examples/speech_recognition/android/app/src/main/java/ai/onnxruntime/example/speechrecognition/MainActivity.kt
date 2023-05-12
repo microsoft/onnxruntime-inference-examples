@@ -34,7 +34,7 @@ class MainActivity : AppCompatActivity() {
     private fun setSuccessfulResult(result: SpeechRecognizer.Result) {
         runOnUiThread {
             statusText.text = "Successful speech recognition (${result.inferenceTimeInMs} ms)"
-            resultText.text = result.text.ifEmpty { "<no speech detected>" }
+            resultText.text = result.text.ifEmpty { "<No speech detected.>" }
         }
     }
 
@@ -49,7 +49,8 @@ class MainActivity : AppCompatActivity() {
     private fun hasRecordAudioPermission(): Boolean =
         ActivityCompat.checkSelfPermission(
             this,
-            Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED
+            Manifest.permission.RECORD_AUDIO
+        ) == PackageManager.PERMISSION_GRANTED
 
     override fun onRequestPermissionsResult(
         requestCode: Int,
@@ -95,8 +96,8 @@ class MainActivity : AppCompatActivity() {
 
             workerThreadExecutor.submit {
                 try {
-                    val audioTensor = resources.openRawResourceFd(R.raw.audio_mono_16khz_f32le).use {
-                        AudioTensorSource.fromRawPcmFile(it)
+                    val audioTensor = resources.openRawResource(R.raw.audio_mono_16khz_f32le).use {
+                        AudioTensorSource.fromRawPcmBytes(it.readBytes())
                     }
                     val result = audioTensor.use { speechRecognizer.run(audioTensor) }
                     setSuccessfulResult(result)
@@ -112,7 +113,8 @@ class MainActivity : AppCompatActivity() {
             if (!hasRecordAudioPermission()) {
                 requestPermissions(
                     arrayOf(Manifest.permission.RECORD_AUDIO),
-                    RECORD_AUDIO_PERMISSION_REQUEST_CODE)
+                    RECORD_AUDIO_PERMISSION_REQUEST_CODE
+                )
                 return@setOnClickListener
             }
 
