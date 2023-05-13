@@ -63,9 +63,7 @@ export default function App() {
       if (!output) {
         Alert.alert('failed to get output', `${myModel.outputNames[0]}`);
       } else {
-        Alert.alert(
-          'model inference successfully');
-        // `output shape: ${output.dims}, output data: ${output.data}`);
+        Alert.alert('model inference successfully');
       }
     } catch (e) {
       Alert.alert('failed to inference model', `${e}`);
@@ -81,16 +79,19 @@ export default function App() {
         source={require('./assets/cat_224x224.png')}
         style={styles.image}
         resizeMode="contain"></Image>
-      <Button title='Load model' onPress={loadModel}></Button>
-      <Button title='Run' onPress={runModel}></Button>
-      {
-        outputImage != null &&
-        <Image
-          source={{ uri: outputImage.localUri}}
-          style={styles.image}
-          resizeMode="contain"></Image>
-      }
-
+      <View>
+        <Button title='Load model' onPress={loadModel}></Button>
+        <Button title='Run' onPress={runModel}></Button>
+      </View>
+      <View>
+        {
+          outputImage != null &&
+          <Image
+            source={{ uri: outputImage.localUri }}
+            style={styles.image2}
+            resizeMode='contain'></Image>
+        }
+      </View>
       <StatusBar style="auto" />
     </View>
   );
@@ -107,6 +108,13 @@ const styles = StyleSheet.create({
     flex: 1,
     position: 'absolute',
     top: 130,
+    width: 200,
+    height: 200,
+  },
+  image2: {
+    position: 'absolute',
+    marginLeft: -100,
+    top: 50,
     width: 200,
     height: 200,
   },
