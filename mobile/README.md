@@ -47,6 +47,7 @@ The example app uses speech recognition to transcribe speech from audio recorded
 The example app uses object detection which is able to continuously detect the objects in the frames seen by your iOS device's back camera and display the detected object bounding boxes, detected class and corresponding inference confidence on the screen.
 
 - [iOS Object Detection](examples/object_detection/ios)
+- [iOS Object Detection](examples/object_detection/android)
 
 ### Xamarin VisionSample
 
