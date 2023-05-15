@@ -2,14 +2,14 @@
 
 ## Overview
 
-This is a basic Super Resolution example React Native Application using [Expo framework](https://docs.expo.dev/) for [ONNX Runtime](https://github.com/microsoft/onnxruntime) with [Ort-Extensions](https://github.com/microsoft/onnxruntime-extensions) support for pre/post processing. The demo app accomplishes the task of recovering a high resolution (HR) image from its low resolution counterpart and can run on both Android and iOS platform.
+This is a basic Super Resolution example [React Native](https://reactnative.dev/) Application using [Expo framework](https://docs.expo.dev/) for [ONNX Runtime](https://github.com/microsoft/onnxruntime) with [Ort-Extensions](https://github.com/microsoft/onnxruntime-extensions) support for pre/post processing. The demo app accomplishes the task of recovering a high resolution (HR) image from its low resolution counterpart and can run on both Android and iOS platform.
 
 0. Prepare environment
     1. install Node.js
         - Node.js (16.0+): <https://nodejs.org/>
     2. install expo
 
-        ```sh
+        ```shs
         npm install -g expo-cli
         ```
 
