@@ -88,7 +88,7 @@ jobs:
     vmImage: "macOS-12"
 
   steps:
-  - template: templates/use-jdk-version.yml
+  - template: templates/use-jdk-step.yml
 
   - template: templates/run-with-android-emulator-steps.yml
     parameters:
