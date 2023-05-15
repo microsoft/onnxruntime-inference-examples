@@ -27,7 +27,7 @@ This is a basic Super Resolution example React Native Application using [Expo fr
    yarn
    ```
 
-   **NOTE:**
+   NOTE:
    - `<SOURCE_ROOT>` refers to the root folder of the source code, where this `README.md` file sits.
    i.e. `mobile/examples/super_resolution/react_native/ort-super-resolution/`
 
@@ -37,7 +37,7 @@ This is a basic Super Resolution example React Native Application using [Expo fr
     expo install onnxruntime-react-native@dev
     ```
 
-    Note: `@dev` will automatically install the latest dev version of onnxruntime-react-native package. Currently, the latest support is only included in the dev version package.
+    NOTE: `@dev` will automatically install the latest dev version of onnxruntime-react-native package. Currently, the latest support is only included in the dev version package.
     When available, just need to install the latest released version package. for instance, `expo install onnxruntime-react-native@1.15.0`
 
 3. Add your ONNX model to project
@@ -102,7 +102,15 @@ This is a basic Super Resolution example React Native Application using [Expo fr
     expo run:ios
     ```
 
-Note: For this sample application, minSDK version used in the android project is 24 and target iOS deployment target platform version is 12.4. Please adjust accordingly otherwise may cause build failure when launching the app.
+NOTE: For this sample application, minSDK version used in the android project is 24 and target iOS deployment target platform version is 12.4. Please adjust accordingly otherwise may cause build failure when launching the app.
+
+## References:
+
+[ONNX Runtime React Native Library](https://github.com/microsoft/onnxruntime/tree/main/js/react_native#onnxruntime-react-native)
+
+[onnxruntime-react-native](https://github.com/microsoft/onnxruntime/tree/main/js#onnxruntime-react-native)
+
+[Get Started with ONNX Runtime for React Native](https://onnxruntime.ai/docs/get-started/with-javascript.html#onnx-runtime-for-react-native)
 
 #
 
