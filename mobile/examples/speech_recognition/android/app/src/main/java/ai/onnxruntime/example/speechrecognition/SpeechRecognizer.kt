@@ -44,6 +44,7 @@ class SpeechRecognizer(modelBytes: ByteArray) : AutoCloseable {
         val outputs = session.run(inputs)
         val elapsedTimeInMs = SystemClock.elapsedRealtime() - startTimeInMs
         val recognizedText = outputs.use {
+            @Suppress("UNCHECKED_CAST")
             (outputs[0].value as Array<Array<String>>)[0][0]
         }
         return Result(recognizedText, elapsedTimeInMs)
