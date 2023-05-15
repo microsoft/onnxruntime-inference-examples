@@ -42,11 +42,11 @@ This is a basic Super Resolution example [React Native](https://reactnative.dev/
 
 3. Add your ONNX model to project
 
-    1. Put the file under `<SOURCE_ROOT>/assets`.
+    1. Copy the model file to `<SOURCE_ROOT>/assets`.
 
        In this tutorial, we use `pytorch_superresolution_with_pre_post_processing_opset18.onnx` which is originally from source: [Pytorch Super Resolution](https://pytorch.org/tutorials/advanced/super_resolution_with_onnxruntime.html) and accomodated into [ONNX](https://github.com/onnx/onnx) version with pre/post processing support.
 
-       The model is currently provided under directory `mobile/examples/super_resolution/`.
+       The model is currently provided under directory `mobile/examples/super_resolution/ios/ORTSuperResolution/ORTSuperResolution/pytorch_superresolution_with_pre_post_processing_opset18.onnx`.
 
     2. add a new file `metro.config.js` under `<SOURCE_ROOT>` and add the following lines to the file:
 
