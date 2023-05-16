@@ -6,7 +6,7 @@ This is a basic Object Detection sample application for [ONNX Runtime](https://g
 
 The model used here is from source: [Yolov8 in extensions](https://github.com/microsoft/onnxruntime-extensions/blob/64f20828ce0291394886e277c23529cd1d11320d/tutorials/yolo_e2e.py#L37) and with pre/post processing support.
 
-This model (Yolov8n) can be fed with image bytes directly and outputs the detected objects with bounding boxes. Please note that scores and labels are not drawn by this model. Boxes in different classes are drawn with different colors.
+This model (Yolov8n) can be fed with image bytes directly and outputs the detected objects with bounding boxes.
 
 ### Requirements
 - Android Studio Dolphin | Android Studio Electric Eel | 2022.1.1 Patch 2+ (installed on Mac/Windows/Linux)
