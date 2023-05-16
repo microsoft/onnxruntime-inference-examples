@@ -16,11 +16,7 @@ The source code for this sample is available [here](https://github.com/microsoft
 # How to build
 
 ## Prerequisites
-1. For Windows, [The Intel<sup>®</sup> Distribution of OpenVINO™ toolkit](https://docs.openvino.ai/latest/openvino_docs_install_guides_installing_openvino_windows_header.html#doxid-openvino-docs-install-guides-installing-openvino-windows-header).
-   Please select Install OpenVINO™ from PyPI.
-   ```
-   pip3 install openvino
-   ```
+1. For Windows, [download OpenVINO package](https://storage.openvinotoolkit.org/repositories/openvino/packages) select appropriate version, windows os and extract it. Run setupvars.bat file which is in the root directory of the extracted OpenVINO package to add OpenVINO libraries to PATH.
 2. Download the latest version of the [YOLOv4](https://github.com/onnx/models/tree/master/vision/object_detection_segmentation/yolov4) model from here.
 
 ## Install ONNX Runtime for OpenVINO™ Execution Provider
