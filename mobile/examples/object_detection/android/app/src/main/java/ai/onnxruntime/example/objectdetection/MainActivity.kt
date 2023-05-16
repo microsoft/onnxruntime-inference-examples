@@ -3,7 +3,13 @@ package ai.onnxruntime.example.objectdetection
 import ai.onnxruntime.*
 import ai.onnxruntime.extensions.OrtxPackage
 import android.annotation.SuppressLint
+import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.Paint
+import android.graphics.PorterDuff
+import android.graphics.PorterDuffXfermode
 import android.os.Bundle
 import android.util.Log
 import android.widget.Button
@@ -24,6 +30,7 @@ class MainActivity : AppCompatActivity() {
     private var outputImage: ImageView? = null
     private var objectDetectionButton: Button? = null
     private var imageid = 0;
+    private lateinit var classes:List<String>
 
     @SuppressLint("UseCompatLoadingForDrawables")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -37,7 +44,7 @@ class MainActivity : AppCompatActivity() {
             BitmapFactory.decodeStream(readInputImage())
         );
         imageid = 0
-
+        classes = readClasses();
         // Initialize Ort Session and register the onnxruntime extensions package that contains the custom operators.
         // Note: These are used to decode the input image into the format the original model requires,
         // and to encode the model output into png format
@@ -65,12 +72,37 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun updateUI(result: Result) {
-        outputImage?.setImageBitmap(result.outputBitmap)
+        val mutableBitmap: Bitmap = result.outputBitmap!!.copy(Bitmap.Config.ARGB_8888, true)
+
+        val canvas = mutableBitmap.let { Canvas(it) }
+        val paint = Paint()
+        paint.color = Color.WHITE // Text Color
+
+        paint.textSize = 28f // Text Size
+
+        paint.xfermode = PorterDuffXfermode(PorterDuff.Mode.SRC_OVER) // Text Overlapping Pattern
+
+        canvas?.drawBitmap(mutableBitmap, 0.0f, 0.0f, paint)
+        var boxit = result.outputBox?.iterator()
+        if (boxit != null) {
+            while(boxit.hasNext()) {
+                var box_info = boxit.next()
+                canvas?.drawText("%s:%.2f".format(classes[box_info[5].toInt()],box_info[4]),
+                    box_info[0]-box_info[2]/2, box_info[1]-box_info[3]/2, paint)
+            }
+        }
+        outputImage?.setImageBitmap(mutableBitmap)
     }
 
     private fun readModel(): ByteArray {
         val modelID = R.raw.yolov8n_with_pre_post_processing
         return resources.openRawResource(modelID).readBytes()
+    }
+
+    private fun readClasses(): List<String> {
+        val classes_id = R.raw.classes
+        val classes_bytes = resources.openRawResource(classes_id).readBytes()
+        return String(classes_bytes).split("\r\n".toRegex())
     }
 
     private fun readInputImage(): InputStream {
