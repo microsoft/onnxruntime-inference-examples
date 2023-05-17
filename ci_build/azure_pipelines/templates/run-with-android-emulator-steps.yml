@@ -14,6 +14,7 @@ steps:
       --start --emulator-extra-args="-partition-size 4096" \
       --emulator-pid-file "${ORT_EXAMPLES_BUILD_ANDROID_EMULATOR_PID_FILE}"
 
+    set +x  # do not output next line or it may be parsed again with a trailing quote
     echo "##vso[task.setvariable variable=ORT_EXAMPLES_BUILD_ANDROID_EMULATOR_PID_FILE]${ORT_EXAMPLES_BUILD_ANDROID_EMULATOR_PID_FILE}"
   displayName: "Create and start Android emulator"
 
