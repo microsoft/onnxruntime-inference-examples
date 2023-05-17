@@ -27,8 +27,8 @@ class MainActivity : AppCompatActivity() {
     private var ortEnv: OrtEnvironment = OrtEnvironment.getEnvironment()
     private lateinit var ortSession: OrtSession
     private lateinit var inputImage: ImageView
-    private var outputImage: ImageView? = null
-    private var objectDetectionButton: Button? = null
+    private lateinit var outputImage: ImageView
+    private lateinit var objectDetectionButton: Button
     private var imageid = 0;
     private lateinit var classes:List<String>
 
@@ -52,7 +52,7 @@ class MainActivity : AppCompatActivity() {
         sessionOptions.registerCustomOpLibrary(OrtxPackage.getLibraryPath())
         ortSession = ortEnv.createSession(readModel(), sessionOptions)
 
-        objectDetectionButton?.setOnClickListener {
+        objectDetectionButton.setOnClickListener {
             try {
                 performObjectDetection(ortSession)
                 Toast.makeText(baseContext, "ObjectDetection performed!", Toast.LENGTH_SHORT)
@@ -72,9 +72,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun updateUI(result: Result) {
-        val mutableBitmap: Bitmap = result.outputBitmap!!.copy(Bitmap.Config.ARGB_8888, true)
+        val mutableBitmap: Bitmap = result.outputBitmap.copy(Bitmap.Config.ARGB_8888, true)
 
-        val canvas = mutableBitmap.let { Canvas(it) }
+        val canvas = Canvas(mutableBitmap)
         val paint = Paint()
         paint.color = Color.WHITE // Text Color
 
@@ -82,16 +82,15 @@ class MainActivity : AppCompatActivity() {
 
         paint.xfermode = PorterDuffXfermode(PorterDuff.Mode.SRC_OVER) // Text Overlapping Pattern
 
-        canvas?.drawBitmap(mutableBitmap, 0.0f, 0.0f, paint)
-        var boxit = result.outputBox?.iterator()
-        if (boxit != null) {
-            while(boxit.hasNext()) {
-                var box_info = boxit.next()
-                canvas?.drawText("%s:%.2f".format(classes[box_info[5].toInt()],box_info[4]),
-                    box_info[0]-box_info[2]/2, box_info[1]-box_info[3]/2, paint)
-            }
+        canvas.drawBitmap(mutableBitmap, 0.0f, 0.0f, paint)
+        var boxit = result.outputBox.iterator()
+        while(boxit.hasNext()) {
+            var box_info = boxit.next()
+            canvas.drawText("%s:%.2f".format(classes[box_info[5].toInt()],box_info[4]),
+                box_info[0]-box_info[2]/2, box_info[1]-box_info[3]/2, paint)
         }
-        outputImage?.setImageBitmap(mutableBitmap)
+
+        outputImage.setImageBitmap(mutableBitmap)
     }
 
     private fun readModel(): ByteArray {

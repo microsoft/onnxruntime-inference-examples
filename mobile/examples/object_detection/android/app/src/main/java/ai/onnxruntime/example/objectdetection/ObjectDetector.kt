@@ -6,23 +6,19 @@ import ai.onnxruntime.OnnxTensor
 import ai.onnxruntime.OrtEnvironment
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.util.ArraySet
 import java.io.InputStream
 import java.nio.ByteBuffer
 import java.util.*
-import kotlin.collections.ArrayList
 
 internal data class Result(
-    var outputBitmap: Bitmap? = null,
-    var outputBox: Array<FloatArray>? = null
+    var outputBitmap: Bitmap,
+    var outputBox: Array<FloatArray>
 ) {}
 
 internal class ObjectDetector(
 ) {
 
     fun detect(inputStream: InputStream, ortEnv: OrtEnvironment, ortSession: OrtSession): Result {
-        var result = Result()
-
         // Step 1: convert image into byte array (raw image bytes)
         val rawImageBytes = inputStream.readBytes()
 
@@ -48,11 +44,10 @@ internal class ObjectDetector(
                 val outputImageBitmap = byteArrayToBitmap(rawOutput)
 
                 // Step 5: set output result
-                result.outputBitmap = outputImageBitmap
-                result.outputBox = boxOutput
+                var result = Result(outputImageBitmap,boxOutput)
+                return result
             }
         }
-        return result
     }
 
     private fun byteArrayToBitmap(data: ByteArray): Bitmap {
