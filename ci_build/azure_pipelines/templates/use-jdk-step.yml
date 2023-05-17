@@ -1,0 +1,12 @@
+parameters:
+- name: jdkVersion
+  type: string
+  default: "11"
+
+steps:
+- task: JavaToolInstaller@0
+  displayName: Use jdk ${{ parameters.jdkVersion }}
+  inputs:
+    versionSpec: "${{ parameters.jdkVersion }}"
+    jdkArchitectureOption: "x64"
+    jdkSourceOption: "PreInstalled"
