@@ -4,5 +4,6 @@
 add_executable(model-explorer model-explorer.cpp)
 target_link_libraries(model-explorer PRIVATE onnxruntime)
 
-add_executable(batch-model-explorer batch-model-explorer.cpp)
-target_link_libraries(batch-model-explorer PRIVATE onnxruntime)
+#TODO: fix the build error
+#add_executable(batch-model-explorer batch-model-explorer.cpp)
+#target_link_libraries(batch-model-explorer PRIVATE onnxruntime)

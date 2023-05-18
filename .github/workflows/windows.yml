@@ -1,0 +1,41 @@
+name: Windows_CI
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+concurrency:
+  group: ${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  Onnxruntime-SCA:
+    runs-on: windows-2022
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: false
+      - uses: actions/setup-python@v3
+        with:
+          python-version: '3.11.x'
+          architecture: 'x64'
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Download ORT
+        shell: powershell
+        run: |
+          &${{ github.workspace }}\ci_build\download_ort_release 1.14.1
+
+      - name: Config cmake
+        run: npm i -g @microsoft/sarif-multitool && mkdir b && cd b && cmake ../c_cxx -DCMAKE_C_FLAGS="/MP /analyze:external- /external:anglebrackets /DWIN32 /D_WINDOWS /DWINVER=0x0A00 /D_WIN32_WINNT=0x0A00 /DNTDDI_VERSION=0x0A000000 /W4 /Ob0 /Od /RTC1 /analyze:autolog:ext .sarif" -DCMAKE_CXX_FLAGS="/EHsc /MP /analyze:external- /external:anglebrackets /DWIN32 /D_WINDOWS /DWINVER=0x0A00 /D_WIN32_WINNT=0x0A00 /DNTDDI_VERSION=0x0A000000 /W4 /Ob0 /Od /RTC1 /analyze:autolog:ext .sarif" -A x64 -T host=x64 -DONNXRUNTIME_ROOTDIR=${{ github.workspace }}\onnxruntimebin && cmake --build . --config Debug && npx @microsoft/sarif-multitool merge *.sarif --recurse --output-directory=${{ github.workspace }}\output --output-file=MergeResult.sarif --merge-runs
+
+      - name: Upload SARIF to GitHub
+        uses: github/codeql-action/upload-sarif@v2
+        continue-on-error: true
+        with:
+          sarif_file: ${{ github.workspace }}\output\MergeResult.sarif
+          category: VS_SCA

@@ -1,0 +1,35 @@
+parameters:
+- name: steps
+  type: stepList
+
+steps:
+- bash: |
+    set -e -x
+
+    ORT_EXAMPLES_BUILD_ANDROID_EMULATOR_PID_FILE="$(Build.BinariesDirectory)/android_emulator.pid"
+
+    python ./ci_build/python/run_android_emulator.py \
+      --android-sdk-root "${ANDROID_SDK_ROOT}" \
+      --create-avd --system-image "system-images;android-30;default;x86_64" \
+      --start --emulator-extra-args="-partition-size 4096" \
+      --emulator-pid-file "${ORT_EXAMPLES_BUILD_ANDROID_EMULATOR_PID_FILE}"
+
+    set +x  # do not output next line or it may be parsed again with a trailing quote
+    echo "##vso[task.setvariable variable=ORT_EXAMPLES_BUILD_ANDROID_EMULATOR_PID_FILE]${ORT_EXAMPLES_BUILD_ANDROID_EMULATOR_PID_FILE}"
+  displayName: "Create and start Android emulator"
+
+- ${{ parameters.steps }}
+
+- bash: |
+    set -e -x
+
+    if [[ -n "${ORT_EXAMPLES_BUILD_ANDROID_EMULATOR_PID_FILE-}" ]]; then
+      python ./ci_build/python/run_android_emulator.py \
+        --android-sdk-root "${ANDROID_SDK_ROOT}" \
+        --stop \
+        --emulator-pid-file "${ORT_EXAMPLES_BUILD_ANDROID_EMULATOR_PID_FILE}"
+
+      rm "${ORT_EXAMPLES_BUILD_ANDROID_EMULATOR_PID_FILE}"
+    fi
+  displayName: "Stop Android emulator"
+  condition: always()

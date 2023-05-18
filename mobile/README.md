@@ -40,6 +40,7 @@ The example app uses image classification which is able to continuously classify
 
 The example app uses speech recognition to transcribe speech from audio recorded by the device.
 
+- [Android Speech Recognition](examples/speech_recognition/android)
 - [iOS Speech Recognition](examples/speech_recognition/ios)
 
 ### Object Detection
@@ -47,6 +48,7 @@ The example app uses speech recognition to transcribe speech from audio recorded
 The example app uses object detection which is able to continuously detect the objects in the frames seen by your iOS device's back camera and display the detected object bounding boxes, detected class and corresponding inference confidence on the screen.
 
 - [iOS Object Detection](examples/object_detection/ios)
+- [Android Object Detection](examples/object_detection/android)
 
 ### Xamarin VisionSample
 
@@ -62,6 +64,7 @@ The example application accomplishes the task of recovering a high resolution (H
 - [iOS Super Resolution](examples/super_resolution/ios)
 
 ### Question Answering
-The example app gives a demo of introducing question answering models with pre/post processing into mobile scenario. Currently supports on platform Android.
+The example app gives a demo of introducing question answering models with pre/post processing into mobile scenario. Currently supports on platform Android and iOS.
 
 - [Android Question answering](examples/question_answering/android)
+- [iOS Question answering](examples/question_answering/ios)
