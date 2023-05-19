@@ -48,7 +48,7 @@ This is a basic Super Resolution example [React Native](https://reactnative.dev/
 
        The model is currently provided under directory `mobile/examples/super_resolution/ios/ORTSuperResolution/ORTSuperResolution/pytorch_superresolution_with_pre_post_processing_opset18.onnx`.
 
-    2. add a new file `metro.config.js` under `<SOURCE_ROOT>` and add the following lines to the file:
+    2. (Not a required action) The following lines from file `metro.config.js` under `<SOURCE_ROOT>`
 
        ```js
        const { getDefaultConfig } = require('@expo/metro-config');
@@ -57,29 +57,31 @@ This is a basic Super Resolution example [React Native](https://reactnative.dev/
        module.exports = defaultConfig;
        ```
 
-       This step adds extension `onnx` to the bundler's asset extension list, which allows the bundler to include the model into assets.
+       adds the `onnx` extensions to the bundler's asset extensions list, which allows the bundler to include the model into assets.
 
 4. Setup Android and iOS project.
 
-    We use expo prebuild steps to generate Android/iOS projects folder to consume ONNX Runtime and Ort-Extensions.
+    We use expo prebuild steps to generate Android/iOS projects folder to consume ONNX Runtime and ONNX Runtime Extensions.
 
-    - Use NPM package `onnxruntime-react-native` as an expo plugin. (Recommended way)
-        1. In `<SOURCE_ROOT>/app.json`, add the following line to section `expo`:
+    1. (Not a required action, added already for this demo sample)
 
-           ```
-           "plugins": ["onnxruntime-react-native"],
-           ```
+        In `<SOURCE_ROOT>/app.json`, the following section adds `onnxruntime-react-native` npm package as an `expo` plug-in: (Recommended way)
 
-        2. Run the following command in `<SOURCE_ROOT>` to generate Android and iOS project:
+        ```
+        "plugins": ["onnxruntime-react-native"],
+        ```
 
-            ```sh
-            expo prebuild
-            ```
+    2. Run the following command in `<SOURCE_ROOT>` to generate Android and iOS project:
+
+        ```sh
+        expo prebuild
+        ```
 
         The `android/` and `ios/` project files will be generated automatically after this step.
 
 5. Enable Ort Extensions in React Native app.
-   1. In `<SOURCE_ROOT>/package.json` file, specify the field to build expo project with ort-extensions package:
+
+   In `<SOURCE_ROOT>/package.json` file, specify the field to build expo project with ort-extensions package:
 
         ```
         "onnxruntimeExtensionsEnabled": "true"
@@ -104,7 +106,7 @@ This is a basic Super Resolution example [React Native](https://reactnative.dev/
 
 NOTE: For this sample application, minSDK version used in the android project is 24 and target iOS deployment target platform version is 12.4. Please adjust accordingly otherwise may cause build failure when launching the app.
 
-## References:
+## References
 
 [ONNX Runtime React Native Library](https://github.com/microsoft/onnxruntime/tree/main/js/react_native#onnxruntime-react-native)
 

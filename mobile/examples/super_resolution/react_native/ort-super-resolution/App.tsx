@@ -62,15 +62,16 @@ export default function App() {
 
       // Step 4: Process output pixelbuffer and display as a png image on screen
       const output = fetches[myModel.outputNames[0]];
-      let encodedString = base64js.fromByteArray(output.data);
-
-      setOutputImage({ localUri: `data:image/png;base64,${encodedString}` })
 
       if (!output) {
         console.log('failed to get output', `${myModel.outputNames[0]}`);
       } else {
         console.log('model inference successfully');
       }
+
+      let encodedString = base64js.fromByteArray(output.data);
+      setOutputImage({ localUri: `data:image/png;base64,${encodedString}` })
+
     } catch (e) {
       console.error('failed to inference model', `${e}`);
       throw e;
