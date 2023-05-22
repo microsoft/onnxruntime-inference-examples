@@ -25,7 +25,7 @@ IF ERRORLEVEL 1 (
     ECHO Ensure Visual Studio 17 2022 is installed and open a VS Dev Cmd Prompt
     GOTO EXIT
 )
-REM build with Visual Studios 2022 ARM 64-bit Native
+REM build with Visual Studio 2022 64-bit
 ECHO ON
 cmake.exe -S . -B build\ -G "Visual Studio 17 2022" -DONNXRUNTIME_ROOTDIR=%ORT_ROOT%
 
