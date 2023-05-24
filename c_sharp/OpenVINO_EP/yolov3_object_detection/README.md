@@ -45,7 +45,6 @@ To build nuget packages of onnxruntime with openvino flavour
          mkdir [source-folder]
          cd [console-project-folder]
          dotnet add package SixLabors.ImageSharp
-         dotnet add package SixLabors.Core
          dotnet add package SixLabors.Fonts
          dotnet add package SixLabors.ImageSharp.Drawing
          ```
