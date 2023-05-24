@@ -57,6 +57,7 @@ copy /y %ORT_BIN%\qnncpu.dll .
 copy /y %ORT_BIN%\QnnHtp.dll .
 copy /y %ORT_BIN%\QnnHtpPrepare.dll .
 copy /y %ORT_BIN%\QnnHtpV68Stub.dll .
+copy /y %ORT_BIN%\QnnSystem.dll .
 copy /y %ORT_BIN%\libQnnHtpV68Skel.so .
 copy /y ..\..\mobilenetv2-12_shape.onnx .
 copy /y ..\..\mobilenetv2-12_quant_shape.onnx .
