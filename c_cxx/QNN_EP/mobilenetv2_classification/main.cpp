@@ -47,6 +47,8 @@ void run_ort_qnn_ep(std::string backend, std::string input_path) {
   CheckStatus(g_ort, g_ort->SetIntraOpNumThreads(session_options, 1));
   CheckStatus(g_ort, g_ort->SetSessionGraphOptimizationLevel(session_options, ORT_ENABLE_BASIC));
 
+  // You can also set qnn_context_cache_enable to 1 to improve session creation cost
+  // More option details refers tohttps://onnxruntime.ai/docs/execution-providers/QNN-ExecutionProvider.html
   std::vector<const char*> options_keys = {"backend_path"};
   std::vector<const char*> options_values = {backend.c_str()};
 
