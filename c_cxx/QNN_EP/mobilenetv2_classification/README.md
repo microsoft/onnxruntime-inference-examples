@@ -1,7 +1,7 @@
 ## About
 - Builds the sample compiled against the ONNX Runtime built with support for Qualcomm AI Engine Direct SDK (Qualcomm Neural Network (QNN) SDK)
 - The sample uses the QNN EP, run with Qnn CPU banckend and HTP backend
-- The sample downalods the mobilenetv2 model from Onnx model zoo, and use mobilenetv2_helper.py to quantize the float32 model to QDQ model which is required for HTP backend
+- The sample downloads the mobilenetv2 model from Onnx model zoo, and use mobilenetv2_helper.py to quantize the float32 model to QDQ model which is required for HTP backend
 - The sample is targeted to run on QC ARM64 device.
 - More info on QNN EP - https://onnxruntime.ai/docs/execution-providers/QNN-ExecutionProvider.html
 
