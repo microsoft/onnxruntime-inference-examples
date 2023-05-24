@@ -22,19 +22,17 @@
         <ScrollView Grid.Row="1">
             <Grid x:Name="ImageCaptionGrid">
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="*" />
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
 
-                <Image x:Name="BeforeImage" Grid.Row="0" Aspect="Center" Source="onnxruntime_logo.png" />
-            
+                <Image x:Name="BeforeImage" Grid.Row="0" Aspect="Center" Source="blank.png"/>
                 <Label x:Name="BeforeCaption" Text="Original image" Grid.Row="1" HorizontalTextAlignment="Center" />
 
-                <Image x:Name="AfterImage" Grid.Row="2" Aspect="AspectFit"/>
+                <Image x:Name="AfterImage" Grid.Row="2" Aspect="Center" Source="onnxruntime_logo.png" />
                 <ActivityIndicator x:Name="BusyIndicator" Grid.Row="2" IsRunning="False" Color="Orange" />
-
                 <Label x:Name="AfterCaption" Text="SuperResolution output" Grid.Row="3"
                        HorizontalTextAlignment="Center" />
             </Grid>

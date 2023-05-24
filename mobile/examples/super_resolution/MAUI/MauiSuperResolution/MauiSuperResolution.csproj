@@ -46,9 +46,9 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <PackageReference Include="Microsoft.ML.OnnxRuntime" Version="1.15.0-dev-20230503-1203-abdd4f518a" />
-	  <PackageReference Include="Microsoft.ML.OnnxRuntime.Extensions" Version="0.8.0-dev-20230506-0434-2822e93d" />
-	  <PackageReference Include="Microsoft.ML.OnnxRuntime.Managed" Version="1.15.0-dev-20230503-1222-abdd4f518a" />
+	  <PackageReference Include="Microsoft.ML.OnnxRuntime" Version="1.16.0-dev-20230514-0126-b20d5e85d5" />
+	  <PackageReference Include="Microsoft.ML.OnnxRuntime.Extensions" Version="0.8.0-dev-20230515-1804-56b97823" />
+	  <PackageReference Include="Microsoft.ML.OnnxRuntime.Managed" Version="1.16.0-dev-20230514-0126-b20d5e85d5" />
 	</ItemGroup>
 
 	<ItemGroup>

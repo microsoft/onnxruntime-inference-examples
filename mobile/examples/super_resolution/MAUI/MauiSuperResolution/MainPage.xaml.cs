@@ -1,16 +1,8 @@
 ﻿namespace MauiSuperResolution;
 
-using Microsoft.Maui.Graphics;
-using Microsoft.ML.OnnxRuntime;
 using System;
-using System.Diagnostics;
 
-enum ImageAcquisitionMode
-{
-    Sample,
-    Capture,
-    Pick
-}
+enum ImageAcquisitionMode { Sample, Capture, Pick }
 
 public partial class MainPage : ContentPage
 {
@@ -37,8 +29,8 @@ public partial class MainPage : ContentPage
         // XNNPACK provides optimized CPU execution on ARM64 and ARM platforms for models using float
         var arch = System.Runtime.InteropServices.RuntimeInformation.ProcessArchitecture;
         if (arch == System.Runtime.InteropServices.Architecture.Arm64 ||
-            arch == System.Runtime.InteropServices.Architecture.Arm)
-        { 
+           arch == System.Runtime.InteropServices.Architecture.Arm)
+        {
             ExecutionProviderOptions.Items.Add(nameof(ExecutionProviders.XNNPACK));
         }
 
@@ -89,17 +81,15 @@ public partial class MainPage : ContentPage
         if (imageBytes != null)
         {
             await MainThread.InvokeOnMainThreadAsync(
-                () => 
-                {
-                    AfterCaption.Text = "Running inference... please be patient";                    
-                });
+                () => { AfterCaption.Text = "Running inference... please be patient"; }
+            );
 
             await SetBusy(true);
 
             // create inference session if it doesn't exist or EP has changed
             await CreateInferenceSession();
 
-            // this is an expensive model so execution time can be quite long. 
+            // this is an expensive model so execution time can be quite long.
             var outputImageBytes = await Task.Run<byte[]>(() => { return _inferenceSession.Run(imageBytes); });
 
             await SetBusy(false);
@@ -110,20 +100,21 @@ public partial class MainPage : ContentPage
 
     private async Task CreateInferenceSession()
     {
-        // wait if we're already creating an inference session. 
+        // wait if we're already creating an inference session.
         if (_inferenceSessionCreationTask != null)
         {
             await _inferenceSessionCreationTask.ConfigureAwait(false);
             _inferenceSessionCreationTask = null;
         }
 
-        var executionProvider = ExecutionProviderOptions.SelectedItem switch
-        {
-            nameof(ExecutionProviders.NNAPI) => ExecutionProviders.NNAPI,
-            nameof(ExecutionProviders.CoreML) => ExecutionProviders.CoreML,
-            nameof(ExecutionProviders.XNNPACK) => ExecutionProviders.XNNPACK,
-            _ => ExecutionProviders.CPU
-        };
+        var executionProvider =
+            ExecutionProviderOptions.SelectedItem switch
+            {
+                nameof(ExecutionProviders.NNAPI) => ExecutionProviders.NNAPI,
+                nameof(ExecutionProviders.CoreML) => ExecutionProviders.CoreML,
+                nameof(ExecutionProviders.XNNPACK) => ExecutionProviders.XNNPACK,
+                _ => ExecutionProviders.CPU
+            };
 
         if (_inferenceSession == null || executionProvider != _currentExecutionProvider)
         {
@@ -170,9 +161,8 @@ public partial class MainPage : ContentPage
         await MainThread.InvokeOnMainThreadAsync(
             () =>
             {
-                // settting Source to null doesn't work as expected so set both to the ORT logo
                 BeforeImage.Aspect = OperatingSystem.IsWindows() ? Aspect.Center : Aspect.AspectFit;
-                BeforeImage.Source = "onnxruntime_logo.png";
+                BeforeImage.Source = "blank.png";
                 AfterImage.Source = "onnxruntime_logo.png";
             });
 
@@ -190,4 +180,3 @@ public partial class MainPage : ContentPage
     private OrtInferenceSession _inferenceSession;
     private Task _inferenceSessionCreationTask;
 }
-
