@@ -196,7 +196,7 @@ int main(int argc, char* argv[]) {
   } else if (strcmp(argv[1], HTPBACKEDN) == 0) {
     backend = "QnnHtp.dll";
   } else {
-    std::cout << "This sample only support CPU, DSP." << std::endl;
+    std::cout << "This sample only support CPU, HTP." << std::endl;
     PrintHelp();
     return 1;
   }

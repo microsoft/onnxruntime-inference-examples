@@ -73,15 +73,17 @@ def predict(image_path, model_path):
 
     print('class=%s; probability=%f' %(labels[a[0]],preds[a[0]]))
 
+# The more image files the better to improve quantzation accuracy
 def GetImages(data_dir):
     list_ = []
     for filename in os.listdir(data_dir):
         if filename.endswith(".jpg"):
-            img = get_image(filename)
+            img = get_image(os.path.join(data_dir, filename))
             img = preprocess(img)
             list_.append(img)
     return list_
 
+# Generate a new model which changes dynamic shape to static shape
 def DynamicShapeToStaticShape(model_file, static_shape_model_file):
     mp = onnx.load(model_file)
     mp.graph.input[0].type.tensor_type.shape.dim[0].dim_value = 1    
@@ -120,9 +122,11 @@ def main():
 
     print('Run with quantized model.')
     predict('./images/kitten.jpg', qdq_model_file)
-    
-    DynamicShapeToStaticShape(qdq_model_file, static_shape_qdq_model_file)
+
+    # Change the fp32 model to static shape
     DynamicShapeToStaticShape(input_model_file, input_model_file.replace(".onnx", "_shape.onnx"))
+    # Change the QDQ model to static shape
+    DynamicShapeToStaticShape(qdq_model_file, static_shape_qdq_model_file)
 
 if __name__ == '__main__':
     main()
