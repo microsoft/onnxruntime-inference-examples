@@ -9,7 +9,7 @@
 - Windows 11
 - Visual Studio 2022
 - OnnxRuntime ARM Build with QNN support
-    - Compiled from onnxruntime source - https://onnxruntime.ai/docs/build/eps.html#QNN
+    - Compiled from onnxruntime source - https://onnxruntime.ai/docs/build/eps.html#qnn
 
 ## How to run the application
 (Windows11) Run ```run_qnn_ep_sample.bat``` with path to onnxruntime root directory (for includes) and path to bin directory
