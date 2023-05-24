@@ -9,7 +9,7 @@
 #include <vector>
 
 void run_ort_qnn_cpu() {
-  Ort::Env env(ORT_LOGGING_LEVEL_WARNING, "test");
+  Ort::Env env(ORT_LOGGING_LEVEL_WARNING, "test"); // Set ORT_LOGGING_LEVEL_VERBOSE for verbose output
   const auto& api = Ort::GetApi();
 
   Ort::SessionOptions session_options;
