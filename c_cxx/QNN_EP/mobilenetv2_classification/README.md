@@ -8,8 +8,7 @@
 ## Prerequisites
 - Windows 11
 - Visual Studio 2022
-- OnnxRuntime ARM Build with QNN support 
-    - Either pre-compiled download such as ORT 1.15+ OR 
+- OnnxRuntime ARM Build with QNN support
     - Compiled from onnxruntime source - https://onnxruntime.ai/docs/build/eps.html#QNN
 
 ## How to run the application
