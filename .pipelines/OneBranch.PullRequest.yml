@@ -19,7 +19,7 @@ parameters: # parameters are shown up in ADO UI in a build queue time
 - name: 'ortversion'
   displayName: 'ONNX Runtime Version'
   type: string
-  default: '1.13.1'
+  default: '1.15.0'
 
 variables:
   CDP_DEFINITION_BUILD_COUNT: $[counter('', 0)]
