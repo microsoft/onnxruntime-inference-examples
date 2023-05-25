@@ -95,5 +95,5 @@ exit /b
 :HELP
 popd
 ECHO HELP:    run_qnn_ep_sample.bat PATH_TO_ORT_ROOT_WITH_INCLUDE_FOLDER PATH_TO_ORT_BINARIES_WITH_QNN
-ECHO Example (Drop): run_qnn_ep_sample.bat %USERPROFILE%\Downloads\onnxruntime-win-arm64-1.16.0 %USERPROFILE%\Downloads\onnxruntime-win-arm64-1.16.0\lib
+ECHO Example (Drop): run_qnn_ep_sample.bat %USERPROFILE%\Downloads\microsoft.ml.onnxruntime.qnn.1.15.0\build\native %USERPROFILE%\Downloads\microsoft.ml.onnxruntime.qnn.1.15.0\runtimes\win-arm64\native
 ECHO Example (Src): run_qnn_ep_sample.bat C:\src\onnxruntime C:\src\onnxruntime\build\Windows\RelWithDebInfo\RelWithDebInfo
