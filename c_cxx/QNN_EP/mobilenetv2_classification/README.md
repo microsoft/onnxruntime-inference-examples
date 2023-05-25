@@ -8,13 +8,18 @@
 ## Prerequisites
 - Windows 11
 - Visual Studio 2022
-- OnnxRuntime ARM Build with QNN support
-    - Compiled from onnxruntime source - https://onnxruntime.ai/docs/build/eps.html#qnn
+- OnnxRuntime ARM Build with initial QNN support such as ONNX Runtime (ORT) 1.16+ (onnxruntime-win-arm64-1.16.0.zip)
+  - ORT Drop DOES NOT INCLUDE QNN so QNN binaries must be copied from QC SDK. E.g
+    - robocopy C:\Qualcomm\AIStack\QNN\2.10.40.4\lib\aarch64-windows-msvc %USERPROFILE%\Downloads\onnxruntime-win-arm64-1.16.0\lib
+    - copy C:\Qualcomm\AIStack\QNN\2.10.40.4\lib\hexagon-v68\unsigned\libQnnHtpV68Skel.so %USERPROFILE%\Downloads\onnxruntime-win-arm64-1.16.0\lib
+- (OR) Compiled from onnxruntime source with QNN support - https://onnxruntime.ai/docs/build/eps.html#qnn
 
 ## How to run the application
 (Windows11) Run ```run_qnn_ep_sample.bat``` with path to onnxruntime root directory (for includes) and path to bin directory
 ```
-.\run_qnn_ep_sample.bat C:\src\onnxruntime\build\Windows\Release\Release
+run_qnn_ep_sample.bat PATH_TO_ORT_ROOT_WITH_INCLUDE_FOLDER PATH_TO_ORT_BINARIES_WITH_QNN
+Example (Drop): run_qnn_ep_sample.bat %USERPROFILE%\Downloads\onnxruntime-win-arm64-1.16.0 %USERPROFILE%\Downloads\onnxruntime-win-arm64-1.16.0\lib
+Example (Src): run_qnn_ep_sample.bat C:\src\onnxruntime C:\src\onnxruntime\build\Windows\RelWithDebInfo\RelWithDebInfo
 ```
 
 ## Example run result
