@@ -29,7 +29,7 @@ variables:
   REPOROOT: $(Build.SourcesDirectory)
   OUTPUTROOT: $(REPOROOT)\out
   NUGET_XMLDOC_MODE: none
-  WindowsContainerImage: 'onebranch.azurecr.io/windows/ltsc2019/vse2022:latest'
+  WindowsContainerImage: 'onebranch.azurecr.io/windows/ltsc2022/vse2022:latest'
   LinuxContainerImage: 'onebranch.azurecr.io/linux/ubuntu-2004:latest'
   DEBIAN_FRONTEND: noninteractive
 
