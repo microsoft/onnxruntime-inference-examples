@@ -4,7 +4,7 @@
   "version": "1.0.0",
   "description": "This example is a demonstration of basic usage of ONNX Runtime Web using a bundler.",
   "dependencies": {
-    "onnxruntime-web": "^1.14.0"
+    "onnxruntime-web": "^1.15.0"
   },
   "devDependencies": {
     "copy-webpack-plugin": "^8.1.1",
