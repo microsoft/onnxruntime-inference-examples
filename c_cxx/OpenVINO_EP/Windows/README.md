@@ -14,6 +14,14 @@
 
 ## How to build
 
+## Prerequisites
+1. [The Intel<sup>®</sup> Distribution of OpenVINO toolkit](https://docs.openvinotoolkit.org/latest/index.html)
+2. Use opencv 
+3. Use opencl for IO buffer sample (squeezenet_cpp_app_io.cpp).
+4. Use any sample image as input to the sample.
+5. Download the latest Squeezenet model from the ONNX Model Zoo.
+   This example was adapted from [ONNX Model Zoo](https://github.com/onnx/models).Download the latest version of the [Squeezenet](https://github.com/onnx/models/tree/master/vision/classification/squeezenet) model from here.
+
 #### Build ONNX Runtime
 Open x64 Native Tools Command Prompt for VS 2019.
 For running the sample with IO Buffer optimization feature, make sure you set the OpenCL paths. For example if you are setting the path from openvino source build folder, the paths will be like:
@@ -51,7 +59,7 @@ Choose required opencv path. Skip the opencv flag if you don't want to build squ
 To get the squeezenet sample with IO buffer feature enabled, pass opencl paths as well:
 ```bat
 mkdir build && cd build
-cmake .. -A x64 -T host=x64 -Donnxruntime_USE_OPENVINO=ON -DONNXRUNTIME_ROOTDIR=c:\dev\ort_install -DOPENCV_ROOTDIR="path\to\opencv -DOPENCL_LIB=path\to\openvino\folder\bin\intel64\Release\ -DOPENCL_INCLUDE=path\to\openvino\folder\thirdparty\ocl\clhpp_headers\include"
+cmake .. -A x64 -T host=x64 -Donnxruntime_USE_OPENVINO=ON -DONNXRUNTIME_ROOTDIR=c:\dev\ort_install -DOPENCV_ROOTDIR="path\to\opencv" -DOPENCL_LIB=path\to\openvino\folder\bin\intel64\Release\ -DOPENCL_INCLUDE="path\to\openvino\folder\thirdparty\ocl\clhpp_headers\include;path\to\openvino\folder\thirdparty\ocl\cl_headers"
 ```
 
 **Note:**
@@ -63,10 +71,38 @@ If you are using the opencv from openvino package, below are the paths:
 For the squeezenet IO buffer sample:
 Make sure you are creating the opencl context for the right GPU device in a multi-GPU environment.
 
-Build samples using msbuild either for Debug or Release configuration.
+Build samples using msbuild for Debug configuration. For Release configuration replace Debug with Release.
 
 ```bat
-msbuild onnxruntime_samples.sln /p:Configuration=Debug|Release
+msbuild onnxruntime_samples.sln /p:Configuration=Debug
 ```
 
-To run the samples make sure you source openvino variables using setupvars.bat. Also add opencv dll paths to $PATH.
+To run the samples make sure you source openvino variables using setupvars.bat. 
+
+To run the samples download and install(extract) OpenCV from: [download OpenCV](https://github.com/opencv/opencv/releases/download/4.7.0/opencv-4.7.0-windows.exe). Also copy OpenCV dll (opencv_world470.dll which is located at: "path\to\opencv\build\x64\vc16\bin") to the location of the application exe file(Release dll for Release build and debug dll for debug build). 
+
+#### Run the sample
+
+   - To Run the general sample
+      (using Intel OpenVINO-EP)
+      ```
+      run_squeezenet.exe --use_openvino <path_to_onnx_model> <path_to_sample_image> <path_to_labels_file>
+      ```
+      Example:
+      ```
+      run_squeezenet.exe --use_openvino squeezenet1.1-7.onnx demo.jpeg synset.txt  (using Intel OpenVINO-EP)
+      ```
+      (using Default CPU)
+      ```
+      run_squeezenet.exe --use_cpu <path_to_onnx_model> <path_to_sample_image> <path_to_labels_file>
+      ```
+   - To Run the sample for IO Buffer Optimization feature
+      ```
+      run_squeezenet.exe <path_to_onnx_model> <path_to_sample_image> <path_to_labels_file>
+      ```
+
+## References:
+
+[OpenVINO Execution Provider](https://www.intel.com/content/www/us/en/artificial-intelligence/posts/faster-inferencing-with-one-line-of-code.html)
+
+[Other ONNXRT Reference Samples](https://github.com/microsoft/onnxruntime-inference-examples/tree/main/c_cxx)
