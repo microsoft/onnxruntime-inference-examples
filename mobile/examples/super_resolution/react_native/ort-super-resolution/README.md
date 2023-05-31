@@ -9,7 +9,7 @@ This is a basic Super Resolution example [React Native](https://reactnative.dev/
         - Node.js (16.0+): <https://nodejs.org/>
     2. install expo
 
-        ```shs
+        ```sh
         npm install -g expo-cli
         ```
 

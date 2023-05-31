@@ -65,16 +65,14 @@ export default function App() {
 
       if (!output) {
         console.log('failed to get output', `${myModel.outputNames[0]}`);
+        throw new Error('failed to get output');
       } else {
         console.log('model inference successfully');
+        let encodedString = base64js.fromByteArray(output.data);
+        setOutputImage({ localUri: `data:image/png;base64,${encodedString}` })
       }
-
-      let encodedString = base64js.fromByteArray(output.data);
-      setOutputImage({ localUri: `data:image/png;base64,${encodedString}` })
-
     } catch (e) {
       console.error('failed to inference model', `${e}`);
-      throw e;
     }
   }
 
