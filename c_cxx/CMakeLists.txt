@@ -97,5 +97,4 @@ add_subdirectory(squeezenet)
 if(WIN32 OR PNG_FOUND)
   add_subdirectory(fns_candy_style_transfer)
 endif()
-#missing experimental_onnxruntime_cxx_api.h
-#add_subdirectory(model-explorer)
+add_subdirectory(model-explorer)
