@@ -19,7 +19,7 @@ parameters: # parameters are shown up in ADO UI in a build queue time
 - name: 'ortversion'
   displayName: 'ONNX Runtime Version'
   type: string
-  default: '1.13.1'
+  default: '1.15.0'
 
 variables:
   CDP_DEFINITION_BUILD_COUNT: $[counter('', 0)]
@@ -135,80 +135,6 @@ extends:
             filePath: ci_build/download_ort_release.ps1
             arguments: '${{ parameters.ortversion }}'
             workingDirectory: '$(Build.BinariesDirectory)'
-
-        #TODO: use the vsdevcmd variable
-        - script: |
-            call $(vsdevcmd)
-            call .\vcpkg\bootstrap-vcpkg.bat
-            cd $(Build.BinariesDirectory)
-            mkdir build
-            cd build
-            cmake $(REPOROOT)\c_cxx -A x64 -T host=x64 -DCMAKE_TOOLCHAIN_FILE=$(Build.SourcesDirectory)/vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows-static "-DONNXRUNTIME_ROOTDIR=$(Build.BinariesDirectory)/onnxruntimebin"
-
-        - task: VSBuild@1
-          displayName: 'Build'
-          inputs:
-            solution: '$(Build.BinariesDirectory)\build\onnxruntime_samples.sln'
-            platform: x64
-            configuration: Release
-            msbuildArchitecture: x64
-            maximumCpuCount: true
-            logProjectEvents: true
-            workingFolder: '$(Build.BinariesDirectory)\build'
-            createLogFile: true
-
-        #Delete onnxruntime.dll which isn't compliant yet.
-        - task: DeleteFiles@1
-          displayName: 'Delete DLLs from onnxruntimebin'
-          inputs:
-            SourceFolder: $(Build.BinariesDirectory)\onnxruntimebin
-            Contents: '*.dll'
-
-    - stage: Windows_Build_Nightly
-      jobs:
-      - job: main
-        pool:
-          type: windows
-
-        variables:
-          ob_outputDirectory: '$(REPOROOT)\out'
-          ob_sdl_binskim_break: true
-          ${{ if eq(variables['Build.SourceBranch'], 'refs/heads/master') }}:
-            ob_symbolsPublishing_enabled: true
-        steps:
-        - checkout: vcpkg
-        - script: |
-            @echo off
-            set vswherepath="%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe"
-            for /f "usebackq delims=" %%i in (`%vswherepath% -latest -property installationPath`) do (
-              set vslatest="%%i"
-              if exist "%%i\Common7\Tools\vsdevcmd.bat" (
-                set vsdevcmd="%%i\Common7\Tools\vsdevcmd.bat"
-              )
-            )
-
-            @echo vslatest %vslatest%
-            @echo vsdevcmd %vsdevcmd%
-
-            @echo ##vso[task.setvariable variable=vslatest]%vslatest%
-            @echo ##vso[task.setvariable variable=vsdevcmd]%vsdevcmd%
-          displayName: 'locate vsdevcmd via vswhere'
-
-
-        - task: DownloadPipelineArtifact@2
-          displayName: 'Download onnxruntime binary'
-          inputs:
-            buildType: specific
-            project: '530acbc4-21bc-487d-8cd8-348ff451d2ff'
-            definition: 940
-            artifactName: 'onnxruntime-win-x64-cuda'
-            targetPath: $(Build.BinariesDirectory)
-
-        - powershell: |
-            dir
-            Get-ChildItem -Path *.zip | foreach {7z x $_.fullname; move $_.BaseName onnxruntimebin}
-          workingDirectory: '$(Build.BinariesDirectory)'
-          displayName: 'Unzip onnxruntime binary'
 
         #TODO: use the vsdevcmd variable
         - script: |
