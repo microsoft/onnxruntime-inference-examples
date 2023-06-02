@@ -10,8 +10,6 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
-        // TODO remove after switching to use released onnxruntime and onnxruntime-extensions packages
-        flatDir { dirs "app/libs" }
     }
 }
 rootProject.name = "SpeechRecognition"
