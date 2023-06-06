@@ -99,9 +99,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun readClasses(): List<String> {
-        val classes_id = R.raw.classes
-        val classes_bytes = resources.openRawResource(classes_id).readBytes()
-        return String(classes_bytes).split("\r\n".toRegex())
+        return resources.openRawResource(R.raw.classes).bufferedReader().readLines()
     }
 
     private fun readInputImage(): InputStream {

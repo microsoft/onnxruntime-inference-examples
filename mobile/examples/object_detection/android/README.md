@@ -22,12 +22,9 @@ This model (Yolov8n) can be fed with image bytes directly and outputs the detect
 Clone this repository to get the sample application. Then open the project under the folder `mobile\examples\object_detection\android`.
 
 
-### Step 2: Prepare the model and required packages
+### Step 2: Prepare the model
 
-- The required aar package is under lib's folder `mobile\examples\object_detection\android\app\libs`.
 - The model used is under `mobile\examples\object_detection\android\app\src\main\res\raw`.
-
-Note: When updating to the pre-release/release version ort-extensions android package, it will no longer consume a local AAR package that's included in this repo.
 
 
 ### Step 3: Connect Android Device and Run the app
