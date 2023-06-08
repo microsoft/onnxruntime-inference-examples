@@ -46,7 +46,5 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.0'
 
     implementation 'com.microsoft.onnxruntime:onnxruntime-android:latest.release'
-    // draw bounding boxes is a newer op
-    //implementation 'com.microsoft.onnxruntime:onnxruntime-extensions-android:latest.release'
-    implementation files('libs/onnxruntime-extensions-android-0.8.0.aar')
+    implementation 'com.microsoft.onnxruntime:onnxruntime-extensions-android:latest.release'
 }
