@@ -47,7 +47,7 @@ namespace yolov3
             string imageFilePath = args[1];
             string outImageFilePath = args[2];
 
-            using Image imageOrg = Image.Load(imageFilePath, out IImageFormat format);
+            using Image imageOrg = Image.Load(imageFilePath);
 
             //Letterbox image
             var iw = imageOrg.Width;
@@ -173,7 +173,7 @@ namespace yolov3
                     x.DrawText($"{p.Class}, {p.Score:0.00}", font, Color.White, new PointF(p.Box.Xmin, p.Box.Ymin));
                 });
             }
-            imageOrg.Save(outputImage, format);
+            imageOrg.Save(outputImage, image.Metadata.DecodedImageFormat);
 
         }
     }
