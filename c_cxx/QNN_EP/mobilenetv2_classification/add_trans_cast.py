@@ -65,7 +65,6 @@ def get_value_from_qnn_code_line(line_content):
     assert (len(value) == 2), "Error: Wrong format encountered."
     value = value[1].split(",")
     assert (len(value) == 2), "Error: Wrong format encountered."
-    #print(value[1])
     return value[0].replace(" ", "").replace("\"", "")
 
 class qnn_tensor_struct:
@@ -190,13 +189,6 @@ def main():
     # Parse Qnn model.cpp file to get the graph input output information
     qnn_input_output_tensor_dic = {}
     parse_qnn_cpp_file(args.qnn_cpp, qnn_input_output_tensor_dic)
-
-    for key, value in qnn_input_output_tensor_dic.items():
-        print(key)
-        print(value.qnn_data_type)
-        print(value.onnx_data_type)
-        print(value.dim_alias)
-        print(value.dim)
 
     model = onnx.load(args.onnx_model)
     
