@@ -82,7 +82,7 @@ void run_ort_qnn_ep(std::string backend, std::string input_path, std::string qnn
 
   const OrtApi* g_ort = OrtGetApiBase()->GetApi(ORT_API_VERSION);
   OrtEnv* env;
-  CheckStatus(g_ort, g_ort->CreateEnv(ORT_LOGGING_LEVEL_VERBOSE, "test", &env)); // Can set to ORT_LOGGING_LEVEL_INFO or ORT_LOGGING_LEVEL_VERBOSE for more info
+  CheckStatus(g_ort, g_ort->CreateEnv(ORT_LOGGING_LEVEL_WARNING, "test", &env));  // Can set to ORT_LOGGING_LEVEL_INFO or ORT_LOGGING_LEVEL_VERBOSE for more info
 
   OrtSessionOptions* session_options;
   CheckStatus(g_ort, g_ort->CreateSessionOptions(&session_options));
