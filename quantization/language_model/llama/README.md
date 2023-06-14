@@ -7,7 +7,6 @@ This folder contains example code for quantizing LLaMa model.
 
 ## 1. Environment
 ```shell
-pip install neural-compressor
 pip install -r requirements.txt
 ```
 
