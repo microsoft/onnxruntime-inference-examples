@@ -9,14 +9,13 @@ The source code for this sample is available [here](https://github.com/microsoft
 # How to build
 
 ## Prerequisites
-1. For Windows, [download OpenVINO package](https://storage.openvinotoolkit.org/repositories/openvino/packages) select appropriate OpenVINO version, windows os and extract it. Run setupvars.bat file which is in the root directory of the extracted OpenVINO package to add OpenVINO libraries to PATH.
-2. Download the latest tinyYOLOv2 model from the ONNX Model Zoo.
+1. Download the latest tinyYOLOv2 model from the ONNX Model Zoo.
    This model was adapted from [ONNX Model Zoo](https://github.com/onnx/models).Download the latest version of the [tinyYOLOv2](https://github.com/onnx/models/tree/master/vision/object_detection_segmentation/tiny-yolov2) model from here.
 
 ## Install ONNX Runtime for OpenVINO™ Execution Provider
-Please install the onnxruntime-openvino python package from [here](https://pypi.org/project/onnxruntime-openvino/1.11.0/). The package for Linux contains prebuilt OpenVINO Libs with ABI 0.
+Please install the onnxruntime-openvino python package from [here](https://pypi.org/project/onnxruntime-openvino). The package for Linux contains prebuilt OpenVINO Libs with ABI 0.
 ```
-pip3 install onnxruntime-openvino
+pip3 install onnxruntime-openvino openvino
 ```
 
 ## Optional Build steps for ONNX Runtime
@@ -47,14 +46,6 @@ python3 tiny_yolov2_obj_detection_sample.py --h
 ## Running the ONNXRuntime OpenVINO™ Execution Provider sample
 ```bash
 python3 tiny_yolov2_obj_detection_sample.py --video face-demographics-walking-and-pause.mp4 --model tinyyolov2.onnx --device CPU_FP32
-```
-Note: Make sure the sample is having below lines to use OpenVINO™ in Windows
-```
-import platform
-
-if platform.system() == "Windows":
-	from openvino import utils
-	utils.add_openvino_libs_to_path()
 ```
 
 ## To stop the sample from running
