@@ -51,7 +51,7 @@ IF NOT EXIST mobilenetv2-12_shape.onnx (
 )
 
 REM Download add_trans_cast.py file
-set ADD_TRANS_CAST_SCRIPT_URL="https://github.com/microsoft/onnxruntime/tree/main/onnxruntime/python/tools/qnn/add_trans_cast.py"
+set ADD_TRANS_CAST_SCRIPT_URL="https://raw.githubusercontent.com/microsoft/onnxruntime/main/onnxruntime/python/tools/qnn/add_trans_cast.py"
 set ADD_TRANS_CAST_SCRIPT="add_trans_cast.py"
 IF NOT EXIST %ADD_TRANS_CAST_SCRIPT% (
     powershell -Command "Invoke-WebRequest %ADD_TRANS_CAST_SCRIPT_URL% -Outfile %ADD_TRANS_CAST_SCRIPT%" )
