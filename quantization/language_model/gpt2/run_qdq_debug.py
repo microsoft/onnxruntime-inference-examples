@@ -44,23 +44,11 @@ def main():
     print("------------------------------------------------\n")
     print("Augmenting models to save intermediate activations......")
 
-    aug_float_model = modify_model_output_intermediate_tensors(float_model_path)
     aug_float_model_path = _generate_aug_model_path(float_model_path)
-    onnx.save(
-        aug_float_model,
-        aug_float_model_path,
-        save_as_external_data=False,
-    )
-    del aug_float_model
+    modify_model_output_intermediate_tensors(float_model_path, aug_float_model_path)
 
-    aug_qdq_model = modify_model_output_intermediate_tensors(qdq_model_path)
     aug_qdq_model_path = _generate_aug_model_path(qdq_model_path)
-    onnx.save(
-        aug_qdq_model,
-        aug_qdq_model_path,
-        save_as_external_data=False,
-    )
-    del aug_qdq_model
+    modify_model_output_intermediate_tensors(qdq_model_path, aug_qdq_model_path)
 
     print("------------------------------------------------\n")
     print("Running the augmented floating point model to collect activations......")

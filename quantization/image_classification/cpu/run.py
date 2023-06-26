@@ -62,7 +62,6 @@ def main():
         quant_format=args.quant_format,
         per_channel=args.per_channel,
         weight_type=QuantType.QInt8,
-        optimize_model=False,
     )
     print("Calibrated and quantized model saved.")
 
