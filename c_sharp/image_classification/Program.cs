@@ -45,7 +45,6 @@ namespace image_classification
                     // We can copy this byte by byte or we can copy the entire row.
                     // Because we know that Rgb24 is a Sequential Layout structure that consists
                     // of exactly 3 bytes.
-                    // The latter is more efficient.
                     var byteSpan = MemoryMarshal.Cast<Rgb24, byte>(pixelSpan);
                     Debug.Assert(byteSpan.Length == accessor.Width * 3);
                     var destSlice = destSpan.Slice(flatIndex, byteSpan.Length);
