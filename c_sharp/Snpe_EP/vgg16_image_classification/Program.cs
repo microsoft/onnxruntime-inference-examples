@@ -1,12 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using System;
-using System.Collections.Generic;
-using System.Xml.Linq;
-using System.IO;
 using Microsoft.ML.OnnxRuntime;
-using Microsoft.ML.OnnxRuntime.Tensors;
 
 namespace image_classification
 {
@@ -18,28 +13,8 @@ namespace image_classification
             string imageRawFilePath = args[1];
             string synsetFilePath = args[2];
 
-            // Read the image
-            var input_size = 3 * 224 * 224;
-            var inputRawData = new float[input_size];
-            var inputStream = new FileStream(imageRawFilePath, FileMode.Open, FileAccess.Read);
-            var reader = new BinaryReader(inputStream);
-            for(int i = 0; i < input_size; i++)
-            {
-                inputRawData[i] = reader.ReadSingle();
-            }
-            var inputData = new List<NamedOnnxValue>();
-            var tensor = new DenseTensor<float>(inputRawData, new int[] { 1, 224, 224, 3 });
-            inputData.Add(NamedOnnxValue.CreateFromTensor<float>("data", tensor));
-
-            // Read synset file
-            var synset_size = 1000;
-            var synsetData = new string[synset_size];
-            string[] synset = File.ReadAllLines(synsetFilePath);
-
-
-            var options = new SessionOptions { LogId = "SnpeImageClassificationSample" };
-
-            // Add SNPE EP
+            using var options = new SessionOptions { LogId = "SnpeImageClassificationSample" };
+            // Add SNPE EP. NB! At the time of this writing there is not a NuGet package for SNPE EP for version 1.16
             var providerOptions = new Dictionary<string, string>();
             providerOptions.Add("runtime", "DSP"); // CPU, DSP
             providerOptions.Add("buffer_type", "FLOAT");
@@ -47,15 +22,39 @@ namespace image_classification
 
             using var session = new InferenceSession(modelFilePath, options);
 
-            foreach (var result in session.Run(inputData))
+            // Read the image
+            var input_size = 3 * 224 * 224;
+            var inputRawData = new float[input_size];
+            using var inputStream = new FileStream(imageRawFilePath, FileMode.Open, FileAccess.Read);
+            using var reader = new BinaryReader(inputStream);
+            for(int i = 0; i < input_size; i++)
             {
-                var outputData = result.AsTensor<float>().ToArray();
+                inputRawData[i] = reader.ReadSingle();
+            }
+
+            using var inputOrtValue = OrtValue.CreateTensorValueFromMemory(inputRawData, new long[] { 1, 224, 224, 3 });
+            var inputData = new Dictionary<string, OrtValue>
+            {
+                { "data", inputOrtValue }
+            };
+
+
+            // Read synset file
+            var synset_size = 1000;
+            var synsetData = new string[synset_size];
+            string[] synset = File.ReadAllLines(synsetFilePath);
+
+            using var runOptions = new RunOptions();
+            using var results = session.Run(runOptions, inputData, session.OutputNames);
+            foreach (var result in results)
+            {
+                var outputData = result.GetTensorDataAsSpan<float>();
                 var dictionary = new Dictionary<float, int>(synset_size);
                 for (int i = 0; i < synset_size; i++)
                 {
                     dictionary[outputData[i]] = i;
                 }
-                var top5Output = outputData.OrderByDescending(w => w).Take(5);
+                var top5Output = outputData.ToArray().OrderByDescending(w => w).Take(5);
                 foreach (var possibility in top5Output)
                 {
                     Console.WriteLine("probability={0} ; class={1}", possibility, synset[dictionary[possibility]]);
