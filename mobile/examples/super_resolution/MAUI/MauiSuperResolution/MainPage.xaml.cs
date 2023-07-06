@@ -94,7 +94,7 @@ public partial class MainPage : ContentPage
 
             await SetBusy(false);
 
-            ShowResult(imageBytes, outputImageBytes);
+            ShowResult(imageBytes, outputImageBytes, _inferenceSession.LastRunTimeMs);
         };
     }
 
@@ -146,7 +146,7 @@ public partial class MainPage : ContentPage
                         }
                     });
             });
-    }
+    } 
 
     private async Task SetBusy(bool busy) =>
         await MainThread.InvokeOnMainThreadAsync(
@@ -163,16 +163,16 @@ public partial class MainPage : ContentPage
             {
                 BeforeImage.Aspect = OperatingSystem.IsWindows() ? Aspect.Center : Aspect.AspectFit;
                 BeforeImage.Source = "blank.png";
-                AfterImage.Source = "onnxruntime_logo.png";
+                AfterImage.Source = "onnxruntime_logo.png"; 
             });
 
-    private void ShowResult(byte[] beforeBytes, byte[] afterBytes) => MainThread.BeginInvokeOnMainThread(
+    private void ShowResult(byte[] beforeBytes, byte[] afterBytes, long runMs) => MainThread.BeginInvokeOnMainThread(
         () =>
         {
             BeforeImage.Aspect = Aspect.AspectFit;
             BeforeImage.Source = ImageSource.FromStream(() => new MemoryStream(beforeBytes));
 
-            AfterCaption.Text = "Super Resolution Result";
+            AfterCaption.Text = "Super Resolution Result (Run took " + runMs + "ms)";
             AfterImage.Source = ImageSource.FromStream(() => new MemoryStream(afterBytes));
         });
 

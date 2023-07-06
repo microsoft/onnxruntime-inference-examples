@@ -60,14 +60,18 @@ namespace MauiSuperResolution
             stopwatch.Start();
             using IDisposableReadOnlyCollection<DisposableNamedOnnxValue> results = _inferenceSession.Run(inputs);
             stopwatch.Stop();
+            _lasRunTimeMs = stopwatch.ElapsedMilliseconds;
 
             var output = results.First().AsEnumerable<byte>().ToArray();
 
             return output;
         }
 
+        public long LastRunTimeMs => _lasRunTimeMs;
+
         private SessionOptions _sessionOptions;
         private InferenceSession _inferenceSession;
         private ExecutionProviders _executionProvider = ExecutionProviders.CPU;
+        private long _lasRunTimeMs = 0;
     }
 }
