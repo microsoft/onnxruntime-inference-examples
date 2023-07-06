@@ -2,6 +2,7 @@ import io
 import numpy as np
 import onnx
 import onnxruntime as ort
+import shutil
 
 from PIL import Image
 from pathlib import Path
@@ -22,7 +23,7 @@ def create_onnx_model(onnx_model_path: str):
 
     weights_path = 'weights/RealESRGAN_x4.pth'
     if not Path(weights_path).exists():
-        raise ValueError(f"{weights_path} not found. Please download the weights as per "
+        raise ValueError(f"{weights_path} not found. Please download the RealESRGAN_x4.pth weights as per "
                          "https://github.com/ai-forever/Real-ESRGAN/blob/main/weights/README.md")
 
     device = torch.device('cpu')
@@ -103,7 +104,7 @@ def test_onnx_model(model_path: str):
     so.register_custom_ops_library(ortext_lib_path)
     inference_session = ort.InferenceSession(model_path, so)
 
-    test_image_path = _this_dirpath / 'inputs' / 'lr_lion.png'
+    test_image_path = _this_dirpath / 'MauiSuperResolution' / 'Resources' / 'Raw' / 'lr_lion.png'
     test_image_bytes = np.fromfile(test_image_path, dtype=np.uint8)
     outputs = inference_session.run(['image_out'], {'image': test_image_bytes})
     upsized_image_bytes = outputs[0]
@@ -143,15 +144,21 @@ def test_onnx_model(model_path: str):
 def main():
     onnx_model_path = Path('RealESRGAN.onnx')
     if not onnx_model_path.exists():
+        print("Creating ONNX model from pytorch model...")
         create_onnx_model(str(onnx_model_path))
 
     assert onnx_model_path.exists()
 
+    print("Adding pre/post processing to ONNX model...")
     output_model_path = str(onnx_model_path).replace(".onnx", "_with_pre_post_processing.onnx")
     add_pre_post_processing(str(onnx_model_path), output_model_path)
 
+    print("Testing ONNX model with pre/post processing")
     test_onnx_model(output_model_path)
 
+    print("Copying ONNX model to MAUI applications Resources/Raw directory...")
+    shutil.copy("RealESRGAN_with_pre_post_processing.onnx",
+                _this_dirpath / 'MauiSuperResolution' / 'Resources' / 'Raw')
 
 if __name__ == '__main__':
     main()
