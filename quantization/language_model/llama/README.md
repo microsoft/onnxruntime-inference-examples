@@ -13,8 +13,8 @@ pip install -r requirements.txt
 ## 2. Prepare Model
 
 ```bash
-optimum-cli export onnx --model decapoda-research/llama-7b-hf --task causal-lm-past ./llama_7b
-optimum-cli export onnx --model decapoda-research/llama-13b-hf --task causal-lm-past ./llama_13b
+optimum-cli export onnx --model decapoda-research/llama-7b-hf --task causal-lm-with-past ./llama_7b
+optimum-cli export onnx --model decapoda-research/llama-13b-hf --task causal-lm-with-past ./llama_13b
 ```
 
 # Run
