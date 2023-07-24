@@ -1,0 +1,4 @@
+ultralytics
+onnxruntime-openvino
+onnx
+setuptools==65.5.1 
