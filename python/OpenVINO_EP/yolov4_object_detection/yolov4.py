@@ -21,7 +21,7 @@ import time
 import platform
 
 if platform.system() == "Windows":
-    from openvino import utils
+    import onnxruntime.tools.add_openvino_win_libs as utils
     utils.add_openvino_libs_to_path()
 
 def image_preprocess(image, target_size, gt_boxes=None):
