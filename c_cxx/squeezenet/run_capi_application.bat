@@ -17,7 +17,7 @@ REM Copy ORT libraries to same folder for linker to build.
 REM For some reasons, setting "LINK" or "LIBPATH" env variables won't help. 
 cd build
 powershell -Command "cp %ORT_LIB%\* ."
-MSBuild.exe .\capi_test.sln /property:Configuration=Release
+"C:\Program Files\Microsoft Visual Studio\2022\Enterprise\MSBuild\Current\Bin\amd64\MSBuild.exe" .\capi_test.sln /property:Configuration=Release
 
 REM Copy ORT libraries to same folder for executable to run.
 cd Release
