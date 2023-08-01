@@ -11,7 +11,7 @@ set ORT_LIB=%ORT_PACKAGE:~0,-4%\lib
 echo %ORT_LIB%
 
 cd %WORKSPACE%
-cmake.exe -S . -B build\ -G "Visual Studio 16 2019" -DONNXRUNTIME_ROOTDIR=%ONNXRUNTIME_ROOTDIR%
+cmake.exe -S . -B build\ -G "Visual Studio 17 2022" -DONNXRUNTIME_ROOTDIR=%ONNXRUNTIME_ROOTDIR%
 
 REM Copy ORT libraries to same folder for linker to build.
 REM For some reasons, setting "LINK" or "LIBPATH" env variables won't help. 
