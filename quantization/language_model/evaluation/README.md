@@ -1,6 +1,6 @@
-# Evaluating the Accuracy of ORT Causal Latent Language Models (LLMs)
+# Evaluating the Accuracy of ORT Causal Large Language Models (LLMs)
 
-This folder contains an implementation example to evaluate the accuracy of ONNX LLMs. Evaluations are based on benchmarks from the [Eleuther AI Language Model Evaluation Harness](https://github.com/EleutherAI/lm-evaluation-harness), a unified framework to test generative language models on a large number of different evaluation tasks.
+This folder contains an implementation example to evaluate the accuracy of ORT LLMs. Evaluations are based on benchmarks from the [Eleuther AI Language Model Evaluation Harness](https://github.com/EleutherAI/lm-evaluation-harness), a unified framework to test generative language models on a large number of different evaluation tasks.
 
 ## Table of Contents
 
