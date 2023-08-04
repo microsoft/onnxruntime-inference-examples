@@ -20,7 +20,7 @@ To get started with the evaluation, follow these steps:
    ```
 3. Prepare ONNX model using optimum-cli:
    ```bash
-   optimum-cli export onnx --model decapoda-research/llama-7b-hf --task causal-lm-past llama-7b-onnx   
+   optimum-cli export onnx --model decapoda-research/llama-7b-hf --task causal-lm-with-past --for-ort --device cpu llama-7b-onnx   
    ```
 
 ## Usage
