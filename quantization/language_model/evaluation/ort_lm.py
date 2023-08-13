@@ -13,19 +13,19 @@ class ORTCausalLM(BaseLM):
     _DEFAULT_MAX_LENGTH: int = 2048
 
     def __init__(self,
-        pretrained: str,
-        tokenizer: Optional[str] = None,
-        subfolder: Optional[str] = None,
-        revision: Optional[str] = "main",
-        batch_size: Optional[Union[int, str]] = 1,
-        max_gen_toks: Optional[int] = 1024,
-        max_length: Optional[int] = None,
-        add_special_tokens: Optional[bool] = None,
-        device: Optional[Union[int, str]] = "cpu",
-        load_in_8bit: Optional[bool] = False,
-        trust_remote_code: Optional[bool] = False,
-        **kwargs,
-        ):
+                 pretrained: str,
+                 tokenizer: Optional[str] = None,
+                 subfolder: Optional[str] = None,
+                 revision: Optional[str] = "main",
+                 batch_size: Optional[Union[int, str]] = 1,
+                 max_gen_toks: Optional[int] = 1024,
+                 max_length: Optional[int] = None,
+                 add_special_tokens: Optional[bool] = None,
+                 device: Optional[Union[int, str]] = "cpu",
+                 load_in_8bit: Optional[bool] = False,
+                 trust_remote_code: Optional[bool] = False,
+                 **kwargs,
+                 ):
         """Initializes an ORT `CausalModel` and huggingface `AutoTokenizer` for evaluation.
         Args:
             pretrained (str):
@@ -50,7 +50,7 @@ class ORTCausalLM(BaseLM):
         assert isinstance(device, str)
         assert isinstance(batch_size, (int, str))
         if (
-            add_special_tokens is not None
+                add_special_tokens is not None
         ):
             # TODO: Support evaluating causal models with special tokens. Currently,
             #  this is not possible because the `_loglikelihood_tokens()` method for
@@ -80,12 +80,13 @@ class ORTCausalLM(BaseLM):
             self._batch_size = batch_size
         else:
             self._batch_size = int(batch_size)
-        
+
         self._max_gen_toks = max_gen_toks
         self._max_length = max_length
         self._add_special_tokens = add_special_tokens
         model_kwargs = {"load_in_8bit": load_in_8bit}
         self._config = AutoConfig.from_pretrained(pretrained)
+        print(f"Executing ONNX models under {pretrained}")
         self.model: ORTModelForCausalLM = ORTModelForCausalLM.from_pretrained(
             pretrained,
             revision=revision,
@@ -94,14 +95,14 @@ class ORTCausalLM(BaseLM):
             config=self._config,
             **kwargs,
             **model_kwargs,
-            )
+        )
         try:
             self.tokenizer: PreTrainedTokenizerBase = self.model.preprocessors[0]
         except IndexError:
             self.tokenizer = AutoTokenizer.from_pretrained(
                 pretrained if tokenizer is None else tokenizer,
                 revision=revision + ("/" + subfolder if subfolder is not None else ""),
-                )
+            )
         self.tokenizer.model_max_length = self.max_length
         self._padding = self.tokenizer.pad_token is not None
 
@@ -158,31 +159,31 @@ class ORTCausalLM(BaseLM):
     @property
     def device(self) -> Union[int, str, torch.device]:
         return self._device
-    
-    def _model_call(self, inputs: TokenSequence) -> TokenSequence:    
+
+    def _model_call(self, inputs: TokenSequence) -> TokenSequence:
         attention_mask = torch.ones(inputs.shape, dtype=torch.int64, device=self._device)
         with torch.no_grad():
             logits = self.model(inputs, attention_mask)["logits"]
             return logits
 
     def _model_generate(
-        self,
-        inputs: BatchEncoding,
-        max_tokens: int,
-        eos_token_id: int,
+            self,
+            inputs: BatchEncoding,
+            max_tokens: int,
+            eos_token_id: int,
     ) -> TokenSequence:
         # Ensure that the context does not encroach into the `space`
         # for the generation.
-        inputs["input_ids"] = inputs["input_ids"][:, self.max_gen_toks - self.max_length :]
+        inputs["input_ids"] = inputs["input_ids"][:, self.max_gen_toks - self.max_length:]
         inputs["attention_mask"] = inputs["attention_mask"][
-            :, self.max_gen_toks - self.max_length :
-        ]
+                                   :, self.max_gen_toks - self.max_length:
+                                   ]
 
         generation_kwargs = {"do_sample": False, "max_length": max_tokens}
         if eos_token_id is not None:
             generation_kwargs['eos_token_id'] = eos_token_id
-            generation_kwargs['pad_token_id'] = eos_token_id # setting eos_token_id as pad token
-        
+            generation_kwargs['pad_token_id'] = eos_token_id  # setting eos_token_id as pad token
+
         generations = self.model.generate(
             **inputs,
             **generation_kwargs,
@@ -190,7 +191,7 @@ class ORTCausalLM(BaseLM):
         return utils.select_continuation_from_batch_left_padding(
             generations, max_context_size=inputs["input_ids"].size(1)
         )
-    
+
     def tok_encode(self, string: str) -> TokenSequence:
         return self.tokenizer.encode(string, add_special_tokens=False)
 
