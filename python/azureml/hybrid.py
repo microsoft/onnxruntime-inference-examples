@@ -10,8 +10,6 @@ Note, for two models:
     1. Their inputs could be overlapped.
     2. Their outputs must be the same.
 """
-
-
 def MergeWithIf(
     path_to_true_model: str, path_to_false_model: str, path_to_merged_model: str
 ) -> None:
@@ -81,8 +79,6 @@ Note, for two models:
     1. Their nputs could be overlapped.
     2. Their Outputs must not be overlapped.
 """
-
-
 def MergeWithAnd(
     path_to_1st_model: str, path_to_2nd_model: str, path_to_merged_model: str
 ) -> None:
@@ -144,8 +140,6 @@ Note:
     2. Outputs of two models must be the same.
     3. The "Judge" node is a custom operator that must be implemented and loaded to onnxruntime before inferencing.
 """
-
-
 def MergeWithIfThen(
     path_to_1st_model: str, path_to_2nd_model: str, path_to_merged_model: str
 ) -> None:
@@ -244,8 +238,6 @@ def MergeWithIfThen(
 """
 Generate a model that could inferred locally with onnxruntime
 """
-
-
 def CreateEdgeSampleModel():
     X = helper.make_tensor_value_info("X", TensorProto.FLOAT, [-1])
     Y = helper.make_tensor_value_info("Y", TensorProto.FLOAT, [-1])
@@ -265,8 +257,6 @@ Generate a proxy model that rely on AzureEp ops to talk to AzureML triton endpoi
 For details about how to deploy an endpoint, please refer to:
 https://learn.microsoft.com/en-us/azure/machine-learning/how-to-deploy-with-triton?view=azureml-api-2&tabs=azure-cli%2Cendpoint
 """
-
-
 def CreateAzureProxySampleModel(out_name):
     auth_token = helper.make_tensor_value_info("auth_token", TensorProto.STRING, [-1])
     X = helper.make_tensor_value_info("X", TensorProto.FLOAT, [-1])
@@ -292,6 +282,11 @@ def CreateAzureProxySampleModel(out_name):
     return model_name
 
 
+"""
+AzureExecutionProvider ships with onnxruntime >= 1.16
+All AzureExecutionProvider ops ship with onnxruntime-extensions >= 0.9.0
+To load and run the model, one need them both.
+"""
 if __name__ == "__main__":
     MergeWithIf(
         CreateEdgeSampleModel(), CreateAzureProxySampleModel("Z"), "addf_hybrid_if.onnx"
