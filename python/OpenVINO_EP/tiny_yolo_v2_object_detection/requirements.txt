@@ -1,4 +1,4 @@
-certifi==2022.5.18.1
+certifi==2023.7.22
 flatbuffers==2.0
 onnx
 opencv-python==4.5.5.64
