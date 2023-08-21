@@ -1,24 +1,21 @@
-'''
-The file implemented three ways to merge a local model and a azure-proxy model for hybrid inferencing:
-1. Run either one;
-2. Run both;
-3. Run first, then the second if needed
-In the end, there are demos of usage over tiny-yolo(local) and yolov2-coco(on azure).
-'''
-
+# ------------------------------------------------------------------------------------------------------
+# The file implemented three ways to merge a local model and a azure-proxy model for hybrid inferencing:
+# 1. Run either one.
+# 2. Run both.
+# 3. Run the first model, then the second if need to.
+# In the end, there are demos of usage over tiny-yolo(local) and yolov2-coco(on azure).
+# ------------------------------------------------------------------------------------------------------
 import os
 import copy
 from onnx import *
 import requests
 
 
-'''
-Merge two models with an If node.
-User could thereby control which model to infer with by a boolean input.
-Note, for two models:
-    1. Their inputs should be the same.
-    2. Their outputs should be the same too.
-'''
+# Merge two models with an If node.
+# User could thereby control which model to infer with by a boolean input.
+# Note, for two models:
+# 1. Their inputs should be the same.
+# 2. Their outputs should be the same too.
 def MergeWithIf(
     path_to_true_model: str, path_to_false_model: str, path_to_merged_model: str
 ) -> None:
@@ -85,12 +82,10 @@ def MergeWithIf(
     save(model, path_to_merged_model)
 
 
-'''
-Merge two models into one model, where both will be inferenced during running
-Note, for two models:
-    1. Their inputs could be the same.
-    2. Their outputs must be have zero overlap.
-'''
+# Merge two models into one model, where both will be inferenced during running.
+# Note, for two models:
+# 1. Their inputs could be the same.
+# 2. Their outputs must be have zero overlap.
 def MergeWithAnd(
     path_to_1st_model: str, path_to_2nd_model: str, path_to_merged_model: str
 ) -> None:
@@ -143,15 +138,14 @@ def MergeWithAnd(
     onnx.save(merged_model, path_to_merged_model)
 
 
-'''
-Merge two models in a if-then mode.
-In merged model, the first model will be inferred, results will be sent to a 'Judge' node to see if the results are good enough.
-If yes, the outputs will be forwarded as final outputs, otherwise the other model will be inferred.
-Note:
-    1. Inputs of two models could be the same.
-    2. Outputs of two models MUST be the same.
-    3. The 'Judge' node is a custom op that has to be implemented by the customer.
-'''
+# Merge two models in a if-then mode.
+# In merged model, the first model will be inferred, results will be sent to a 'Judge' node to see 
+# if the results are good enough. If yes, the outputs will be forwarded as final outputs, otherwise 
+# the other model will be inferred.
+# Note:
+# 1. Inputs of two models could be the same.
+# 2. Outputs of two models MUST be the same.
+# 3. The 'Judge' node is a custom op that has to be implemented by the customer.
 def MergeWithIfThen(
     path_to_1st_model: str, path_to_2nd_model: str, path_to_merged_model: str
 ) -> None:
@@ -246,9 +240,7 @@ def MergeWithIfThen(
     onnx.save(merged_model, path_to_merged_model)
 
 
-'''
-Get yolo tiny to be inferred locally with onnxruntime
-'''
+# Get yolo tiny to be inferred locally with onnxruntime
 def GetTinyYoloModel():
     file_name = 'tinyyolov2-8.onnx'
 
@@ -278,12 +270,10 @@ def GetTinyYoloModel():
     return tuned_file
 
 
-'''
-Generate a proxy model to talks yolov2-coco models deployed on Azure.
-https://github.com/onnx/models/tree/main/vision/object_detection_segmentation/yolov2-coco
-For details about how to deploy an endpoint, please refer to:
-https://learn.microsoft.com/en-us/azure/machine-learning/how-to-deploy-with-triton?view=azureml-api-2&tabs=azure-cli%2Cendpoint
-'''
+# Generate a proxy model to talks yolov2-coco models deployed on Azure.
+# https://github.com/onnx/models/tree/main/vision/object_detection_segmentation/yolov2-coco
+# For details about how to deploy an endpoint, please refer to:
+# https://learn.microsoft.com/en-us/azure/machine-learning/how-to-deploy-with-triton?view=azureml-api-2&tabs=azure-cli%2Cendpoint
 def CreateYoloProxyModel(input_name, output_name):
     auth_token = helper.make_tensor_value_info('auth_token', TensorProto.STRING, [-1])
     model_input = helper.make_tensor_value_info(input_name, TensorProto.FLOAT, [-1,3,416,416])
@@ -311,11 +301,9 @@ def CreateYoloProxyModel(input_name, output_name):
     return model_name
 
 
-'''
-AzureExecutionProvider ships with onnxruntime >= 1.16
-All AzureExecutionProvider ops ship with onnxruntime-extensions >= 0.9.0
-To load and run the model, one need them both.
-'''
+# AzureExecutionProvider ships with onnxruntime >= 1.16
+# All AzureExecutionProvider ops ship with onnxruntime-extensions >= 0.9.0
+# To load and run the model, one need them both.
 if __name__ == '__main__':
     MergeWithIf(
         GetTinyYoloModel(),
