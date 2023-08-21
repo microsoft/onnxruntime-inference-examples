@@ -16,9 +16,7 @@ import requests
 # Note, for two models:
 # 1. Their inputs should be the same.
 # 2. Their outputs should be the same too.
-def MergeWithIf(
-    path_to_true_model: str, path_to_false_model: str, path_to_merged_model: str
-) -> None:
+def MergeWithIf(path_to_true_model: str, path_to_false_model: str, path_to_merged_model: str) -> None:
 
     true_model = onnx.load(path_to_true_model)
     false_model = onnx.load(path_to_false_model)
@@ -86,9 +84,7 @@ def MergeWithIf(
 # Note, for two models:
 # 1. Their inputs could be the same.
 # 2. Their outputs must be have zero overlap.
-def MergeWithAnd(
-    path_to_1st_model: str, path_to_2nd_model: str, path_to_merged_model: str
-) -> None:
+def MergeWithAnd(path_to_1st_model: str, path_to_2nd_model: str, path_to_merged_model: str) -> None:
 
     model_1 = onnx.load(path_to_1st_model)
     model_2 = onnx.load(path_to_2nd_model)
@@ -146,9 +142,7 @@ def MergeWithAnd(
 # 1. Inputs of two models could be the same.
 # 2. Outputs of two models MUST be the same.
 # 3. The 'Judge' node is a custom op that has to be implemented by the customer.
-def MergeWithIfThen(
-    path_to_1st_model: str, path_to_2nd_model: str, path_to_merged_model: str
-) -> None:
+def MergeWithIfThen(path_to_1st_model: str, path_to_2nd_model: str, path_to_merged_model: str) -> None:
 
     # an utility function to forward outputs
     def CreateIdentityGraph(graph):
@@ -241,7 +235,7 @@ def MergeWithIfThen(
 
 
 # Get yolo tiny to be inferred locally with onnxruntime
-def GetTinyYoloModel():
+def GetTinyYoloModel() -> str:
     file_name = 'tinyyolov2-8.onnx'
 
     tiny_yolo_url = 'https://github.com/onnx/models/raw/69c5d3751dda5349fd3fc53f525395d180420c07/vision/object_detection_segmentation/tiny-yolov2/model/tinyyolov2-8.onnx'
@@ -274,7 +268,7 @@ def GetTinyYoloModel():
 # https://github.com/onnx/models/tree/main/vision/object_detection_segmentation/yolov2-coco
 # For details about how to deploy an endpoint, please refer to:
 # https://learn.microsoft.com/en-us/azure/machine-learning/how-to-deploy-with-triton?view=azureml-api-2&tabs=azure-cli%2Cendpoint
-def CreateYoloProxyModel(input_name, output_name):
+def CreateYoloProxyModel(input_name: str, output_name: str) -> str:
     auth_token = helper.make_tensor_value_info('auth_token', TensorProto.STRING, [-1])
     model_input = helper.make_tensor_value_info(input_name, TensorProto.FLOAT, [-1,3,416,416])
     model_output = helper.make_tensor_value_info(output_name, TensorProto.FLOAT, [-1,-1,13,13])
