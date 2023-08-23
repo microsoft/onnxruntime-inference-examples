@@ -1,7 +1,7 @@
 # -------------------------------------------------------------------------
 # Copyright (c) Microsoft Corporation. All rights reserved.
 # Licensed under the MIT License.
-# --------------------------------------------------------------------------
+# -------------------------------------------------------------------------
 import os
 import copy
 from onnx import *
@@ -298,7 +298,7 @@ def GetTinyWhisperModel() -> str:
     return '/onnxruntime-extensions/tutorials/whisper_onnx_tiny_en_fp32_e2e.onnx'
 
 
-# Generate a proxy model that talk to openai audio endpoint.
+# Generate a proxy model that talks to openai audio endpoint.
 def GetOpenAIWhisperProxyModel(stream_input_name: str, output_name: str) -> str:
     stream_input = helper.make_tensor_value_info(stream_input_name, TensorProto.UINT8, [1, None])
     model_output = helper.make_tensor_value_info(output_name, TensorProto.STRING, ['N','text'])
