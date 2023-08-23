@@ -85,9 +85,8 @@ namespace yolov3
             clone.Mutate(i => i.Fill(Color.Gray));
             clone.Mutate(o => o.DrawImage(image, new Point(pad_dims_w, pad_dims_h), 1f)); // draw the first one top left
 
-
-            //Preprocessing image
-            //We use Tensor for multi-dimensional access
+            // Preprocessing image
+            // We use DenseTensor for multi-dimensional access
             DenseTensor<float> input = new(new[] { 1, 3, h, w });
             clone.ProcessPixelRows(accessor =>
             {
@@ -124,20 +123,24 @@ namespace yolov3
 
             Console.WriteLine("Inference done");
 
-            //Post Processing Steps
+            // Post Processing Steps
             // Read directly from native memory
             Debug.Assert(results.Count == 3, "Expecting 3 outputs");
             var boxesSpan = results[0].GetTensorDataAsSpan<float>();
-            // We use DenseTensor to access multi-dimensional data
-            var boxes = new DenseTensor<float>(boxesSpan.ToArray(), 
-                Array.ConvertAll(results[0].GetTensorTypeAndShape().Shape, Convert.ToInt32));
-
             var scoresSpan = results[1].GetTensorDataAsSpan<float>();
-            // We use DenseTensor to access multi-dimensional data
-            var scores = new DenseTensor<float>(scoresSpan.ToArray(),
-                               Array.ConvertAll(results[1].GetTensorTypeAndShape().Shape, Convert.ToInt32));
-
             var indicesSpan = results[2].GetTensorDataAsSpan<int>();
+
+            // We need multidimensional indexing to access boxes and scores. Problem is, we would have to
+            // copy output data into DenseTensor to use it, and that can be very large. Instead, we can 
+            // convert mutilidim indices into a flat index and access data straight from native memory.
+            // We use DenseTensor to access multi-dimensional data
+            var boxesShape = results[0].GetTensorTypeAndShape().Shape;
+            var scoresShape = results[0].GetTensorTypeAndShape().Shape;
+            var boxesStrides = ShapeUtils.GetStrides(boxesShape);
+            var scoresStrides = ShapeUtils.GetStrides(scoresShape);
+
+            Span<long> boxesInd = stackalloc long[boxesShape.Length];
+            Span<long> scoresInd = stackalloc long[scoresShape.Length];
 
             var len = indicesSpan.Length / 3;
             var out_classes = new int[len];
@@ -150,13 +153,35 @@ namespace yolov3
                 out_classes[count] = indicesSpan[i + 1];
                 if (indicesSpan[i + 1] > -1)
                 {
-                    out_scores[count] = scores[indicesSpan[i], indicesSpan[i + 1], indicesSpan[i + 2]];
+                    // calculate scores flat index
+                    scoresInd[0] = indicesSpan[i];
+                    scoresInd[1] = indicesSpan[i + 1];
+                    scoresInd[2] = indicesSpan[i + 2];
+                    var scoresFlatIdx = ShapeUtils.GetIndex(scoresStrides, scoresInd);
+
+                    out_scores[count] = scoresSpan[(int)scoresFlatIdx];
+
+                    // Calculate boxes flat index
+                    boxesInd[0] = indicesSpan[i];
+                    boxesInd[1] = indicesSpan[i + 2];
+                    boxesInd[2] = indicesSpan[1];
+                    var idx_1 = ShapeUtils.GetIndex(boxesStrides, boxesInd);
+
+                    boxesInd[2] = 0;
+                    var idx_2 = ShapeUtils.GetIndex(boxesStrides, boxesInd);
+
+                    boxesInd[2] = 3;
+                    var idx_3 = ShapeUtils.GetIndex(boxesStrides, boxesInd);
+
+                    boxesInd[2] = 2;
+                    var idx_4 = ShapeUtils.GetIndex(boxesStrides, boxesInd);
+
                     predictions.Add(new Prediction
                     {
-                        Box = new Box(boxes[indicesSpan[i], indicesSpan[i + 2], 1],
-                                        boxes[indicesSpan[i], indicesSpan[i + 2], 0],
-                                        boxes[indicesSpan[i], indicesSpan[i + 2], 3],
-                                        boxes[indicesSpan[i], indicesSpan[i + 2], 2]),
+                        Box = new Box(boxesSpan[(int)idx_1],
+                                      boxesSpan[(int)idx_2],
+                                      boxesSpan[(int)idx_3],
+                                      boxesSpan[(int)idx_4]),
                             Class = LabelMap.Labels[out_classes[count]],
                             Score = out_scores[count]
                     });
