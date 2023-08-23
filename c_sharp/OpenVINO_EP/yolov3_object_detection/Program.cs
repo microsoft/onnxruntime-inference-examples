@@ -164,7 +164,7 @@ namespace yolov3
                     // Calculate boxes flat index
                     boxesInd[0] = indicesSpan[i];
                     boxesInd[1] = indicesSpan[i + 2];
-                    boxesInd[2] = indicesSpan[1];
+                    boxesInd[2] = 1;
                     var idx_1 = ShapeUtils.GetIndex(boxesStrides, boxesInd);
 
                     boxesInd[2] = 0;
