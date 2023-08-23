@@ -292,10 +292,53 @@ def CreateYoloProxyModel(input_name: str, output_name: str) -> str:
     return model_name
 
 
+# Pls prepare a whisper tiny model by:
+# https://github.com/microsoft/onnxruntime-extensions/blob/main/tutorials/whisper_e2e.py
+def GetTinyWhisperModel() -> str:
+    return '/onnxruntime-extensions/tutorials/whisper_onnx_tiny_en_fp32_e2e.onnx'
+
+
+# Generate a proxy model that talk to openai audio endpoint.
+def GetOpenAIWhisperProxyModel(stream_input_name: str, output_name: str) -> str:
+    stream_input = helper.make_tensor_value_info(stream_input_name, TensorProto.UINT8, [1, None])
+    model_output = helper.make_tensor_value_info(output_name, TensorProto.STRING, ['N','text'])
+
+    stream_input_shape = helper.make_node("Constant", [], ['stream_input_shape'],
+                              value=onnx.helper.make_tensor(
+                              data_type=onnx.TensorProto.INT64,
+                              name='const_0',
+                              dims=[1],
+                              vals=[-1]))
+    reshape_input = helper.make_node('Reshape', [stream_input_name, 'stream_input_shape'], ['file'])
+
+    auth_token = helper.make_tensor_value_info('auth_token', TensorProto.STRING, [1])
+    model = helper.make_tensor_value_info('model_name', TensorProto.STRING, [1])
+    response_format = helper.make_tensor_value_info('response_format', TensorProto.STRING, [-1])
+    transcriptions = helper.make_tensor_value_info('transcriptions', TensorProto.STRING, [-1])
+
+    invoker = helper.make_node('OpenAIAudioToText',
+                               ['auth_token', 'model_name', 'response_format', 'file'],
+                               ['transcriptions'],
+                               domain='com.microsoft.extensions',
+                               name='audio_invoker',
+                               model_uri='https://api.openai.com/v1/audio/transcriptions',
+                               audio_format='wav',
+                               verbose=False)
+
+    identity_output = helper.make_node('Identity', ['transcriptions'], [output_name])
+    graph = helper.make_graph([stream_input_shape, reshape_input, invoker, identity_output], 'graph',
+                              [auth_token, model, response_format, stream_input], [model_output])
+    model = helper.make_model(graph, opset_imports=[helper.make_operatorsetid('com.microsoft.extensions', 1)])
+    model_name = 'openai_audio_proxy.onnx'
+    onnx.save(model, model_name)
+    return model_name
+
+
 # AzureExecutionProvider ships with onnxruntime >= 1.16
 # All AzureExecutionProvider ops ship with onnxruntime-extensions >= 0.9.0
 # To load and run the model, one need them both.
 if __name__ == '__main__':
+    # 1st example - create hybrid of yolo tiny and yolo v2 coco on AML
     MergeWithIf(
         GetTinyYoloModel(),
         CreateYoloProxyModel('image', 'grid'),
@@ -310,4 +353,20 @@ if __name__ == '__main__':
         GetTinyYoloModel(),
         CreateYoloProxyModel('image', 'grid'),
         'yolo_hybrid_if_then.onnx',
+    )
+    # 2nd example - create hybrid of whiper tiny and openAI whisper service
+    MergeWithIf(
+        GetTinyWhisperModel(),
+        GetOpenAIWhisperProxyModel('audio_stream', 'str'),
+        'whisper_hybrid_if.onnx'
+    )
+    MergeWithAnd(
+        GetTinyWhisperModel(),
+        GetOpenAIWhisperProxyModel('audio_stream', 'str_openai'),
+        'whisper_hybrid_and.onnx'
+    )
+    MergeWithIfThen(
+        GetTinyWhisperModel(),
+        GetOpenAIWhisperProxyModel('audio_stream', 'str'),
+        'whisper_hybrid_if_then.onnx'
     )
