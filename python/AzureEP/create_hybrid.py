@@ -1,10 +1,7 @@
-# ------------------------------------------------------------------------------------------------------
-# The file implemented three ways to merge a local model and a azure-proxy model for hybrid inferencing:
-# 1. Run either one.
-# 2. Run both.
-# 3. Run the first model, then the second if need to.
-# In the end, there are demos of usage over tiny-yolo(local) and yolov2-coco(on azure).
-# ------------------------------------------------------------------------------------------------------
+# -------------------------------------------------------------------------
+# Copyright (c) Microsoft Corporation. All rights reserved.
+# Licensed under the MIT License.
+# --------------------------------------------------------------------------
 import os
 import copy
 from onnx import *
