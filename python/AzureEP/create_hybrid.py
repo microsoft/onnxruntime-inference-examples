@@ -128,7 +128,7 @@ def MergeWithAnd(path_to_1st_model: str, path_to_2nd_model: str, path_to_merged_
         producer_name='merged_graph',
         opset_imports=[helper.make_opsetid('', 16)],
     )
-    onnx.save(merged_model, path_to_merged_model)
+    save(merged_model, path_to_merged_model)
 
 
 # Merge two models in a if-then mode.
@@ -228,7 +228,7 @@ def MergeWithIfThen(path_to_1st_model: str, path_to_2nd_model: str, path_to_merg
         producer_name='merged_graph',
         opset_imports=[helper.make_opsetid('', 16)],
     )
-    onnx.save(merged_model, path_to_merged_model)
+    save(merged_model, path_to_merged_model)
 
 
 # Get yolo tiny to be inferred locally with onnxruntime
@@ -257,7 +257,7 @@ def GetTinyYoloModel() -> str:
         producer_name='tuned_yolo_tiny_graph',
         opset_imports=[helper.make_opsetid('', 8)],
     )
-    onnx.save(tuned_model, tuned_file)
+    save(tuned_model, tuned_file)
     return tuned_file
 
 
@@ -330,7 +330,7 @@ def GetOpenAIWhisperProxyModel(stream_input_name: str, output_name: str) -> str:
                               [auth_token, model, response_format, stream_input], [model_output])
     model = helper.make_model(graph, opset_imports=[helper.make_operatorsetid('com.microsoft.extensions', 1)])
     model_name = 'openai_audio_proxy.onnx'
-    onnx.save(model, model_name)
+    save(model, model_name)
     return model_name
 
 

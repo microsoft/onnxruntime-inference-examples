@@ -1,13 +1,15 @@
-Since onnxruntime 1.16, AzureEP support the running of a "hybrid" model combining two compoments:
+Since onnxruntime 1.16, AzureEP supports the running of a "hybrid" model combining two compoments:
 
-- An edge model that runs locally.
-- A proxy model talks to a remote endpoint hosted on Azure.
+- An edge model thats run locally.
+- A proxy model talks to a remote endpoint hosted remotely.
 
-The file implement three ways to create such a "hybrid" model:
+The file implemented three ways to create such a "hybrid" model:
 
 - Run either one.
 - Run both.
 - Run the first model, then the second if need to.
 
-In the end, there are demos of usage over a local tiny-yolo model and a proxy model talks to yolov2-coco hosted on Azure.
-For how to deploy a model to Azure Machine Learning, pls refer to the [link](https://learn.microsoft.com/en-us/azure/machine-learning/how-to-deploy-with-triton?view=azureml-api-2&tabs=azure-cli%2Cendpoint).
+Also, there are two exampels for usage:
+
+- Create hybrid models over a local tiny-yolo model and a proxy model talks to yolov2-coco hosted on [Azure Machine Learning](https://learn.microsoft.com/en-us/azure/machine-learning/how-to-deploy-with-triton?view=azureml-api-2&tabs=azure-cli%2Cendpoint).
+- Create hybrid models over a local whisper tiny model and a proxy model talks to [OpenAI audio service](https://api.openai.com/v1/audio/transcriptions).
