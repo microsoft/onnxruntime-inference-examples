@@ -1,4 +1,4 @@
-Since onnxruntime 1.16, AzureEP supports the running of a "hybrid" model combining two compoments:
+Since onnxruntime 1.16, AzureEP supports the running of a "hybrid" model combining two components:
 
 - An edge model that runs locally.
 - A proxy model talks to an online service endpoint hosting a model.
