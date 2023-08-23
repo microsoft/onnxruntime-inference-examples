@@ -10,9 +10,9 @@ import requests
 
 # Merge two models with an If node.
 # User could thereby control which model to infer with by a boolean input.
-# Note, for two models:
-# 1. Their inputs should be the same.
-# 2. Their outputs should be the same too.
+# Note:
+# 1. Two models must have same inputs.
+# 2. Two models must have same outputs.
 def MergeWithIf(path_to_true_model: str, path_to_false_model: str, path_to_merged_model: str) -> None:
 
     true_model = onnx.load(path_to_true_model)
@@ -78,9 +78,9 @@ def MergeWithIf(path_to_true_model: str, path_to_false_model: str, path_to_merge
 
 
 # Merge two models into one model, where both will be inferenced during running.
-# Note, for two models:
-# 1. Their inputs could be the same.
-# 2. Their outputs must be have zero overlap.
+# Note:
+# 1. Two models do not have to share same inputs.
+# 2. Two models must not have same outputs.
 def MergeWithAnd(path_to_1st_model: str, path_to_2nd_model: str, path_to_merged_model: str) -> None:
 
     model_1 = onnx.load(path_to_1st_model)
@@ -132,8 +132,8 @@ def MergeWithAnd(path_to_1st_model: str, path_to_2nd_model: str, path_to_merged_
 
 
 # Merge two models in a if-then mode.
-# In merged model, the first model will be inferred, results will be sent to a 'Judge' node to see 
-# if the results are good enough. If yes, the outputs will be forwarded as final outputs, otherwise 
+# In merged model, the first model will be inferred, results will be sent to a 'Judge' node to see
+# if the results are good enough. If yes, the outputs will be forwarded as final outputs, otherwise
 # the other model will be inferred.
 # Note:
 # 1. Inputs of two models could be the same.
