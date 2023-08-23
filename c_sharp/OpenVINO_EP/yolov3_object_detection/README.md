@@ -9,7 +9,7 @@ The source code for this sample is available [here](https://github.com/microsoft
 # How to build
 
 ## Prerequisites
-1. Install [.NET 6.0](https://dotnet.microsoft.com/download/dotnet/6.0) or higher and download nuget for your OS (Mac, Windows or Linux). Refer [here](https://onnxruntime.ai/docs/build/inferencing.html#prerequisites-1).
+1. Install [.NET 7.0](https://dotnet.microsoft.com/en-us/download/dotnet/7.0) or higher and download nuget for your OS (Mac, Windows or Linux). Refer [here](https://onnxruntime.ai/docs/build/inferencing.html#prerequisites-1).
 2. [The Intel<sup>®</sup> Distribution of OpenVINO toolkit](https://docs.openvinotoolkit.org/latest/index.html)
 3. Use any sample Image as input to the sample.
 4. Download the latest YOLOv3 model from the ONNX Model Zoo.
