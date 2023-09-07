@@ -1,0 +1,14 @@
+<component name="libraryTable">
+  <library name="Gradle: com.microsoft.onnxruntime:onnxruntime-android:1.15.1@aar">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/transforms-3/00dc90eb7c7558aa8c6567d893e4bc51/transformed/onnxruntime-android-1.15.1/jars/classes.jar!/" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-3/00dc90eb7c7558aa8c6567d893e4bc51/transformed/onnxruntime-android-1.15.1/AndroidManifest.xml" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.microsoft.onnxruntime/onnxruntime-android/1.15.1/70f2a72f4fc3492c14c6c3755b989ccade6ad6be/onnxruntime-android-1.15.1-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.microsoft.onnxruntime/onnxruntime-android/1.15.1/cd611105a89ebd1beaea65733a5fbe107a096b34/onnxruntime-android-1.15.1-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

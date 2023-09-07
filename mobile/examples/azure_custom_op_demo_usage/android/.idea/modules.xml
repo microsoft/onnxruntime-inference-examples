@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/SpeechRecognition.iml" filepath="$PROJECT_DIR$/.idea/modules/SpeechRecognition.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/SpeechRecognition.app.iml" filepath="$PROJECT_DIR$/.idea/modules/app/SpeechRecognition.app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/SpeechRecognition.app.androidTest.iml" filepath="$PROJECT_DIR$/.idea/modules/app/SpeechRecognition.app.androidTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/SpeechRecognition.app.main.iml" filepath="$PROJECT_DIR$/.idea/modules/app/SpeechRecognition.app.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/SpeechRecognition.app.unitTest.iml" filepath="$PROJECT_DIR$/.idea/modules/app/SpeechRecognition.app.unitTest.iml" />
+    </modules>
+  </component>
+</project>
