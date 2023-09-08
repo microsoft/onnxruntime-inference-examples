@@ -1,12 +1,20 @@
 package ai.onnxruntime.example.speechrecognition
 
-import ai.onnxruntime.OnnxJavaType
 import ai.onnxruntime.OnnxTensor
 import ai.onnxruntime.OrtEnvironment
 import ai.onnxruntime.OrtSession
 import ai.onnxruntime.extensions.OrtxPackage
 import android.os.SystemClock
-import java.nio.ByteBuffer
+
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.Json
+
+// TODO: Configure for an error response
+@Serializable
+data class Response(
+    val text: String
+)
 
 class SpeechRecognizer(modelBytes: ByteArray) : AutoCloseable {
     private val session: OrtSession
@@ -18,8 +26,9 @@ class SpeechRecognizer(modelBytes: ByteArray) : AutoCloseable {
         sessionOptions.registerCustomOpLibrary(OrtxPackage.getLibraryPath())
 
         session = env.createSession(modelBytes, sessionOptions)
-        
-        // TODO: add the user input authToken
+
+        // TODO: ADD USER INPUT AUTH TOKEN
+        val authToken = "Set this to your auth token and add a closing double quote;
         val authTokenInput = OnnxTensor.createTensor(env, arrayOf(authToken), tensorShape(1.toLong()))
         baseInputs = mapOf(
             "auth_token" to authTokenInput
@@ -39,7 +48,11 @@ class SpeechRecognizer(modelBytes: ByteArray) : AutoCloseable {
             @Suppress("UNCHECKED_CAST")
             (outputs[0].value as Array<String>)[0]
         }
-        return Result(recognizedText, elapsedTimeInMs)
+
+        // Parse the response from OpenAI Whisper Endpoint
+        val responseText = Json.decodeFromString<Response>(recognizedText)
+
+        return Result(responseText.text, elapsedTimeInMs)
     }
 
     override fun close() {

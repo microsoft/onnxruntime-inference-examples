@@ -6,7 +6,7 @@ The application lets the user make an audio recording, then recognizes the speec
 
 Example App Scrennshot - A Successful result returned from OpenAI endpoint:
 
-<img width=25% src="images/screenshot_prerecorded_sucessful_call.png" alt="App Screenshot" />
+<img width=25% src="images/Img_successful_endpoint_res.png" alt="App Screenshot" />
 
 ## Set up
 
