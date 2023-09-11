@@ -27,14 +27,14 @@ class SpeechRecognitionInstrumentedTest {
         val appContext = InstrumentationRegistry.getInstrumentation().targetContext
 
         val modelBytes: ByteArray =
-            appContext.resources.openRawResource(R.raw.whisper_cpu_int8_model).use {
+            appContext.resources.openRawResource(R.raw.openai_whisper_transcriptions).use {
                 it.readBytes()
             }
 
         SpeechRecognizer(modelBytes).use { speechRecognizer ->
             val audioTensor =
-                appContext.resources.openRawResource(R.raw.audio_mono_16khz_f32le).use {
-                    AudioTensorSource.fromRawPcmBytes(it.readBytes())
+                appContext.resources.openRawResource(R.raw.self_destruct_button).use {
+                    AudioTensorSource.fromRawWavBytes(it.readBytes())
                 }
 
             val result = audioTensor.use { speechRecognizer.run(audioTensor) }
