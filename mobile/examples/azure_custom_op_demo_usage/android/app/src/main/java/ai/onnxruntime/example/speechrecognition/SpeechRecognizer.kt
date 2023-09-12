@@ -9,6 +9,7 @@ import android.os.SystemClock
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
+import java.lang.Exception
 
 @Serializable
 data class Error(
@@ -24,7 +25,7 @@ data class Response(
 
 @Serializable
 data class ErrorResponse(
-    val error: Error,
+    val error: Error
 )
 
 class SpeechRecognizer(modelBytes: ByteArray) : AutoCloseable {
@@ -62,14 +63,17 @@ class SpeechRecognizer(modelBytes: ByteArray) : AutoCloseable {
         }
 
         // Parse the response from OpenAI Whisper Endpoint
-        val responseText = Json.decodeFromString<Response>(recognizedText)
-
-        return if (responseText.text != null) {
-            Result(responseText.text, elapsedTimeInMs)
-        } else {
-            val errorMsg = Json.decodeFromString<ErrorResponse>(recognizedText)
-            Result(errorMsg.error.message, elapsedTimeInMs)
+        val json = Json { ignoreUnknownKeys = true }
+        try {
+            val responseText = json.decodeFromString<Response>(recognizedText)
+            return Result(responseText.text, elapsedTimeInMs)
+        } catch (e: Exception) {
+            println("Error: ${e.message}")
         }
+
+
+        val errorMsg = json.decodeFromString<ErrorResponse>(recognizedText)
+        return Result(errorMsg.error.message, elapsedTimeInMs)
     }
 
     override fun close() {
