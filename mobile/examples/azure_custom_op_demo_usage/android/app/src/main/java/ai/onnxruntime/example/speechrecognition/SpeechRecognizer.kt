@@ -10,10 +10,21 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 
-// TODO: Configure for an error response
+@Serializable
+data class Error(
+    val message: String,
+    val type: String,
+    val code: String
+)
+
 @Serializable
 data class Response(
-    val text: String
+    val text: String,
+)
+
+@Serializable
+data class ErrorResponse(
+    val error: Error,
 )
 
 class SpeechRecognizer(modelBytes: ByteArray) : AutoCloseable {
@@ -27,7 +38,8 @@ class SpeechRecognizer(modelBytes: ByteArray) : AutoCloseable {
 
         session = env.createSession(modelBytes, sessionOptions)
 
-        // TODO: ADD USER INPUT AUTH TOKEN
+        // NOTE!! Modify the following line and input your own OpenAI AUTH_TOKEN for succesful API request calls.
+        // By default, the behavior of the app will fail to build if no correct authToken provided.
         val authToken = "Set this to your auth token and add a closing double quote;
         val authTokenInput = OnnxTensor.createTensor(env, arrayOf(authToken), tensorShape(1.toLong()))
         baseInputs = mapOf(
@@ -52,7 +64,12 @@ class SpeechRecognizer(modelBytes: ByteArray) : AutoCloseable {
         // Parse the response from OpenAI Whisper Endpoint
         val responseText = Json.decodeFromString<Response>(recognizedText)
 
-        return Result(responseText.text, elapsedTimeInMs)
+        return if (responseText.text != null) {
+            Result(responseText.text, elapsedTimeInMs)
+        } else {
+            val errorMsg = Json.decodeFromString<ErrorResponse>(recognizedText)
+            Result(errorMsg.error.message, elapsedTimeInMs)
+        }
     }
 
     override fun close() {

@@ -163,7 +163,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     companion object {
-        const val TAG = "ORTSpeechRecognizer"
+        const val TAG = "ORTSpeechRecognizerWithAzureCustomOp"
         private const val RECORD_AUDIO_PERMISSION_REQUEST_CODE = 1
     }
 }
