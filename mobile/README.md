@@ -40,7 +40,6 @@ The example app uses image classification which is able to continuously classify
 
 The example app uses speech recognition to transcribe speech from audio recorded by the device.
 
-- [Android Speech Recognition](examples/speech_recognition/android)
 - [iOS Speech Recognition](examples/speech_recognition/ios)
 
 ### Object Detection
