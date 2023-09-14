@@ -103,6 +103,7 @@ jobs:
         workingDirectory: mobile/examples/whisper/android/local
         displayName: "Build and run tests"
 
+# mobile/examples/whisper/android/azure
 - job: WhisperAzureAndroid
   pool:
     vmImage: "macOS-12"
