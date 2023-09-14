@@ -40,7 +40,7 @@ class SpeechRecognitionInstrumentedTest {
             val result = audioTensor.use { speechRecognizer.run(audioTensor) }
             assertTrue(
                 result.text.contains(
-                    "welcome to the speech recognition example application",
+                    "Thank you for pressing the self-destruct button",
                     ignoreCase = true
                 )
             )
