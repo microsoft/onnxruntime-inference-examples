@@ -10,7 +10,7 @@ The application lets the user make an audio recording, then recognizes the speec
 
 ### Prerequisites
 
-See the general prerequisites [here](../../../README.md#General-Prerequisites).
+See the general prerequisites [here](../../../../README.md#General-Prerequisites).
 
 Additionally, you will need to be able to record audio, either on an emulator or a device.
 

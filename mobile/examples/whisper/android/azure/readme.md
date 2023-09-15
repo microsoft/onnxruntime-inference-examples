@@ -12,7 +12,7 @@ Example App Screenshot - A Successful result returned from OpenAI endpoint:
 
 ### Prerequisites
 
-See the general prerequisites [here](../../../README.md#General-Prerequisites).
+See the general prerequisites [here](../../../../README.md#General-Prerequisites).
 
 Additionally, you will need to be able to record audio, either on an emulator or a device.
 
