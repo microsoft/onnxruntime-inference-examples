@@ -1,6 +1,6 @@
 # Android Speech Recognition Example with Azure Custom Op
 
-This example creates a version to show how to use ORT to do speech recognition using the [Whisper](https://github.com/openai/whisper) model and calls the OpenAI Whisper endpoint using the Azure custom op. You MUST update the code to specify a valid OpenAI auth token. See [here](#prepare-an-openai-auth-token) for details.
+This example shows how to use ORT to do speech recognition using the [Whisper](https://github.com/openai/whisper) model and calls the OpenAI Whisper endpoint using the Azure custom op. You MUST update the code to specify a valid OpenAI auth token. See [here](#prepare-an-openai-auth-token) for details.
 
 The application lets the user make an audio recording, then recognizes the speech from that recording and displays a transcript.
 
