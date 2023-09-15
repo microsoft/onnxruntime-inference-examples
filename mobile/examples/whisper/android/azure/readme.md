@@ -4,7 +4,7 @@ This example shows how to use ORT to do speech recognition using the [Whisper](h
 
 The application lets the user make an audio recording, then recognizes the speech from that recording and displays a transcript.
 
-Example App Scrennshot - A Successful result returned from OpenAI endpoint:
+Example App Screenshot - A Successful result returned from OpenAI endpoint:
 
 <img width=25% src="images/Img_successful_endpoint_res.png" alt="App Screenshot" />
 
