@@ -40,7 +40,8 @@ class SpeechRecognizer(modelBytes: ByteArray) : AutoCloseable {
         session = env.createSession(modelBytes, sessionOptions)
 
         // NOTE!! Modify the following line and input your own OpenAI AUTH_TOKEN for successful API request calls.
-        // By default, the behavior of the app will fail to build if no correct authToken provided.
+        // It will return an error message if no correct authToken provided.
+        // DO NOT hardcode an auth token here. See `User Settings` section for more detailed information.
         val authToken = "Set this to your auth token (OpenAI API Key);"
         val authTokenInput = OnnxTensor.createTensor(env, arrayOf(authToken), tensorShape(1.toLong()))
         baseInputs = mapOf(
