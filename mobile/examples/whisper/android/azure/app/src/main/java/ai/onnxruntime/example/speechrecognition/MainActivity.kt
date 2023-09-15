@@ -46,6 +46,15 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun setError(result: SpeechRecognizer.Result) {
+        Log.i(TAG, "Error: ${result.text}")
+        runOnUiThread {
+            statusText.text = "Error"
+            resultText.text = result.text
+        }
+    }
+
+
     private fun hasRecordAudioPermission(): Boolean =
         ActivityCompat.checkSelfPermission(
             this,
@@ -100,7 +109,14 @@ class MainActivity : AppCompatActivity() {
                         AudioTensorSource.fromRawWavBytes(it.readBytes())
                     }
                     val result = audioTensor.use { speechRecognizer.run(audioTensor) }
-                    setSuccessfulResult(result)
+                    // Note: There's case where we can successfully conduct an ORT inference session call, but get an error
+                    // response from OpenAI endpoint. Check here if the return result is an error message. If so, set Error status
+                    // for the app.
+                    if (!result.type) {
+                        setError(result)
+                    } else {
+                        setSuccessfulResult(result)
+                    }
                 } catch (e: Exception) {
                     setError(e)
                 } finally {

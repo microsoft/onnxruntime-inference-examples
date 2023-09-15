@@ -49,7 +49,7 @@ class SpeechRecognizer(modelBytes: ByteArray) : AutoCloseable {
         )
     }
 
-    data class Result(val text: String, val inferenceTimeInMs: Long)
+    data class Result(val text: String, val inferenceTimeInMs: Long, val type: Boolean)
 
     fun run(audioTensor: OnnxTensor): Result {
         val inputs = mutableMapOf<String, OnnxTensor>()
@@ -67,14 +67,13 @@ class SpeechRecognizer(modelBytes: ByteArray) : AutoCloseable {
         val json = Json { ignoreUnknownKeys = true }
         try {
             val responseText = json.decodeFromString<Response>(recognizedText)
-            return Result(responseText.text, elapsedTimeInMs)
+            return Result(responseText.text, elapsedTimeInMs, true)
         } catch (e: Exception) {
             println("Error: ${e.message}")
         }
 
-
         val errorMsg = json.decodeFromString<ErrorResponse>(recognizedText)
-        return Result(errorMsg.error.message, elapsedTimeInMs)
+        return Result(errorMsg.error.message, elapsedTimeInMs, false)
     }
 
     override fun close() {
