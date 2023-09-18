@@ -112,7 +112,7 @@ class MainActivity : AppCompatActivity() {
                     // Note: There's case where we can successfully conduct an ORT inference session call, but get an error
                     // response from OpenAI endpoint. Check here if the return result is an error message. If so, set Error status
                     // for the app.
-                    if (!result.type) {
+                    if (!result.successful) {
                         setError(result)
                     } else {
                         setSuccessfulResult(result)

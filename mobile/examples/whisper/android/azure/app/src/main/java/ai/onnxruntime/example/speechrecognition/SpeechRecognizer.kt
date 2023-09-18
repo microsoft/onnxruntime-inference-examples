@@ -41,8 +41,9 @@ class SpeechRecognizer(modelBytes: ByteArray) : AutoCloseable {
 
         // NOTE!! Modify the following line and input your own OpenAI AUTH_TOKEN for successful API request calls.
         // By default, it will return an error message (given no correct authToken provided.)
-        // DO NOT hardcode an auth token here. See `User Settings` section in your OpenAI account for more detailed information
-        // to find your API Key.
+        // It's suggested to store your secret OpenAI API key in a secure place, e.g. https://developer.android.com/reference/androidx/security/crypto/EncryptedSharedPreferences
+        // instead of hardcoding one here.
+        // See `User Settings` section in your OpenAI account for more detailed info about finding your API Key.
         val authToken = "Set this to your auth token (OpenAI API Key);"
         val authTokenInput = OnnxTensor.createTensor(env, arrayOf(authToken), tensorShape(1.toLong()))
         baseInputs = mapOf(
@@ -50,7 +51,7 @@ class SpeechRecognizer(modelBytes: ByteArray) : AutoCloseable {
         )
     }
 
-    data class Result(val text: String, val inferenceTimeInMs: Long, val type: Boolean)
+    data class Result(val text: String, val inferenceTimeInMs: Long, val successful: Boolean)
 
     fun run(audioTensor: OnnxTensor): Result {
         val inputs = mutableMapOf<String, OnnxTensor>()
