@@ -40,7 +40,7 @@ class AudioTensorSource {
                     AudioFormat.CHANNEL_IN_MONO,
                     AudioFormat.ENCODING_PCM_8BIT,
                 ),
-                2 * recordingChunkLengthInSeconds * sampleRate * 1
+                2 * recordingChunkLengthInSeconds * sampleRate
             )
 
             val audioRecord = AudioRecord.Builder()
@@ -72,7 +72,7 @@ class AudioTensorSource {
                         AudioRecord.READ_BLOCKING
                     )
 
-                    Log.d(MainActivity.TAG, "AudioRecord.read(float[], ...) returned $readResult")
+                    Log.d(MainActivity.TAG, "AudioRecord.read(byte[], ...) returned $readResult")
 
                     if (readResult >= 0) {
                         audioDataOffset += readResult
