@@ -73,5 +73,5 @@ The example app gives a demo of introducing question answering models with pre/p
 
 This example shows how to use ORT to do speech recognition using the [Whisper](https://github.com/openai/whisper) model. One version (Cloud) calls the OpenAI Whisper endpoint using the Azure custom op. (MUST update the code to specify a valid OpenAI auth token. ). The other uses a local Whisper model.
 
-- [Azure Whisper](examples/whisper/android/azure)
-- [Local Whisper](examples/whisper/android/local)
+- [Azure Whisper](examples/whisper/azure/android)
+- [Local Whisper](examples/whisper/local/android)
