@@ -82,7 +82,7 @@ jobs:
       scheme: 'OrtBasicUsage'
       args: $(XcodeArgs)
 
-# mobile/examples/whisper/android/local
+# mobile/examples/whisper/local/android
 - job: WhisperLocalAndroid
   pool:
     vmImage: "macOS-12"
@@ -100,10 +100,10 @@ jobs:
       - bash: |
           set -e
           ./gradlew connectedDebugAndroidTest --no-daemon
-        workingDirectory: mobile/examples/whisper/android/local
+        workingDirectory: mobile/examples/whisper/local/android
         displayName: "Build and run tests"
 
-# mobile/examples/whisper/android/azure
+# mobile/examples/whisper/azure/android
 - job: WhisperAzureAndroid
   pool:
     vmImage: "macOS-12"
@@ -121,7 +121,7 @@ jobs:
       - bash: |
           set -e
           ./gradlew connectedDebugAndroidTest --no-daemon
-        workingDirectory: mobile/examples/whisper/android/azure
+        workingDirectory: mobile/examples/whisper/azure/android
         displayName: "Build and run tests"
 
 # mobile/examples/speech_recognition/ios
