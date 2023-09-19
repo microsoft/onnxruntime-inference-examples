@@ -1,3 +1,3 @@
-package ai.onnxruntime.example.speechrecognition
+package ai.onnxruntime.example.whisperAzure
 
 internal fun tensorShape(vararg dims: Long) = longArrayOf(*dims)

@@ -15,7 +15,7 @@
         android:theme="@style/Theme.SpeechRecognition"
         tools:targetApi="31">
         <activity
-            android:name="ai.onnxruntime.example.speechrecognition.MainActivity"
+            android:name="ai.onnxruntime.example.whisperAzure.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

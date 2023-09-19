@@ -1,4 +1,4 @@
-package ai.onnxruntime.example.speechrecognition
+package ai.onnxruntime.example.whisperAzure
 
 import ai.onnxruntime.OnnxTensor
 import ai.onnxruntime.OrtEnvironment
