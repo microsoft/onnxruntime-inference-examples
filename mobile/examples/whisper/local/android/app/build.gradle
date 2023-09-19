@@ -4,11 +4,11 @@ plugins {
 }
 
 android {
-    namespace 'ai.onnxruntime.example.speechrecognition'
+    namespace 'ai.onnxruntime.example.whisperLocal'
     compileSdk 33
 
     defaultConfig {
-        applicationId "ai.onnxruntime.example.speechrecognition"
+        applicationId "ai.onnxruntime.example.whisperLocal"
         minSdk 24
         targetSdk 33
         versionCode 1

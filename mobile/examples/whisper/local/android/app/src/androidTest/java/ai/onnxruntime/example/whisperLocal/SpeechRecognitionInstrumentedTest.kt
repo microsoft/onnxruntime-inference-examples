@@ -1,5 +1,7 @@
-package ai.onnxruntime.example.speechrecognition
+package ai.onnxruntime.example.whisperLocal
 
+import ai.onnxruntime.example.whisperLocal.AudioTensorSource
+import ai.onnxruntime.example.whisperLocal.SpeechRecognizer
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4
 
