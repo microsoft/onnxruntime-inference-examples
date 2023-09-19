@@ -21,7 +21,7 @@ class SpeechRecognitionInstrumentedTest {
     fun useAppContext() {
         // Context of the app under test.
         val appContext = InstrumentationRegistry.getInstrumentation().targetContext
-        assertEquals("ai.onnxruntime.example.speechrecognition", appContext.packageName)
+        assertEquals("ai.onnxruntime.example.whisperLocal", appContext.packageName)
     }
 
     @Test
