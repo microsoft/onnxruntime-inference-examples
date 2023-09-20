@@ -5,14 +5,14 @@ SPDX-License-Identifier: Apache-2.0
 
 namespace yolov3
 {
-    public class Prediction
+    public struct Prediction
     {
         public Box Box { get; set; }
         public string Class { get; set; }
         public float Score { get; set; }
     }
 
-    public class Box
+    public struct Box
     {
         public float Xmin { get; set; }
         public float Ymin { get; set; }
