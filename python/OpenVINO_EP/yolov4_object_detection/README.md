@@ -16,13 +16,12 @@ The source code for this sample is available [here](https://github.com/microsoft
 # How to build
 
 ## Prerequisites
-1. For Windows, [download OpenVINO package](https://storage.openvinotoolkit.org/repositories/openvino/packages) select appropriate version, windows os and extract it. Run setupvars.bat file which is in the root directory of the extracted OpenVINO package to add OpenVINO libraries to PATH.
-2. Download the latest version of the [YOLOv4](https://github.com/onnx/models/tree/master/vision/object_detection_segmentation/yolov4) model from here.
+1. Download the latest version of the [YOLOv4](https://github.com/onnx/models/tree/master/vision/object_detection_segmentation/yolov4) model from here.
 
 ## Install ONNX Runtime for OpenVINO™ Execution Provider
-Please install the onnxruntime-openvino python package from [here](https://pypi.org/project/onnxruntime-openvino/1.11.0/). The package for Linux contains prebuilt OpenVINO Libs with ABI 0.
+Please install the onnxruntime-openvino python package from [here](https://pypi.org/project/onnxruntime-openvino). The package for Linux contains prebuilt OpenVINO Libs with ABI 0.
 ```
-pip3 install onnxruntime-openvino
+pip3 install onnxruntime-openvino openvino
 ```
 
 ## Optional Build steps for ONNX Runtime
@@ -59,14 +58,6 @@ python3 yolov4.py --device CPU_FP32 --video classroom.mp4 --model yolov4.onnx
 ```
 Note:
 * You can pick different device options to run on OpenVINO™ Execution Provider like GPU_FP32, GPU_FP16 and MYRIAD_FP16.
-* Make sure the sample is having below lines to use OpenVINO™ in Windows
-	```
-	import platform
-
-	if platform.system() == "Windows":
-		from openvino import utils
-		utils.add_openvino_libs_to_path()
-	```
 
 ### Run the sample on default CPU Execution Provider (MLAS)
 ```bash

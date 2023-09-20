@@ -1,0 +1,8 @@
+git+https://github.com/EleutherAI/lm-evaluation-harness.git
+torch
+transformers
+accelerate
+onnx
+onnxruntime
+onnxruntime-extensions; python_version < '3.10'
+optimum
