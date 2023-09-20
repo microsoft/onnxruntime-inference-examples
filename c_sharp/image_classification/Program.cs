@@ -31,8 +31,10 @@ namespace image_classification
             // here and we are copying straight to the native memory. In cases when the data resides in an array, we
             // can use it directly without copying by using CreateTensorValueFromMemory().
 
+            // The below allocates an internal native buffer.
             // Alternatively, we can also allocate a managed buffer, copy data there and then map it to the OrtValue.
-            // No significant difference, since one copy would have to be made.
+            // No significant difference, since one copy would have to be made, but may be important to have access
+            // to a managed buffer from C#.
             using var ortValue = OrtValue.CreateAllocatedTensorValue(OrtAllocator.DefaultInstance, 
                 TensorElementType.UInt8, new long[] { height, width, 3 });
 

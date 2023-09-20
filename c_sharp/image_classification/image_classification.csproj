@@ -6,8 +6,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.ML.OnnxRuntime" Version="1.16.0-dev-20230704-1234-d540c7da0f" />
-    <PackageReference Include="Microsoft.ML.OnnxRuntime.Managed" Version="1.16.0-dev-20230704-1234-d540c7da0f" />
+    <PackageReference Include="Microsoft.ML.OnnxRuntime" Version="1.16.0" />
+    <PackageReference Include="Microsoft.ML.OnnxRuntime.Managed" Version="1.16.0" />
     <PackageReference Include="SixLabors.ImageSharp" Version="2.1.1" />
   </ItemGroup>
 

@@ -87,6 +87,8 @@ namespace yolov3
 
             // Preprocessing image
             // We use DenseTensor for multi-dimensional access
+            // There is a sample code doing multi-dim indexing w/o DenseTensor
+            // using ShapeUtils.
             DenseTensor<float> input = new(new[] { 1, 3, h, w });
             clone.ProcessPixelRows(accessor =>
             {
@@ -131,11 +133,11 @@ namespace yolov3
             var indicesSpan = results[2].GetTensorDataAsSpan<int>();
 
             // We need multidimensional indexing to access boxes and scores. Problem is, we would have to
-            // copy output data into DenseTensor to use it, and that can be very large. Instead, we can 
+            // copy output data into DenseTensor via array to use it, and that can be very large. Instead, we can 
             // convert mutilidim indices into a flat index and access data straight from native memory.
             // We use DenseTensor to access multi-dimensional data
             var boxesShape = results[0].GetTensorTypeAndShape().Shape;
-            var scoresShape = results[0].GetTensorTypeAndShape().Shape;
+            var scoresShape = results[1].GetTensorTypeAndShape().Shape;
             var boxesStrides = ShapeUtils.GetStrides(boxesShape);
             var scoresStrides = ShapeUtils.GetStrides(scoresShape);
 
@@ -148,7 +150,7 @@ namespace yolov3
             
             var predictions = new List<Prediction>();
             var count = 0;
-            for (int i = 0; i < indicesSpan.Length; i = i + 3)
+            for (int i = 0; i < indicesSpan.Length; i += 3)
             {
                 out_classes[count] = indicesSpan[i + 1];
                 if (indicesSpan[i + 1] > -1)
