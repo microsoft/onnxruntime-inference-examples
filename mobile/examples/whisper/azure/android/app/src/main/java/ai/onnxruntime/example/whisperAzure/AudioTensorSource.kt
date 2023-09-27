@@ -27,7 +27,7 @@ class AudioTensorSource {
         private fun readWavFile(filePath: String): ByteArray {
             val file = File(filePath)
             if (!file.exists()) {
-                throw FileNotFoundException("Not able to file the wav output audio file with the specified path.")
+                throw FileNotFoundException("Unable to fild output wav audio file with the specified path.")
             }
 
             var inputStream: FileInputStream? = null
