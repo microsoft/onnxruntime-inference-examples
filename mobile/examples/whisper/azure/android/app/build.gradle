@@ -42,10 +42,7 @@ dependencies {
     implementation ("org.jetbrains.kotlinx:kotlinx-serialization-json:1.2.2")
 
     implementation 'com.microsoft.onnxruntime:onnxruntime-android:latest.release'
-//    implementation 'com.microsoft.onnxruntime:onnxruntime-extensions-android:latest.release'
-    // Note: The new Azure custom op will be included in the coming release. Right now, we are using a 
-    // dev version Android AAR package here
-    implementation files('libs/onnxruntime-extensions-android-0.9.0.aar')
+    implementation 'com.microsoft.onnxruntime:onnxruntime-extensions-android:latest.release'
 
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
