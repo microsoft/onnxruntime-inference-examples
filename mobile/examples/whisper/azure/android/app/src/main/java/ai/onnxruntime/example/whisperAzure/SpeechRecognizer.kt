@@ -14,8 +14,7 @@ import java.lang.Exception
 @Serializable
 data class Error(
     val message: String,
-    val type: String,
-    val code: String
+    val type: String
 )
 
 @Serializable
@@ -66,7 +65,7 @@ class SpeechRecognizer(modelBytes: ByteArray) : AutoCloseable {
         }
 
         // Parse the response from OpenAI Whisper Endpoint
-        val json = Json { ignoreUnknownKeys = true }
+        val json = Json { ignoreUnknownKeys = true; coerceInputValues = true}
         try {
             val responseText = json.decodeFromString<Response>(recognizedText)
             return Result(responseText.text, elapsedTimeInMs, true)

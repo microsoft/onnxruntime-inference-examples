@@ -148,8 +148,7 @@ class MainActivity : AppCompatActivity() {
                     runOnUiThread {
                         stopRecordingAudioButton.isEnabled = true
                     }
-
-                    val audioTensor = AudioTensorSource.fromRecording(stopRecordingFlag)
+                    val audioTensor = AudioTensorSource.fromRecording(stopRecordingFlag, applicationContext)
                     val result = audioTensor.use { speechRecognizer.run(audioTensor) }
                     handleResult(result)
                 } catch (e: Exception) {
