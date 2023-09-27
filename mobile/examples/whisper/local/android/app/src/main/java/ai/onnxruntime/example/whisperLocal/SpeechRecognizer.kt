@@ -27,10 +27,6 @@ class SpeechRecognizer(modelBytes: ByteArray) : AutoCloseable {
             "num_return_sequences" to createIntTensor(env, intArrayOf(1), tensorShape(1)),
             "length_penalty" to createFloatTensor(env, floatArrayOf(1.0f), tensorShape(1)),
             "repetition_penalty" to createFloatTensor(env, floatArrayOf(1.0f), tensorShape(1)),
-            "attention_mask" to createIntTensor(
-                env, IntArray((1 * nMels * nFrames).toInt()) { 0 },
-                tensorShape(1, nMels, nFrames)
-            ),
         )
     }
 

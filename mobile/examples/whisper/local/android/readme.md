@@ -28,6 +28,8 @@ Follow the instructions to generate the model with Olive [here](https://github.c
 
 Copy the model to `app/src/main/res/raw/whisper_cpu_int8_model.onnx`.
 
+Note: The checked in model was generated with Olive [0.3.1](https://github.com/microsoft/Olive/releases/tag/v0.3.1).
+
 ## Build and run
 
 Open this directory in Android Studio to build and run the example.
