@@ -47,7 +47,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setError(result: SpeechRecognizer.Result) {
-        Log.i(TAG, "Error: ${result.text}")
+        Log.e(TAG, "Error: ${result.text}")
         runOnUiThread {
             statusText.text = "Error"
             resultText.text = result.text
