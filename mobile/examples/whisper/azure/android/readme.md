@@ -29,7 +29,7 @@ Copy the model to `app/src/main/res/raw/openai_whisper_transcriptions.onnx`.
 
 ### Prepare an OpenAI Auth Token
 
-It's required for the app to provide an OpenAI auth token. Please update the authToken variable in `SpeechRecognizer init` (src/android/java/ai/onnxruntime/example/speechrecognition/SpeechRecognizer.kt) with your token.
+It's required for the app to provide an OpenAI auth token. Please update the authToken variable in `SpeechRecognizer init` (app/src/main/java/ai/onnxruntime/example/whisperAzure/SpeechRecognizer.kt) with your token.
 
 For local testing, you should be able to create an account with API key and initial free credits.
 
