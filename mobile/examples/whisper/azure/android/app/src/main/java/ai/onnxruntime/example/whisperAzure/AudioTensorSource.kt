@@ -166,7 +166,6 @@ class AudioTensorSource {
                 val outputFilePath = outputFile.absolutePath
                 convertPcmToWav(audioData, sampleRate, 8, 1, outputFilePath)
                 val rawWavBytes = readWavFile(outputFilePath)
-
                 return fromRawWavBytes(rawWavBytes, audioData.size)
             } finally {
                 if (audioRecord.recordingState == AudioRecord.RECORDSTATE_RECORDING) {
