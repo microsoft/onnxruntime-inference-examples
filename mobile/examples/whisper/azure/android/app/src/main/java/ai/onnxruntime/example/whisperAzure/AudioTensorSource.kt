@@ -26,20 +26,12 @@ class AudioTensorSource {
 
         private fun readWavFile(filePath: String): ByteArray {
             val file = File(filePath)
-            if (!file.exists()) {
-                throw FileNotFoundException("Unable to fild output wav audio file with the specified path.")
-            }
-
-            var inputStream: FileInputStream? = null
-            try {
-                inputStream = FileInputStream(file)
+            var inputStream = FileInputStream(file)
+            inputStream.use {
                 val fileLength = file.length().toInt()
                 val fileData = ByteArray(fileLength)
-
                 inputStream.read(fileData)
                 return fileData
-            } finally {
-                inputStream?.close()
             }
         }
 
@@ -50,19 +42,14 @@ class AudioTensorSource {
             channels: Int,
             outputFilePath: String
         ) {
-            try {
-                val header = createWavHeader(pcmData.size, sampleRate, bitsPerSample, channels)
-                val outputStream = FileOutputStream(outputFilePath)
-
+            val header = createWavHeader(pcmData.size, sampleRate, bitsPerSample, channels)
+            val outputStream = FileOutputStream(outputFilePath)
+            outputStream.use {
                 // Write the WAV header
                 outputStream.write(header)
 
                 // Write the PCM audio data
                 outputStream.write(pcmData)
-
-                outputStream.close()
-            } catch (e: IOException) {
-                e.printStackTrace()
             }
         }
 
@@ -108,14 +95,14 @@ class AudioTensorSource {
             return header
         }
 
-        fun fromRawWavBytes(rawBytes: ByteArray): OnnxTensor {
+        fun fromRawWavBytes(rawBytes: ByteArray, audioDataSize: Int = 0): OnnxTensor {
             val rawByteBuffer = ByteBuffer.wrap(rawBytes)
-            // TODO handle big-endian native order...
-            if (ByteOrder.nativeOrder() != ByteOrder.LITTLE_ENDIAN) {
-                throw NotImplementedError("Reading Wav data is only supported when native byte order is little-endian.")
+            var numBytes = 0
+            if (audioDataSize == 0) {
+                numBytes = minOf(rawByteBuffer.capacity(), maxAudioLengthInSeconds * sampleRate)
+            } else {
+                numBytes = audioDataSize + 44
             }
-            rawByteBuffer.order(ByteOrder.nativeOrder())
-            val numBytes = minOf(rawByteBuffer.capacity(), maxAudioLengthInSeconds * sampleRate)
             val env = OrtEnvironment.getEnvironment()
             return OnnxTensor.createTensor(
                 env, rawByteBuffer, tensorShape((numBytes).toLong()), OnnxJavaType.UINT8)
@@ -180,15 +167,7 @@ class AudioTensorSource {
                 convertPcmToWav(audioData, sampleRate, 8, 1, outputFilePath)
                 val rawWavBytes = readWavFile(outputFilePath)
 
-                val rawByteBuffer = ByteBuffer.wrap(rawWavBytes)
-                if (ByteOrder.nativeOrder() != ByteOrder.LITTLE_ENDIAN) {
-                    throw NotImplementedError("Reading Wav data is only supported when native byte order is little-endian.")
-                }
-                rawByteBuffer.order(ByteOrder.nativeOrder())
-
-                val env = OrtEnvironment.getEnvironment()
-                return OnnxTensor.createTensor(
-                    env, rawByteBuffer, tensorShape((audioData.size + 44).toLong()), OnnxJavaType.UINT8)
+                return fromRawWavBytes(rawWavBytes, audioData.size)
             } finally {
                 if (audioRecord.recordingState == AudioRecord.RECORDSTATE_RECORDING) {
                     audioRecord.stop()
