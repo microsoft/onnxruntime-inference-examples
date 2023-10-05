@@ -82,8 +82,8 @@ jobs:
       scheme: 'OrtBasicUsage'
       args: $(XcodeArgs)
 
-# mobile/examples/speech_recognition/android
-- job: SpeechRecognitionAndroid
+# mobile/examples/whisper/local/android
+- job: WhisperLocalAndroid
   pool:
     vmImage: "macOS-12"
 
@@ -100,7 +100,28 @@ jobs:
       - bash: |
           set -e
           ./gradlew connectedDebugAndroidTest --no-daemon
-        workingDirectory: mobile/examples/speech_recognition/android
+        workingDirectory: mobile/examples/whisper/local/android
+        displayName: "Build and run tests"
+
+# mobile/examples/whisper/azure/android
+- job: WhisperAzureAndroid
+  pool:
+    vmImage: "macOS-12"
+
+  steps:
+  - template: templates/use-python-step.yml
+
+  - template: templates/use-jdk-step.yml
+    parameters:
+      jdkVersion: "17"
+
+  - template: templates/run-with-android-emulator-steps.yml
+    parameters:
+      steps:
+      - bash: |
+          set -e
+          ./gradlew connectedDebugAndroidTest --no-daemon
+        workingDirectory: mobile/examples/whisper/azure/android
         displayName: "Build and run tests"
 
 # mobile/examples/speech_recognition/ios

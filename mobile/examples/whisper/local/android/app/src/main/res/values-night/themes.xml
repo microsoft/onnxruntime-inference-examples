@@ -1,0 +1,22 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme. -->
+    <style name="Theme.SpeechRecognition" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
+        <!-- Primary brand color. -->
+        <item name="colorPrimary">@color/dark_mode_primary</item>
+        <item name="colorPrimaryVariant">@color/dark_mode_primary_variant</item>
+        <item name="colorOnPrimary">@color/dark_mode_on_primary</item>
+        <!-- Secondary brand color. -->
+        <item name="colorSecondary">@color/dark_mode_secondary</item>
+        <item name="colorSecondaryVariant">@color/dark_mode_secondary_variant</item>
+        <item name="colorOnSecondary">@color/dark_mode_on_secondary</item>
+        <!-- Background color. -->
+        <item name="android:windowBackground">@color/dark_mode_background</item>
+        <!-- Surface color. -->
+        <item name="colorSurface">@color/dark_mode_surface</item>
+        <item name="android:colorBackgroundFloating">@color/dark_mode_surface</item>
+        <item name="colorOnSurface">@color/dark_mode_on_surface</item>
+        <!-- Error color. -->
+        <item name="colorError">@color/dark_mode_error</item>
+        <item name="colorOnError">@color/dark_mode_on_error</item>
+    </style>
+</resources>
