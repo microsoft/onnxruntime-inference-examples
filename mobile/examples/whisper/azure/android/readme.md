@@ -14,7 +14,7 @@ Example App Screenshot - A Successful result returned from OpenAI endpoint:
 
 See the general prerequisites [here](../../../../README.md#General-Prerequisites).
 
-Optionally, you will need to be able to record audio, either on an emulator or a device. In the example, a pre-recorded audio is provided.
+A pre-recorded audio file is provided in the app to simplify usage, and you can also record audio if you choose. 
 
 This example was developed with Android Studio Giraffe | 2022.3.1 Patch 1.
 It is recommended to use that version or a newer one.
