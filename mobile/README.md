@@ -75,3 +75,9 @@ This example shows how to use ORT to do speech recognition using the [Whisper](h
 
 - [Azure Whisper](examples/whisper/azure/android)
 - [Local Whisper](examples/whisper/local/android)
+
+### React Native Expo Sample
+
+This is a basic react native Expo project which demonstrates basic usage of ORT such as loading onnx models and creating inference sessions, etc.
+
+- [React Native Basic Sample](examples/React_Native/ort-rn-basic-usage/)

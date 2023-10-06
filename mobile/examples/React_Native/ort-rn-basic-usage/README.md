@@ -91,12 +91,12 @@ This is a [react native](https://reactnative.dev/docs/getting-started) applicati
 Run the following command to build and launch the app:
 
 - In `<PROJECT_ROOT>`, run the following command to launch for Android:
-    ```sh
+    
+```sh
     expo run:android
-    ```
+```
 
 - In `<PROJECT_ROOT>`, run the following command to launch for iOS:
-    ```sh
+```sh
     expo run:ios
-    ```
-
+```
