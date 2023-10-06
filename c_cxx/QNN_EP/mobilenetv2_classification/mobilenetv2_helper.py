@@ -63,7 +63,7 @@ def predict(image_path, model_path):
     img = preprocess(img)
     img.tofile('kitten_input.raw')
     img.transpose(0, 2, 3, 1).tofile('kitten_input_nhwc.raw')
-    session = ort.InferenceSession(model_path)
+    session = ort.InferenceSession(model_path, providers=['CPUExecutionProvider'])
     ort_inputs = {session.get_inputs()[0].name: img}
     preds = session.run(None, ort_inputs)[0]
     
