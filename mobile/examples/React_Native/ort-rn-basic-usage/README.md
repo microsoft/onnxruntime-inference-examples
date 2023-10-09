@@ -29,7 +29,7 @@ This is a [React Native](https://reactnative.dev/docs/getting-started) applicati
    Note: Recommend to install the current latest release version of ORT react native npm package. Can also update to install dev version npm package if needed.
 
 
-   [NPM `onnxruntime-react-native` link](https://www.npmjs.com/package/onnxruntime-react-native?activeTab=versions)
+   [Link to npm `onnxruntime-react-native` packages](https://www.npmjs.com/package/onnxruntime-react-native?activeTab=versions)
 3. Prepare the model.
 
     -  Model files are usually placed under `<PROJECT_ROOT>/assets`.
