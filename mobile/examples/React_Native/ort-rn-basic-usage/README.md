@@ -1,6 +1,6 @@
 # ONNX Runtime React Native Expo Example Application
 
-This is a [react native](https://reactnative.dev/docs/getting-started) application for [ONNX Runtime](https://github.com/microsoft/onnxruntime) via [Expo](https://docs.expo.dev/) platform. The demo app demonstrates how to accomplish simple tasks such as loading onnx models and creating inference sessions, etc. in a react native expo application.
+This is a [React Native](https://reactnative.dev/docs/getting-started) application for [ONNX Runtime](https://github.com/microsoft/onnxruntime) via [Expo](https://docs.expo.dev/) platform. The demo app demonstrates how to accomplish simple tasks such as loading onnx models and creating inference sessions, etc. in a react native expo application.
 
 ## Prerequisites
 
@@ -18,12 +18,16 @@ This is a [react native](https://reactnative.dev/docs/getting-started) applicati
 
 ## Set up
 
-1. Install NPM `onnxruntime-react-native` package.
+1. Run `yarn install` to set up JavaScript dependencies.
+    ```sh
+    yarn install
+    ```
+2. Install NPM `onnxruntime-react-native` package.
     ```sh
     expo install onnxruntime-react-native@dev
     ```
 
-2. Prepare the model.
+3. Prepare the model.
 
     -  Model files are usually placed under `<PROJECT_ROOT>/assets`.
     
@@ -41,7 +45,7 @@ This is a [react native](https://reactnative.dev/docs/getting-started) applicati
        ```
        Adjust the extension to `.onnx` accordingly if you are loading a ONNX model in your application.
 
-3. Generate Android and iOS directories native code to run your React app.
+4. Generate Android and iOS directories native code to run your React app.
     
     In this sample project, it's recommended to set up the native code automatically by using package `onnxruntime-react-native` as an Expo plugin.
     

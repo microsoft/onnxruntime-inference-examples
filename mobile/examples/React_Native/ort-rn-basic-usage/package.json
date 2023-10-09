@@ -10,13 +10,13 @@
   },
   "dependencies": {
     "expo": "~49.0.0",
+    "expo-splash-screen": "~0.20.5",
     "expo-status-bar": "~1.2.0",
     "onnxruntime-react-native": "1.16.0",
     "react": "18.2.0",
     "react-dom": "18.2.0",
-    "react-native": "0.72.4",
-    "react-native-web": "0.17.1",
-    "expo-splash-screen": "~0.20.5"
+    "react-native": "0.72.5",
+    "react-native-web": "0.17.1"
   },
   "devDependencies": {
     "@babel/core": "^7.20.20",

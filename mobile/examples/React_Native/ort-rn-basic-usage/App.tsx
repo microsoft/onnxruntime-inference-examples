@@ -8,6 +8,7 @@ let myModel: ort.InferenceSession;
 
 async function loadModel() {
   try {
+    // TODO: Can also add example code to load model from bytes here
     const assets = await Asset.loadAsync(require('./assets/mnist.ort'));
     const modelUri = assets[0].localUri;
     if (!modelUri) {
@@ -26,10 +27,13 @@ async function loadModel() {
 
 async function runModel() {
   try {
+    // Prepate model input data
     const inputData = new Float32Array(28 * 28);
     const feeds:Record<string, ort.Tensor> = {};
     feeds[myModel.inputNames[0]] = new ort.Tensor(inputData, [1, 28, 28]);
+    // Run inference session
     const fetches = await myModel.run(feeds);
+    // Process output
     const output = fetches[myModel.outputNames[0]];
     if (!output) {
       Alert.alert('failed to get output', `${myModel.outputNames[0]}`);
