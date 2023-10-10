@@ -19,7 +19,7 @@
         - qnn-onnx-converter --input_list ./input.txt --input_network ./mobilenetv2-12.onnx --output_path ./mobilenetv2-12.cpp -b 1 --bias_bw 32
         - qnn-model-lib-generator -c ./mobilenetv2-12.cpp -b ./mobilenetv2-12.bin -o ./mobilenetv2_classification/qnn_lib
         - qnn-context-binary-generator --backend ${QNN_SDK_ROOT}/target/x86_64-linux-clang/lib/libQnnHtp.so --model ./mobilenetv2_classification/qnn_lib/x86_64-linux-clang/libmobilenetv2-12.so --binary_file libmobilenetv2-12.serialized
-    - b. Create an Onnx model file from QNN generated context binary file libmobilenetv2-12.serialized.bin (more details refer to run_qnn_ep_sample.bat & https://github.com/microsoft/onnxruntime/tree/main/onnxruntime/python/tools/qnn/gen_qnn_ctx_onnx_model.py)
+    - b. Create an Onnx model file from QNN generated context binary file libmobilenetv2-12.serialized.bin. More details refer to run_qnn_ep_sample.bat & [gen_qnn_ctx_onnx_model.py](https://github.com/microsoft/onnxruntime/tree/main/onnxruntime/python/tools/qnn/gen_qnn_ctx_onnx_model.py)
 	  - python gen_qnn_ctx_onnx_model.py -b libmobilenetv2-12.serialized.bin -q mobilenetv2-12_net.json
     - c. Create ONNX Runtime session with the model generated from step b.
 	- d. Run the model with quantized input data. The output also need to be dequantized. This is because QNN quantized model use quantized data type for model inputs & outputs. More details refer to QuantizedData & DequantizedData in [main.cpp](https://github.com/microsoft/onnxruntime-inference-examples/blob/main/c_cxx/QNN_EP/mobilenetv2_classification/main.cpp). Also the input image is NHWC layout for QNN converted model.
