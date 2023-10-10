@@ -252,24 +252,7 @@ int main(int argc, char* argv[]) {
     return 1;
   }
 
-  std::string backend = "";
   bool generate_ctx = false;
-  bool generated_from_native_qnn = false;
-  if (strcmp(argv[1], CPUBACKEDN) == 0) {
-    backend = "QnnCpu.dll";
-  } else if (strcmp(argv[1], HTPBACKEDN) == 0) {
-    backend = "QnnHtp.dll";
-  } else if (strcmp(argv[1], QNNCTXBINARY) == 0) {
-    backend = "QnnHtp.dll";
-    generated_from_native_qnn = true;
-  } else {
-    std::cout << "This sample only support option cpu, htp, qnn." << std::endl;
-    PrintHelp();
-    return 1;
-  }
-
-  std::string model_path(argv[2]);
-  std::string input_path(argv[3]);
   if (argc == 5) {
     if (strcmp(argv[4], GENERATE_CTX) == 0) {
       generate_ctx = true;
@@ -279,6 +262,32 @@ int main(int argc, char* argv[]) {
       return 1;
     }
   }
+
+  std::string backend = "";
+  bool generated_from_native_qnn = false;
+  if (strcmp(argv[1], CPUBACKEDN) == 0) {
+    backend = "QnnCpu.dll";
+    if (generate_ctx) {
+      std::cout << "--gen_ctx won't work with CPU backend." << std::endl;
+      return 1;
+    }
+  } else if (strcmp(argv[1], HTPBACKEDN) == 0) {
+    backend = "QnnHtp.dll";
+  } else if (strcmp(argv[1], QNNCTXBINARY) == 0) {
+    backend = "QnnHtp.dll";
+    generated_from_native_qnn = true;
+    if (generate_ctx) {
+      std::cout << "--gen_ctx won't work with --qnn." << std::endl;
+      return 1;
+    }
+  } else {
+    std::cout << "This sample only support option cpu, htp, qnn." << std::endl;
+    PrintHelp();
+    return 1;
+  }
+
+  std::string model_path(argv[2]);
+  std::string input_path(argv[3]);
 
   run_ort_qnn_ep(backend, model_path, input_path, generated_from_native_qnn, generate_ctx);
   return 0;
