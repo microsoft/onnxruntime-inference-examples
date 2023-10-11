@@ -100,7 +100,11 @@ copy /y ..\..\synset.txt .
 REM run mobilenetv2-12_shape.onnx with QNN CPU backend 
 qnn_ep_sample.exe --cpu mobilenetv2-12_shape.onnx kitten_input.raw
 
-REM run mobilenetv2-12_quant_shape.onnx with QNN HTP backend, generate mobilenetv2-12_quant_shape.onnx_qnn_ctx.onnx
+REM run mobilenetv2-12_quant_shape.onnx with QNN HTP backend
+qnn_ep_sample.exe --htp mobilenetv2-12_quant_shape.onnx kitten_input.raw
+
+REM load mobilenetv2-12_quant_shape.onnx with QNN HTP backend, generate mobilenetv2-12_quant_shape.onnx_qnn_ctx.onnx which hs QNN context binary embeded
+REM This does not has to be run on real device with HTP, it can be done on x64 platform also, since it supports offline generation
 qnn_ep_sample.exe --htp mobilenetv2-12_quant_shape.onnx kitten_input.raw --gen_ctx
 
 REM run mobilenetv2-12_quant_shape.onnx_qnn_ctx.onnx with QNN HTP backend

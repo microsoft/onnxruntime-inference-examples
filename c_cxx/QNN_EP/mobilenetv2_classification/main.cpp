@@ -96,6 +96,10 @@ void run_ort_qnn_ep(const std::string& backend, const std::string& model_path, c
                                                                   options_values.data(), options_keys.size()));
   OrtSession* session;
   CheckStatus(g_ort, g_ort->CreateSession(env, model_path_wstr.c_str(), session_options, &session));
+  if (generate_ctx) {
+    printf("\nOnnx model with QNN context binary is generated.\n");
+    return;
+  }
 
   OrtAllocator* allocator;
   CheckStatus(g_ort, g_ort->GetAllocatorWithDefaultOptions(&allocator));
