@@ -13,44 +13,75 @@ This is a [React Native](https://reactnative.dev/docs/getting-started) applicati
     ```sh
     npm install -g yarn
     ```
-**NOTE:**
-   For creating a new react native expo project from scratch, refer to: https://docs.expo.dev/get-started/create-a-project/
 
-## Set up
+
+## Validate your React Native Environment
+
+Run the example expo app as-is for validating local React Native environment setup.
+
+**Steps:**
 
 1. Run `yarn install` to set up JavaScript dependencies.
     ```sh
     yarn install
     ```
+
 2. Install NPM `onnxruntime-react-native` package.
     ```sh
     expo install onnxruntime-react-native@latest
     ```
-   Note: Recommend to install the current latest release version of ORT react native npm package. Can also update to install dev version npm package if needed.
+ 
+3. Run the following command in `<PROJECT_ROOT>` to generate Android and iOS project.
+        ```sh
+        expo prebuild
+        ```
+    The generated Android and iOS project code will be updated automatically.
 
+4. Build and run the app. 
+
+    Run the following command to build and launch the app:
+
+    - In `<PROJECT_ROOT>`, run the following command to launch for Android:
+        
+    ```sh
+        expo run:android
+    ```
+
+    - In `<PROJECT_ROOT>`, run the following command to launch for iOS:
+    ```sh
+        expo run:ios
+    ```
+
+## Steps that were done to add onnxruntime-react-native to the example app
+
+The following steps were done in this sample for using onxnruntime-react-native. These can be replicated as a reference when setting up your own react native expo application.
+
+1. NPM `onnxruntime-react-native` package. 
+
+   Note: By default, we install the current latest release version of ORT react native npm package(Recommended). Can also update to dev version npm package if necessary.
 
    [Link to npm `onnxruntime-react-native` packages](https://www.npmjs.com/package/onnxruntime-react-native?activeTab=versions)
-3. Prepare the model.
+
+2. Prepare the model.
 
     -  Model files are usually placed under `<PROJECT_ROOT>/assets`.
     
-       In this sample application, a simple ORT format MNIST model (`mnist.ort`) is provided.
+       In this sample application, a simple ONNX MNIST model (`mnist.onnx`) is provided by default.
 
-    -  File `metro.config.js` under `<PROJECT_ROOT>` adds the extension `ort` to the bundler's asset extension list, which allows the bundler to include the model into assets.
+    -  Add file `metro.config.js` under `<PROJECT_ROOT>`. This file adds the extension `.onnx` to the bundler's asset extension list, which allows the bundler to include the model into assets.
        
        `metro.config.js` file in this sample application looks like:
 
        ```js
        const { getDefaultConfig } = require('@expo/metro-config');
        const defaultConfig = getDefaultConfig(__dirname);
-       defaultConfig.resolver.assetExts.push('ort');
+       defaultConfig.resolver.assetExts.push('onnx');
        module.exports = defaultConfig;
        ```
-       Adjust the extension to `.onnx` accordingly if you are loading a ONNX model in your application.
 
-4. Generate Android and iOS directories native code to run your React app.
+3. Generate Android and iOS directories native code to run your React Native app.
     
-    In this sample project, it's recommended to set up the native code automatically by using package `onnxruntime-react-native` as an Expo plugin.
+    In this sample project, it generates the native code automatically by using package `onnxruntime-react-native` as an Expo plugin. (Recommended approach.)
     
     - In `<PROJECT_ROOT>/app.json`, add the following line to section `expo`:
         ```
@@ -93,17 +124,5 @@ This is a [React Native](https://reactnative.dev/docs/getting-started) applicati
         ```sh
         pod install
         ```
-## Build and run
-
-Run the following command to build and launch the app:
-
-- In `<PROJECT_ROOT>`, run the following command to launch for Android:
-    
-```sh
-    expo run:android
-```
-
-- In `<PROJECT_ROOT>`, run the following command to launch for iOS:
-```sh
-    expo run:ios
-```
+**NOTE:**
+   If you are interested in creating a new react native expo project from scratch, refer to instructions: https://docs.expo.dev/get-started/create-a-project/

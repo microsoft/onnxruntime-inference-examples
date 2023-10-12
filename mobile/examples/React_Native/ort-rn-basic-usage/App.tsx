@@ -9,7 +9,10 @@ let myModel: ort.InferenceSession;
 async function loadModel() {
   try {
     // TODO: Can also add example code to demonstrate loading model from bytes here
-    const assets = await Asset.loadAsync(require('./assets/mnist.ort'));
+
+    // Note: `.onnx` model files can be viewed in Netron (https://github.com/lutzroeder/netron) to see
+    // model inputs/outputs detail and data types, shapes of those, etc.
+    const assets = await Asset.loadAsync(require('./assets/mnist.onnx'));
     const modelUri = assets[0].localUri;
     if (!modelUri) {
       Alert.alert('failed to get model URI', `${assets[0]}`);
@@ -28,6 +31,7 @@ async function loadModel() {
 async function runModel() {
   try {
     // Prepare model input data
+    // Note: In real use case, you must set the inputData to the actual input values
     const inputData = new Float32Array(28 * 28);
     const feeds:Record<string, ort.Tensor> = {};
     feeds[myModel.inputNames[0]] = new ort.Tensor(inputData, [1, 28, 28]);
