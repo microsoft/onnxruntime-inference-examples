@@ -2,20 +2,18 @@
 
 TODO: Add overview of ORT Mobile model zoo here
 
-
-
-Note: Plan to group the mobile model zoo models by tasks.
-
-## Models
+## Tasks
 
 ### Audio
  - Speech-To-Text
 
 ### Natural Language Processing
- - Question Answering
+ - [Question Answering](mobile/model_zoo/nlp/question_answering)
 
 
 ### Vision
 -  Image Classification
 -  Object Detection
--  Super Resolution
+-  [Super Resolution](mobile/model_zoo/vision/super_resolution)
+
+## Models
