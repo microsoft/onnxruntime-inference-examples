@@ -8,7 +8,6 @@ import { Asset } from 'expo-asset';
 // import RNFS from 'react-native-fs';
 // import base64 from 'base64-js';
 
-
 let myModel: ort.InferenceSession;
 
 async function loadModel() {
