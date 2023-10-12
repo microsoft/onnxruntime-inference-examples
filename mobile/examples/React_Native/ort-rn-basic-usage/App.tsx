@@ -4,7 +4,7 @@ import { Alert, Button, StyleSheet, Text, View } from 'react-native';
 import * as ort from 'onnxruntime-react-native';
 import { Asset } from 'expo-asset';
 
-// Note: These modules are used for loading model from bytes
+// Note: These modules are used for reading model into bytes
 // import RNFS from 'react-native-fs';
 // import base64 from 'base64-js';
 
