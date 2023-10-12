@@ -2,7 +2,7 @@
 - Builds the sample compiled against the ONNX Runtime built with support for Qualcomm AI Engine Direct SDK (Qualcomm Neural Network (QNN) SDK).
 - The sample uses the QNN EP to:
   - a. run the float32 model on Qnn CPU banckend.
-  - b. run the QDQ model on HTP backend with qnn_context_cache_enable=1, and generates the Onnx model which has QNN context binary embeded.
+  - b. run the QDQ model on HTP backend with qnn_context_cache_enable=1, and generates the Onnx model which has QNN context binary embedded.
   - c. run the QNN context binary model generated from ONNX Runtime (previous step) on HTP backend, to improve the model initialization time and reduce memory overhead.
   - d. run the QNN context binary model generated from QNN tool chain on HTP backend, to support models generated from native QNN tool chain.
 - The sample downloads the mobilenetv2 model from Onnx model zoo, and use mobilenetv2_helper.py to quantize the float32 model to QDQ model which is required for HTP backend
@@ -12,7 +12,7 @@
     - a. Set qnn_context_cache_enable to 1 and run with QDQ model.
     - b. The first run will generate the context binary model (Default file name is model_file_name.onnx_qnn_ctx.onnx if qnn_context_cache_path is not set.).
     - c. Use the generated context binary model (mobilenetv2-12_quant_shape.onnx_qnn_ctx.onnx) for inference going forward. (No need the QDQ model, no need to set the qnn_context_cache_enable).
-    - Notes: The QNN context binary is embeded inside the Onnx model by default. You can also set QNN EP option qnn_context_embed_mode = 0, so that the it will generate the QNN context as a separate file and put the relative path in the Onnx model. It' useful if the QNN context binary size exceeds 2GB limit of protobuf.
+    - Notes: The QNN context binary is embedded within the ONNX model by default. Alternatively, set the QNN EP session option qnn_context_embed_mode to 0 in order to generate the QNN context binary as a separate file and embed the file's relative path in the ONNX model. This is necessary if the QNN context binary size exceeds protobuf's 2GB limit.
 	- Offline prepare is also supported. Generate the QNN context binary on x64 machine and run it on QC ARM64 device.
     ```
 	# Build the qnn_ep_sample with x64.
@@ -33,7 +33,7 @@
 	  - python gen_qnn_ctx_onnx_model.py -b libmobilenetv2-12.serialized.bin -q mobilenetv2-12_net.json
     - c. Create ONNX Runtime session with the model generated from step b.
 	- d. Run the model with quantized input data. The output also need to be dequantized. This is because QNN quantized model use quantized data type for model inputs & outputs. More details refer to QuantizedData & DequantizedData in [main.cpp](https://github.com/microsoft/onnxruntime-inference-examples/blob/main/c_cxx/QNN_EP/mobilenetv2_classification/main.cpp). Also the input image is NHWC layout for QNN converted model.
-    - Notes: Set --disable_embed_mode to gen_qnn_ctx_onnx_model.py, so that it will generate the Onnx model with the relative path to the QNN context bianry file. It' useful if the QNN context binary size exceeds 2GB limit of protobuf.
+    - Notes: Call gen_qnn_ctx_onnx_model.py with --disable_embed_mode to generate the ONNX model with the relative path to the QNN context binary file. This is necessary if the QNN context binary size exceeds protobuf's 2GB limit.
 
 - More info on QNN EP - https://onnxruntime.ai/docs/execution-providers/QNN-ExecutionProvider.html
 
@@ -72,7 +72,7 @@ qnn_ep_sample.exe --htp mobilenetv2-12_quant_shape.onnx kitten_input.raw
 Result:
 position=281, classification=n02123045 tabby, tabby cat, probability=13.637316
 
-REM load mobilenetv2-12_quant_shape.onnx with QNN HTP backend, generate mobilenetv2-12_quant_shape.onnx_qnn_ctx.onnx which hs QNN context binary embeded
+REM load mobilenetv2-12_quant_shape.onnx with QNN HTP backend, generate mobilenetv2-12_quant_shape.onnx_qnn_ctx.onnx which hs QNN context binary embedded
 REM This does not has to be run on real device with HTP, it can be done on x64 platform also, since it supports offline generation
 qnn_ep_sample.exe --htp mobilenetv2-12_quant_shape.onnx kitten_input.raw --gen_ctx
 
