@@ -4,12 +4,15 @@ import { Alert, Button, StyleSheet, Text, View } from 'react-native';
 import * as ort from 'onnxruntime-react-native';
 import { Asset } from 'expo-asset';
 
+// Note: These modules are used for loading model from bytes
+// import RNFS from 'react-native-fs';
+// import base64 from 'base64-js';
+
+
 let myModel: ort.InferenceSession;
 
 async function loadModel() {
   try {
-    // TODO: Can also add example code to demonstrate loading model from bytes here
-
     // Note: `.onnx` model files can be viewed in Netron (https://github.com/lutzroeder/netron) to see
     // model inputs/outputs detail and data types, shapes of those, etc.
     const assets = await Asset.loadAsync(require('./assets/mnist.onnx'));
@@ -17,10 +20,16 @@ async function loadModel() {
     if (!modelUri) {
       Alert.alert('failed to get model URI', `${assets[0]}`);
     } else {
+      // load model from model url path
       myModel = await ort.InferenceSession.create(modelUri);
       Alert.alert(
         'model loaded successfully',
         `input names: ${myModel.inputNames}, output names: ${myModel.outputNames}`);
+
+      // loading model from bytes
+      // const base64Str = await RNFS.readFile(modelUri, 'base64');
+      // const uint8Array = base64.toByteArray(base64Str);
+      // myModel = await ort.InferenceSession.create(uint8Array);
     }
   } catch (e) {
     Alert.alert('failed to load model', `${e}`);
