@@ -8,12 +8,12 @@ TODO: Add overview of ORT Mobile model zoo here
  - Speech-To-Text
 
 ### Natural Language Processing
- - [Question Answering](mobile/model_zoo/nlp/question_answering)
+ - [Question Answering](nlp/question_answering)
 
 
 ### Vision
 -  Image Classification
 -  Object Detection
--  [Super Resolution](mobile/model_zoo/vision/super_resolution)
+-  [Super Resolution](vision/super_resolution)
 
 ## Models
