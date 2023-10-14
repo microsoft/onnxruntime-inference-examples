@@ -7,7 +7,7 @@ import logging
 from PIL import Image
 import onnx
 import onnxruntime
-from onnxruntime.quantization import CalibrationDataReader, create_calibrator, write_calibration_table
+from onnxruntime.quantization import CalibrationDataReader, CalibrationMethod, create_calibrator, write_calibration_table
 
 
 class ImageNetDataReader(CalibrationDataReader):
@@ -225,6 +225,7 @@ class ImageClassificationEvaluator:
     def predict(self):
         sess_options = onnxruntime.SessionOptions()
         sess_options.log_severity_level = 0
+        sess_options.log_verbosity_level = 0
         sess_options.graph_optimization_level = onnxruntime.GraphOptimizationLevel.ORT_DISABLE_ALL
         session = onnxruntime.InferenceSession(self.model_path, sess_options=sess_options, providers=self.providers)
 
@@ -309,7 +310,8 @@ if __name__ == '__main__':
 
     # Dataset settings
     model_path = "./resnet50-v2-7.onnx"
-    ilsvrc2012_dataset_path = "./ILSVRC2012"
+    ilsvrc2012_dataset_path = "/code/onnx_models/imagenet/ILSVRC2012"
+    #ilsvrc2012_dataset_path = "./ILSVRC2012"
     augmented_model_path = "./augmented_model.onnx"
     batch_size = 20
     calibration_dataset_size = 1000  # Size of dataset for calibration
@@ -334,7 +336,7 @@ if __name__ == '__main__':
     # Generate INT8 calibration table
     if calibration_table_generation_enable:
         calibrator = create_calibrator(new_model_path, [], augmented_model_path=augmented_model_path)
-        calibrator.set_execution_providers(["ROCmExecutionProvider"])        
+        calibrator.set_execution_providers(["ROCMExecutionProvider"])        
         data_reader = ImageNetDataReader(ilsvrc2012_dataset_path,
                                          start_index=0,
                                          end_index=calibration_dataset_size,
@@ -343,9 +345,17 @@ if __name__ == '__main__':
                                          model_path=augmented_model_path,
                                          input_name=input_name)
         calibrator.collect_data(data_reader)
-        write_calibration_table(calibrator.compute_range())
+        cal_tensors = calibrator.compute_data()
 
-    # Run prediction in Tensorrt EP
+        serial_cal_tensors = {}
+        for keys, values in cal_tensors.data.items():
+            print(keys)
+            print(values.range_value)
+            serial_cal_tensors[keys] = values.range_value
+
+        write_calibration_table(serial_cal_tensors)
+
+    # Run prediction in MIGraphX EP
     data_reader = ImageNetDataReader(ilsvrc2012_dataset_path,
                                      start_index=calibration_dataset_size,
                                      end_index=calibration_dataset_size + prediction_dataset_size,
