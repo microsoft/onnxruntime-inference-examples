@@ -62,6 +62,21 @@ ort.env.webgl.pack = true;
 
 See also [WebGL flags](https://onnxruntime.ai/docs/api/js/interfaces/Env.WebGLFlags.html) in API reference document.
 
+### WebGPU flags (ONNX Runtime Web)
+WebGPU flags are used to customize behaviors of WebGPU execution provider.
+
+Following are some example code snippets:
+
+```js
+// enable WebGPU profiling.
+ort.env.webgpu.profilingMode = 'default';
+
+// get the gpu device object.
+const device = ort.env.webgpu.device;
+```
+
+See also [WebGPU flags](https://onnxruntime.ai/docs/api/js/interfaces/Env.WebGpuFlags.html) in API reference document.
+
 ### SessionOptions vs. ort.env
 
 Both `SessionOptions` and `ort.env` allow to specify configurations for inferencing behaviors. The biggest difference of them is: `SessionOptions` is set for one inference session instance, while `ort.env` is set global.
