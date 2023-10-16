@@ -4,12 +4,15 @@
         <title>ONNX Runtime JavaScript examples: Quick Start - Web (using script tag)</title>
     </header>
     <body>
-        <!-- see also advanced usage of importing ONNX Runtime Web: -->
-        <!-- https://github.com/microsoft/onnxruntime-inference-examples/tree/main/js/importing_onnxruntime-web -->
+        <script type="module">
+            // see also advanced usage of importing ONNX Runtime Web:
+            // https://github.com/microsoft/onnxruntime-inference-examples/tree/main/js/importing_onnxruntime-web
 
-        <!-- import ONNXRuntime Web from CDN -->
-        <script src="https://cdn.jsdelivr.net/npm/onnxruntime-web/dist/ort.min.js"></script>
-        <script>
+            // import ONNXRuntime Web from CDN
+            import * as ort from "https://cdn.jsdelivr.net/npm/onnxruntime-web/dist/esm/ort.min.js";
+            // set wasm path override
+            ort.env.wasm.wasmPaths = "https://cdn.jsdelivr.net/npm/onnxruntime-web/dist/";
+
             // use an async context to call onnxruntime functions.
             async function main() {
                 try {
