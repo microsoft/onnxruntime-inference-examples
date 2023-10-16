@@ -185,7 +185,7 @@ def inference(input_names, output_names, device, mlas_model, ovep_model, model_i
                 inf_lst.append((end_time - start_time).total_seconds())
             # print((end_time - start_time).total_seconds())
     else:
-        print("Invalid Device Option. Supported device options are 'cpu', 'CPU_FP32'.")
+        print("Invalid Device Option. Supported device options are 'CPUEP', 'OVEP.")
         return None
     
     average_inference_time = np.average(inf_lst)
