@@ -9,6 +9,7 @@ The ONNX Runtime Mobile Model Zoo is a collection of pre-trained, state-of-the-a
 
 ### Natural Language Processing
  - [Question Answering](nlp/question_answering)
+ - [Sentiment Analysis](nlp/sentiment_analysis/)
 
 
 ### Vision
