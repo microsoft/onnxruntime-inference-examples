@@ -126,7 +126,7 @@ class ImageNetDataReader(CalibrationDataReader):
         return: list of matrices characterizing multiple images
         '''
         def preprocess_images(input, channels=3, height=224, width=224):
-            image = input.resize((width, height), Image.ANTIALIAS)
+            image = input.resize((width, height), Image.Resampling.LANCZOS)
             input_data = np.asarray(image).astype(np.float32)
             if len(input_data.shape) != 2:
                 input_data = input_data.transpose([2, 0, 1])
@@ -135,7 +135,14 @@ class ImageNetDataReader(CalibrationDataReader):
             mean = np.array([0.079, 0.05, 0]) + 0.406
             std = np.array([0.005, 0, 0.001]) + 0.224
             for channel in range(input_data.shape[0]):
-                input_data[channel, :, :] = (input_data[channel, :, :] / 255 - mean[channel]) / std[channel]
+                try:
+                    m = mean[channel]
+                    s = std[channel]
+                    c = input_data[channel, :, :]
+                    input_data[channel, :, :] = (c / 255 - m) / s
+                except:
+                    print(input_data.shape)
+                    return None
             return input_data
 
         image_names = os.listdir(images_folder)
@@ -155,6 +162,9 @@ class ImageNetDataReader(CalibrationDataReader):
             image_filepath = images_folder + '/' + image_name
             img = Image.open(image_filepath)
             image_data = preprocess_images(img)
+            if image_data is None:
+                print(image_name)
+                continue
             image_data = np.expand_dims(image_data, 0)
             unconcatenated_batch_data.append(image_data)
             image_size_list.append(np.array([img.size[1], img.size[0]], dtype=np.float32).reshape(1, 2))
@@ -313,13 +323,13 @@ if __name__ == '__main__':
     ilsvrc2012_dataset_path = "/code/onnx_models/imagenet/ILSVRC2012"
     #ilsvrc2012_dataset_path = "./ILSVRC2012"
     augmented_model_path = "./augmented_model.onnx"
-    batch_size = 20
+    batch_size = 50
     calibration_dataset_size = 1000  # Size of dataset for calibration
 
     # INT8 calibration setting
     calibration_table_generation_enable = True  # Enable/Disable INT8 calibration
 
-    # TensorRT EP INT8 settings
+    # MIGraphX EP INT8 settings
     os.environ["ORT_MIGRAPHX_FP16_ENABLE"] = "1"  # Enable FP16 precision
     os.environ["ORT_MIGRAPHX_INT8_ENABLE"] = "1"  # Enable INT8 precision
     os.environ["ORT_MIGRAPHX_INT8_CALIBRATION_TABLE_NAME"] = "calibration.flatbuffers"  # Calibration table name
@@ -335,6 +345,7 @@ if __name__ == '__main__':
 
     # Generate INT8 calibration table
     if calibration_table_generation_enable:
+        print("Generating Calibration Table")
         calibrator = create_calibrator(new_model_path, [], augmented_model_path=augmented_model_path)
         calibrator.set_execution_providers(["ROCMExecutionProvider"])        
         data_reader = ImageNetDataReader(ilsvrc2012_dataset_path,
@@ -349,13 +360,15 @@ if __name__ == '__main__':
 
         serial_cal_tensors = {}
         for keys, values in cal_tensors.data.items():
-            print(keys)
-            print(values.range_value)
+            #print(keys)
+            #print(values.range_value)
             serial_cal_tensors[keys] = values.range_value
 
+        print("Writing calibration table")
         write_calibration_table(serial_cal_tensors)
+        print("Write complete")
 
-    # Run prediction in MIGraphX EP
+    # Run prediction in MIGraphX EP138G
     data_reader = ImageNetDataReader(ilsvrc2012_dataset_path,
                                      start_index=calibration_dataset_size,
                                      end_index=calibration_dataset_size + prediction_dataset_size,
@@ -363,9 +376,13 @@ if __name__ == '__main__':
                                      batch_size=batch_size,
                                      model_path=new_model_path,
                                      input_name=input_name)
+    print("Completed Data Reader")
     synset_id = data_reader.get_synset_id(ilsvrc2012_dataset_path, calibration_dataset_size,
                                           prediction_dataset_size)  # Generate synset id
+    print("Prepping Evalulator")
     evaluator = ImageClassificationEvaluator(new_model_path, synset_id, data_reader, providers=execution_provider)
+    print("Performing Predictions")
     evaluator.predict()
+    print("Read out answer")
     result = evaluator.get_result()
     evaluator.evaluate(result)
