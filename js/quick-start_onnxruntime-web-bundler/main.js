@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
+// see also advanced usage of importing ONNX Runtime Web:
+// https://github.com/microsoft/onnxruntime-inference-examples/tree/main/js/importing_onnxruntime-web
 const ort = require('onnxruntime-web');
 
 // use an async context to call onnxruntime functions.
