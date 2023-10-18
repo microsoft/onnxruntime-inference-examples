@@ -42,7 +42,7 @@ async function runModel() {
     // Note: In real use case, you must set the inputData to the actual input values
     const inputData = new Float32Array(28 * 28);
     const feeds:Record<string, ort.Tensor> = {};
-    feeds[myModel.inputNames[0]] = new ort.Tensor(inputData, [1, 28, 28]);
+    feeds[myModel.inputNames[0]] = new ort.Tensor(inputData, [1, 1, 28, 28]);
     // Run inference session
     const fetches = await myModel.run(feeds);
     // Process output
