@@ -14,7 +14,19 @@ The ONNX Runtime Mobile Model Zoo is a collection of pre-trained, state-of-the-a
 
 ### Vision
 -  Image Classification
--  Object Detection
+-  [Object Detection](vision/object_detection)
 -  [Super Resolution](vision/super_resolution)
 
 ## Models
+
+- [DistilBert](https://huggingface.co/docs/transformers/model_doc/distilbert)
+   - [distilbert-base-uncased-finetuned-sst-2-english](https://huggingface.co/distilbert-base-uncased-finetuned-sst-2-english)
+   - [distilbert-base-uncase-distilled-squad](https://huggingface.co/Xenova/distilbert-base-uncased-distilled-squad)
+
+- YOLO
+  - [yolov8n](https://github.com/ultralytics/ultralytics#documentation)
+
+
+#
+
+[ONNX Model Zoo](https://github.com/onnx/models#onnx-model-zoo)
