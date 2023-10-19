@@ -25,6 +25,10 @@ The ONNX Runtime Mobile Model Zoo is a collection of pre-trained, state-of-the-a
 
 - YOLO
   - [yolov8n](https://github.com/ultralytics/ultralytics#documentation)
+  
+  
+
+- [Real-ESGRAN](https://github.com/ai-forever/Real-ESRGAN)
 
 
 #
