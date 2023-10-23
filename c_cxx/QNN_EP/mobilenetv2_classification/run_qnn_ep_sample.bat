@@ -38,17 +38,30 @@ REM Download label file
 IF NOT EXIST %LABEL_FILE% (
     powershell -Command "Invoke-WebRequest %LABEL_FILE_URL% -Outfile %LABEL_FILE%" )
 
-REM Generate QDQ model, fixed shape float32 model, fixed shape QDQ model, kitten_input.raw
+REM Generate QDQ model, fixed shape float32 model, fixed shape QDQ model, kitten_input.raw, and kitten_input_nhwc.raw
 REM If there are issues installing python pkgs due to long paths see https://github.com/onnx/onnx/issues/5256
 IF NOT EXIST mobilenetv2-12_shape.onnx (
-    @ECHO ON
-    pip install opencv-python
-    pip install pillow
-    pip install onnx
-    pip install onnxruntime
-    python mobilenetv2_helper.py
-    @ECHO OFF
+    GOTO INSTALL_PYTHON_DEPS_AND_RUN_HELPER
+) ELSE IF NOT EXIST kitten_input.raw (
+    GOTO INSTALL_PYTHON_DEPS_AND_RUN_HELPER
+) ELSE IF NOT EXIST kitten_input_nhwc.raw (
+    GOTO INSTALL_PYTHON_DEPS_AND_RUN_HELPER
+) ELSE (
+    GOTO END_PYTHON
 )
+
+:INSTALL_PYTHON_DEPS_AND_RUN_HELPER
+@ECHO ON
+pip install opencv-python
+pip install pillow
+pip install onnx
+pip install onnxruntime
+python mobilenetv2_helper.py
+@ECHO OFF
+GOTO END_PYTHON
+
+:END_PYTHON
+
 
 REM Download add_trans_cast.py file
 set QNN_CTX_ONNX_GEN_SCRIPT_URL="https://raw.githubusercontent.com/microsoft/onnxruntime/main/onnxruntime/python/tools/qnn/gen_qnn_ctx_onnx_model.py"
@@ -107,8 +120,15 @@ REM load mobilenetv2-12_quant_shape.onnx with QNN HTP backend, generate mobilene
 REM This does not has to be run on real device with HTP, it can be done on x64 platform also, since it supports offline generation
 qnn_ep_sample.exe --htp mobilenetv2-12_quant_shape.onnx kitten_input.raw --gen_ctx
 
-REM run mobilenetv2-12_quant_shape.onnx_qnn_ctx.onnx with QNN HTP backend
-qnn_ep_sample.exe --htp mobilenetv2-12_quant_shape.onnx_qnn_ctx.onnx kitten_input.raw
+REM TODO Check for mobilenetv2-12_quant_shape.onnx_qnn_ctx.onnx
+
+IF EXIST mobilenetv2-12_quant_shape.onnx_qnn_ctx.onnx (
+    REM run mobilenetv2-12_quant_shape.onnx_qnn_ctx.onnx with QNN HTP backend (generted from previous step)
+    qnn_ep_sample.exe --htp mobilenetv2-12_quant_shape.onnx_qnn_ctx.onnx kitten_input.raw
+) ELSE (
+    ECHO mobilenetv2-12_quant_shape.onnx_qnn_ctx.onnx does not exist. It didn't get generated in previous step. Are you using ONNX 1.17+?
+)
+
 
 REM run mobilenetv2-12_net_qnn_ctx.onnx (generated from native QNN) with QNN HTP backend
 qnn_ep_sample.exe --qnn mobilenetv2-12_net_qnn_ctx.onnx kitten_input_nhwc.raw
