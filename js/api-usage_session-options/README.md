@@ -21,6 +21,7 @@ An [execution provider](https://onnxruntime.ai/docs/reference/execution-provider
 | `dml`   | GPU (Direct ML)   | onnxruntime-node (Windows)        |
 | `wasm`  | CPU (WebAssembly) | onnxruntime-web, onnxruntime-node |
 | `webgl` | GPU (WebGL)       | onnxruntime-web                   |
+| `webgpu`| GPU (WebGPU)      | onnxruntime-web                   |
 
 Execution provider is specified by `sessionOptions.executionProviders`. Multiple EPs can be specified and the first available one will be used.
 
@@ -62,6 +63,17 @@ const sessionOption = { executionProviders: ['wasm'] };
 ```js
 // [ONNX Runtime Web example] Use WebGL EP.
 const sessionOption = { executionProviders: ['webgl'] };
+```
+
+```js
+// [ONNX Runtime Web example] Use WebGPU EP.
+const sessionOption = { executionProviders: ['webgpu'] };
+
+// [ONNX Runtime Web example] Use WebGPU EP with extra config.
+const sessionOption2 = { executionProviders: [{
+  name: 'webgpu',
+  preferredLayout: 'NCHW'
+}] }
 ```
 
 ### other common options

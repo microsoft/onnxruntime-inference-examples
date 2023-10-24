@@ -111,7 +111,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun readModel(): ByteArray {
-        val modelID = R.raw.csarron_mobilebert_uncased_squad_v2_quant_with_pre_post_processing
+        val modelID = R.raw.mobilebert_quant_with_pre_post_processing
         return resources.openRawResource(modelID).readBytes()
     }
 
