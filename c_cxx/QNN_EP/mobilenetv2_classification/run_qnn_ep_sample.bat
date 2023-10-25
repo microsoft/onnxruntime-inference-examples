@@ -98,10 +98,14 @@ copy /y %ORT_BIN%\qnncpu.dll .
 copy /y %ORT_BIN%\QnnHtp.dll .
 copy /y %ORT_BIN%\QnnHtpPrepare.dll .
 copy /y %ORT_BIN%\QnnHtpV68Stub.dll .
-copy /y %ORT_BIN%\QnnHtpV73Stub.dll
+IF EXIST %ORT_BIN%\QnnHtpV73Stub.dll (
+    copy /y %ORT_BIN%\QnnHtpV73Stub.dll .
+)
 copy /y %ORT_BIN%\QnnSystem.dll .
 copy /y %ORT_BIN%\libQnnHtpV68Skel.so .
-copy /y %ORT_BIN%\libQnnHtpV73Skel.so
+IF EXIST %ORT_BIN%\libQnnHtpV73Skel.so (
+    copy /y %ORT_BIN%\libQnnHtpV73Skel.so
+)
 copy /y ..\..\mobilenetv2-12_shape.onnx .
 copy /y ..\..\mobilenetv2-12_quant_shape.onnx .
 copy /y ..\..\mobilenetv2-12_net_qnn_ctx.onnx .
@@ -116,7 +120,7 @@ qnn_ep_sample.exe --cpu mobilenetv2-12_shape.onnx kitten_input.raw
 REM run mobilenetv2-12_quant_shape.onnx with QNN HTP backend
 qnn_ep_sample.exe --htp mobilenetv2-12_quant_shape.onnx kitten_input.raw
 
-REM load mobilenetv2-12_quant_shape.onnx with QNN HTP backend, generate mobilenetv2-12_quant_shape.onnx_qnn_ctx.onnx which hs QNN context binary embedded
+REM load mobilenetv2-12_quant_shape.onnx with QNN HTP backend, generate mobilenetv2-12_quant_shape.onnx_qnn_ctx.onnx which has QNN context binary embedded
 REM This does not has to be run on real device with HTP, it can be done on x64 platform also, since it supports offline generation
 qnn_ep_sample.exe --htp mobilenetv2-12_quant_shape.onnx kitten_input.raw --gen_ctx
 
@@ -126,7 +130,7 @@ IF EXIST mobilenetv2-12_quant_shape.onnx_qnn_ctx.onnx (
     REM run mobilenetv2-12_quant_shape.onnx_qnn_ctx.onnx with QNN HTP backend (generted from previous step)
     qnn_ep_sample.exe --htp mobilenetv2-12_quant_shape.onnx_qnn_ctx.onnx kitten_input.raw
 ) ELSE (
-    ECHO mobilenetv2-12_quant_shape.onnx_qnn_ctx.onnx does not exist. It didn't get generated in previous step. Are you using ONNX 1.17+?
+    ECHO mobilenetv2-12_quant_shape.onnx_qnn_ctx.onnx does not exist. It didn't get generated in previous step. Are you using ONNX 1.17+? or build from latest main branch
 )
 
 
@@ -140,5 +144,5 @@ exit /b
 :HELP
 popd
 ECHO HELP:    run_qnn_ep_sample.bat PATH_TO_ORT_ROOT_WITH_INCLUDE_FOLDER PATH_TO_ORT_BINARIES_WITH_QNN
-ECHO Example (Drop): run_qnn_ep_sample.bat %USERPROFILE%\Downloads\microsoft.ml.onnxruntime.qnn.1.16.0\build\native %USERPROFILE%\Downloads\microsoft.ml.onnxruntime.qnn.1.16.0\runtimes\win-arm64\native
+ECHO Example (Drop): run_qnn_ep_sample.bat %USERPROFILE%\Downloads\microsoft.ml.onnxruntime.qnn.1.17.0\build\native %USERPROFILE%\Downloads\microsoft.ml.onnxruntime.qnn.1.17.0\runtimes\win-arm64\native
 ECHO Example (Src): run_qnn_ep_sample.bat C:\src\onnxruntime C:\src\onnxruntime\build\Windows\RelWithDebInfo\RelWithDebInfo
