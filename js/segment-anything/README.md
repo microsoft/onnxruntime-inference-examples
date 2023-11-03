@@ -7,7 +7,7 @@ Segment-Anything is a encoder/decoder model. The encoder creates embeddings and 
 
 One can run the decoder in onnxruntime-web using WebAssembly with  latencies at ~200ms. 
 
-The encoder is much more compute intesive and takes ~45sec using WebAssembly what is not practical.
+The encoder is much more compute intensive and takes ~45sec using WebAssembly what is not practical.
 Using webgpu we can speedup the encoder ~50 times and it becomes visible to run it inside the browser, even on a integrated GPU.
 
 ## Usage
