@@ -257,7 +257,9 @@ async function main() {
 
     let img = document.getElementById("original-image");
 
-    load_model(model, 0, img);
+    load_model(model, 0, img).then(() => {}, (e) => {
+        log(e);
+    });
 
     // image upload
     filein.onchange = function (evt) {
