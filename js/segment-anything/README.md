@@ -43,7 +43,7 @@ python -m samexporter.export_encoder --checkpoint models/sam_vit_b_01ec64.pth \
     --model-type vit_b 
 
 python -m samexporter.export_decoder --checkpoint models/sam_vit_b_01ec64.pth \
-    --output output_models/sam_vit_b_01ec64.decoder.onnx \
+    --output models/sam_vit_b_01ec64.decoder.onnx \
     --model-type vit_b \
     --return-single-mask
 ```
