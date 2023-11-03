@@ -6,10 +6,6 @@
 
 const ort = require('onnxruntime-web/webgpu');
 
-function log(i) {
-    document.getElementById('status').innerText += `\n[${performance.now().toFixed(3)}] ` + i;
-}
-
 const MAX_WIDTH = 500;
 const MAX_HEIGHT = 500;
 const MODEL_WIDTH = 1024;
@@ -34,6 +30,10 @@ var points = [];
 var labels = [];
 var imageImageData;
 var isClicked = false;
+
+function log(i) {
+    document.getElementById('status').innerText += `\n[${performance.now().toFixed(3)}] ` + i;
+}
 
 /**
  * get some parameters from url
@@ -131,7 +131,7 @@ async function handleClick(event) {
 /**
  * handler called when image available
  */
-async function handleImage(img, preprocessing) {
+async function handleImage(img) {
     const encoder_latency = document.getElementById("encoder_latency");
     encoder_latency.innerText = "";
     filein.disabled = true;
@@ -162,6 +162,7 @@ async function handleImage(img, preprocessing) {
 
     imageImageData = ctx.getImageData(0, 0, width, height);
 
+    // eslint-disable-next-line no-undef
     const t = await ort.Tensor.fromImage(imageImageData, options = { resizedWidth: MODEL_WIDTH, resizedHeight: MODEL_HEIGHT });
     const feed = { "input_image": t };
     const s = await sess[0];
@@ -229,7 +230,7 @@ async function load_model(model, idx, img) {
 
     fetchAndCache(model[idx]).then((data) => {
         sess[idx] = ort.InferenceSession.create(data, opt);
-        sess[idx].then((x) => {
+        sess[idx].then(() => {
             log(`${model[idx]} loaded.`);
             if (idx == 0) {
                 load_model(model, 1);
@@ -239,7 +240,7 @@ async function load_model(model, idx, img) {
             throw e;
         });
         if (img !== undefined) {
-            handleImage(img, model[2]);
+            handleImage(img);
         }
     })
 }
@@ -264,7 +265,7 @@ async function main() {
         if (FileReader && files && files.length) {
             let fileReader = new FileReader();
             fileReader.onload = () => {
-                img.onload = () => handleImage(img, model[2]);
+                img.onload = () => handleImage(img);
                 img.src = fileReader.result;
             }
             fileReader.readAsDataURL(files[0]);

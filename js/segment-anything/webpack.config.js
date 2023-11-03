@@ -7,9 +7,11 @@ const CopyPlugin = require("copy-webpack-plugin");
 module.exports = () => {
     return {
         target: ['web'],
+        // eslint-disable-next-line no-undef
         entry: path.resolve(__dirname, 'main.js'),
         devtool: 'inline-source-map',
         output: {
+            // eslint-disable-next-line no-undef
             path: path.resolve(__dirname, 'dist'),
             filename: 'bundle.min.js',
             library: {

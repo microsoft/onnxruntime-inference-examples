@@ -57,3 +57,7 @@ npx light-server -s . -p 8888
 ### Point your browser at the web server
 Once the web server is running, open your browser and navigate to http://localhost:8888/. 
 You should now be able to run Segment-Anything in your browser.
+
+## TODO
+- add support for fp16
+- add support for MobileSam
