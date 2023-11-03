@@ -59,5 +59,5 @@ Once the web server is running, open your browser and navigate to http://localho
 You should now be able to run Segment-Anything in your browser.
 
 ## TODO
-- add support for fp16
-- add support for MobileSam
+* add support for fp16
+* add support for MobileSam
