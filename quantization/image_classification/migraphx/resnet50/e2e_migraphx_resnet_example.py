@@ -7,7 +7,7 @@ import logging
 from PIL import Image
 import onnx
 import onnxruntime
-from onnxruntime.quantization import CalibrationDataReader, CalibrationMethod, create_calibrator, write_calibration_table
+from onnxruntime.quantization import CalibrationDataReader, create_calibrator, write_calibration_table
 
 
 class ImageNetDataReader(CalibrationDataReader):
@@ -320,20 +320,18 @@ if __name__ == '__main__':
 
     # Dataset settings
     model_path = "./resnet50-v2-7.onnx"
-    ilsvrc2012_dataset_path = "/code/onnx_models/imagenet/ILSVRC2012"
-    #ilsvrc2012_dataset_path = "./ILSVRC2012"
+    ilsvrc2012_dataset_path = "./ILSVRC2012"
     augmented_model_path = "./augmented_model.onnx"
-    batch_size = 50
+    batch_size = 20
     calibration_dataset_size = 1000  # Size of dataset for calibration
 
     # INT8 calibration setting
     calibration_table_generation_enable = True  # Enable/Disable INT8 calibration
 
     # MIGraphX EP INT8 settings
-    os.environ["ORT_MIGRAPHX_FP16_ENABLE"] = "1"  # Enable FP16 precision
     os.environ["ORT_MIGRAPHX_INT8_ENABLE"] = "1"  # Enable INT8 precision
     os.environ["ORT_MIGRAPHX_INT8_CALIBRATION_TABLE_NAME"] = "calibration.flatbuffers"  # Calibration table name
-    os.environ["ORT_MIGRAPHX_ENGINE_CACHE_ENABLE"] = "1"  # Enable engine caching
+    os.environ["ORT_MIGRAPHX_INT8_NATIVE_CALIBRATION_TABLE"] = "0"  # Calibration table name
     execution_provider = ["MIGraphXExecutionProvider"]
 
     # Convert static batch to dynamic batch
@@ -360,8 +358,6 @@ if __name__ == '__main__':
 
         serial_cal_tensors = {}
         for keys, values in cal_tensors.data.items():
-            #print(keys)
-            #print(values.range_value)
             serial_cal_tensors[keys] = values.range_value
 
         print("Writing calibration table")
