@@ -3,8 +3,12 @@
 - The sample uses the QNN EP to:
   - a. run the float32 model on Qnn CPU banckend.
   - b. run the QDQ model on HTP backend with qnn_context_cache_enable=1, and generates the Onnx model which has QNN context binary embedded.
+    - Model inputs & outputs will be float32
   - c. run the QNN context binary model generated from ONNX Runtime (previous step) on HTP backend, to improve the model initialization time and reduce memory overhead.
   - d. run the QNN context binary model generated from QNN tool chain on HTP backend, to support models generated from native QNN tool chain.
+    - Models inputs & outputs will be quantized INT8 and kitten_input_nhwc.raw input per the qnn-onnx-converter.exe options used
+    - E.g. qnn-onnx-converter.exe --input_dtype uint8 --input_layout NHWC
+    - See QNN doc - [docs/QNN/general/tools.html#qnn-onnx-converter](https://docs.qualcomm.com/bundle/publicresource/topics/80-63442-50/tools.html#qnn-onnx-converter)
 - The sample downloads the mobilenetv2 model from Onnx model zoo, and use mobilenetv2_helper.py to quantize the float32 model to QDQ model which is required for HTP backend
 - The sample is targeted to run on QC ARM64 device.
 - There are 2 ways to improve the session creation time by using of QNN context binary:
@@ -41,19 +45,23 @@
 - Windows 11
 - Visual Studio 2022
 - Python (needed to quantize model)
-- OnnxRuntime ARM Build with initial QNN support such as ONNX Runtime (ORT) Microsoft.ML.OnnxRuntime.QNN 1.15+ 
+- Qualcomm AI Engine Direct SDK (QNN SDK) from https://qpm.qualcomm.com/main/tools/details/qualcomm_ai_engine_direct
+    - Last known working QNN version (by building ORT from source): 2.14.1, 2.15.0, 2.15.1, 2.15.3
+- OnnxRuntime ARM Build with QNN support such as ONNX Runtime (ORT) Microsoft.ML.OnnxRuntime.QNN 1.17+
   - Download from https://www.nuget.org/packages/Microsoft.ML.OnnxRuntime.QNN and unzip
+  - Please wait for ONNX Runtime 1.17+ if you want to use ORT Nuget package. This example requires a latest change in main branch [PR 17757](https://github.com/microsoft/onnxruntime/pull/17757).
   - ORT Drop DOES NOT INCLUDE QNN so QNN binaries must be copied from QC SDK. E.g
-    - robocopy C:\Qualcomm\AIStack\QNN\2.15.1.230926\lib\aarch64-windows-msvc %USERPROFILE%\Downloads\microsoft.ml.onnxruntime.qnn.1.16.0\runtimes\win-arm64\native
-    - copy C:\Qualcomm\AIStack\QNN\2.15.1.230926\lib\hexagon-v68\unsigned\libQnnHtpV68Skel.so %USERPROFILE%\Downloads\microsoft.ml.onnxruntime.qnn.1.16.0\runtimes\win-arm64\native
-    - copy C:\Qualcomm\AIStack\QNN\2.15.1.230926\lib\hexagon-v73\unsigned\libQnnHtpV73Skel.so %USERPROFILE%\Downloads\microsoft.ml.onnxruntime.qnn.1.16.0\runtimes\win-arm64\native
+    - robocopy C:\Qualcomm\AIStack\QNN\2.xx.x\lib\aarch64-windows-msvc %USERPROFILE%\Downloads\microsoft.ml.onnxruntime.qnn.1.17.0\runtimes\win-arm64\native
+    - copy C:\Qualcomm\AIStack\QNN\2.xx.x\lib\hexagon-v68\unsigned\libQnnHtpV68Skel.so %USERPROFILE%\Downloads\microsoft.ml.onnxruntime.qnn.1.17.0\runtimes\win-arm64\native
+    - copy C:\Qualcomm\AIStack\QNN\2.xx.x\lib\hexagon-v73\unsigned\libQnnHtpV73Skel.so %USERPROFILE%\Downloads\microsoft.ml.onnxruntime.qnn.1.17.0\runtimes\win-arm64\native
+	- Note: QNN 2.14.1, 2.15.1, 2.15.3 are preview release. The v73 libraries are available for preview release only. Please skip it if you don't have.
 - (OR) Compiled from onnxruntime source with QNN support - https://onnxruntime.ai/docs/build/eps.html#qnn
 
 ## How to run the application
 (Windows11) Run ```run_qnn_ep_sample.bat``` with path to onnxruntime root directory (for includes) and path to bin directory
 ```
 run_qnn_ep_sample.bat PATH_TO_ORT_ROOT_WITH_INCLUDE_FOLDER PATH_TO_ORT_BINARIES_WITH_QNN
-Example (Drop): run_qnn_ep_sample.bat %USERPROFILE%\Downloads\microsoft.ml.onnxruntime.qnn.1.16.0\build\native %USERPROFILE%\Downloads\microsoft.ml.onnxruntime.qnn.1.16.0\runtimes\win-arm64\native
+Example (Drop): run_qnn_ep_sample.bat %USERPROFILE%\Downloads\microsoft.ml.onnxruntime.qnn.1.17.0\build\native %USERPROFILE%\Downloads\microsoft.ml.onnxruntime.qnn.1.17.0\runtimes\win-arm64\native
 Example (Src): run_qnn_ep_sample.bat C:\src\onnxruntime C:\src\onnxruntime\build\Windows\RelWithDebInfo\RelWithDebInfo
 ```
 
