@@ -124,5 +124,12 @@ The following steps were done in this sample for using onxnruntime-react-native.
         ```sh
         pod install
         ```
+        
+### How to enable ORT Extensions for React Native App
+If running model containing ort-extensions custom operators, you may want to enable [onnxruntime-extensions](https://github.com/microsoft/onnxruntime-extensions) library in your react-native app.
+
+
+See instructions here about enabling the option in your `package.json` file: [Enable ONNX Runtime Extensions for React Native](https://onnxruntime.ai/docs/get-started/with-javascript.html#enable-onnx-runtime-extensions-for-react-native)
+#    
 **NOTE:**
    If you are interested in creating a new react native expo project from scratch, refer to instructions: https://docs.expo.dev/get-started/create-a-project/
