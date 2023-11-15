@@ -1,0 +1,19 @@
+{
+  "name": "ort-sam",
+  "private": true,
+  "version": "1.0.0",
+  "description": "An example how to run segment-anything with webgpu in onnxruntime-web.",
+  "scripts": {
+    "build": "webpack --config ./webpack.config.js --mode production",
+    "dev": "webpack --config ./webpack.config.js --mode development"
+  },
+  "devDependencies": {
+    "eslint": "^8.40.0"
+  },
+  "dependencies": {
+    "copy-webpack-plugin": "^11.0.0",
+    "onnxruntime-web": "^1.17.0-dev.20231102-178f7caaeb",
+    "webpack": "^5.82.1",
+    "webpack-cli": "^5.1.1"
+  }
+}

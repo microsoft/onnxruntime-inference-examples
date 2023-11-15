@@ -17,7 +17,7 @@ The model used here is from source: [Pytorch Super Resolution](https://pytorch.o
 
 1. Install CocoaPods. `sudo gem install cocoapods`
 
-2. In terminal, run `pod install` under `<ONNXRuntime-inference-example-root>/mobile/examples/super_resolution/ios/` to generate the workspace file and install required pod files.
+2. In terminal, run `pod install` under `<ONNXRuntime-inference-example-root>/mobile/examples/super_resolution/ios/ORTSuperResolution` to generate the workspace file and install required pod files.
    
    Note: At the end of this step, you should get a file called `ORTSuperResolution.xcworkspace`.
 

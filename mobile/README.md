@@ -47,6 +47,7 @@ The example app uses speech recognition to transcribe speech from audio recorded
 The example app uses object detection which is able to continuously detect the objects in the frames seen by your iOS device's back camera and display the detected object bounding boxes, detected class and corresponding inference confidence on the screen.
 
 - [iOS Object Detection](examples/object_detection/ios)
+- [Android Object Detection](examples/object_detection/android)
 
 ### Xamarin VisionSample
 
@@ -62,7 +63,21 @@ The example application accomplishes the task of recovering a high resolution (H
 - [iOS Super Resolution](examples/super_resolution/ios)
 
 ### Question Answering
+
 The example app gives a demo of introducing question answering models with pre/post processing into mobile scenario. Currently supports on platform Android and iOS.
 
 - [Android Question answering](examples/question_answering/android)
 - [iOS Question answering](examples/question_answering/ios)
+
+### Whisper (Cloud/Local)
+
+This example shows how to use ORT to do speech recognition using the [Whisper](https://github.com/openai/whisper) model. One version (Cloud) calls the OpenAI Whisper endpoint using the Azure custom op. The other uses a local Whisper model.
+
+- [Azure Whisper](examples/whisper/azure/android)
+- [Local Whisper](examples/whisper/local/android)
+
+### React Native Expo Sample
+
+This is an example React Native Expo project which demonstrates basic usage of ORT such as loading onnx models and creating inference sessions, etc.
+
+- [React Native Basic Sample](examples/React_Native/ort-rn-basic-usage/)

@@ -9,18 +9,13 @@ The source code for this sample is available [here](https://github.com/microsoft
 # How to build
 
 ## Prerequisites
-1. For Windows, [The Intel<sup>®</sup> Distribution of OpenVINO™ toolkit](https://docs.openvino.ai/latest/openvino_docs_install_guides_installing_openvino_windows_header.html#doxid-openvino-docs-install-guides-installing-openvino-windows-header).
-   Please select Install OpenVINO™ from PyPI.
-   ```
-   pip3 install openvino
-   ```
-2. Download the latest tinyYOLOv2 model from the ONNX Model Zoo.
+1. Download the latest tinyYOLOv2 model from the ONNX Model Zoo.
    This model was adapted from [ONNX Model Zoo](https://github.com/onnx/models).Download the latest version of the [tinyYOLOv2](https://github.com/onnx/models/tree/master/vision/object_detection_segmentation/tiny-yolov2) model from here.
 
 ## Install ONNX Runtime for OpenVINO™ Execution Provider
-Please install the onnxruntime-openvino python package from [here](https://pypi.org/project/onnxruntime-openvino/1.11.0/). The package for Linux contains prebuilt OpenVINO Libs with ABI 0.
+Please install the onnxruntime-openvino python package from [here](https://pypi.org/project/onnxruntime-openvino). The package for Linux contains prebuilt OpenVINO Libs with ABI 0.
 ```
-pip3 install onnxruntime-openvino==1.11.0
+pip3 install onnxruntime-openvino openvino
 ```
 
 ## Optional Build steps for ONNX Runtime
@@ -52,14 +47,6 @@ python3 tiny_yolov2_obj_detection_sample.py --h
 ```bash
 python3 tiny_yolov2_obj_detection_sample.py --video face-demographics-walking-and-pause.mp4 --model tinyyolov2.onnx --device CPU_FP32
 ```
-Note: Make sure the sample is having below lines to use OpenVINO™ in Windows
-```
-import platform
-
-if platform.system() == "Windows":
-	from openvino import utils
-	utils.add_openvino_libs_to_path()
-```
 
 ## To stop the sample from running
 ```bash
@@ -68,7 +55,7 @@ Just press the letter 'q' or Ctrl+C if on Windows
 
 ## References:
 
-[Download OpenVINO™ Eexecution Provider Latest pip wheels from here](https://pypi.org/project/onnxruntime-openvino/1.11.0/)
+[Download OpenVINO™ Eexecution Provider Latest pip wheels from here](https://pypi.org/project/onnxruntime-openvino/)
 
 [OpenVINO™ Execution Provider](https://www.intel.com/content/www/us/en/artificial-intelligence/posts/faster-inferencing-with-one-line-of-code.html)
 

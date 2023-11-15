@@ -82,6 +82,48 @@ jobs:
       scheme: 'OrtBasicUsage'
       args: $(XcodeArgs)
 
+# mobile/examples/whisper/local/android
+- job: WhisperLocalAndroid
+  pool:
+    vmImage: "macOS-12"
+
+  steps:
+  - template: templates/use-python-step.yml
+
+  - template: templates/use-jdk-step.yml
+    parameters:
+      jdkVersion: "17"
+
+  - template: templates/run-with-android-emulator-steps.yml
+    parameters:
+      steps:
+      - bash: |
+          set -e
+          ./gradlew connectedDebugAndroidTest --no-daemon
+        workingDirectory: mobile/examples/whisper/local/android
+        displayName: "Build and run tests"
+
+# mobile/examples/whisper/azure/android
+- job: WhisperAzureAndroid
+  pool:
+    vmImage: "macOS-12"
+
+  steps:
+  - template: templates/use-python-step.yml
+
+  - template: templates/use-jdk-step.yml
+    parameters:
+      jdkVersion: "17"
+
+  - template: templates/run-with-android-emulator-steps.yml
+    parameters:
+      steps:
+      - bash: |
+          set -e
+          ./gradlew connectedDebugAndroidTest --no-daemon
+        workingDirectory: mobile/examples/whisper/azure/android
+        displayName: "Build and run tests"
+
 # mobile/examples/speech_recognition/ios
 - job: SpeechRecognitionIos
   pool:
@@ -168,77 +210,14 @@ jobs:
       xcWorkspacePath: 'mobile/examples/object_detection/ios/ORTObjectDetection.xcworkspace'
       scheme: 'ORTObjectDetection'
 
-# mobile/examples/image_classification/android
-- job: ImageClassificationAndroid
-  pool:
-    vmImage: "macOS-12"
-
-  strategy:
-    matrix:
-      full:
-        OrtPackageName: onnxruntime-android
-        ModelFormat: onnx
-      mobile:
-        OrtPackageName: onnxruntime-mobile
-        ModelFormat: ort
-
-  steps:
-  - template: templates/use-python-step.yml
-
-  - task: JavaToolInstaller@0
-    displayName: Use jdk 11
-    inputs:
-      versionSpec: "11"
-      jdkArchitectureOption: "x64"
-      jdkSourceOption: "PreInstalled"
-
-  - bash: |
-      set -e
-      pip install -r ./prepare_models.requirements.txt
-      ./prepare_models.py --output_dir ./app/src/main/res/raw --format $(ModelFormat)
-    workingDirectory: mobile/examples/image_classification/android
-    displayName: "Generate models"
-
-  - bash: |
-      set -e
-      GRADLE_FILE=mobile/examples/image_classification/android/app/build.gradle
-      sed -i "" \
-        -e "s/implementation 'com.microsoft.onnxruntime:onnxruntime-android:latest.release'/implementation 'com.microsoft.onnxruntime:$(OrtPackageName):latest.release'/" \
-        ${GRADLE_FILE}
-      cat ${GRADLE_FILE}
-    displayName: "Update build.gradle"
-
-  - script: |
-      python3 ./ci_build/python/run_android_emulator.py \
-        --android-sdk-root ${ANDROID_SDK_ROOT} \
-        --create-avd --system-image "system-images;android-30;default;x86_64" \
-        --start --emulator-extra-args="-partition-size 4096" \
-        --emulator-pid-file $(Build.BinariesDirectory)/emulator.pid
-    displayName: "Start Android emulator"
-
-  - bash: ./gradlew testDebugUnitTest connectedDebugAndroidTest
-    workingDirectory: mobile/examples/image_classification/android
-    displayName: "Build and run tests"
-
-  - script: |
-      python3 ./ci_build/python/run_android_emulator.py \
-        --android-sdk-root ${ANDROID_SDK_ROOT} \
-        --stop \
-        --emulator-pid-file $(Build.BinariesDirectory)/emulator.pid
-    displayName: "Stop Android emulator"
-    condition: always()
-
-# Note: start with testing with the included aar package, 
-# can update with testing with Full/Mobile packages as the other samples later.
-
-# mobile/examples/super_resolution/android 
-- job: SuperResolutionAndroid
+# mobile/examples/object_detection/android
+- job: ObjectDetectionAndroid
   pool:
     vmImage: "macOS-12"
 
   steps:
   - template: templates/use-python-step.yml
-
+    
   - script: |
       python3 ./ci_build/python/run_android_emulator.py \
         --android-sdk-root ${ANDROID_SDK_ROOT} \
@@ -256,9 +235,8 @@ jobs:
 
   - bash: |
       set -e
-      chmod +x ./gradlew 
       ./gradlew connectedDebugAndroidTest --no-daemon
-    workingDirectory: mobile/examples/super_resolution/android
+    workingDirectory: mobile/examples/object_detection/android
     displayName: "Build and run tests"
 
   - script: |
@@ -268,6 +246,70 @@ jobs:
         --emulator-pid-file $(Build.BinariesDirectory)/emulator.pid
     displayName: "Stop Android emulator"
     condition: always()
+
+# mobile/examples/image_classification/android
+- job: ImageClassificationAndroid
+  pool:
+    vmImage: "macOS-12"
+
+  strategy:
+    matrix:
+      full:
+        OrtPackageName: onnxruntime-android
+        ModelFormat: onnx
+      mobile:
+        OrtPackageName: onnxruntime-mobile
+        ModelFormat: ort
+
+  steps:
+  - template: templates/use-python-step.yml
+
+  - template: templates/use-jdk-step.yml
+
+  - bash: |
+      set -e
+      pip install -r ./prepare_models.requirements.txt
+      ./prepare_models.py --output_dir ./app/src/main/res/raw --format $(ModelFormat)
+    workingDirectory: mobile/examples/image_classification/android
+    displayName: "Generate models"
+
+  - bash: |
+      set -e
+      GRADLE_FILE=mobile/examples/image_classification/android/app/build.gradle
+      sed -i "" \
+        -e "s/implementation 'com.microsoft.onnxruntime:onnxruntime-android:latest.release'/implementation 'com.microsoft.onnxruntime:$(OrtPackageName):latest.release'/" \
+        ${GRADLE_FILE}
+      cat ${GRADLE_FILE}
+    displayName: "Update build.gradle"
+
+  - template: templates/run-with-android-emulator-steps.yml
+    parameters:
+      steps:
+      - bash: ./gradlew connectedDebugAndroidTest --no-daemon
+        workingDirectory: mobile/examples/image_classification/android
+        displayName: "Build and run tests"
+
+# Note: start with testing with the included aar package, 
+# can update with testing with Full/Mobile packages as the other samples later.
+
+# mobile/examples/super_resolution/android 
+- job: SuperResolutionAndroid
+  pool:
+    vmImage: "macOS-12"
+
+  steps:
+  - template: templates/use-python-step.yml
+  
+  - template: templates/use-jdk-step.yml
+
+  - template: templates/run-with-android-emulator-steps.yml
+    parameters:
+      steps:
+      - bash: |
+          set -e
+          ./gradlew connectedDebugAndroidTest --no-daemon
+        workingDirectory: mobile/examples/super_resolution/android
+        displayName: "Build and run tests"
 
 # Note: start with testing with the pre-release version pods.
 # can update with testing with Full/Mobile pods as the other samples later.
@@ -288,6 +330,7 @@ jobs:
       xcWorkspacePath: 'mobile/examples/super_resolution/ios/ORTSuperResolution/ORTSuperResolution.xcworkspace'
       scheme: 'ORTSuperResolution'
 
+# mobile/examples/question_answering/android
 - job: QuestionAnsweringAndroid
   pool:
     vmImage: "macOS-12"
@@ -299,36 +342,19 @@ jobs:
       bash ./prepare_model.sh
     workingDirectory: 'mobile/examples/question_answering/android'
     displayName: "Generate model"
-    
-  - script: |
-      python3 ./ci_build/python/run_android_emulator.py \
-        --android-sdk-root ${ANDROID_SDK_ROOT} \
-        --create-avd --system-image "system-images;android-30;default;x86_64" \
-        --start --emulator-extra-args="-partition-size 4096" \
-        --emulator-pid-file $(Build.BinariesDirectory)/emulator.pid
-    displayName: "Start Android emulator"
   
-  - task: JavaToolInstaller@0
-    displayName: Use jdk 11
-    inputs:
-      versionSpec: "11"
-      jdkArchitectureOption: "x64"
-      jdkSourceOption: "PreInstalled"
+  - template: templates/use-jdk-step.yml
 
-  - bash: |
-      set -e
-      ./gradlew connectedDebugAndroidTest --no-daemon
-    workingDirectory: mobile/examples/question_answering/android
-    displayName: "Build and run tests"
+  - template: templates/run-with-android-emulator-steps.yml
+    parameters:
+      steps:
+      - bash: |
+          set -e
+          ./gradlew connectedDebugAndroidTest --no-daemon
+        workingDirectory: mobile/examples/question_answering/android
+        displayName: "Build and run tests"
 
-  - script: |
-      python ./ci_build/python/run_android_emulator.py \
-        --android-sdk-root ${ANDROID_SDK_ROOT} \
-        --stop \
-        --emulator-pid-file $(Build.BinariesDirectory)/emulator.pid
-    displayName: "Stop Android emulator"
-    condition: always()
-
+# mobile/examples/question_answering/ios
 - job: QuestionAnsweringIos
   pool:
     vmImage: "macOS-12"

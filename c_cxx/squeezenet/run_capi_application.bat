@@ -11,13 +11,16 @@ set ORT_LIB=%ORT_PACKAGE:~0,-4%\lib
 echo %ORT_LIB%
 
 cd %WORKSPACE%
-cmake.exe -S . -B build\ -G "Visual Studio 16 2019" -DONNXRUNTIME_ROOTDIR=%ONNXRUNTIME_ROOTDIR%
+cmake.exe -S . -B build\ -G "Visual Studio 17 2022" -DONNXRUNTIME_ROOTDIR=%ONNXRUNTIME_ROOTDIR%
 
 REM Copy ORT libraries to same folder for linker to build.
 REM For some reasons, setting "LINK" or "LIBPATH" env variables won't help. 
 cd build
 powershell -Command "cp %ORT_LIB%\* ."
-MSBuild.exe .\capi_test.sln /property:Configuration=Release
+for /f "tokens=*" %%a in ('"C:\\Program Files (x86)\\Microsoft Visual Studio\\Installer\\vswhere.exe" -latest -prerelease -products * -requires Microsoft.Component.MSBuild -find MSBuild\\**\\Bin\\MSBuild.exe') do (
+    set MSBUILD_PATH=%%a
+)
+"%MSBUILD_PATH%" .\capi_test.sln /property:Configuration=Release
 
 REM Copy ORT libraries to same folder for executable to run.
 cd Release

@@ -19,7 +19,7 @@ parameters: # parameters are shown up in ADO UI in a build queue time
 - name: 'ortversion'
   displayName: 'ONNX Runtime Version'
   type: string
-  default: '1.13.1'
+  default: '1.15.1'
 
 variables:
   CDP_DEFINITION_BUILD_COUNT: $[counter('', 0)]
@@ -53,13 +53,8 @@ extends:
     globalSdl:
       tsa:
         enabled: true
-      prefast:
-        enabled: true
       binskim:
         break: true # always break the build on binskim issues in addition to TSA upload
-      codeql:
-        python:
-          enabled: true
       policheck:
         break: true # always break the build on policheck issues. You can disable it by setting to 'false'
         exclusionsFile: '$(REPOROOT)\ci_build\policheck_exclusions.xml'

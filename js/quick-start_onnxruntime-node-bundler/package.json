@@ -8,7 +8,7 @@
     "dev": "webpack --config ./webpack.config.js --mode development"
   },
   "dependencies": {
-    "onnxruntime-node": "^1.14.0"
+    "onnxruntime-node": "^1.15.1"
   },
   "devDependencies": {
     "copy-webpack-plugin": "^8.1.1",
