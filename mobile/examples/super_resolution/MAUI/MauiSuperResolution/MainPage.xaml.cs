@@ -172,7 +172,7 @@ public partial class MainPage : ContentPage
         => MainThread.BeginInvokeOnMainThread(
             () =>
             {
-                BeforeImage.Aspect = Aspect.AspectFit;
+                BeforeImage.Aspect = OperatingSystem.IsWindows() ? Aspect.Center : Aspect.AspectFit;
                 BeforeImage.Source = ImageSource.FromStream(() => new MemoryStream(beforeBytes));
 
                 AfterCaption.Text = "Super Resolution Result (Run took " + runMs + "ms)";
