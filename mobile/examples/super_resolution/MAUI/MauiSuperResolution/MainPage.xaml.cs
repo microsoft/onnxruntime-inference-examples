@@ -2,7 +2,12 @@
 
 using System;
 
-enum ImageAcquisitionMode { Sample, Capture, Pick }
+enum ImageAcquisitionMode
+{
+    Sample,
+    Capture,
+    Pick
+}
 
 public partial class MainPage : ContentPage
 {
@@ -29,12 +34,12 @@ public partial class MainPage : ContentPage
         // XNNPACK provides optimized CPU execution on ARM64 and ARM platforms for models using float
         var arch = System.Runtime.InteropServices.RuntimeInformation.ProcessArchitecture;
         if (arch == System.Runtime.InteropServices.Architecture.Arm64 ||
-           arch == System.Runtime.InteropServices.Architecture.Arm)
+            arch == System.Runtime.InteropServices.Architecture.Arm)
         {
             ExecutionProviderOptions.Items.Add(nameof(ExecutionProviders.XNNPACK));
         }
 
-        ExecutionProviderOptions.SelectedIndex = 0;  // default to CPU
+        ExecutionProviderOptions.SelectedIndex = 0; // default to CPU
         ExecutionProviderOptions.SelectedIndexChanged += ExecutionProviderOptions_SelectedIndexChanged;
 
         _currentExecutionProvider = ExecutionProviders.CPU;
@@ -61,15 +66,14 @@ public partial class MainPage : ContentPage
     // helper to call the async Run with a failure handler
     private void Run(ImageAcquisitionMode mode)
     {
-        RunAsync(mode).ContinueWith(
-            resultTask =>
-            {
-                if (resultTask.IsFaulted)
-                {
-                    MainThread.BeginInvokeOnMainThread(() => DisplayAlert("Error", resultTask.Exception.Message, "OK"));
-                }
-            }
-        );
+        RunAsync(mode).ContinueWith(resultTask =>
+                                    {
+                                        if (resultTask.IsFaulted)
+                                        {
+                                            MainThread.BeginInvokeOnMainThread(
+                                                () => DisplayAlert("Error", resultTask.Exception.Message, "OK"));
+                                        }
+                                    });
     }
 
     private async Task RunAsync(ImageAcquisitionMode mode)
@@ -81,8 +85,7 @@ public partial class MainPage : ContentPage
         if (imageBytes != null)
         {
             await MainThread.InvokeOnMainThreadAsync(
-                () => { AfterCaption.Text = "Running inference... please be patient"; }
-            );
+                () => { AfterCaption.Text = "Running inference... please be patient"; });
 
             await SetBusy(true);
 
@@ -90,7 +93,8 @@ public partial class MainPage : ContentPage
             await CreateInferenceSession();
 
             // this is an expensive model so execution time can be quite long.
-            var outputImageBytes = await Task.Run<byte[]>(() => { return _inferenceSession.Run(imageBytes); });
+            var outputImageBytes = await Task.Run<byte[]>(
+                () => { return _inferenceSession.Run(imageBytes); });
 
             await SetBusy(false);
 
@@ -107,14 +111,12 @@ public partial class MainPage : ContentPage
             _inferenceSessionCreationTask = null;
         }
 
-        var executionProvider =
-            ExecutionProviderOptions.SelectedItem switch
-            {
-                nameof(ExecutionProviders.NNAPI) => ExecutionProviders.NNAPI,
-                nameof(ExecutionProviders.CoreML) => ExecutionProviders.CoreML,
-                nameof(ExecutionProviders.XNNPACK) => ExecutionProviders.XNNPACK,
-                _ => ExecutionProviders.CPU
-            };
+        var executionProvider = ExecutionProviderOptions.SelectedItem switch {
+            nameof(ExecutionProviders.NNAPI) => ExecutionProviders.NNAPI,
+            nameof(ExecutionProviders.CoreML) => ExecutionProviders.CoreML,
+            nameof(ExecutionProviders.XNNPACK) => ExecutionProviders.XNNPACK,
+            _ => ExecutionProviders.CPU
+        };
 
         if (_inferenceSession == null || executionProvider != _currentExecutionProvider)
         {
@@ -122,8 +124,9 @@ public partial class MainPage : ContentPage
 
             // re/create an inference session with the execution provider.
             // this is an expensive operation as we have to reload the model, and should be avoided in production apps.
-            // recommendation: run the model as a background task with example input for each possible execution provider
-            // on the current platform and choose the one with the best performance. this is a one-time operation.
+            // recommendation: run the model as a background task with example input for each possible execution
+            // provider on the current platform and choose the one with the best performance. this is a one-time
+            // operation.
             _inferenceSession = new OrtInferenceSession(_currentExecutionProvider);
             await _inferenceSession.Create();
         }
@@ -131,7 +134,7 @@ public partial class MainPage : ContentPage
 
     private void ExecutionProviderOptions_SelectedIndexChanged(object sender, EventArgs e)
     {
-        ExecutionProviderOptions.IsEnabled = false;  // disable until session is created
+        ExecutionProviderOptions.IsEnabled = false; // disable until session is created
         _inferenceSessionCreationTask = CreateInferenceSession();
         _inferenceSessionCreationTask.ContinueWith(
             (task) =>
@@ -146,35 +149,35 @@ public partial class MainPage : ContentPage
                         }
                     });
             });
-    } 
+    }
 
-    private async Task SetBusy(bool busy) =>
-        await MainThread.InvokeOnMainThreadAsync(
+    private async Task SetBusy(bool busy)
+        => await MainThread.InvokeOnMainThreadAsync(
             () =>
             {
                 BusyIndicator.IsRunning = busy;
                 BusyIndicator.IsVisible = busy;
             });
 
-
-    private async Task ClearResult() => 
-        await MainThread.InvokeOnMainThreadAsync(
+    private async Task ClearResult() 
+        => await MainThread.InvokeOnMainThreadAsync(
             () =>
             {
                 BeforeImage.Aspect = OperatingSystem.IsWindows() ? Aspect.Center : Aspect.AspectFit;
                 BeforeImage.Source = "blank.png";
-                AfterImage.Source = "onnxruntime_logo.png"; 
+                AfterImage.Source = "onnxruntime_logo.png";
             });
 
-    private void ShowResult(byte[] beforeBytes, byte[] afterBytes, long runMs) => MainThread.BeginInvokeOnMainThread(
-        () =>
-        {
-            BeforeImage.Aspect = Aspect.AspectFit;
-            BeforeImage.Source = ImageSource.FromStream(() => new MemoryStream(beforeBytes));
+    private void ShowResult(byte[] beforeBytes, byte[] afterBytes, long runMs) 
+        => MainThread.BeginInvokeOnMainThread(
+            () =>
+            {
+                BeforeImage.Aspect = Aspect.AspectFit;
+                BeforeImage.Source = ImageSource.FromStream(() => new MemoryStream(beforeBytes));
 
-            AfterCaption.Text = "Super Resolution Result (Run took " + runMs + "ms)";
-            AfterImage.Source = ImageSource.FromStream(() => new MemoryStream(afterBytes));
-        });
+                AfterCaption.Text = "Super Resolution Result (Run took " + runMs + "ms)";
+                AfterImage.Source = ImageSource.FromStream(() => new MemoryStream(afterBytes));
+            });
 
     private ExecutionProviders _currentExecutionProvider;
     private OrtInferenceSession _inferenceSession;

@@ -6,8 +6,8 @@ namespace MauiSuperResolution
 {
     public enum ExecutionProviders
     {
-        CPU,   // CPU execution provider is always available by default
-        NNAPI, // NNAPI is available on Android
+        CPU,    // CPU execution provider is always available by default
+        NNAPI,  // NNAPI is available on Android
         CoreML, // CoreML is available on iOS/macOS
         XNNPACK // XNNPACK is available on ARM/ARM64 platforms and benefits 32-bit float models
     }
@@ -18,7 +18,7 @@ namespace MauiSuperResolution
         public OrtInferenceSession(ExecutionProviders provider = ExecutionProviders.CPU)
         {
             _sessionOptions = new SessionOptions();
-            switch (_executionProvider)
+            switch (provider)
             {
                 case ExecutionProviders.CPU:
                     break;
@@ -37,7 +37,7 @@ namespace MauiSuperResolution
             _sessionOptions.RegisterOrtExtensions();
         }
 
-        // async task to create the inference session which is an expensive operation. 
+        // async task to create the inference session which is an expensive operation.
         public async Task Create()
         {
             // create the InferenceSession. this is an expensive operation so only do this when necessary.
@@ -71,7 +71,6 @@ namespace MauiSuperResolution
 
         private SessionOptions _sessionOptions;
         private InferenceSession _inferenceSession;
-        private ExecutionProviders _executionProvider = ExecutionProviders.CPU;
         private long _lasRunTimeMs = 0;
     }
 }
