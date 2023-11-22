@@ -1,0 +1,45 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="MauiSuperResolution.MainPage"
+             >
+  
+    <Grid RowSpacing="0" ColumnSpacing="0">
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="50" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="50" />
+            <RowDefinition Height="50" />
+            <RowDefinition Height="50" />
+        </Grid.RowDefinitions>
+
+        <Picker Grid.Row="0"
+            x:Name="ExecutionProviderOptions"
+            HorizontalTextAlignment="Center"            
+            Margin="5,0,5,5" />
+
+        <ScrollView Grid.Row="1">
+            <Grid x:Name="ImageCaptionGrid">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <Image x:Name="BeforeImage" Grid.Row="0" Aspect="Center" Source="blank.png"/>
+                <Label x:Name="BeforeCaption" Text="Original image" Grid.Row="1" HorizontalTextAlignment="Center" />
+
+                <Image x:Name="AfterImage" Grid.Row="2" Aspect="Center" Source="onnxruntime_logo.png" />
+                <ActivityIndicator x:Name="BusyIndicator" Grid.Row="2" IsRunning="False" Color="Orange" />
+                <Label x:Name="AfterCaption" Text="SuperResolution output" Grid.Row="3"
+                       HorizontalTextAlignment="Center" />
+            </Grid>
+        </ScrollView>
+
+        <Button Grid.Row="2" Text="Use sample image" Clicked="SampleButton_Clicked" />
+        <Button Grid.Row="3" Text="Select photo" Clicked="PickButton_Clicked" />
+        <Button Grid.Row="4" Text="Take photo" Clicked="CaptureButton_Clicked" />
+    </Grid>
+</ContentPage>
