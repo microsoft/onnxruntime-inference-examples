@@ -1,5 +1,6 @@
 import os
 from datetime import datetime
+from pyexpat import model
 import requests
 import shutil
 import torch
@@ -83,40 +84,31 @@ labels = {0: 'person', 1: 'bicycle', 2: 'car', 3: 'motorcycle', 4: 'airplane', 5
 path = os.getcwd()
 
 
-def initialize(quantize=False, device='OVEP'):
+def initialize(model_path, device='OVEP'):
     "Initialize the model also getting model output and input names"
 
     initialized = True
     model_dir = os.getcwd()
-    ov_model = None; mlas_model = None
-
     so = rt.SessionOptions()
-    if quantize == True:
+
+    if device == "OVEP":
         print("Inferencing through OVEP")
-        ov_model = rt.InferenceSession(quantized_model_path, so,
+        model = rt.InferenceSession(model_path, so,
                                     providers=['OpenVINOExecutionProvider'],
                                     provider_options=[{'device_type' : 'CPU_FP32'}])
     else:
-        ov_model = rt.InferenceSession(original_model_path, so,
-                                    providers=['OpenVINOExecutionProvider'],
-                                    provider_options=[{'device_type' : 'CPU_FP32'}])
-    if quantize == True:
-        mlas_model = rt.InferenceSession(quantized_model_path, so, providers=['CPUExecutionProvider'])
-    else:
-        mlas_model = rt.InferenceSession(original_model_path, so, providers=['CPUExecutionProvider'])
+        print("Inferencing through CPUEP")
+        model = rt.InferenceSession(model_path, so, providers=['CPUExecutionProvider'])
 
     if device == 'OVEP':
-      input_names = ov_model.get_inputs()[0].name
-      outputs = ov_model.get_outputs()
+      input_names = model.get_inputs()[0].name
+      outputs = model.get_outputs()
     else:
-      input_names = mlas_model.get_inputs()[0].name
-      outputs = mlas_model.get_outputs()      
+      input_names = model.get_inputs()[0].name
+      outputs = model.get_outputs()      
     output_names = list(map(lambda output:output.name, outputs))
-    return input_names, output_names, mlas_model, ov_model
-
-
+    return input_names, output_names, model
 print("device : ", device)
-input_names, output_names, mlas_model, ov_model = initialize(device=device)
 
 def preprocess(image_url):
     ## Set up the image URL and filename
@@ -164,26 +156,16 @@ def preprocess(image_url):
         print("Invalid image format.")
         return
 
-def inference(input_names, output_names, device, mlas_model, ovep_model, model_input):
+def inference(input_names, output_names, device, model, model_input):
     inf_lst = []
-    if device == 'CPUEP':
+    if device == 'CPUEP' or device == 'OVEP':
         print("Performing ONNX Runtime Inference with default CPU EP.")
         for i in range(no_of_iterations):
             start_time = datetime.now()
-            prediction = mlas_model.run(output_names, {input_names: model_input})
+            prediction = model.run(output_names, {input_names: model_input})
             end_time = datetime.now()
             if i > warmup_iter:
                 inf_lst.append((end_time - start_time).total_seconds())
-            # print((end_time - start_time).total_seconds())
-    elif device == 'OVEP':
-        print("Performing ONNX Runtime Inference with OpenVINO EP.")
-        for i in range(no_of_iterations):
-            start_time = datetime.now()
-            prediction = ovep_model.run(output_names, {input_names: model_input})
-            end_time = datetime.now()
-            if i > warmup_iter:
-                inf_lst.append((end_time - start_time).total_seconds())
-            # print((end_time - start_time).total_seconds())
     else:
         print("Invalid Device Option. Supported device options are 'CPUEP', 'OVEP.")
         return None
@@ -242,14 +224,7 @@ def postprocess( img0, img, inference_output):
 
 org_input, model_input = preprocess(args.image_url)
 
-input_names, output_names, mlas_model, ov_model = initialize()
-# inference_output = inference(input_names, output_names, 'CPU_FP32', mlas_model, ov_model, model_input)
-inference_output = inference(input_names, output_names, args.device, mlas_model, ov_model, model_input)
-pred, time_required = inference_output
-
-result = postprocess(org_input, model_input, inference_output)
-
-#yolov8 dynamic quantization
+#yolov8 quantization
 if args.quantize:
     print("Quantizing yolov8 model.")
     model_fp32 = original_model_path
@@ -257,3 +232,13 @@ if args.quantize:
     quantized_model = quantize_dynamic(model_fp32, model_quant, weight_type=QuantType.QUInt8)
     print(f'Quantized yolov8 model at {model_quant}')
 
+
+if args.quantize:
+    model_quant = os.path.join(os.getcwd(), 'yolov8m_quantized.onnx')
+    input_names, output_names, model = initialize(model_path=model_quant, device=device)
+else:
+    input_names, output_names, model = initialize(model_path=original_model_path, device=device)
+inference_output = inference(input_names, output_names, args.device, model, model_input)
+pred, time_required = inference_output
+
+result = postprocess(org_input, model_input, inference_output)
