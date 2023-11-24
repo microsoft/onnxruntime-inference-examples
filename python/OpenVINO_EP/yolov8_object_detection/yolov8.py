@@ -16,7 +16,6 @@ from ultralytics.yolo.utils import ops
 from ultralytics.yolo.utils import ROOT, yaml_load
 from ultralytics.yolo.utils.checks import check_yaml
 from ultralytics.yolo.utils.plotting import Annotator, colors
-CLASSES = yaml_load(check_yaml('coco128.yaml'))['names']
 
 # import onnx_runtime related package
 import onnxruntime as rt
@@ -26,6 +25,7 @@ import cv2
 import sys
 from onnxruntime.quantization import quantize_dynamic, QuantType
 
+CLASSES = yaml_load(check_yaml('coco128.yaml'))['names']
         
 def parse_arguments():
   parser = argparse.ArgumentParser(description='Object Detection using YOLOv8 using OpenVINO Execution Provider for ONNXRuntime')
@@ -53,37 +53,6 @@ def parse_arguments():
   return args
 
 
-# Process arguments
-args = parse_arguments()
-no_of_iterations = args.niter
-warmup_iter = args.warmup_iter
-device = args.device
-original_model_path = args.model
-
-if warmup_iter >= no_of_iterations:
-    sys.exit("Warmup iterations are more than no of iterations(niter)!!")
-
-# Parameters for pre-processing
-imgsz = (640,640) # default value for this usecase. 
-stride = 32 # default value for this usecase( differs based on the model selected )
-
-# Parameters for post-processing
-conf = 0.25
-iou = 0.45
-max_det = 300
-classes = None
-agnostic = False
-labels = {0: 'person', 1: 'bicycle', 2: 'car', 3: 'motorcycle', 4: 'airplane', 5: 'bus', 6: 'train', 7: 'truck', 8: 'boat', 9: 'traffic light', 10: 'fire hydrant', 11: 'stop sign', 
-                12: 'parking meter', 13: 'bench', 14: 'bird', 15: 'cat', 16: 'dog', 17: 'horse', 18: 'sheep', 19: 'cow', 20: 'elephant', 21: 'bear', 22: 'zebra', 23: 'giraffe', 24: 'backpack', 
-                25: 'umbrella', 26: 'handbag', 27: 'tie', 28: 'suitcase', 29: 'frisbee', 30: 'skis', 31: 'snowboard', 32: 'sports ball', 33: 'kite', 34: 'baseball bat', 35: 'baseball glove', 
-                36: 'skateboard', 37: 'surfboard', 38: 'tennis racket', 39: 'bottle', 40: 'wine glass', 41: 'cup', 42: 'fork', 43: 'knife', 44: 'spoon', 45: 'bowl', 46: 'banana', 47: 'apple', 
-                48: 'sandwich', 49: 'orange', 50: 'broccoli', 51: 'carrot', 52: 'hot dog', 53: 'pizza', 54: 'donut', 55: 'cake', 56: 'chair', 57: 'couch', 58: 'potted plant', 59: 'bed', 
-                60: 'dining table', 61: 'toilet', 62: 'tv', 63: 'laptop', 64: 'mouse', 65: 'remote', 66: 'keyboard', 67: 'cell phone', 68: 'microwave', 69: 'oven', 70: 'toaster', 71: 'sink', 
-                72: 'refrigerator', 73: 'book', 74: 'clock', 75: 'vase', 76: 'scissors', 77: 'teddy bear', 78: 'hair drier', 79: 'toothbrush'}
-
-path = os.getcwd()
-
-
 def initialize(model_path, device='OVEP'):
     "Initialize the model also getting model output and input names"
 
@@ -92,23 +61,20 @@ def initialize(model_path, device='OVEP'):
     so = rt.SessionOptions()
 
     if device == "OVEP":
-        print("Inferencing through OVEP")
-        model = rt.InferenceSession(model_path, so,
+        print("Creating session for OVEP")
+        session = rt.InferenceSession(model_path, so,
                                     providers=['OpenVINOExecutionProvider'],
                                     provider_options=[{'device_type' : 'CPU_FP32'}])
     else:
-        print("Inferencing through CPUEP")
-        model = rt.InferenceSession(model_path, so, providers=['CPUExecutionProvider'])
+        print("Creating session for CPUEP")
+        session = rt.InferenceSession(model_path, so, providers=['CPUExecutionProvider'])
 
-    if device == 'OVEP':
-      input_names = model.get_inputs()[0].name
-      outputs = model.get_outputs()
-    else:
-      input_names = model.get_inputs()[0].name
-      outputs = model.get_outputs()      
+
+    input_names = session.get_inputs()[0].name
+    outputs = session.get_outputs()
+   
     output_names = list(map(lambda output:output.name, outputs))
-    return input_names, output_names, model
-print("device : ", device)
+    return input_names, output_names, session
 
 def preprocess(image_url):
     ## Set up the image URL and filename
@@ -156,22 +122,18 @@ def preprocess(image_url):
         print("Invalid image format.")
         return
 
-def inference(input_names, output_names, device, model, model_input):
+def inference(input_names, output_names, model, model_input, no_of_iterations, warmup_iter):
     inf_lst = []
-    if device == 'CPUEP' or device == 'OVEP':
-        print("Performing ONNX Runtime Inference with default CPU EP.")
-        for i in range(no_of_iterations):
-            start_time = datetime.now()
-            prediction = model.run(output_names, {input_names: model_input})
-            end_time = datetime.now()
-            if i > warmup_iter:
-                inf_lst.append((end_time - start_time).total_seconds())
-    else:
-        print("Invalid Device Option. Supported device options are 'CPUEP', 'OVEP.")
-        return None
-    
+
+    for i in range(no_of_iterations):
+        start_time = datetime.now()
+        prediction = model.run(output_names, {input_names: model_input})
+        end_time = datetime.now()
+        if i >= warmup_iter:
+            inf_lst.append((end_time - start_time).total_seconds())
+
     average_inference_time = np.average(inf_lst)
-    print(f'Average inference time is for {i+1 - args.warmup_iter} iterations is {average_inference_time}')
+    print(f'Average inference time is for {i+1 - warmup_iter} iterations is {average_inference_time}')
     return prediction, (end_time - start_time).total_seconds()
 
 def postprocess( img0, img, inference_output):
@@ -222,23 +184,65 @@ def postprocess( img0, img, inference_output):
         return [f"inference_time: {inference_time}s\nInference_summary: {log_string}\nraw_output:\n{raw_output}"]
     return None
 
-org_input, model_input = preprocess(args.image_url)
+if __name__ == "__main__":
 
-#yolov8 quantization
-if args.quantize:
-    print("Quantizing yolov8 model.")
-    model_fp32 = original_model_path
-    model_quant = os.path.join(os.getcwd(), 'yolov8m_quantized.onnx')
-    quantized_model = quantize_dynamic(model_fp32, model_quant, weight_type=QuantType.QUInt8)
-    print(f'Quantized yolov8 model at {model_quant}')
+  # Process arguments
+  args = parse_arguments()
+  no_of_iterations = args.niter
+  warmup_iter = args.warmup_iter
+  device = args.device
+  original_model_path = args.model
 
+  print("device : ", device)
 
-if args.quantize:
-    model_quant = os.path.join(os.getcwd(), 'yolov8m_quantized.onnx')
-    input_names, output_names, model = initialize(model_path=model_quant, device=device)
-else:
-    input_names, output_names, model = initialize(model_path=original_model_path, device=device)
-inference_output = inference(input_names, output_names, args.device, model, model_input)
-pred, time_required = inference_output
+  if warmup_iter >= no_of_iterations:
+      sys.exit("Warmup iterations are more than no of iterations(niter)!!")
 
-result = postprocess(org_input, model_input, inference_output)
+  # Parameters for pre-processing
+  imgsz = (640,640) # default value for this usecase. 
+  stride = 32 # default value for this usecase( differs based on the model selected )
+
+  # Parameters for post-processing
+  conf = 0.25
+  iou = 0.45
+  max_det = 300
+  classes = None
+  agnostic = False
+  labels = {0: 'person', 1: 'bicycle', 2: 'car', 3: 'motorcycle', 4: 'airplane', 5: 'bus', 6: 'train', 7: 'truck', 8: 'boat', 9: 'traffic light', 10: 'fire hydrant', 11: 'stop sign', 
+                  12: 'parking meter', 13: 'bench', 14: 'bird', 15: 'cat', 16: 'dog', 17: 'horse', 18: 'sheep', 19: 'cow', 20: 'elephant', 21: 'bear', 22: 'zebra', 23: 'giraffe', 24: 'backpack', 
+                  25: 'umbrella', 26: 'handbag', 27: 'tie', 28: 'suitcase', 29: 'frisbee', 30: 'skis', 31: 'snowboard', 32: 'sports ball', 33: 'kite', 34: 'baseball bat', 35: 'baseball glove', 
+                  36: 'skateboard', 37: 'surfboard', 38: 'tennis racket', 39: 'bottle', 40: 'wine glass', 41: 'cup', 42: 'fork', 43: 'knife', 44: 'spoon', 45: 'bowl', 46: 'banana', 47: 'apple', 
+                  48: 'sandwich', 49: 'orange', 50: 'broccoli', 51: 'carrot', 52: 'hot dog', 53: 'pizza', 54: 'donut', 55: 'cake', 56: 'chair', 57: 'couch', 58: 'potted plant', 59: 'bed', 
+                  60: 'dining table', 61: 'toilet', 62: 'tv', 63: 'laptop', 64: 'mouse', 65: 'remote', 66: 'keyboard', 67: 'cell phone', 68: 'microwave', 69: 'oven', 70: 'toaster', 71: 'sink', 
+                  72: 'refrigerator', 73: 'book', 74: 'clock', 75: 'vase', 76: 'scissors', 77: 'teddy bear', 78: 'hair drier', 79: 'toothbrush'}
+
+  path = os.getcwd()
+
+  org_input, model_input = preprocess(args.image_url)
+
+  #yolov8 quantization
+  if args.quantize:
+      print("Quantizing yolov8 model.")
+      model_fp32 = original_model_path
+      model_quant = os.path.join(os.getcwd(), 'yolov8m_quantized.onnx')
+      quantized_model = quantize_dynamic(model_fp32, model_quant, weight_type=QuantType.QUInt8)
+      print(f'Quantized yolov8 model at {model_quant}')
+      model_path_actual = model_quant
+      
+  else:
+      model_path_actual = original_model_path
+
+  if device == 'CPUEP':
+     print("Starting ONNX Runtime Inference with default CPU EP.")
+     input_names, output_names, model = initialize(model_path=model_path_actual, device=device)
+     inference_output = inference(input_names, output_names, model, model_input, no_of_iterations, warmup_iter)
+  elif device == 'OVEP':
+     print("Starting ONNX Runtime Inference with OVEP.")
+     input_names, output_names, model = initialize(model_path=model_path_actual, device=device)
+     inference_output = inference(input_names, output_names, model, model_input, no_of_iterations, warmup_iter)
+  else:
+     sys.exit("Invalid Device Option. Supported device options are 'CPUEP', 'OVEP.")
+     
+  #pred, time_required = inference_output
+
+  result = postprocess(org_input, model_input, inference_output)
