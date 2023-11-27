@@ -45,8 +45,6 @@ def parse_arguments():
 
   parser.add_argument('--warmup_iter', default=10, type=int, help='total number of iterations')
 
-  parser.add_argument("--quantize",help="Optional. Quantize yolov8 and run inference.",action='store_true')
-
   parser.add_argument("--show_image",help="Optional. Show image with object detection.",action='store_true')
 
   args = parser.parse_args()
@@ -219,18 +217,7 @@ if __name__ == "__main__":
   path = os.getcwd()
 
   org_input, model_input = preprocess(args.image_url)
-
-  #yolov8 quantization
-  if args.quantize:
-      print("Quantizing yolov8 model.")
-      model_fp32 = original_model_path
-      model_quant = os.path.join(os.getcwd(), 'yolov8m_quantized.onnx')
-      quantized_model = quantize_dynamic(model_fp32, model_quant, weight_type=QuantType.QUInt8)
-      print(f'Quantized yolov8 model at {model_quant}')
-      model_path_actual = model_quant
-      
-  else:
-      model_path_actual = original_model_path
+  model_path_actual = original_model_path
 
   if device == 'CPUEP':
      print("Starting ONNX Runtime Inference with default CPU EP.")
