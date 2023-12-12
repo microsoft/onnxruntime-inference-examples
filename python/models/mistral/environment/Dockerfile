@@ -6,7 +6,6 @@ RUN pip uninstall onnxruntime-training -y
 
 RUN pip install -U --pre torch --index-url https://download.pytorch.org/whl/nightly/cu118
 
-# RUN pip install onnxruntime_gpu==1.16.3
 RUN pip install --pre ort-nightly-gpu --extra-index-url=https://aiinfra.pkgs.visualstudio.com/PublicPackages/_packaging/ORT-Nightly/pypi/simple/
 
 RUN pip install transformers
