@@ -1,6 +1,6 @@
 @ECHO OFF
 
-set ONNX_MODEL_URL="https://github.com/onnx/models/raw/main/vision/classification/mobilenet/model/mobilenetv2-12.onnx"
+set ONNX_MODEL_URL="https://github.com/onnx/models/raw/main/archive/vision/classification/mobilenet/model/mobilenetv2-12.onnx"
 set ONNX_MODEL="mobilenetv2-12.onnx"
 set KITTEN_IMAGE_URL="https://s3.amazonaws.com/model-server/inputs/kitten.jpg"
 set KITTEN_IMAGE="images/kitten.jpg"
