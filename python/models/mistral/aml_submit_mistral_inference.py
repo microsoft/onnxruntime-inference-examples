@@ -53,10 +53,8 @@ def main(raw_args=None):
 
     # https://huggingface.co/datasets/dair-ai/emotion
     dataset_name = "databricks/databricks-dolly-15k"
-    dataset_config_name = "split"
-    text_column_name = "text"
 
-    pytorch_job = command(
+    inference_job = command(
         code=code_dir,  # local path where the code is stored
         command=f"bash inference_setup.sh",
         environment=Environment(build=BuildContext(path=environment_dir)),
@@ -72,12 +70,12 @@ def main(raw_args=None):
         shm_size="16g"
     )
     
-    print("submitting PyTorch job for " + model)
-    pytorch_returned_job = ml_client.create_or_update(pytorch_job)
+    print("submitting Inference job for " + model)
+    inference_returned_job = ml_client.create_or_update(inference_job)
     print("submitted job")
 
-    pytorch_aml_url = pytorch_returned_job.studio_url
-    print("job link:", pytorch_aml_url)
+    inference_aml_url = inference_returned_job.studio_url
+    print("Inference Benchmark job link:", inference_aml_url)
 
 
 if __name__ == "__main__":
