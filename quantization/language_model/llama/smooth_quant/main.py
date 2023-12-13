@@ -21,13 +21,15 @@ import torch
 import logging
 import argparse
 import numpy as np
+from pathlib import Path
 from datasets import load_dataset
 import onnxruntime as ort
 from torch.nn.functional import pad
 from torch.utils.data import DataLoader
-from intel_extension_for_transformers.evaluation.lm_eval import evaluate
+from intel_extension_for_transformers.llm.evaluation.lm_eval import evaluate
 from optimum.onnxruntime import ORTModelForCausalLM
 from transformers import LlamaConfig, LlamaTokenizer
+from onnxruntime.quantization import StaticQuantConfig, quantize_static
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(format = '%(asctime)s - %(levelname)s - %(name)s -   %(message)s',
@@ -37,42 +39,32 @@ logging.basicConfig(format = '%(asctime)s - %(levelname)s - %(name)s -   %(messa
 parser = argparse.ArgumentParser(
 formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 parser.add_argument(
-    '--model_path',
+    '--model_input',
     type=str,
-    help="Folder path of pre-trained onnx model "
+    help="Folder path of onnx model"
 )
 parser.add_argument(
     '--benchmark',
     action='store_true', \
-    default=False
+    default=False,
+    help="whether benchmark the model"
 )
 parser.add_argument(
-    '--tune',
+    '--quantize',
     action='store_true', \
     default=False,
     help="whether quantize the model"
 )
 parser.add_argument(
-    '--output_model',
+    '--model_output',
     type=str,
     default=None,
-    help="output model path"
-)
-parser.add_argument(
-    '--mode',
-    type=str,
-    help="benchmark mode of performance or accuracy"
+    help="Folder path of quantized onnx model "
 )
 parser.add_argument(
     '--batch_size',
     default=1,
     type=int,
-)
-parser.add_argument(
-    '--model_name_or_path',
-    type=str,
-    help="pretrained model name or path",
-    default="decapoda-research/llama-7b-hf"
 )
 parser.add_argument(
     '--workspace',
@@ -111,75 +103,19 @@ parser.add_argument(
     type=float,
     default=0.6
 )
-parser.add_argument(
-    "--intra_op_num_threads",
-    type=int,
-    default=4
-)
 args = parser.parse_args()
 
-# load model
-tokenizer = LlamaTokenizer.from_pretrained(args.model_name_or_path)
+# load tokenizer and config
+tokenizer = LlamaTokenizer.from_pretrained(args.model_input)
+config = LlamaConfig.from_pretrained(args.model_input)
 
 def tokenize_function(examples):
     example = tokenizer(examples['text'])
     return example
 
-def benchmark(model):
-    import json
-    import time
-    config = LlamaConfig.from_pretrained(args.model_name_or_path)
-    sess_options = ort.SessionOptions()
-    sess_options.intra_op_num_threads = args.intra_op_num_threads
-    sessions = ORTModelForCausalLM.load_model(
-            os.path.join(model, 'decoder_model.onnx'), 
-            os.path.join(model, 'decoder_with_past_model.onnx'), 
-            session_options=sess_options)
-    model = ORTModelForCausalLM(
-                sessions[0],
-                config, 
-                model, 
-                sessions[1],
-                use_cache=True)
-
-    input_tokens = '32'
-    max_new_tokens = 32
-    with open('prompt.json') as f:
-        prompt_pool = json.load(f)
-    if input_tokens in prompt_pool:
-        prompt = prompt_pool[input_tokens]
-    else:
-        raise SystemExit('[ERROR] Plese use --prompt if want to use custom input.')
-
-    input_size = tokenizer(prompt, return_tensors="pt").input_ids.size(dim=1)
-    print("---- Prompt size:", input_size)
-
-    total_time = 0.0
-    num_iter = 100
-    num_warmup = 10
-    batch_size = 1
-    prompt = [prompt] * batch_size
-    total_list = []
-
-    for i in range(num_iter):
-        tic = time.time()
-        input_ids = tokenizer(prompt, return_tensors="pt").input_ids
-        output = model.generate(input_ids, max_new_tokens=max_new_tokens)
-        gen_ids = output
-        gen_text = tokenizer.batch_decode(gen_ids, skip_special_tokens=True)
-        toc = time.time()
-        print(gen_text, flush=True)
-        if i >= num_warmup:
-            total_time += toc - tic
-
-    print("\n", "-" * 10, "Summary:", "-" * 10)
-    latency = total_time / (num_iter - num_warmup)
-    print(args)
-    print("Inference latency: %.3f sec." % latency)
-
 def eval_func(model):
     from Llama_wrapper import LlamaLM
-    lm_model = LlamaLM(device='cpu', pretrained=args.model_name_or_path, user_model=model)
+    lm_model = LlamaLM(device='cpu', pretrained=args.model_input, user_model=model)
     results = evaluate(
         model=lm_model,
         batch_size=args.batch_size,
@@ -204,9 +140,11 @@ class KVDataloader:
             shuffle=False,
             collate_fn=self.collate_batch,
         )
-        self.sess = None
-        if not model_path.endswith('decoder_model.onnx'):
-            self.sess = ort.InferenceSession(os.path.join(os.path.dirname(model_path), 'decoder_model.onnx'))
+
+        session = ort.InferenceSession(model_path)
+        inputs_names = [input.name for input in session.get_inputs()]
+        self.key_value_input_names = [key for key in inputs_names if (".key" in key) or (".value" in key)]
+        self.use_cache = len(self.key_value_input_names) > 0
 
 
     def collate_batch(self, batch):
@@ -230,19 +168,31 @@ class KVDataloader:
     def __iter__(self):
         try:
             for (input_ids, attention_mask), last_ind in self.dataloader:
-                if self.sess is None:
-                    yield {'input_ids': input_ids[:, :-1].detach().cpu().numpy().astype('int64'),
-                           'attention_mask':attention_mask[:, :-1].detach().cpu().numpy().astype('int64')}, last_ind.detach().cpu().numpy()
+                
+                ort_input = {}
+                if not self.use_cache:
+                    ort_input["input_ids"] = input_ids[:, :-1].detach().cpu().numpy().astype('int64')
+                    ort_input["attention_mask"] = attention_mask[:, :-1].detach().cpu().numpy().astype('int64')
+                    input_shape = ort_input["input_ids"].shape
+                    position_ids = torch.arange(0, input_shape[-1], dtype=torch.long).unsqueeze(0).view(-1, input_shape[-1])
+                    ort_input["position_ids"] = position_ids.numpy()
                 else:
-                    outputs = self.sess.run(None, {'input_ids': input_ids[:, :-1].detach().cpu().numpy().astype('int64'),
-                                                   'attention_mask':attention_mask[:, :-1].detach().cpu().numpy().astype('int64')})
-                    ort_input = {}
-                    ort_input['input_ids'] = input_ids[:, -1].unsqueeze(0).detach().cpu().numpy().astype('int64')
-                    for i in range(int((len(outputs) - 1) / 2)):
-                        ort_input['past_key_values.{}.key'.format(i)] = outputs[i*2+1]
-                        ort_input['past_key_values.{}.value'.format(i)] = outputs[i*2+2]
-                    ort_input['attention_mask'] =  np.zeros([self.batch_size, ort_input['past_key_values.0.key'].shape[2]+1], dtype='int64')
-                    yield ort_input, last_ind.detach().cpu().numpy()
+                    num_attention_heads = config.num_key_value_heads
+                    embed_size_per_head = config.hidden_size // config.num_attention_heads
+                    shape = (self.batch_size, num_attention_heads, 0, embed_size_per_head)
+                    key_or_value = np.zeros(shape, dtype=np.float32)
+
+                    for key_value_input_name in self.key_value_input_names:
+                        ort_input[key_value_input_name] = key_or_value
+
+                    ort_input["input_ids"] = input_ids[:, :-1].detach().cpu().numpy().astype('int64')
+                    ort_input["attention_mask"] =  np.zeros([self.batch_size, ort_input['past_key_values.0.key'].shape[2]+1], dtype='int64')
+
+                    input_shape = ort_input["input_ids"].shape
+                    position_ids = torch.arange(0, input_shape[-1], dtype=torch.long).unsqueeze(0).view(-1, input_shape[-1])
+                    ort_input["position_ids"] = position_ids.numpy()
+
+                yield ort_input
         except StopIteration:
             return
 
@@ -251,22 +201,23 @@ if __name__ == "__main__":
     set_workspace(args.workspace)
 
     if args.benchmark:
-        if args.mode == 'performance':            
-            benchmark(args.model_path)
-        elif args.mode == 'accuracy':
-            eval_func(args.model_path)
+        eval_func(args.model_input)
 
-    if args.tune:
-        from neural_compressor import quantization, PostTrainingQuantConfig
-        config = PostTrainingQuantConfig(
-            calibration_sampling_size=[8],
-            recipes={'optypes_to_exclude_output_quant': ['MatMul'],
-                     'smooth_quant': True,
-                     'smooth_quant_args': {'alpha': args.smooth_quant_alpha}},
-            op_type_dict={'^((?!(MatMul|Gather|Conv)).)*$': {'weight': {'dtype': ['fp32']}, 'activation': {'dtype': ['fp32']}}})
-        for model in ['decoder_model.onnx', 'decoder_with_past_model.onnx']:
-            q_model = quantization.fit(
-                    os.path.join(args.model_path, model),
-                    config,
-                    calib_dataloader=KVDataloader(os.path.join(args.model_path, model), pad_max=args.pad_max, batch_size=1))
-            q_model.save(os.path.join(args.output_model, model))
+    if args.quantize:
+        model_name = "model.onnx"
+        model_file = os.path.join(args.model_input, model_name)
+        output_model_file = os.path.join(args.model_output, model_name)
+
+        data_reader = KVDataloader(model_file, pad_max=args.pad_max, batch_size=1)
+
+        quantize_static(model_file,
+                        output_model_file, 
+                        calibration_data_reader=data_reader,
+                        quant_format="QOperator",
+                        op_types_to_quantize=["MatMul"],
+                        use_external_data_format=True,
+                        extra_options={"SmoothQuant": True,
+                                       "SmoothQuantAlpha": args.smooth_quant_alpha,
+                                       "OpTypesToExcludeOutputQuantization": ["MatMul"]})
+        tokenizer.save_pretrained(args.model_output)
+        config.save_pretrained(args.model_output)

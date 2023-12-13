@@ -214,8 +214,7 @@ if __name__ == "__main__":
             data_reader = GPTQDataloader(model_file, seqlen=args.seqlen, batch_size=1)
             algo_config = GPTQWeightOnlyQuantConfig(calibration_data_reader=data_reader)
         
-        model = quant_utils.load_model_with_shape_infer(Path(model_file))
-        quant = matmul_4bits_quantizer.MatMul4BitsQuantizer(model, 
+        quant = matmul_4bits_quantizer.MatMul4BitsQuantizer(model_file, 
                                                             block_size=args.block_size, 
                                                             is_symmetric=args.is_symmetric, 
                                                             algo_config=algo_config)
