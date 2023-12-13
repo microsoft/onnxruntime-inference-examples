@@ -22,13 +22,15 @@ import logging
 import argparse
 import datasets
 import numpy as np
-from datasets import load_dataset
 import onnxruntime as ort
-from torch.nn.functional import pad
-from torch.utils.data import DataLoader
-from intel_extension_for_transformers.evaluation.lm_eval import evaluate
-from optimum.onnxruntime import ORTModelForCausalLM
+from intel_extension_for_transformers.llm.evaluation.lm_eval import evaluate
 from transformers import LlamaConfig, LlamaTokenizer
+from pathlib import Path
+from onnxruntime.quantization import (
+    RTNWeightOnlyQuantConfig, 
+    GPTQWeightOnlyQuantConfig, 
+    quant_utils,
+    matmul_4bits_quantizer)
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(format = "%(asctime)s - %(levelname)s - %(name)s -   %(message)s",
@@ -38,37 +40,32 @@ logging.basicConfig(format = "%(asctime)s - %(levelname)s - %(name)s -   %(messa
 parser = argparse.ArgumentParser(
 formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 parser.add_argument(
-    "--model_path",
+    "--model_input",
     type=str,
-    help="Folder path of pre-trained onnx model"
+    help="dirctory path of onnx model"
+)
+parser.add_argument(
+    "--model_output",
+    type=str,
+    default=None,
+    help="dirctory path of quantized onnx model"
 )
 parser.add_argument(
     "--benchmark",
-    action="store_true", \
-    default=False
+    action="store_true",
+    default=False,
+    help="whether benchmark the model"
 )
 parser.add_argument(
-    "--tune",
-    action="store_true", \
+    "--quantize",
+    action="store_true",
     default=False,
     help="whether quantize the model"
-)
-parser.add_argument(
-    "--output_model",
-    type=str,
-    default=None,
-    help="output model path"
 )
 parser.add_argument(
     "--batch_size",
     default=1,
     type=int,
-)
-parser.add_argument(
-    "--tokenizer",
-    type=str,
-    help="pretrained model name or path of tokenizer files",
-    default="decapoda-research/llama-7b-hf"
 )
 parser.add_argument(
     "--workspace",
@@ -108,28 +105,31 @@ parser.add_argument(
     const="NeelNanda/pile-10k"
 )
 parser.add_argument(
-    "--group_size",
+    "--block_size",
     type=int, 
     default=32
 )
 parser.add_argument(
-    "--scheme",
-    type=str, 
-    default="sym"
+    "--is_symmetric",
+    type=bool, 
+    default=False,
+    help="is symmetric or not"
 )
 args = parser.parse_args()
 
-# load model
-tokenizer = LlamaTokenizer.from_pretrained(args.tokenizer)
+# load tokenizer and config
+tokenizer = LlamaTokenizer.from_pretrained(args.model_input)
+config = LlamaConfig.from_pretrained(args.model_input)
 
 def tokenize_function(examples):
     example = tokenizer(examples["text"])
     return example
 
 def eval_func(model):
+    logger.info("start to evaluate onnx model ...")
     results = evaluate(
         model="hf-causal",
-        model_args="pretrained=" + model + ",tokenizer="+ args.tokenizer,
+        model_args="pretrained=" + model + ",tokenizer="+ args.model_input,
         batch_size=args.batch_size,
         tasks=args.tasks,
         model_format="onnx"
@@ -140,75 +140,21 @@ def eval_func(model):
         else:
             print("Accuracy for %s is: %s" % (task_name, results["results"][task_name]["acc"]))
 
-class KVDataloader:
-    def __init__(self, model_path, pad_max=196, batch_size=1, sub_folder="train"):
-        self.pad_max = pad_max
-        self.batch_size=batch_size
-        dataset = load_dataset(args.dataset, split=sub_folder)
-        dataset = dataset.map(tokenize_function, batched=True)
-        dataset.set_format(type="torch", columns=["input_ids", "attention_mask"])
-        self.dataloader = DataLoader(
-            dataset,
-            batch_size=self.batch_size,
-            shuffle=False,
-            collate_fn=self.collate_batch,
-        )
-        self.sess = None
-        if not model_path.endswith("decoder_model.onnx"):
-            self.sess = ort.InferenceSession(os.path.join(os.path.dirname(model_path), "decoder_model.onnx"))
-
-
-    def collate_batch(self, batch):
-
-        input_ids_padded = []
-        attention_mask_padded = []
-        last_ind = []
-
-        for text in batch:
-            input_ids = text["input_ids"]
-            pad_len = self.pad_max - input_ids.shape[0]
-            last_ind.append(input_ids.shape[0] - 1)
-            attention_mask = torch.ones(len(input_ids))
-            input_ids = pad(input_ids, (0, pad_len), value=1)
-            attention_mask = pad(attention_mask, (0, pad_len), value=0)
-            input_ids_padded.append(input_ids)
-            attention_mask_padded.append(attention_mask)
-        return (torch.vstack(input_ids_padded), torch.vstack(attention_mask_padded)), torch.tensor(last_ind)
-
-
-    def __iter__(self):
-        try:
-            for (input_ids, attention_mask), last_ind in self.dataloader:
-                if self.sess is None:
-                    yield {"input_ids": input_ids[:, :-1].detach().cpu().numpy().astype("int64"),
-                           "attention_mask":attention_mask[:, :-1].detach().cpu().numpy().astype("int64")}, last_ind.detach().cpu().numpy()
-                else:
-                    outputs = self.sess.run(None, {"input_ids": input_ids[:, :-1].detach().cpu().numpy().astype("int64"),
-                                                   "attention_mask":attention_mask[:, :-1].detach().cpu().numpy().astype("int64")})
-                    ort_input = {}
-                    ort_input["input_ids"] = input_ids[:, -1].unsqueeze(0).detach().cpu().numpy().astype("int64")
-                    for i in range(int((len(outputs) - 1) / 2)):
-                        ort_input["past_key_values.{}.key".format(i)] = outputs[i*2+1]
-                        ort_input["past_key_values.{}.value".format(i)] = outputs[i*2+2]
-                    ort_input["attention_mask"] =  np.zeros([self.batch_size, ort_input["past_key_values.0.key"].shape[2]+1], dtype="int64")
-                    yield ort_input, last_ind.detach().cpu().numpy()
-        except StopIteration:
-            return
-
 class GPTQDataloader:
-    def __init__(self, model_path, batch_size=1, seqlen=2048, sub_folder="train"):
+    def __init__(self, model_input, batch_size=1, seqlen=2048, sub_folder="train"):
         import random
         random.seed(0)
         self.seqlen = seqlen
 
         self.batch_size=batch_size
-        # self.traindata = load_dataset(args.dataset, split=sub_folder)
-        self.traindata = datasets.load_from_disk('/mnt/data1/mengni/pile')['train']
+        self.traindata = datasets.load_dataset(args.dataset, split=sub_folder)
         self.traindata = self.traindata.map(tokenize_function, batched=True)
         self.traindata.set_format(type="torch", columns=["input_ids", "attention_mask"])
-        self.sess = None
-        if not model_path.endswith("decoder_model.onnx"):
-            self.sess = ort.InferenceSession(os.path.join(os.path.dirname(model_path), "decoder_model.onnx"))
+
+        session = ort.InferenceSession(model_input)
+        inputs_names = [input.name for input in session.get_inputs()]
+        self.key_value_input_names = [key for key in inputs_names if (".key" in key) or (".value" in key)]
+        self.use_cache = len(self.key_value_input_names) > 0
 
     def __iter__(self):
         try:
@@ -222,19 +168,31 @@ class GPTQDataloader:
                 j = i + self.seqlen
                 inp = trainenc["input_ids"][i:j].unsqueeze(0)
                 mask = torch.ones(inp.shape)
-                if self.sess is None:
-                    yield {"input_ids": inp.detach().cpu().numpy().astype("int64"),
-                        "attention_mask": mask.detach().cpu().numpy().astype("int64")}, 0
+
+                ort_input = {}
+                if not self.use_cache:
+                    ort_input["input_ids"] = inp.detach().cpu().numpy().astype("int64")
+                    ort_input["attention_mask"] = mask.detach().cpu().numpy().astype("int64")
+                    input_shape = ort_input["input_ids"].shape
+                    position_ids = torch.arange(0, input_shape[-1], dtype=torch.long).unsqueeze(0).view(-1, input_shape[-1])
+                    ort_input["position_ids"] = position_ids.numpy()
                 else:
-                    outputs = self.sess.run(None, {"input_ids": inp[:, :-1].detach().cpu().numpy().astype("int64"),
-                                                   "attention_mask": mask[:, :-1].detach().cpu().numpy().astype("int64")})
-                    ort_input = {}
+                    num_attention_heads = config.num_key_value_heads
+                    embed_size_per_head = config.hidden_size // config.num_attention_heads
+                    shape = (self.batch_size, num_attention_heads, 0, embed_size_per_head)
+                    key_or_value = np.zeros(shape, dtype=np.float32)
+
+                    for key_value_input_name in self.key_value_input_names:
+                        ort_input[key_value_input_name] = key_or_value
+
                     ort_input["input_ids"] = inp[:, -1].unsqueeze(0).detach().cpu().numpy().astype("int64")
-                    for i in range(int((len(outputs) - 1) / 2)):
-                        ort_input["past_key_values.{}.key".format(i)] = outputs[i*2+1]
-                        ort_input["past_key_values.{}.value".format(i)] = outputs[i*2+2]
                     ort_input["attention_mask"] =  np.zeros([self.batch_size, ort_input["past_key_values.0.key"].shape[2]+1], dtype="int64")
-                    yield ort_input, 0
+
+                    input_shape = ort_input["input_ids"].shape
+                    position_ids = torch.arange(0, input_shape[-1], dtype=torch.long).unsqueeze(0).view(-1, input_shape[-1])
+                    ort_input["position_ids"] = position_ids.numpy()
+
+                yield ort_input
  
         except StopIteration:
             return
@@ -244,26 +202,24 @@ if __name__ == "__main__":
     set_workspace(args.workspace)
 
     if args.benchmark:
-        eval_func(args.model_path)
+        eval_func(args.model_input)
 
-    if args.tune:
-        from neural_compressor import quantization, PostTrainingQuantConfig
-        for model in ["decoder_model.onnx", "decoder_with_past_model.onnx"]:
-            if args.algorithm.upper() == "RTN":
-                dataloader = KVDataloader(os.path.join(args.model_path, model), pad_max=args.pad_max, batch_size=1)
-            elif args.algorithm.upper() == "GPTQ":
-                dataloader = GPTQDataloader(os.path.join(args.model_path, model), seqlen=args.seqlen, batch_size=1)
-            config = PostTrainingQuantConfig(
-                approach="weight_only",
-                calibration_sampling_size=[8],
-                op_type_dict={".*": {"weight": {"bits": 4, 
-                                                "group_size": args.group_size, 
-                                                "scheme": args.scheme, 
-                                                "algorithm": args.algorithm.upper()}}}
-                )
+    if args.quantize:
+        model_name = "model.onnx"
+        model_file = os.path.join(args.model_input, model_name)
 
-            q_model = quantization.fit(
-                    os.path.join(args.model_path, model),
-                    config,
-                    calib_dataloader=dataloader)
-            q_model.save(os.path.join(args.output_model, model))
+        if args.algorithm.upper() == "RTN":
+            algo_config = RTNWeightOnlyQuantConfig()
+        elif args.algorithm.upper() == "GPTQ":
+            data_reader = GPTQDataloader(model_file, seqlen=args.seqlen, batch_size=1)
+            algo_config = GPTQWeightOnlyQuantConfig(calibration_data_reader=data_reader)
+        
+        model = quant_utils.load_model_with_shape_infer(Path(model_file))
+        quant = matmul_4bits_quantizer.MatMul4BitsQuantizer(model, 
+                                                            block_size=args.block_size, 
+                                                            is_symmetric=args.is_symmetric, 
+                                                            algo_config=algo_config)
+        quant.process()
+        quant.model.save_model_to_file(os.path.join(args.model_output, model_name), use_external_data_format=True)
+        tokenizer.save_pretrained(args.model_output)
+        config.save_pretrained(args.model_output)
