@@ -10,7 +10,7 @@ w) WORKSPACE=${OPTARG};;
 esac
 done
 
-ONNX_MODEL_URL="https://media.githubusercontent.com/media/onnx/models/main/vision/classification/squeezenet/model/squeezenet1.0-7.onnx"
+ONNX_MODEL_URL="https://media.githubusercontent.com/media/onnx/models/main/archive/vision/classification/squeezenet/model/squeezenet1.0-7.onnx"
 ONNX_MODEL="squeezenet.onnx"
 
 CUR_PWD=$(pwd)
