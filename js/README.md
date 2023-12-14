@@ -45,3 +45,5 @@ Click links for README of each examples.
 ### Simple Applications
 
 * [OpenAI Whisper](ort-whisper) - demonstrates how to run [whisper tiny.en](https://github.com/openai/whisper) in your browser using [onnxruntime-web](https://github.com/microsoft/onnxruntime) and the browser's audio interfaces.
+
+* [Facebook Segment-Anything](segment-anything) - demonstrates how to run [segment-anything](https://github.com/facebookresearch/segment-anything) in your browser using [onnxruntime-web](https://github.com/microsoft/onnxruntime/js) with webgpu.
