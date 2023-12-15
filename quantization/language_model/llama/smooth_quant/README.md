@@ -12,39 +12,41 @@ pip install -r requirements.txt
 
 ## 2. Prepare Model
 
+Note that this README.md uses meta-llama/Llama-2-7b-hf as an example. There are other models available that can be used for INT4 weight only quantization. The following table shows a few models' configurations:
+
+| Model | Num Hidden Layers| Num Attention Heads | Hidden Size |
+| --- | --- | --- | --- |
+| [meta-llama/Llama-2-7b](https://huggingface.co/meta-llama/Llama-2-7b) | 32 | 32 | 4096 |
+| [meta-llama/Llama-2-7b-chat-hf](https://huggingface.co/meta-llama/Llama-2-7b-chat-hf) | 32 | 32 | 4096 |
+| [meta-llama/Llama-2-13b](https://huggingface.co/meta-llama/Llama-2-13b) | 40 | 40 | 5120 |
+| [meta-llama/Llama-2-13b-chat-hf](https://huggingface.co/meta-llama/Llama-2-13b-chat-hf) | 40 | 40 | 5120 |
+| [meta-llama/Llama-2-70b](https://huggingface.co/meta-llama/Llama-2-70b) | 80 | 64 | 8192 |
+| [meta-llama/Llama-2-70b-chat-hf](https://huggingface.co/meta-llama/Llama-2-70b-chat-hf) | 80 | 64 | 8192 |
+
+Export to ONNX model:
 ```bash
-optimum-cli export onnx --model decapoda-research/llama-7b-hf --task causal-lm-with-past ./llama_7b
-optimum-cli export onnx --model decapoda-research/llama-13b-hf --task causal-lm-with-past ./llama_13b
+optimum-cli export onnx --model meta-llama/Llama-2-7b-hf --task text-generation-with-past ./Llama-2-7b-hf
 ```
+
+> Note: require `optimum>=1.14.0`.
 
 # Run
 
 ## 1. Quantization
 
 ```bash
-bash run_quantization.sh --input_model=/path/to/model \ # folder path of onnx model
-                         --output_model=/path/to/model_tune \ # folder path to save onnx model
-                         --batch_size=batch_size # optional \
-                         --dataset NeelNanda/pile-10k \
-                         --alpha 0.6 \ # 0.6 for llama-7b, 0.8 for llama-13b
-                         --quant_format="QOperator" # or QDQ, optional
+bash run_quant.sh --model_input=/folder/of/model \ # folder path of onnx model, config and tokenizer
+                  --model_output=/folder/of/quantized/model \ # folder path to save onnx model
+                  --batch_size=batch_size \ # optional 
+                  --dataset NeelNanda/pile-10k \
+                  --alpha 0.75 \ 
+                  --quant_format="QOperator" # or QDQ, optional
 ```
 
 ## 2. Benchmark
 
-Accuracy:
-
 ```bash
-bash run_benchmark.sh --input_model=path/to/model \ # folder path of onnx model
-                      --batch_size=batch_size \ # optional 
-                      --mode=accuracy \
+bash run_benchmark.sh --model_input=/folder/of/model \ # folder path of onnx model, config and tokenizer
                       --tasks=lambada_openai
-```
-
-Performance:
-```bash
-numactl -m 0 -C 0-3 bash run_benchmark.sh --input_model=path/to/model \ # folder path of onnx model
-                                          --mode=performance \
-                                          --batch_size=batch_size # optional \
-                                          --intra_op_num_threads=4
+                      --batch_size=batch_size \ # optional
 ```

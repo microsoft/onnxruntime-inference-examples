@@ -30,14 +30,14 @@ function init_params {
 # run_benchmark
 function run_benchmark {
     
-    # Check if the input_model ends with the filename extension ".onnx"
-    if [[ $input_model =~ \.onnx$ ]]; then
+    # Check if the model_input ends with the filename extension ".onnx"
+    if [[ $model_input =~ \.onnx$ ]]; then
         # If the string ends with the filename extension, get the path of the file
-        input_model=$(dirname "$input_model")
+        model_input=$(dirname "$model_input")
     fi
 
     python main.py \
-            --model_path ${input_model} \
+            --model_input ${model_input} \
             --batch_size=${batch_size-1} \
             --tasks=${tasks-lambada_openai} \
             --benchmark

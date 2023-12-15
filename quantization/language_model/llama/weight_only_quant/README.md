@@ -32,6 +32,8 @@ Export to ONNX model:
 optimum-cli export onnx --model meta-llama/Llama-2-7b-hf --task text-generation-with-past ./Llama-2-7b-hf
 ```
 
+> Note: require `optimum>=1.14.0`.
+
 # Run
 
 ## 1. Quantization
@@ -39,7 +41,7 @@ optimum-cli export onnx --model meta-llama/Llama-2-7b-hf --task text-generation-
 ```bash
 bash run_quant.sh --model_input=/folder/of/model \ # folder path of onnx model, config and tokenizer
                   --model_output=/folder/of/quantized/model \ # folder path to save onnx model
-                  --algorithm=GPTQ \ # or RTN
+                  --algorithm=RTN \ # or GPTQ
                   --batch_size=batch_size \ # optional 
 ```
 

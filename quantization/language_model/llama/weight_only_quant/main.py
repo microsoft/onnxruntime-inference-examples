@@ -25,11 +25,9 @@ import numpy as np
 import onnxruntime as ort
 from intel_extension_for_transformers.llm.evaluation.lm_eval import evaluate
 from transformers import LlamaConfig, LlamaTokenizer
-from pathlib import Path
 from onnxruntime.quantization import (
     RTNWeightOnlyQuantConfig, 
-    GPTQWeightOnlyQuantConfig, 
-    quant_utils,
+    GPTQWeightOnlyQuantConfig,
     matmul_4bits_quantizer)
 
 logger = logging.getLogger(__name__)
@@ -115,6 +113,12 @@ parser.add_argument(
     default=False,
     help="is symmetric or not"
 )
+parser.add_argument(
+    "--sampling_size",
+    type=int, 
+    default=8,
+    help="sampling size of calibration for GPTQ"
+)
 args = parser.parse_args()
 
 # load tokenizer and config
@@ -141,15 +145,16 @@ def eval_func(model):
             print("Accuracy for %s is: %s" % (task_name, results["results"][task_name]["acc"]))
 
 class GPTQDataloader:
-    def __init__(self, model_input, batch_size=1, seqlen=2048, sub_folder="train"):
+    def __init__(self, model_input, batch_size=1, seqlen=2048, sub_folder="train", sampling_size=8):
         import random
         random.seed(0)
         self.seqlen = seqlen
 
         self.batch_size=batch_size
-        self.traindata = datasets.load_dataset(args.dataset, split=sub_folder)
-        self.traindata = self.traindata.map(tokenize_function, batched=True)
-        self.traindata.set_format(type="torch", columns=["input_ids", "attention_mask"])
+        traindata = datasets.load_dataset(args.dataset, split=sub_folder)
+        traindata = traindata.map(tokenize_function, batched=True)
+        traindata.set_format(type="torch", columns=["input_ids", "attention_mask"])
+        self.traindata = traindata.select(range(sampling_size))
 
         session = ort.InferenceSession(model_input)
         inputs_names = [input.name for input in session.get_inputs()]
@@ -158,7 +163,7 @@ class GPTQDataloader:
 
     def __iter__(self):
         try:
-            while True:
+            for _ in range(self.sampling_size):
                 while True:
                     i = random.randint(0, len(self.traindata) - 1)
                     trainenc = self.traindata[i]
@@ -173,9 +178,6 @@ class GPTQDataloader:
                 if not self.use_cache:
                     ort_input["input_ids"] = inp.detach().cpu().numpy().astype("int64")
                     ort_input["attention_mask"] = mask.detach().cpu().numpy().astype("int64")
-                    input_shape = ort_input["input_ids"].shape
-                    position_ids = torch.arange(0, input_shape[-1], dtype=torch.long).unsqueeze(0).view(-1, input_shape[-1])
-                    ort_input["position_ids"] = position_ids.numpy()
                 else:
                     num_attention_heads = config.num_key_value_heads
                     embed_size_per_head = config.hidden_size // config.num_attention_heads
@@ -188,9 +190,9 @@ class GPTQDataloader:
                     ort_input["input_ids"] = inp[:, -1].unsqueeze(0).detach().cpu().numpy().astype("int64")
                     ort_input["attention_mask"] =  np.zeros([self.batch_size, ort_input["past_key_values.0.key"].shape[2]+1], dtype="int64")
 
-                    input_shape = ort_input["input_ids"].shape
-                    position_ids = torch.arange(0, input_shape[-1], dtype=torch.long).unsqueeze(0).view(-1, input_shape[-1])
-                    ort_input["position_ids"] = position_ids.numpy()
+                input_shape = ort_input["input_ids"].shape
+                position_ids = torch.arange(0, input_shape[-1], dtype=torch.long).unsqueeze(0).view(-1, input_shape[-1])
+                ort_input["position_ids"] = position_ids.numpy()
 
                 yield ort_input
  
@@ -211,7 +213,7 @@ if __name__ == "__main__":
         if args.algorithm.upper() == "RTN":
             algo_config = RTNWeightOnlyQuantConfig()
         elif args.algorithm.upper() == "GPTQ":
-            data_reader = GPTQDataloader(model_file, seqlen=args.seqlen, batch_size=1)
+            data_reader = GPTQDataloader(model_file, seqlen=args.seqlen, batch_size=1, sampling_size=args.sampling_size)
             algo_config = GPTQWeightOnlyQuantConfig(calibration_data_reader=data_reader)
         
         quant = matmul_4bits_quantizer.MatMul4BitsQuantizer(model_file, 
