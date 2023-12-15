@@ -11,7 +11,7 @@ Two weight only algorithms are provided in this example. Round-to-nearest (RTN) 
 
 ## 1. Environment
 ```shell
-pip install -r requirements.txt
+SKIP_RUNTIME=True pip install -r requirements.txt
 ```
 
 ## 2. Prepare Model

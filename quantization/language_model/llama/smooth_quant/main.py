@@ -138,7 +138,7 @@ class CalibDataloader(CalibrationDataReader):
         self.pad_max = pad_max
         self.batch_size=batch_size
         dataset = load_dataset(args.dataset, split=sub_folder)
-        dataset = dataset.map(self.tokenize_function, batched=True)
+        dataset = dataset.map(tokenize_function, batched=True)
         dataset.set_format(type="torch", columns=["input_ids", "attention_mask"])
         dataset = dataset.select(range(sampling_size))
         dataloader = DataLoader(

@@ -7,7 +7,7 @@ This folder contains example code for quantizing LLaMa model.
 
 ## 1. Environment
 ```shell
-pip install -r requirements.txt
+SKIP_RUNTIME=True pip install -r requirements.txt
 ```
 
 ## 2. Prepare Model
