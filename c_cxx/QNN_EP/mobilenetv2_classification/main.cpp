@@ -123,10 +123,10 @@ void run_ort_qnn_ep(const std::string& backend, const std::string& model_path, c
     input_node_names[i] = input_name;
 
     // Get input node types
-    OrtTypeInfo* typeinfo;
-    CheckStatus(g_ort, g_ort->SessionGetInputTypeInfo(session, i, &typeinfo));
+    OrtTypeInfo* type_info;
+    CheckStatus(g_ort, g_ort->SessionGetInputTypeInfo(session, i, &type_info));
     const OrtTensorTypeAndShapeInfo* tensor_info;
-    CheckStatus(g_ort, g_ort->CastTypeInfoToTensorInfo(typeinfo, &tensor_info));
+    CheckStatus(g_ort, g_ort->CastTypeInfoToTensorInfo(type_info, &tensor_info));
     ONNXTensorElementDataType type;
     CheckStatus(g_ort, g_ort->GetTensorElementType(tensor_info, &type));
     input_types[i] = type;
@@ -137,10 +137,7 @@ void run_ort_qnn_ep(const std::string& backend, const std::string& model_path, c
     input_node_dims[i].resize(num_dims);
     CheckStatus(g_ort, g_ort->GetDimensions(tensor_info, input_node_dims[i].data(), num_dims));
 
-    size_t tensor_size;
-    CheckStatus(g_ort, g_ort->GetTensorShapeElementCount(tensor_info, &tensor_size));
-
-    if (typeinfo) g_ort->ReleaseTypeInfo(typeinfo);
+    if (type_info) g_ort->ReleaseTypeInfo(type_info);
   }
 
   size_t num_output_nodes;
@@ -158,10 +155,10 @@ void run_ort_qnn_ep(const std::string& backend, const std::string& model_path, c
     CheckStatus(g_ort, g_ort->SessionGetOutputName(session, i, allocator, &output_name));
     output_node_names[i] = output_name;
 
-    OrtTypeInfo* typeinfo;
-    CheckStatus(g_ort, g_ort->SessionGetOutputTypeInfo(session, i, &typeinfo));
+    OrtTypeInfo* type_info;
+    CheckStatus(g_ort, g_ort->SessionGetOutputTypeInfo(session, i, &type_info));
     const OrtTensorTypeAndShapeInfo* tensor_info;
-    CheckStatus(g_ort, g_ort->CastTypeInfoToTensorInfo(typeinfo, &tensor_info));
+    CheckStatus(g_ort, g_ort->CastTypeInfoToTensorInfo(type_info, &tensor_info));
 
     // Get output shapes/dims
     size_t num_dims;
@@ -169,10 +166,7 @@ void run_ort_qnn_ep(const std::string& backend, const std::string& model_path, c
     output_node_dims[i].resize(num_dims);
     CheckStatus(g_ort, g_ort->GetDimensions(tensor_info, (int64_t*)output_node_dims[i].data(), num_dims));
 
-    size_t tensor_size;
-    CheckStatus(g_ort, g_ort->GetTensorShapeElementCount(tensor_info, &tensor_size));
-
-    if (typeinfo) g_ort->ReleaseTypeInfo(typeinfo);
+    if (type_info) g_ort->ReleaseTypeInfo(type_info);
   }
 
   OrtMemoryInfo* memory_info;

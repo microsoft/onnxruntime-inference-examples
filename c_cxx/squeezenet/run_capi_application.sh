@@ -10,7 +10,7 @@ w) WORKSPACE=${OPTARG};;
 esac
 done
 
-ONNX_MODEL_URL="https://media.githubusercontent.com/media/onnx/models/main/vision/classification/squeezenet/model/squeezenet1.0-7.onnx"
+ONNX_MODEL_URL="https://media.githubusercontent.com/media/onnx/models/main/archive/vision/classification/squeezenet/model/squeezenet1.0-7.onnx"
 ONNX_MODEL="squeezenet.onnx"
 
 CUR_PWD=$(pwd)
@@ -29,7 +29,12 @@ cd build
 
 cmake .. -DONNXRUNTIME_ROOTDIR=${ONNXRUNTIME_ROOTDIR}
 make -j4
-curl ${ONNX_MODEL_URL} --output ${ONNX_MODEL}
+
+if [ -f /data/models/opset8/test_squeezenet/model.onnx ]; then
+   cp /data/models/opset8/test_squeezenet/model.onnx "${ONNX_MODEL}"
+else
+   curl ${ONNX_MODEL_URL} --output ${ONNX_MODEL}
+fi
 ./capi_test
 
 if [ $? -ne 0 ]
