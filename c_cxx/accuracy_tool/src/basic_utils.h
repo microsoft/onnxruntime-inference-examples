@@ -5,6 +5,7 @@
 #include <cassert>
 #include <cmath>
 #include <condition_variable>
+#include <filesystem>
 #include <string>
 #include <type_traits>
 #include <vector>
@@ -56,6 +57,7 @@ constexpr int64_t GetShapeSize(Span<T> shape) {
 
 int32_t GetFileIndexSuffix(const std::string& filename_wo_ext, const char* prefix);
 bool FillBytesFromBinaryFile(Span<char> array, const std::string& binary_filepath);
+std::vector<std::filesystem::path> GetSortedDatasetPaths(const std::filesystem::path& model_dir);
 
 constexpr double EPSILON_DBL = 2e-16;
 

@@ -23,32 +23,25 @@ class Task {
  public:
   Task(Task&& other) = default;
   Task(const Task& other) = default;
-  Task(Ort::Session& session, const ModelIOInfo& model_io_info, Span<const char> input_buffer, Span<char> output_buffer)
-      : session_(session),
-        model_io_info_(model_io_info),
-        input_buffer_(input_buffer),
-        variant_(Inference{output_buffer}) {}
-  Task(Ort::Session& session, const ModelIOInfo& model_io_info, Span<const char> input_buffer,
-       Span<const char> expected_output_buffer, Span<AccMetrics> output_acc_metric)
-      : session_(session),
-        model_io_info_(model_io_info),
-        input_buffer_(input_buffer),
-        variant_(AccuracyCheck{expected_output_buffer, output_acc_metric}) {}
 
   static Task CreateInferenceTask(Ort::Session& session, const ModelIOInfo& model_io_info,
-                                  Span<const char> input_buffer, Span<char> output_buffer) {
-    return Task(session, model_io_info, input_buffer, output_buffer);
-  }
+                                  Span<const char> input_buffer, Span<char> output_buffer);
 
   static Task CreateAccuracyCheckTask(Ort::Session& session, const ModelIOInfo& model_io_info,
                                       Span<const char> input_buffer, Span<const char> expected_output_buffer,
-                                      Span<AccMetrics> output_acc_metric) {
-    return Task(session, model_io_info, input_buffer, expected_output_buffer, output_acc_metric);
-  }
+                                      Span<AccMetrics> output_acc_metric);
 
   void Run();
 
  private:
+  Task(Ort::Session& session, const ModelIOInfo& model_io_info, Span<const char> input_buffer,
+       Span<char> output_buffer);
+  Task(Ort::Session& session, const ModelIOInfo& model_io_info, Span<const char> input_buffer,
+       Span<const char> expected_output_buffer, Span<AccMetrics> output_acc_metric);
+
+  void RunAsInferenceTask(Inference& inference_args);
+  void RunAsAccuracyCheckTask(AccuracyCheck& accuracy_check_args);
+
   std::reference_wrapper<Ort::Session> session_;
   std::reference_wrapper<const ModelIOInfo> model_io_info_;
   Span<const char> input_buffer_;

@@ -36,7 +36,6 @@ if(QNN_SDK_ROOTDIR)
     message(WARNING "Assuming QNN Hexagon version ${QNN_HEXAGON_ARCH_VERSION}. Set with -DQNN_HEXAGON_ARCH_VERSION")
   endif()
 
-
   set(QNN_SDK_HEX_DIR "${QNN_SDK_ROOTDIR}/lib/hexagon-v${QNN_HEXAGON_ARCH_VERSION}/unsigned")
   if(NOT EXISTS "${QNN_SDK_HEX_DIR}")
     message(FATAL_ERROR "The QNN SDK Hexagon directory does not exist: ${QNN_SDK_HEX_DIR}")

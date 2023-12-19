@@ -3,7 +3,6 @@
 #include <onnxruntime_cxx_api.h>
 #include <onnxruntime_session_options_config_keys.h>
 
-#include <algorithm>
 #include <array>
 #include <cassert>
 #include <filesystem>
@@ -22,28 +21,118 @@
 #include "model_io_utils.h"
 #include "task_thread_pool.h"
 
-static std::vector<std::filesystem::path> GetSortedDatasetPaths(const std::filesystem::path& model_dir) {
-  std::vector<std::filesystem::path> dataset_paths;
-  const char* dataset_prefix = "test_data_set_";
+static bool GetExpectedOutputsFromModel(Ort::Env& env, TaskThreadPool& pool, const AppArgs& args,
+                                        const std::filesystem::path& model_path,
+                                        const std::vector<std::filesystem::path>& dataset_paths,
+                                        std::vector<std::unique_ptr<char[]>>& all_inputs,
+                                        std::vector<std::unique_ptr<char[]>>& all_outputs);
 
-  for (const auto& entry : std::filesystem::directory_iterator{model_dir}) {
-    std::filesystem::path entry_path = entry.path();
-    std::string entry_filename = entry_path.filename().string();
+static bool RunTestModel(Ort::Env& env, TaskThreadPool& pool, const std::filesystem::path& model_path,
+                         const std::vector<std::filesystem::path>& dataset_paths,
+                         const Ort::SessionOptions& session_options, std::vector<std::unique_ptr<char[]>>& all_inputs,
+                         std::vector<std::unique_ptr<char[]>>& all_outputs,
+                         std::vector<std::vector<AccMetrics>>& test_accuracy_results);
 
-    if (std::filesystem::is_directory(entry_path) && entry_filename.rfind(dataset_prefix, 0) == 0) {
-      dataset_paths.push_back(std::move(entry_path));
+static void PrintAccuracyResults(const std::vector<std::vector<AccMetrics>>& test_accuracy_results,
+                                 const std::vector<std::filesystem::path>& dataset_paths,
+                                 const std::filesystem::directory_entry& model_dir, const std::string& output_file,
+                                 std::unordered_map<std::string, size_t>& test_name_to_acc_result_index);
+static bool CompareAccuracyWithExpectedValues(
+    const std::filesystem::path& expected_accuracy_file,
+    const std::vector<std::vector<AccMetrics>>& test_accuracy_results,
+    const std::unordered_map<std::string, size_t>& test_name_to_acc_result_index, size_t& total_tests,
+    size_t& total_failed_tests);
+
+int main(int argc, char** argv) {
+  try {
+    AppArgs args;
+    if (!ParseCmdLineArgs(args, argc, argv)) {
+      return 1;
     }
+
+    Ort::Env env;
+
+    constexpr size_t num_pool_threads = 3;
+    TaskThreadPool pool(num_pool_threads);
+    TaskThreadPool dummy_pool(0);  // For EPs that only support single-threaded inference (e.g., QNN).
+    size_t total_tests = 0;
+    size_t total_failed_tests = 0;
+
+    for (const std::filesystem::directory_entry& model_dir : std::filesystem::directory_iterator{args.test_dir}) {
+      const std::filesystem::path& model_dir_path = model_dir.path();
+      const std::vector<std::filesystem::path> dataset_paths = GetSortedDatasetPaths(model_dir_path);
+
+      if (dataset_paths.empty()) {
+        continue;  // Nothing to test.
+      }
+
+      std::filesystem::path base_model_path = model_dir_path / "model.onnx";
+      std::filesystem::path ep_model_path;
+
+      // Some EPs will need to use a QDQ model instead of the the original model.
+      if (args.uses_qdq_model) {
+        std::filesystem::path qdq_model_path = model_dir_path / "model.qdq.onnx";
+
+        if (!std::filesystem::is_regular_file(qdq_model_path)) {
+          std::cerr << "[ERROR]: Execution provider '" << args.execution_provider << "' requires a QDQ model."
+                    << std::endl;
+          return 1;
+        }
+        ep_model_path = std::move(qdq_model_path);
+      } else {
+        ep_model_path = base_model_path;
+      }
+
+      std::vector<std::unique_ptr<char[]>> all_inputs;
+      std::vector<std::unique_ptr<char[]>> all_outputs;
+
+      // Load expected outputs from base model running on CPU EP (unless user wants to use outputs from disk).
+      if (!args.load_expected_outputs_from_disk) {
+        if (!std::filesystem::is_regular_file(base_model_path)) {
+          std::cerr << "[ERROR]: Cannot find ONNX model " << base_model_path << " from which to get expected outputs."
+                    << std::endl;
+          return 1;
+        }
+
+        if (!GetExpectedOutputsFromModel(env, pool, args, base_model_path, dataset_paths, all_inputs, all_outputs)) {
+          return 1;
+        }
+      }
+
+      // Run accuracy measurements with the EP under test.
+      std::vector<std::vector<AccMetrics>> test_accuracy_results;
+      TaskThreadPool& ep_pool = args.supports_multithread_inference ? pool : dummy_pool;
+      if (!RunTestModel(env, ep_pool, ep_model_path, dataset_paths, args.session_options, all_inputs, all_outputs,
+                        test_accuracy_results)) {
+        return 1;
+      }
+
+      // Print the accuracy results to file or stdout.
+      std::unordered_map<std::string, size_t> test_name_to_acc_result_index;
+      PrintAccuracyResults(test_accuracy_results, dataset_paths, model_dir, args.output_file,
+                           test_name_to_acc_result_index);
+
+      if (!args.expected_accuracy_file.empty()) {
+        if (!CompareAccuracyWithExpectedValues(args.expected_accuracy_file, test_accuracy_results,
+                                               test_name_to_acc_result_index, total_tests, total_failed_tests)) {
+          return 1;
+        }
+      }
+    }
+
+    if (!args.expected_accuracy_file.empty()) {
+      const size_t total_tests_passed = total_tests - total_failed_tests;
+      std::cout << std::endl
+                << "[INFO]: " << total_tests_passed << "/" << total_tests << " tests passed." << std::endl
+                << "[INFO]: " << total_failed_tests << "/" << total_tests << " tests failed." << std::endl;
+      return 1;
+    }
+  } catch (const std::exception& e) {
+    std::cerr << "[ORT_QNN_APP EXCEPTION]: " << e.what() << std::endl;
+    return 1;
   }
 
-  auto cmp_indexed_paths = [dataset_prefix](const std::filesystem::path& a, const std::filesystem::path& b) -> bool {
-    const int32_t a_index = GetFileIndexSuffix(a.filename().string(), dataset_prefix);
-    const int32_t b_index = GetFileIndexSuffix(b.filename().string(), dataset_prefix);
-    return a_index < b_index;
-  };
-
-  std::sort(dataset_paths.begin(), dataset_paths.end(), cmp_indexed_paths);
-
-  return dataset_paths;
+  return 0;
 }
 
 static bool GetExpectedOutputsFromModel(Ort::Env& env, TaskThreadPool& pool, const AppArgs& args,
@@ -258,96 +347,4 @@ static bool CompareAccuracyWithExpectedValues(
   }
 
   return true;
-}
-
-int main(int argc, char** argv) {
-  try {
-    AppArgs args;
-    if (!ParseCmdLineArgs(args, argc, argv)) {
-      return 1;
-    }
-
-    Ort::Env env;
-
-    constexpr size_t num_pool_threads = 3;
-    TaskThreadPool pool(num_pool_threads);
-    TaskThreadPool dummy_pool(0);  // For EPs that only support single-threaded inference (e.g., QNN).
-    size_t total_tests = 0;
-    size_t total_failed_tests = 0;
-
-    for (const std::filesystem::directory_entry& model_dir : std::filesystem::directory_iterator{args.test_dir}) {
-      const std::filesystem::path& model_dir_path = model_dir.path();
-      const std::vector<std::filesystem::path> dataset_paths = GetSortedDatasetPaths(model_dir_path);
-
-      if (dataset_paths.empty()) {
-        continue;  // Nothing to test.
-      }
-
-      std::filesystem::path base_model_path = model_dir_path / "model.onnx";
-      std::filesystem::path ep_model_path;
-
-      // Some EPs will need to use a QDQ model instead of the the original model.
-      if (args.uses_qdq_model) {
-        std::filesystem::path qdq_model_path = model_dir_path / "model.qdq.onnx";
-
-        if (!std::filesystem::is_regular_file(qdq_model_path)) {
-          std::cerr << "[ERROR]: Execution provider '" << args.execution_provider << "' requires a QDQ model."
-                    << std::endl;
-          return 1;
-        }
-        ep_model_path = std::move(qdq_model_path);
-      } else {
-        ep_model_path = base_model_path;
-      }
-
-      std::vector<std::unique_ptr<char[]>> all_inputs;
-      std::vector<std::unique_ptr<char[]>> all_outputs;
-
-      // Load expected outputs from base model running on CPU EP (unless user wants to use outputs from disk).
-      if (!args.load_expected_outputs_from_disk) {
-        if (!std::filesystem::is_regular_file(base_model_path)) {
-          std::cerr << "[ERROR]: Cannot find ONNX model " << base_model_path << " from which to get expected outputs."
-                    << std::endl;
-          return 1;
-        }
-
-        if (!GetExpectedOutputsFromModel(env, pool, args, base_model_path, dataset_paths, all_inputs, all_outputs)) {
-          return 1;
-        }
-      }
-
-      // Run accuracy measurements with the EP under test.
-      std::vector<std::vector<AccMetrics>> test_accuracy_results;
-      TaskThreadPool& ep_pool = args.supports_multithread_inference ? pool : dummy_pool;
-      if (!RunTestModel(env, ep_pool, ep_model_path, dataset_paths, args.session_options, all_inputs, all_outputs,
-                        test_accuracy_results)) {
-        return 1;
-      }
-
-      // Print the accuracy results to file or stdout.
-      std::unordered_map<std::string, size_t> test_name_to_acc_result_index;
-      PrintAccuracyResults(test_accuracy_results, dataset_paths, model_dir, args.output_file,
-                           test_name_to_acc_result_index);
-
-      if (!args.expected_accuracy_file.empty()) {
-        if (!CompareAccuracyWithExpectedValues(args.expected_accuracy_file, test_accuracy_results,
-                                               test_name_to_acc_result_index, total_tests, total_failed_tests)) {
-          return 1;
-        }
-      }
-    }
-
-    if (!args.expected_accuracy_file.empty()) {
-      const size_t total_tests_passed = total_tests - total_failed_tests;
-      std::cout << std::endl
-                << "[INFO]: " << total_tests_passed << "/" << total_tests << " tests passed." << std::endl
-                << "[INFO]: " << total_failed_tests << "/" << total_tests << " tests failed." << std::endl;
-      return 1;
-    }
-  } catch (const std::exception& e) {
-    std::cerr << "[ORT_QNN_APP EXCEPTION]: " << e.what() << std::endl;
-    return 1;
-  }
-
-  return 0;
 }

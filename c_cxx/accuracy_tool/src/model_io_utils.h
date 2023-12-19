@@ -18,21 +18,7 @@ struct IOInfo {
   IOInfo& operator=(const IOInfo& other) = default;
   IOInfo& operator=(IOInfo&& other) = default;
 
-  static bool Init(IOInfo& io_info, const char* name, ONNXTensorElementDataType data_type, std::vector<int64_t> shape) {
-    size_t elem_size = 0;
-    if (!GetTensorElemDataSize(data_type, elem_size)) {
-      return false;
-    }
-
-    const size_t total_data_size = elem_size * static_cast<size_t>(GetShapeSize(Span<const int64_t>(shape)));
-
-    io_info.name = name;
-    io_info.shape = std::move(shape);
-    io_info.data_type = data_type;
-    io_info.total_data_size = total_data_size;
-
-    return true;
-  }
+  static bool Init(IOInfo& io_info, const char* name, ONNXTensorElementDataType data_type, std::vector<int64_t> shape);
 
   friend bool operator==(const IOInfo& l, const IOInfo& r) {
     if (l.name != r.name || l.data_type != r.data_type || l.shape.size() != r.shape.size()) {

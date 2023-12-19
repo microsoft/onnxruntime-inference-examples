@@ -126,6 +126,22 @@ AccMetrics ComputeAccuracyMetric(Ort::ConstValue ort_output, Span<const char> ra
   return metrics;
 }
 
+bool IOInfo::Init(IOInfo& io_info, const char* name, ONNXTensorElementDataType data_type, std::vector<int64_t> shape) {
+  size_t elem_size = 0;
+  if (!GetTensorElemDataSize(data_type, elem_size)) {
+    return false;
+  }
+
+  const size_t total_data_size = elem_size * static_cast<size_t>(GetShapeSize(Span<const int64_t>(shape)));
+
+  io_info.name = name;
+  io_info.shape = std::move(shape);
+  io_info.data_type = data_type;
+  io_info.total_data_size = total_data_size;
+
+  return true;
+}
+
 bool ModelIOInfo::Init(ModelIOInfo& model_info, Ort::ConstSession session) {
   Ort::AllocatorWithDefaultOptions allocator;
 

@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #include "basic_utils.h"
 
+#include <algorithm>
 #include <fstream>
 #include <string>
 
@@ -52,4 +53,28 @@ int32_t GetFileIndexSuffix(const std::string& filename_wo_ext, const char* prefi
   }
 
   return index;
+}
+
+std::vector<std::filesystem::path> GetSortedDatasetPaths(const std::filesystem::path& model_dir) {
+  std::vector<std::filesystem::path> dataset_paths;
+  const char* dataset_prefix = "test_data_set_";
+
+  for (const auto& entry : std::filesystem::directory_iterator{model_dir}) {
+    std::filesystem::path entry_path = entry.path();
+    std::string entry_filename = entry_path.filename().string();
+
+    if (std::filesystem::is_directory(entry_path) && entry_filename.rfind(dataset_prefix, 0) == 0) {
+      dataset_paths.push_back(std::move(entry_path));
+    }
+  }
+
+  auto cmp_indexed_paths = [dataset_prefix](const std::filesystem::path& a, const std::filesystem::path& b) -> bool {
+    const int32_t a_index = GetFileIndexSuffix(a.filename().string(), dataset_prefix);
+    const int32_t b_index = GetFileIndexSuffix(b.filename().string(), dataset_prefix);
+    return a_index < b_index;
+  };
+
+  std::sort(dataset_paths.begin(), dataset_paths.end(), cmp_indexed_paths);
+
+  return dataset_paths;
 }

@@ -43,44 +43,77 @@ static std::vector<Ort::Value> RunInference(Ort::Session& session, const ModelIO
                      ort_output_names.data(), ort_output_names.size());
 }
 
-void Task::Run() {
-  std::vector<Ort::Value> ort_output_vals = RunInference(session_, model_io_info_, input_buffer_);
+Task::Task(Ort::Session& session, const ModelIOInfo& model_io_info, Span<const char> input_buffer,
+           Span<char> output_buffer)
+    : session_(session),
+      model_io_info_(model_io_info),
+      input_buffer_(input_buffer),
+      variant_(Inference{output_buffer}) {}
 
+Task::Task(Ort::Session& session, const ModelIOInfo& model_io_info, Span<const char> input_buffer,
+           Span<const char> expected_output_buffer, Span<AccMetrics> output_acc_metric)
+    : session_(session),
+      model_io_info_(model_io_info),
+      input_buffer_(input_buffer),
+      variant_(AccuracyCheck{expected_output_buffer, output_acc_metric}) {}
+
+Task Task::CreateInferenceTask(Ort::Session& session, const ModelIOInfo& model_io_info, Span<const char> input_buffer,
+                               Span<char> output_buffer) {
+  return Task(session, model_io_info, input_buffer, output_buffer);
+}
+
+Task Task::CreateAccuracyCheckTask(Ort::Session& session, const ModelIOInfo& model_io_info,
+                                   Span<const char> input_buffer, Span<const char> expected_output_buffer,
+                                   Span<AccMetrics> output_acc_metric) {
+  return Task(session, model_io_info, input_buffer, expected_output_buffer, output_acc_metric);
+}
+
+void Task::Run() {
   AccuracyCheck* accuracy_check_data = std::get_if<AccuracyCheck>(&variant_);
   if (accuracy_check_data) {
-    const std::vector<IOInfo>& output_infos = model_io_info_.get().outputs;
-    const size_t num_outputs = output_infos.size();
-    Span<const char> expected_output_buffer = accuracy_check_data->expected_output_buffer;
-
-    for (size_t output_offset = 0, i = 0; i < num_outputs; output_offset += output_infos[i].total_data_size, i++) {
-      assert(output_offset < expected_output_buffer.size());
-      const IOInfo& output_info = output_infos[i];
-      Span<const char> raw_expected_output(&expected_output_buffer[output_offset], output_info.total_data_size);
-
-      accuracy_check_data->output_acc_metric[i] =
-          ComputeAccuracyMetric(ort_output_vals[i].GetConst(), raw_expected_output, output_info);
-    }
+    RunAsAccuracyCheckTask(*accuracy_check_data);
     return;
   }
 
   Inference* inference_data = std::get_if<Inference>(&variant_);
   if (inference_data) {
-    Span<char>& output_buffer = inference_data->output_buffer;
-
-    // Unfortunately, we have to copy output values (Ort::Value is not copyable, so it is limited when stored in a
-    // std::vector)
-    const std::vector<IOInfo>& output_infos = model_io_info_.get().outputs;
-    const size_t num_outputs = output_infos.size();
-
-    for (size_t output_offset = 0, i = 0; i < num_outputs; output_offset += output_infos[i].total_data_size, i++) {
-      assert(output_offset < output_buffer.size());
-      std::memcpy(&output_buffer[output_offset], ort_output_vals[i].GetTensorRawData(),
-                  output_infos[i].total_data_size);
-    }
+    RunAsInferenceTask(*inference_data);
     return;
   }
 
   // Should not reach this line unless we add a new (unhandled) std::variant type.
   std::cerr << "[ERROR]: Unhandled std::variant type for Task::variant_ member." << std::endl;
   std::abort();
+}
+
+void Task::RunAsInferenceTask(Inference& inference_args) {
+  std::vector<Ort::Value> ort_output_vals = RunInference(session_, model_io_info_, input_buffer_);
+  Span<char>& output_buffer = inference_args.output_buffer;
+
+  // Unfortunately, we have to copy output values (Ort::Value is not copyable, so it is limited when stored in a
+  // std::vector)
+  const std::vector<IOInfo>& output_infos = model_io_info_.get().outputs;
+  const size_t num_outputs = output_infos.size();
+
+  for (size_t output_offset = 0, i = 0; i < num_outputs; output_offset += output_infos[i].total_data_size, i++) {
+    assert(output_offset < output_buffer.size());
+    std::memcpy(&output_buffer[output_offset], ort_output_vals[i].GetTensorRawData(), output_infos[i].total_data_size);
+  }
+}
+
+void Task::RunAsAccuracyCheckTask(AccuracyCheck& accuracy_check_args) {
+  std::vector<Ort::Value> ort_output_vals = RunInference(session_, model_io_info_, input_buffer_);
+
+  const std::vector<IOInfo>& output_infos = model_io_info_.get().outputs;
+  const size_t num_outputs = output_infos.size();
+  Span<const char> expected_output_buffer = accuracy_check_args.expected_output_buffer;
+
+  for (size_t output_offset = 0, i = 0; i < num_outputs; output_offset += output_infos[i].total_data_size, i++) {
+    assert(output_offset < expected_output_buffer.size());
+    const IOInfo& output_info = output_infos[i];
+    Span<const char> raw_expected_output(&expected_output_buffer[output_offset], output_info.total_data_size);
+
+    accuracy_check_args.output_acc_metric[i] =
+        ComputeAccuracyMetric(ort_output_vals[i].GetConst(), raw_expected_output, output_info);
+  }
 }
