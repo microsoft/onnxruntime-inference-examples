@@ -2,8 +2,10 @@
 // Licensed under the MIT License.
 #pragma once
 #include <onnxruntime_cxx_api.h>
-#include <variant>
+
 #include <functional>
+#include <variant>
+
 #include "basic_utils.h"
 #include "model_io_utils.h"
 
@@ -21,12 +23,17 @@ class Task {
  public:
   Task(Task&& other) = default;
   Task(const Task& other) = default;
-  Task(Ort::Session& session, const ModelIOInfo& model_io_info,
-       Span<const char> input_buffer, Span<char> output_buffer)
-      : session_(session), model_io_info_(model_io_info), input_buffer_(input_buffer), variant_(Inference{output_buffer}) {}
-  Task(Ort::Session& session, const ModelIOInfo& model_io_info,
-       Span<const char> input_buffer, Span<const char> expected_output_buffer, Span<AccMetrics> output_acc_metric)
-      : session_(session), model_io_info_(model_io_info), input_buffer_(input_buffer), variant_(AccuracyCheck{expected_output_buffer, output_acc_metric}) {}
+  Task(Ort::Session& session, const ModelIOInfo& model_io_info, Span<const char> input_buffer, Span<char> output_buffer)
+      : session_(session),
+        model_io_info_(model_io_info),
+        input_buffer_(input_buffer),
+        variant_(Inference{output_buffer}) {}
+  Task(Ort::Session& session, const ModelIOInfo& model_io_info, Span<const char> input_buffer,
+       Span<const char> expected_output_buffer, Span<AccMetrics> output_acc_metric)
+      : session_(session),
+        model_io_info_(model_io_info),
+        input_buffer_(input_buffer),
+        variant_(AccuracyCheck{expected_output_buffer, output_acc_metric}) {}
 
   static Task CreateInferenceTask(Ort::Session& session, const ModelIOInfo& model_io_info,
                                   Span<const char> input_buffer, Span<char> output_buffer) {

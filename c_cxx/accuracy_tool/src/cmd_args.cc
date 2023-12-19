@@ -1,0 +1,160 @@
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+#include "cmd_args.h"
+
+#include <cassert>
+#include <iostream>
+#include <iterator>
+#include <ostream>
+#include <string_view>
+
+#include "ep_cmd_args/qnn_cmd_args.h"
+
+void PrintUsage(std::ostream& stream, std::string_view prog_name) {
+  const std::string prog_exec_name = std::filesystem::path(prog_name).filename().string();
+  stream << "Usage: " << prog_exec_name << " [OPTIONS...] test_models_path" << std::endl;
+  stream << "OPTIONS:" << std::endl;
+  stream << "  -h/--help                   Print this help message and exit program" << std::endl;
+  stream << "  -l/--load_expected_outputs  Load expected outputs from raw output_<index>.raw files" << std::endl;
+  stream << "  -s/--save_expected_outputs  Save outputs from baseline model on CPU EP to disk as " << std::endl;
+  stream << "                              output_<index>.raw files." << std::endl;
+  stream << "  -e/--execution_provider     The execution provider to test (e.g., qnn or cpu)" << std::endl;
+  stream << "  -o/--output_file            The output file into which to save accuracy results" << std::endl;
+  stream << "  -a/--expected_accuracy_file The file containing expected accuracy results" << std::endl << std::endl;
+}
+
+static bool ParseCpuEpArgs(AppArgs& app_args, CmdArgParser& cmd_args) {
+  (void)cmd_args;
+  app_args.uses_qdq_model = true;  // TODO: Make configurable
+  app_args.supports_multithread_inference = true;
+  return true;
+}
+
+bool GetValidPath(std::string_view prog_name, std::string_view provided_path, bool is_dir,
+                  std::filesystem::path& valid_path) {
+  std::filesystem::path path = provided_path;
+  std::error_code error_code;
+
+  if (!std::filesystem::exists(path, error_code)) {
+    std::cerr << "[ERROR]: Invalid path " << provided_path << ": " << error_code.message() << std::endl << std::endl;
+    return false;
+  }
+
+  std::error_code abs_error_code;
+  std::filesystem::path abs_path = std::filesystem::absolute(path, abs_error_code);
+  if (abs_error_code) {
+    std::cerr << "[ERROR]: Invalid path: " << abs_error_code.message() << std::endl << std::endl;
+    return false;
+  }
+
+  if (is_dir && !std::filesystem::is_directory(abs_path)) {
+    std::cerr << "[ERROR]: " << provided_path << " is not a directory" << std::endl;
+    PrintUsage(std::cerr, prog_name);
+    return false;
+  }
+
+  if (!is_dir && !std::filesystem::is_regular_file(abs_path)) {
+    std::cerr << "[ERROR]: " << provided_path << " is not a regular file" << std::endl;
+    PrintUsage(std::cerr, prog_name);
+    return false;
+  }
+
+  valid_path = std::move(abs_path);
+
+  return true;
+}
+
+bool ParseCmdLineArgs(AppArgs& app_args, int argc, char** argv) {
+  CmdArgParser cmd_args(argc, argv);
+  std::string_view prog_name = cmd_args.GetNext();
+
+  // Parse command-line arguments.
+  while (cmd_args.HasNext()) {
+    std::string_view arg = cmd_args.GetNext();
+
+    if (arg == "-h" || arg == "--help") {
+      PrintUsage(std::cout, prog_name);
+      return true;
+    } else if (arg == "-o" || arg == "--output_file") {
+      if (!cmd_args.HasNext()) {
+        std::cerr << "[ERROR]: Must provide an argument after the " << arg << " option" << std::endl;
+        PrintUsage(std::cerr, prog_name);
+        return false;
+      }
+
+      app_args.output_file = cmd_args.GetNext();
+    } else if (arg == "-a" || arg == "--expected_accuracy_file") {
+      if (!cmd_args.HasNext()) {
+        std::cerr << "[ERROR]: Must provide an argument after the " << arg << " option" << std::endl;
+        PrintUsage(std::cerr, prog_name);
+        return false;
+      }
+
+      arg = cmd_args.GetNext();
+      if (!GetValidPath(prog_name, arg, false, app_args.expected_accuracy_file)) {
+        return false;
+      }
+    } else if (arg == "-e" || arg == "--execution_provider") {
+      if (!cmd_args.HasNext()) {
+        std::cerr << "[ERROR]: Must provide an argument after the " << arg << " option" << std::endl;
+        PrintUsage(std::cerr, prog_name);
+        return false;
+      }
+
+      arg = cmd_args.GetNext();
+      if (arg == "qnn") {
+        if (!ParseQnnEpArgs(app_args, cmd_args)) {
+          return false;
+        }
+      } else if (arg == "cpu") {
+        if (!ParseCpuEpArgs(app_args, cmd_args)) {
+          return false;
+        }
+      } else {
+        std::cerr << "[ERROR]: Unsupported execution provider: " << arg << std::endl;
+        PrintUsage(std::cerr, prog_name);
+        return false;
+      }
+
+      app_args.execution_provider = arg;
+    } else if (arg == "-s" || arg == "--save_expected_outputs") {
+      app_args.save_expected_outputs_to_disk = true;
+    } else if (arg == "-l" || arg == "--load_expected_outputs") {
+      app_args.load_expected_outputs_from_disk = true;
+    } else if (app_args.test_dir.empty()) {
+      if (!GetValidPath(prog_name, arg, true, app_args.test_dir)) {
+        return false;
+      }
+    } else {
+      std::cerr << "[ERROR]: unknown command-line argument `" << arg << "`" << std::endl << std::endl;
+      PrintUsage(std::cerr, prog_name);
+      return false;
+    }
+  }
+
+  //
+  // Final argument validation:
+  //
+
+  if (app_args.test_dir.empty()) {
+    std::cerr << "[ERROR]: Must provide a models directory." << std::endl << std::endl;
+    PrintUsage(std::cerr, prog_name);
+    return false;
+  }
+
+  if (app_args.execution_provider.empty()) {
+    std::cerr << "[ERROR]: Must provide an execution provider using the -e/--execution_provider option." << std::endl
+              << std::endl;
+    PrintUsage(std::cerr, prog_name);
+    return false;
+  }
+
+  if (app_args.load_expected_outputs_from_disk && app_args.save_expected_outputs_to_disk) {
+    std::cerr << "[ERROR]: Cannot enable both -s/--save_expected_outputs and -l/--load_expected_outputs" << std::endl
+              << std::endl;
+    PrintUsage(std::cerr, prog_name);
+    return false;
+  }
+
+  return true;
+}

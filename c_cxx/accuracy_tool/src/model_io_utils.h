@@ -2,8 +2,9 @@
 // Licensed under the MIT License.
 #pragma once
 #include <onnxruntime_cxx_api.h>
-#include <vector>
+
 #include <string>
+#include <vector>
 
 #include "basic_utils.h"
 
@@ -17,8 +18,7 @@ struct IOInfo {
   IOInfo& operator=(const IOInfo& other) = default;
   IOInfo& operator=(IOInfo&& other) = default;
 
-  static bool Init(IOInfo& io_info, const char* name,
-                   ONNXTensorElementDataType data_type, std::vector<int64_t> shape) {
+  static bool Init(IOInfo& io_info, const char* name, ONNXTensorElementDataType data_type, std::vector<int64_t> shape) {
     size_t elem_size = 0;
     if (!GetTensorElemDataSize(data_type, elem_size)) {
       return false;
@@ -48,9 +48,7 @@ struct IOInfo {
     return true;
   }
 
-  friend bool operator!=(const IOInfo& l, const IOInfo& r) {
-    return !(l == r);
-  }
+  friend bool operator!=(const IOInfo& l, const IOInfo& r) { return !(l == r); }
 
   std::string name;
   std::vector<int64_t> shape;
@@ -70,9 +68,7 @@ struct ModelIOInfo {
     return l.inputs == r.inputs && l.outputs == r.outputs;
   }
 
-  friend bool operator!=(const ModelIOInfo& l, const ModelIOInfo& r) {
-    return !(l == r);
-  }
+  friend bool operator!=(const ModelIOInfo& l, const ModelIOInfo& r) { return !(l == r); }
 
   static bool Init(ModelIOInfo& model_info, Ort::ConstSession session);
 

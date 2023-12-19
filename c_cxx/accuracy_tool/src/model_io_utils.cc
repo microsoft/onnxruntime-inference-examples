@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 #include "model_io_utils.h"
+
 #include <iostream>
 
 bool GetTensorElemDataSize(ONNXTensorElementDataType data_type, size_t& size) {
@@ -142,8 +143,8 @@ bool ModelIOInfo::Init(ModelIOInfo& model_info, Ort::ConstSession session) {
 
       auto tensor_info = type_info.GetTensorTypeAndShapeInfo();
       IOInfo input_info;
-      if (!IOInfo::Init(input_info, session.GetInputNameAllocated(i, allocator).get(),
-                        tensor_info.GetElementType(), tensor_info.GetShape())) {
+      if (!IOInfo::Init(input_info, session.GetInputNameAllocated(i, allocator).get(), tensor_info.GetElementType(),
+                        tensor_info.GetShape())) {
         std::cerr << "[ERROR]: Unsupported tensor element type (" << tensor_info.GetElementType()
                   << ") for input at index " << i << std::endl;
         return false;
@@ -167,8 +168,8 @@ bool ModelIOInfo::Init(ModelIOInfo& model_info, Ort::ConstSession session) {
 
       auto tensor_info = type_info.GetTensorTypeAndShapeInfo();
       IOInfo output_info;
-      if (!IOInfo::Init(output_info, session.GetOutputNameAllocated(i, allocator).get(),
-                        tensor_info.GetElementType(), tensor_info.GetShape())) {
+      if (!IOInfo::Init(output_info, session.GetOutputNameAllocated(i, allocator).get(), tensor_info.GetElementType(),
+                        tensor_info.GetShape())) {
         std::cerr << "[ERROR]: Unsupported tensor element type (" << tensor_info.GetElementType()
                   << ") for output at index " << i << std::endl;
         return false;

@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 #include "acc_task.h"
+
 #include <cstdlib>
 #include <cstring>
 #include <iostream>
@@ -38,8 +39,8 @@ static std::vector<Ort::Value> RunInference(Ort::Session& session, const ModelIO
     ort_output_names.push_back(model_io_info.outputs[i].name.c_str());
   }
 
-  return session.Run(Ort::RunOptions{nullptr}, ort_input_names.data(), ort_inputs.data(),
-                     ort_inputs.size(), ort_output_names.data(), ort_output_names.size());
+  return session.Run(Ort::RunOptions{nullptr}, ort_input_names.data(), ort_inputs.data(), ort_inputs.size(),
+                     ort_output_names.data(), ort_output_names.size());
 }
 
 void Task::Run() {
@@ -56,9 +57,8 @@ void Task::Run() {
       const IOInfo& output_info = output_infos[i];
       Span<const char> raw_expected_output(&expected_output_buffer[output_offset], output_info.total_data_size);
 
-      accuracy_check_data->output_acc_metric[i] = ComputeAccuracyMetric(ort_output_vals[i].GetConst(),
-                                                                        raw_expected_output,
-                                                                        output_info);
+      accuracy_check_data->output_acc_metric[i] =
+          ComputeAccuracyMetric(ort_output_vals[i].GetConst(), raw_expected_output, output_info);
     }
     return;
   }
@@ -67,14 +67,14 @@ void Task::Run() {
   if (inference_data) {
     Span<char>& output_buffer = inference_data->output_buffer;
 
-    // Unfortunately, we have to copy output values (Ort::Value is not copyable, so it is limited when stored in a std::vector)
+    // Unfortunately, we have to copy output values (Ort::Value is not copyable, so it is limited when stored in a
+    // std::vector)
     const std::vector<IOInfo>& output_infos = model_io_info_.get().outputs;
     const size_t num_outputs = output_infos.size();
 
     for (size_t output_offset = 0, i = 0; i < num_outputs; output_offset += output_infos[i].total_data_size, i++) {
       assert(output_offset < output_buffer.size());
-      std::memcpy(&output_buffer[output_offset],
-                  ort_output_vals[i].GetTensorRawData(),
+      std::memcpy(&output_buffer[output_offset], ort_output_vals[i].GetTensorRawData(),
                   output_infos[i].total_data_size);
     }
     return;

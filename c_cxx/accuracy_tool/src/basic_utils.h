@@ -27,9 +27,7 @@ class Span {
   Span& operator=(const Span& other) = default;
   Span& operator=(Span&& other) = default;
 
-  T& operator[](size_t index) const {
-    return data_[index];
-  }
+  T& operator[](size_t index) const { return data_[index]; }
 
   T* data() const { return data_; }
   size_t size() const { return size_; }
@@ -78,9 +76,7 @@ struct AccMetrics {
 
     return true;
   }
-  friend bool operator!=(const AccMetrics& l, const AccMetrics& r) {
-    return !(l == r);
-  }
+  friend bool operator!=(const AccMetrics& l, const AccMetrics& r) { return !(l == r); }
 };
 
 template <typename T>

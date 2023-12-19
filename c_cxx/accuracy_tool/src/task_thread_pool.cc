@@ -1,7 +1,9 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 #include "task_thread_pool.h"
+
 #include <mutex>
+
 #include "acc_task.h"
 
 TaskThreadPool::TaskThreadPool(size_t num_threads) {
