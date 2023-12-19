@@ -14,7 +14,9 @@ add_executable(accuracy_tool main.cc
                              acc_task.cc
                              task_thread_pool.h
                              task_thread_pool.cc)
-target_link_libraries(accuracy_tool onnxruntime)
+
+find_package(Threads REQUIRED)
+target_link_libraries(accuracy_tool onnxruntime Threads::Threads)
 
 # Copy onnxruntime.dll into the executable's directory
 copy_ort_dlls(accuracy_tool)
