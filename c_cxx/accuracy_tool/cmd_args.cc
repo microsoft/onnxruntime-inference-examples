@@ -150,7 +150,9 @@ static bool ParseQnnArgs(AppArgs& app_args, CmdArgs& cmd_args) {
   }
 
   app_args.session_options.AppendExecutionProvider("QNN", qnn_options);
+#if ORT_API_VERSION >= 16
   app_args.session_options.AddConfigEntry(kOrtSessionOptionsDisableCPUEPFallback, "1");  // TODO: Parse config entries
+#endif
   app_args.uses_qdq_model = backend_iter->second.rfind("QnnHtp") != std::string::npos;
   app_args.supports_multithread_inference = false;  // TODO: Work on enabling multi-threaded inference.
   return true;
