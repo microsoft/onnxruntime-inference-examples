@@ -1,8 +1,10 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 #include "cmd_args.h"
+
 #include <onnxruntime_cxx_api.h>
 #include <onnxruntime_session_options_config_keys.h>
+
 #include <cassert>
 #include <iostream>
 #include <iterator>
@@ -33,8 +35,7 @@ struct CmdArgs {
 };
 
 static void PrintUsage(std::ostream& stream, std::string_view prog_name) {
-  stream << "Usage: " << prog_name << " [OPTIONS]"
-         << std::endl;
+  stream << "Usage: " << prog_name << " [OPTIONS]" << std::endl;
   stream << "OPTIONS:" << std::endl;
   stream << "    -h/--help                   Print this help message" << std::endl;
   stream << "    -t/--test_dir               Path to test directory with models and inputs/outputs" << std::endl;
@@ -42,8 +43,7 @@ static void PrintUsage(std::ostream& stream, std::string_view prog_name) {
   stream << "    -s/--save_expected_outputs  Save outputs from baseline model on CPU EP to disk" << std::endl;
   stream << "    -e/--execution_provider     The execution provider to test (e.g., qnn)" << std::endl;
   stream << "    -o/--output_file            The output file into which to save accuracy results" << std::endl;
-  stream << "    -a/--expected_accuracy_file The file containing expected accuracy results" << std::endl
-         << std::endl;
+  stream << "    -a/--expected_accuracy_file The file containing expected accuracy results" << std::endl << std::endl;
 }
 
 static bool ParseQnnRuntimeOptions(std::string ep_config_string,
@@ -59,7 +59,8 @@ static bool ParseQnnRuntimeOptions(std::string ep_config_string,
 
     auto pos = token_sv.find("|");
     if (pos == std::string_view::npos || pos == 0 || pos == token_sv.length()) {
-      std::cerr << "Use a '|' to separate the key and value for the run-time option you are trying to use." << std::endl;
+      std::cerr << "Use a '|' to separate the key and value for the run-time option you are trying to use."
+                << std::endl;
       return false;
     }
 
@@ -87,9 +88,9 @@ static bool ParseQnnRuntimeOptions(std::string ep_config_string,
     } else if (key == "rpc_control_latency" || key == "vtcm_mb") {
       // no validation
     } else if (key == "htp_performance_mode") {
-      std::unordered_set<std::string_view> supported_htp_perf_mode = {"burst", "balanced", "default", "high_performance",
-                                                                      "high_power_saver", "low_balanced", "low_power_saver",
-                                                                      "power_saver", "sustained_high_performance"};
+      std::unordered_set<std::string_view> supported_htp_perf_mode = {
+          "burst",        "balanced",        "default",     "high_performance",          "high_power_saver",
+          "low_balanced", "low_power_saver", "power_saver", "sustained_high_performance"};
       if (supported_htp_perf_mode.find(value) == supported_htp_perf_mode.end()) {
         std::ostringstream str_stream;
         std::copy(supported_htp_perf_mode.begin(), supported_htp_perf_mode.end(),
@@ -107,7 +108,8 @@ static bool ParseQnnRuntimeOptions(std::string ep_config_string,
         std::copy(supported_htp_graph_final_opt_modes.begin(), supported_htp_graph_final_opt_modes.end(),
                   std::ostream_iterator<std::string_view>(str_stream, ","));
         std::string str = str_stream.str();
-        std::cerr << "[ERROR]: Wrong value for htp_graph_finalization_optimization_mode. select from: " << str << std::endl;
+        std::cerr << "[ERROR]: Wrong value for htp_graph_finalization_optimization_mode. select from: " << str
+                  << std::endl;
         return false;
       }
     } else if (key == "qnn_context_priority") {
@@ -117,10 +119,11 @@ static bool ParseQnnRuntimeOptions(std::string ep_config_string,
         return false;
       }
     } else {
-      std::cerr << R"([ERROR]: Wrong key type entered. Choose from options: ['backend_path', 'qnn_context_cache_enable',
+      std::cerr
+          << R"([ERROR]: Wrong key type entered. Choose from options: ['backend_path', 'qnn_context_cache_enable',
 'qnn_context_cache_path', 'profiling_level', 'rpc_control_latency', 'vtcm_mb', 'htp_performance_mode',
 'qnn_saver_path', 'htp_graph_finalization_optimization_mode', 'qnn_context_priority'])"
-                << std::endl;
+          << std::endl;
       return false;
     }
 
@@ -130,7 +133,7 @@ static bool ParseQnnRuntimeOptions(std::string ep_config_string,
   return true;
 }
 
-static bool ParseQnnArgs(AppArgs& app_args, CmdArgs& cmd_args) {
+static bool ParseQnnEpArgs(AppArgs& app_args, CmdArgs& cmd_args) {
   if (!cmd_args.HasNext()) {
     std::cerr << "[ERROR]: Must specify at least a QNN backend path." << std::endl;
     return false;
@@ -158,23 +161,27 @@ static bool ParseQnnArgs(AppArgs& app_args, CmdArgs& cmd_args) {
   return true;
 }
 
+static bool ParseCpuEpArgs(AppArgs& app_args, CmdArgs& cmd_args) {
+  (void)cmd_args;
+  app_args.uses_qdq_model = true;  // TODO: Make configurable
+  app_args.supports_multithread_inference = true;
+  return true;
+}
+
 static bool GetValidPath(std::string_view prog_name, std::string_view provided_path, bool is_dir,
                          std::filesystem::path& valid_path) {
   std::filesystem::path path = provided_path;
   std::error_code error_code;
 
   if (!std::filesystem::exists(path, error_code)) {
-    std::cerr << "[ERROR]: Invalid path " << provided_path << ": "
-              << error_code.message() << std::endl
-              << std::endl;
+    std::cerr << "[ERROR]: Invalid path " << provided_path << ": " << error_code.message() << std::endl << std::endl;
     return false;
   }
 
   std::error_code abs_error_code;
   std::filesystem::path abs_path = std::filesystem::absolute(path, abs_error_code);
   if (abs_error_code) {
-    std::cerr << "[ERROR]: Invalid path: " << abs_error_code.message() << std::endl
-              << std::endl;
+    std::cerr << "[ERROR]: Invalid path: " << abs_error_code.message() << std::endl << std::endl;
     return false;
   }
 
@@ -245,7 +252,11 @@ bool ParseCmdLineArgs(AppArgs& app_args, int argc, char** argv) {
 
       arg = cmd_args.GetNext();
       if (arg == "qnn") {
-        if (!ParseQnnArgs(app_args, cmd_args)) {
+        if (!ParseQnnEpArgs(app_args, cmd_args)) {
+          return false;
+        }
+      } else if (arg == "cpu") {
+        if (!ParseCpuEpArgs(app_args, cmd_args)) {
           return false;
         }
       } else {
@@ -260,8 +271,7 @@ bool ParseCmdLineArgs(AppArgs& app_args, int argc, char** argv) {
     } else if (arg == "-l" || arg == "--load_expected_outputs") {
       app_args.load_expected_outputs_from_disk = true;
     } else {
-      std::cerr << "[ERROR]: unknown command-line argument `" << arg << "`" << std::endl
-                << std::endl;
+      std::cerr << "[ERROR]: unknown command-line argument `" << arg << "`" << std::endl << std::endl;
       PrintUsage(std::cerr, prog_name);
       return false;
     }
@@ -272,8 +282,7 @@ bool ParseCmdLineArgs(AppArgs& app_args, int argc, char** argv) {
   //
 
   if (app_args.test_dir.empty()) {
-    std::cerr << "[ERROR]: Must provide a test directory using the -t/--test_dir option." << std::endl
-              << std::endl;
+    std::cerr << "[ERROR]: Must provide a test directory using the -t/--test_dir option." << std::endl << std::endl;
     PrintUsage(std::cerr, prog_name);
     return false;
   }

@@ -11,16 +11,15 @@
 #include <iomanip>
 #include <iostream>
 #include <limits>
-#include <sstream>
 #include <memory>
 #include <sstream>
 #include <string>
 #include <vector>
 
-#include "cmd_args.h"
-#include "model_io_utils.h"
-#include "data_loader.h"
 #include "acc_task.h"
+#include "cmd_args.h"
+#include "data_loader.h"
+#include "model_io_utils.h"
 #include "task_thread_pool.h"
 
 static std::vector<std::filesystem::path> GetSortedDatasetPaths(const std::filesystem::path& model_dir) {
@@ -36,8 +35,7 @@ static std::vector<std::filesystem::path> GetSortedDatasetPaths(const std::files
     }
   }
 
-  auto cmp_indexed_paths = [dataset_prefix](const std::filesystem::path& a,
-                                            const std::filesystem::path& b) -> bool {
+  auto cmp_indexed_paths = [dataset_prefix](const std::filesystem::path& a, const std::filesystem::path& b) -> bool {
     const int32_t a_index = GetFileIndexSuffix(a.filename().string(), dataset_prefix);
     const int32_t b_index = GetFileIndexSuffix(b.filename().string(), dataset_prefix);
     return a_index < b_index;
@@ -48,9 +46,7 @@ static std::vector<std::filesystem::path> GetSortedDatasetPaths(const std::files
   return dataset_paths;
 }
 
-static bool GetExpectedOutputsFromModel(Ort::Env& env,
-                                        TaskThreadPool& pool,
-                                        const AppArgs& args,
+static bool GetExpectedOutputsFromModel(Ort::Env& env, TaskThreadPool& pool, const AppArgs& args,
                                         const std::filesystem::path& model_path,
                                         const std::vector<std::filesystem::path>& dataset_paths,
                                         std::vector<std::unique_ptr<char[]>>& all_inputs,
@@ -114,12 +110,9 @@ static bool GetExpectedOutputsFromModel(Ort::Env& env,
   return true;
 }
 
-static bool RunTestModel(Ort::Env& env,
-                         TaskThreadPool& pool,
-                         const std::filesystem::path& model_path,
+static bool RunTestModel(Ort::Env& env, TaskThreadPool& pool, const std::filesystem::path& model_path,
                          const std::vector<std::filesystem::path>& dataset_paths,
-                         const Ort::SessionOptions& session_options,
-                         std::vector<std::unique_ptr<char[]>>& all_inputs,
+                         const Ort::SessionOptions& session_options, std::vector<std::unique_ptr<char[]>>& all_inputs,
                          std::vector<std::unique_ptr<char[]>>& all_outputs,
                          std::vector<std::vector<AccMetrics>>& test_accuracy_results) {
   Ort::Session session(env, model_path.c_str(), session_options);
@@ -135,16 +128,14 @@ static bool RunTestModel(Ort::Env& env,
 
   if (all_inputs.empty()) {
     if (!acctest::LoadIODataFromDisk(dataset_paths, model_io_info.inputs, "input_", all_inputs)) {
-      std::cerr << "[ERROR]: Failed to load test inputs for model directory "
-                << model_path.parent_path() << std::endl;
+      std::cerr << "[ERROR]: Failed to load test inputs for model directory " << model_path.parent_path() << std::endl;
       return false;
     }
   }
 
   if (all_outputs.empty()) {
     if (!acctest::LoadIODataFromDisk(dataset_paths, model_io_info.outputs, "output_", all_outputs)) {
-      std::cerr << "[ERROR]: Failed to load test outputs for model directory "
-                << model_path.parent_path() << std::endl;
+      std::cerr << "[ERROR]: Failed to load test outputs for model directory " << model_path.parent_path() << std::endl;
       return false;
     }
   }
@@ -161,10 +152,9 @@ static bool RunTestModel(Ort::Env& env,
   const size_t total_output_data_size = model_io_info.GetTotalOutputSize();
 
   for (size_t i = 0; i < num_datasets; i++) {
-    Task task = Task::CreateAccuracyCheckTask(session, model_io_info,
-                                              Span<const char>(all_inputs[i].get(), total_input_data_size),
-                                              Span<const char>(all_outputs[i].get(), total_output_data_size),
-                                              Span<AccMetrics>(test_accuracy_results[i]));
+    Task task = Task::CreateAccuracyCheckTask(
+        session, model_io_info, Span<const char>(all_inputs[i].get(), total_input_data_size),
+        Span<const char>(all_outputs[i].get(), total_output_data_size), Span<AccMetrics>(test_accuracy_results[i]));
     tasks.push_back(std::move(task));
   }
 
@@ -174,8 +164,7 @@ static bool RunTestModel(Ort::Env& env,
 
 static void PrintAccuracyResults(const std::vector<std::vector<AccMetrics>>& test_accuracy_results,
                                  const std::vector<std::filesystem::path>& dataset_paths,
-                                 const std::filesystem::directory_entry& model_dir,
-                                 const std::string& output_file,
+                                 const std::filesystem::directory_entry& model_dir, const std::string& output_file,
                                  std::unordered_map<std::string, size_t>& test_name_to_acc_result_index) {
   assert(test_accuracy_results.size() == dataset_paths.size());
   std::ostringstream oss;
@@ -207,11 +196,11 @@ static void PrintAccuracyResults(const std::vector<std::vector<AccMetrics>>& tes
   }
 }
 
-static bool CompareAccuracyWithExpectedValues(const std::filesystem::path& expected_accuracy_file,
-                                              const std::vector<std::vector<AccMetrics>>& test_accuracy_results,
-                                              const std::unordered_map<std::string, size_t>& test_name_to_acc_result_index,
-                                              size_t& total_tests,
-                                              size_t& total_failed_tests) {
+static bool CompareAccuracyWithExpectedValues(
+    const std::filesystem::path& expected_accuracy_file,
+    const std::vector<std::vector<AccMetrics>>& test_accuracy_results,
+    const std::unordered_map<std::string, size_t>& test_name_to_acc_result_index, size_t& total_tests,
+    size_t& total_failed_tests) {
   std::cout << std::endl;
   std::cout << "[INFO]: Comparing accuracy with " << expected_accuracy_file.filename().string() << std::endl;
   std::cout << "===============================================" << std::endl;
@@ -302,8 +291,8 @@ int main(int argc, char** argv) {
         std::filesystem::path qdq_model_path = model_dir_path / "model.qdq.onnx";
 
         if (!std::filesystem::is_regular_file(qdq_model_path)) {
-          std::cerr << "[ERROR]: Execution provider '" << args.execution_provider
-                    << "' requires a QDQ model." << std::endl;
+          std::cerr << "[ERROR]: Execution provider '" << args.execution_provider << "' requires a QDQ model."
+                    << std::endl;
           return 1;
         }
         ep_model_path = std::move(qdq_model_path);
@@ -317,8 +306,8 @@ int main(int argc, char** argv) {
       // Load expected outputs from base model running on CPU EP (unless user wants to use outputs from disk).
       if (!args.load_expected_outputs_from_disk) {
         if (!std::filesystem::is_regular_file(base_model_path)) {
-          std::cerr << "[ERROR]: Cannot find ONNX model " << base_model_path
-                    << " from which to get expected outputs." << std::endl;
+          std::cerr << "[ERROR]: Cannot find ONNX model " << base_model_path << " from which to get expected outputs."
+                    << std::endl;
           return 1;
         }
 
@@ -330,17 +319,14 @@ int main(int argc, char** argv) {
       // Run accuracy measurements with the EP under test.
       std::vector<std::vector<AccMetrics>> test_accuracy_results;
       TaskThreadPool& ep_pool = args.supports_multithread_inference ? pool : dummy_pool;
-      if (!RunTestModel(env, ep_pool, ep_model_path, dataset_paths, args.session_options,
-                        all_inputs, all_outputs, test_accuracy_results)) {
+      if (!RunTestModel(env, ep_pool, ep_model_path, dataset_paths, args.session_options, all_inputs, all_outputs,
+                        test_accuracy_results)) {
         return 1;
       }
 
       // Print the accuracy results to file or stdout.
       std::unordered_map<std::string, size_t> test_name_to_acc_result_index;
-      PrintAccuracyResults(test_accuracy_results,
-                           dataset_paths,
-                           model_dir,
-                           args.output_file,
+      PrintAccuracyResults(test_accuracy_results, dataset_paths, model_dir, args.output_file,
                            test_name_to_acc_result_index);
 
       if (!args.expected_accuracy_file.empty()) {
