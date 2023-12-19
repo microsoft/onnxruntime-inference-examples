@@ -39,6 +39,7 @@ struct AppArgs {
   bool supports_multithread_inference = true;
   bool save_expected_outputs_to_disk = false;
   bool load_expected_outputs_from_disk = false;
+  size_t num_threads = 1;
   Ort::SessionOptions session_options;
 };
 

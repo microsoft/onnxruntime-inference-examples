@@ -60,6 +60,8 @@ else()
 endif()
 
 add_executable(accuracy_test src/main.cc
+                             src/accuracy_tester.h
+                             src/accuracy_tester.cc
                              src/cmd_args.h
                              src/cmd_args.cc
                              src/ep_cmd_args/qnn_cmd_args.h

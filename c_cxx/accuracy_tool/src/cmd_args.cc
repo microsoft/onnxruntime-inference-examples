@@ -2,11 +2,13 @@
 // Licensed under the MIT License.
 #include "cmd_args.h"
 
+#include <algorithm>
 #include <cassert>
 #include <iostream>
 #include <iterator>
 #include <ostream>
 #include <string_view>
+#include <thread>
 
 #include "ep_cmd_args/qnn_cmd_args.h"
 
@@ -15,6 +17,7 @@ void PrintUsage(std::ostream& stream, std::string_view prog_name) {
   stream << "Usage: " << prog_exec_name << " [OPTIONS...] test_models_path" << std::endl;
   stream << "OPTIONS:" << std::endl;
   stream << "  -h/--help                   Print this help message and exit program" << std::endl;
+  stream << "  -j/--num_threads            Number of threads to use for inference" << std::endl;
   stream << "  -l/--load_expected_outputs  Load expected outputs from raw output_<index>.raw files" << std::endl;
   stream << "  -s/--save_expected_outputs  Save outputs from baseline model on CPU EP to disk as " << std::endl;
   stream << "                              output_<index>.raw files." << std::endl;
@@ -68,6 +71,8 @@ bool ParseCmdLineArgs(AppArgs& app_args, int argc, char** argv) {
   CmdArgParser cmd_args(argc, argv);
   std::string_view prog_name = cmd_args.GetNext();
 
+  app_args.num_threads = std::max(static_cast<unsigned int>(1), std::thread::hardware_concurrency());
+
   // Parse command-line arguments.
   while (cmd_args.HasNext()) {
     std::string_view arg = cmd_args.GetNext();
@@ -83,6 +88,21 @@ bool ParseCmdLineArgs(AppArgs& app_args, int argc, char** argv) {
       }
 
       app_args.output_file = cmd_args.GetNext();
+    } else if (arg == "-j" || arg == "--num_threads") {
+      if (!cmd_args.HasNext()) {
+        std::cerr << "[ERROR]: Must provide an argument after the " << arg << " option" << std::endl;
+        PrintUsage(std::cerr, prog_name);
+        return false;
+      }
+
+      int n = std::stoi(std::string(arg));
+      if (n <= 0) {
+        std::cerr << "[ERROR]: Must specify a positive non-zero number of threads." << std::endl;
+        PrintUsage(std::cerr, prog_name);
+        return false;
+      }
+
+      app_args.num_threads = std::min(static_cast<unsigned int>(n), std::thread::hardware_concurrency());
     } else if (arg == "-a" || arg == "--expected_accuracy_file") {
       if (!cmd_args.HasNext()) {
         std::cerr << "[ERROR]: Must provide an argument after the " << arg << " option" << std::endl;
