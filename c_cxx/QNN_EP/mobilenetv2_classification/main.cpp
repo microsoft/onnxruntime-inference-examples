@@ -10,6 +10,7 @@
 #include <memory>
 #include <algorithm>
 #include <onnxruntime_cxx_api.h>
+#include "onnxruntime_session_options_config_keys.h"
 
 bool CheckStatus(const OrtApi* g_ort, OrtStatus* status) {
   if (status != nullptr) {
@@ -84,13 +85,17 @@ void run_ort_qnn_ep(const std::string& backend, const std::string& model_path, c
   // If it runs from a QDQ model on HTP backend
   // It will generate an Onnx model with Qnn context binary.
   // The context binary can be embedded inside the model in EPContext->ep_cache_context (by default),
-  // or the context binary can be a separate .bin file, with relative path set in EPContext->ep_cache_context (qnn_context_embed_mode = 0)
+  // or the context binary can be a separate .bin file, with relative path set in EPContext->ep_cache_context
   if (generate_ctx) {
-    options_keys.push_back("qnn_context_cache_enable");
-    options_values.push_back("1");
+    CheckStatus(g_ort, g_ort->AddSessionConfigEntry(session_options, kOrtSessionOptionEpContextEnable, "1"));
+
+    // customize the generated QNN context model
+    // If not specified, OnnxRuntime QNN EP will generate it at [model_path]_ctx.onnx
+    // CheckStatus(g_ort, g_ort->AddSessionConfigEntry(session_options, kOrtSessionOptionEpContextFilePath, "./qnn_ctx.onnx"));
+
+    // Set ep.context_embed_mode
+    // CheckStatus(g_ort, g_ort->AddSessionConfigEntry(session_options, kOrtSessionOptionEpContextEmbedMode, "0"));
   }
-  // qnn_context_cache_path -- you can specify the path and file name as you want
-  // If not specified, OnnxRuntime QNN EP will generate it at [model_path]_qnn_ctx.onnx
 
   CheckStatus(g_ort, g_ort->SessionOptionsAppendExecutionProvider(session_options, "QNN", options_keys.data(),
                                                                   options_values.data(), options_keys.size()));
