@@ -4,6 +4,7 @@
 
 #include <algorithm>
 #include <cassert>
+#include <cstdlib>
 #include <iostream>
 #include <iterator>
 #include <ostream>
@@ -14,23 +15,42 @@
 
 void PrintUsage(std::ostream& stream, std::string_view prog_name) {
   const std::string prog_exec_name = std::filesystem::path(prog_name).filename().string();
-  stream << "Usage: " << prog_exec_name << " [OPTIONS...] test_models_path" << std::endl;
-  stream << "OPTIONS:" << std::endl;
-  stream << "  -h/--help                   Print this help message and exit program" << std::endl;
-  stream << "  -j/--num_threads            Number of threads to use for inference" << std::endl;
-  stream << "  -l/--load_expected_outputs  Load expected outputs from raw output_<index>.raw files" << std::endl;
-  stream << "  -s/--save_expected_outputs  Save outputs from baseline model on CPU EP to disk as " << std::endl;
-  stream << "                              output_<index>.raw files." << std::endl;
-  stream << "  -e/--execution_provider     The execution provider to test (e.g., qnn or cpu)" << std::endl;
-  stream << "  -o/--output_file            The output file into which to save accuracy results" << std::endl;
-  stream << "  -a/--expected_accuracy_file The file containing expected accuracy results" << std::endl << std::endl;
+  stream << "Usage: " << prog_exec_name << " [OPTIONS...] test_models_path" << std::endl << std::endl;
+  stream << "[OPTIONS]:" << std::endl;
+  stream << " -h/--help                        Print this help message and exit program" << std::endl;
+  stream << " -j/--num_threads num_threads     Number of threads to use for inference." << std::endl;
+  stream << "                                  Defaults to number of cores." << std::endl;
+  stream << " -l/--load_expected_outputs       Load expected outputs from raw output_<index>.raw files" << std::endl;
+  stream << "                                  Defaults to false." << std::endl;
+  stream << " -s/--save_expected_outputs       Save outputs from baseline model on CPU EP to disk as " << std::endl;
+  stream << "                                  output_<index>.raw files. Defaults to false." << std::endl;
+  stream << " -e/--execution_provider ep [EP_ARGS]  The execution provider to test (e.g., qnn or cpu)" << std::endl;
+  stream << "                                       Defaults to CPU execution provider running QDQ model." << std::endl;
+  stream << " -o/--output_file path                 The output file into which to save accuracy results" << std::endl;
+  stream << " -a/--expected_accuracy_file path      The file containing expected accuracy results" << std::endl
+         << std::endl;
+  stream << "[EP_ARGS]: Specify EP-specific runtime options as key value pairs." << std::endl;
+  stream << "  Example: -e <provider_name> '<key1>|<value1> <key2>|<value2>'" << std::endl;
+  stream << "  [QNN only] [backend_path]: QNN backend path (e.g., 'C:\\Path\\QnnHtp.dll')" << std::endl;
+  stream << "  [QNN only] [profiling_level]: QNN profiling level, options: 'basic', 'detailed'," << std::endl;
+  stream << "                                default 'off'." << std::endl;
+  stream << "  [QNN only] [rpc_control_latency]: QNN rpc control latency. default to 10." << std::endl;
+  stream << "  [QNN only] [vtcm_mb]: QNN VTCM size in MB. default to 0 (not set)." << std::endl;
+  stream << "  [QNN only] [htp_performance_mode]: QNN performance mode, options: 'burst', 'balanced', " << std::endl;
+  stream << "             'default', 'high_performance', 'high_power_saver'," << std::endl;
+  stream << "             'low_balanced', 'low_power_saver', 'power_saver'," << std::endl;
+  stream << "             'sustained_high_performance'. Defaults to 'default'." << std::endl;
+  stream << "  [QNN only] [qnn_context_priority]: QNN context priority, options: 'low', 'normal'," << std::endl;
+  stream << "             'normal_high', 'high'. Defaults to 'normal'." << std::endl;
+  stream << "  [QNN only] [qnn_saver_path]: QNN Saver backend path. e.g 'C:\\Path\\QnnSaver.dll'." << std::endl;
+  stream << "  [QNN only] [htp_graph_finalization_optimization_mode]: QNN graph finalization" << std::endl;
+  stream << "             optimization mode, options: '0', '1', '2', '3'. Default is '0'." << std::endl;
 }
 
-static bool ParseCpuEpArgs(AppArgs& app_args, CmdArgParser& cmd_args) {
-  (void)cmd_args;
-  app_args.uses_qdq_model = true;  // TODO: Make configurable
+static void SetDefaultCpuEpArgs(AppArgs& app_args) {
+  app_args.uses_qdq_model = true;  // TODO: Make configurable?
   app_args.supports_multithread_inference = true;
-  return true;
+  app_args.execution_provider = "cpu";
 }
 
 bool GetValidPath(std::string_view prog_name, std::string_view provided_path, bool is_dir,
@@ -79,7 +99,7 @@ bool ParseCmdLineArgs(AppArgs& app_args, int argc, char** argv) {
 
     if (arg == "-h" || arg == "--help") {
       PrintUsage(std::cout, prog_name);
-      return true;
+      std::exit(0);
     } else if (arg == "-o" || arg == "--output_file") {
       if (!cmd_args.HasNext()) {
         std::cerr << "[ERROR]: Must provide an argument after the " << arg << " option" << std::endl;
@@ -127,16 +147,12 @@ bool ParseCmdLineArgs(AppArgs& app_args, int argc, char** argv) {
           return false;
         }
       } else if (arg == "cpu") {
-        if (!ParseCpuEpArgs(app_args, cmd_args)) {
-          return false;
-        }
+        SetDefaultCpuEpArgs(app_args);
       } else {
         std::cerr << "[ERROR]: Unsupported execution provider: " << arg << std::endl;
         PrintUsage(std::cerr, prog_name);
         return false;
       }
-
-      app_args.execution_provider = arg;
     } else if (arg == "-s" || arg == "--save_expected_outputs") {
       app_args.save_expected_outputs_to_disk = true;
     } else if (arg == "-l" || arg == "--load_expected_outputs") {
@@ -163,10 +179,7 @@ bool ParseCmdLineArgs(AppArgs& app_args, int argc, char** argv) {
   }
 
   if (app_args.execution_provider.empty()) {
-    std::cerr << "[ERROR]: Must provide an execution provider using the -e/--execution_provider option." << std::endl
-              << std::endl;
-    PrintUsage(std::cerr, prog_name);
-    return false;
+    SetDefaultCpuEpArgs(app_args);
   }
 
   if (app_args.load_expected_outputs_from_disk && app_args.save_expected_outputs_to_disk) {
