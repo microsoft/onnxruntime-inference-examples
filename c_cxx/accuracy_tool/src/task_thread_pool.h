@@ -10,11 +10,25 @@
 #include "acc_task.h"
 #include "basic_utils.h"
 
+/// <summary>
+/// A class that runs a fixed set of inference tasks using a pool of N threads.
+/// Usage example:
+///     TaskThreadPool pool(2);     // Pool with N (2) threads.
+///     Span<Task> tasks = /*...*/; // Fixed set of M tasks.
+///
+///     pool.CompleteTasks(tasks);  // N + 1 threads (2 + 1) will complete the tasks.
+///                                 // The main thread helps too (blocking)!
+/// </summary>
 class TaskThreadPool {
  public:
   TaskThreadPool(size_t num_threads);
   ~TaskThreadPool();
 
+  /// <summary>
+  /// Blocks the calling thread until all provided tasks are completed. The calling thread
+  /// also helps complete the tasks.
+  /// </summary>
+  /// <param name="tasks">The fixed set of tasks to complete.</param>
   void CompleteTasks(Span<Task> tasks);
 
  private:

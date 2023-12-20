@@ -95,7 +95,7 @@ bool ParseCmdLineArgs(AppArgs& app_args, int argc, char** argv) {
         return false;
       }
 
-      int n = std::stoi(std::string(arg));
+      int n = std::stoi(std::string(cmd_args.GetNext()));
       if (n <= 0) {
         std::cerr << "[ERROR]: Must specify a positive non-zero number of threads." << std::endl;
         PrintUsage(std::cerr, prog_name);

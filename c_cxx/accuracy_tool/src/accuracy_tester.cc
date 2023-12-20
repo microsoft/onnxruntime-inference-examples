@@ -60,6 +60,7 @@ bool RunAccuracyTest(Ort::Env& env, const AppArgs& app_args) {
     std::filesystem::path base_model_path = model_dir_path / "model.onnx";
     std::filesystem::path ep_model_path;
 
+    // Determine which model will be used by the EP under test.
     // Some EPs will need to use a QDQ model instead of the the original model.
     if (app_args.uses_qdq_model) {
       std::filesystem::path qdq_model_path = model_dir_path / "model.qdq.onnx";
@@ -103,6 +104,7 @@ bool RunAccuracyTest(Ort::Env& env, const AppArgs& app_args) {
     PrintAccuracyResults(test_accuracy_results, dataset_paths, model_dir, app_args.output_file,
                          test_name_to_acc_result_index);
 
+    // Compare with expected accuracy results if the user provided an input file with previous accuracy results.
     if (!app_args.expected_accuracy_file.empty()) {
       if (!CompareAccuracyWithExpectedValues(app_args.expected_accuracy_file, test_accuracy_results,
                                              test_name_to_acc_result_index, total_tests, total_failed_tests)) {
@@ -138,7 +140,7 @@ static bool GetExpectedOutputsFromModel(Ort::Env& env, TaskThreadPool& pool, con
     return false;
   }
 
-  if (!acctest::LoadIODataFromDisk(dataset_paths, model_io_info.inputs, "input_", all_inputs)) {
+  if (!LoadIODataFromDisk(dataset_paths, model_io_info.inputs, "input_", all_inputs)) {
     std::cerr << "[ERROR]: Failed to load test inputs for model directory " << model_path.parent_path() << std::endl;
     return false;
   }
@@ -203,14 +205,14 @@ static bool GetEpAccuracy(Ort::Env& env, TaskThreadPool& pool, const std::filesy
   const size_t num_datasets = dataset_paths.size();
 
   if (all_inputs.empty()) {
-    if (!acctest::LoadIODataFromDisk(dataset_paths, model_io_info.inputs, "input_", all_inputs)) {
+    if (!LoadIODataFromDisk(dataset_paths, model_io_info.inputs, "input_", all_inputs)) {
       std::cerr << "[ERROR]: Failed to load test inputs for model directory " << model_path.parent_path() << std::endl;
       return false;
     }
   }
 
   if (all_outputs.empty()) {
-    if (!acctest::LoadIODataFromDisk(dataset_paths, model_io_info.outputs, "output_", all_outputs)) {
+    if (!LoadIODataFromDisk(dataset_paths, model_io_info.outputs, "output_", all_outputs)) {
       std::cerr << "[ERROR]: Failed to load test outputs for model directory " << model_path.parent_path() << std::endl;
       return false;
     }

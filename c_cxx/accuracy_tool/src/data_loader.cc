@@ -9,8 +9,6 @@
 #include <string>
 #include <vector>
 
-namespace acctest {
-
 bool LoadIODataFromDisk(const std::vector<std::filesystem::path>& dataset_paths, const std::vector<IOInfo>& io_infos,
                         const char* data_file_prefix, std::vector<std::unique_ptr<char[]>>& dataset_data) {
   size_t total_data_size = 0;
@@ -77,4 +75,3 @@ bool LoadIODataFromDisk(const std::vector<std::filesystem::path>& dataset_paths,
 
   return true;
 }
-}  // namespace acctest
