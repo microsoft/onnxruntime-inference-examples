@@ -271,6 +271,7 @@ static void PrintAccuracyResults(const std::vector<std::vector<AccMetrics>>& tes
     std::ofstream out_fs(output_file);
     out_fs << oss.str();
     out_fs.close();
+    std::cout << "[INFO]: Saved accuracy results to " << output_file << std::endl;
   }
 }
 
@@ -280,7 +281,7 @@ static bool CompareAccuracyWithExpectedValues(
     const std::unordered_map<std::string, size_t>& test_name_to_acc_result_index, size_t& total_tests,
     size_t& total_failed_tests) {
   std::cout << std::endl;
-  std::cout << "[INFO]: Comparing accuracy with " << expected_accuracy_file.filename().string() << std::endl;
+  std::cout << "Comparing accuracy with " << expected_accuracy_file.filename().string() << std::endl;
   std::cout << "===============================================" << std::endl;
   std::ifstream in_fs(expected_accuracy_file);
   constexpr size_t N = 512;
@@ -324,7 +325,7 @@ static bool CompareAccuracyWithExpectedValues(
       }
     }
 
-    std::cout << "[INFO]: Checking if " << key << " degraded ... ";
+    std::cout << "Checking if " << key << " degraded ... ";
     if (passed) {
       std::cout << "PASSED" << std::endl;
     } else {
