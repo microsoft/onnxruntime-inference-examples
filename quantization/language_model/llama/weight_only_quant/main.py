@@ -155,6 +155,7 @@ class GPTQDataloader:
         traindata = traindata.map(tokenize_function, batched=True)
         traindata.set_format(type="torch", columns=["input_ids", "attention_mask"])
         self.traindata = traindata.select(range(sampling_size))
+        self.sampling_size = sampling_size
 
         session = ort.InferenceSession(model_input)
         inputs_names = [input.name for input in session.get_inputs()]
