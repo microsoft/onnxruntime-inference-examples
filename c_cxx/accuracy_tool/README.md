@@ -2,36 +2,39 @@
 This tool measures the accuracy of a set of models on a given execution provider. The accuracy is computed by comparing with the expected results, which are either loaded from file or attained by running the model with the CPU execution provider.
 
 ## Build instructions on Windows
-Run the following commands in a terminal to configure the CMake build. Make sure to set the `ONNXRUNTIME_ROOTDIR` option to the location of your ONNX Runtime installation. You can either [download an ONNX Runtime release package](https://github.com/microsoft/onnxruntime/releases/) or you can [build ONNX Runtime from source](https://www.onnxruntime.ai/docs/build/).
+Run the following commands in a terminal to generate a Visual Studio project and compile the tool. Make sure to specify the location of your ONNX Runtime installation. You can either [download an ONNX Runtime release package](https://github.com/microsoft/onnxruntime/releases/) or you can [build ONNX Runtime from source](https://www.onnxruntime.ai/docs/build/).
 
 ```shell
-$ mkdir build
-$ cd build
-$ cmake -DCMAKE_BUILD_TYPE=Release -DONNXRUNTIME_ROOTDIR='C:\onnxruntime' ..
+$ build.bat 'C:\onnxruntime'
 ```
 
 Run the following command to open the solution file with Visual Studio.
 
 ```shell
-$ devenv onnxruntime_accuracy_test.sln
+$ devenv .\build\onnxruntime_accuracy_test.sln
 ```
 
-Alternatively, you can build from the terminal using msbuild:
+Alternatively, you can directly run the executable from the terminal:
 
 ```shell
-msbuild onnxruntime_accuracy_test.sln /p:Configuration=Release
+.\build\Release\accuracy_test.exe --help
 ```
 
 ### Building with QNN execution provider
-To test model accuracy with the QNN execution provider, call CMake with the `QNN_SDK_ROOTDIR` option set to the location of your Qualcomm AI Engine Direct SDK (QNN SDK).
+To test model accuracy with the QNN execution provider, provide the path to location of your Qualcomm AI Engine Direct SDK (QNN SDK).
 The QNN SDK can be downloaded from https://qpm.qualcomm.com/main/tools/details/qualcomm_ai_engine_direct.
+Providing the QNN SDK path will ensure that the appropriate QNN SDK dynamic libraries (e.g., QnnHtp.dll) are automatically copied to the build directory.
 
 ```shell
-$ cd build
-$ cmake -DCMAKE_BUILD_TYPE=Release -DONNXRUNTIME_ROOTDIR='C:\onnxruntime' -DQNN_SDK_ROOTDIR='C:\Qualcomm\AIStack\QNN\2.17.0.231124' ..
+$ build.bat 'C:\onnxruntime' 'C:\Qualcomm\AIStack\QNN\2.17.0.231124'
 ```
 
-This will ensure that the appropriate QNN SDK dynamic libraries (e.g., QnnHtp.dll) are automatically copied to the build directory.
+
+Note that you can also provide a [NuGet package](https://www.nuget.org/packages/Microsoft.ML.OnnxRuntime.QNN) as the first argument to `build.bat`:
+
+```shell
+$ build.bat '.\microsoft.ml.onnxruntime.qnn.1.16.0.nupkg' 'C:\Qualcomm\AIStack\QNN\2.17.0.231124'
+```
 
 ## Setup test models and inputs
 This tool expects all models and input files to be arranged in a specific directory structure.
