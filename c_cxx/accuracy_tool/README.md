@@ -21,19 +21,19 @@ Alternatively, you can directly run the executable from the terminal:
 ```
 
 ### Building with QNN execution provider
-To test model accuracy with the QNN execution provider, provide the path to location of your Qualcomm AI Engine Direct SDK (QNN SDK).
+To test model accuracy with the QNN execution provider, provide the path to location of your Qualcomm AI Engine Direct SDK (QNN SDK) and, optionally, the hexagon architecture version (e.g., 68 or 73).
 The QNN SDK can be downloaded from https://qpm.qualcomm.com/main/tools/details/qualcomm_ai_engine_direct.
 Providing the QNN SDK path will ensure that the appropriate QNN SDK dynamic libraries (e.g., QnnHtp.dll) are automatically copied to the build directory.
 
 ```shell
-$ build.bat 'C:\onnxruntime' 'C:\Qualcomm\AIStack\QNN\2.17.0.231124'
+$ build.bat 'C:\onnxruntime' 'C:\Qualcomm\AIStack\QNN\2.17.0.231124' 68
 ```
 
 
 Note that you can also provide a [NuGet package](https://www.nuget.org/packages/Microsoft.ML.OnnxRuntime.QNN) as the first argument to `build.bat`:
 
 ```shell
-$ build.bat '.\microsoft.ml.onnxruntime.qnn.1.16.0.nupkg' 'C:\Qualcomm\AIStack\QNN\2.17.0.231124'
+$ build.bat '.\microsoft.ml.onnxruntime.qnn.1.16.0.nupkg' 'C:\Qualcomm\AIStack\QNN\2.17.0.231124' 68
 ```
 
 ## Setup test models and inputs
