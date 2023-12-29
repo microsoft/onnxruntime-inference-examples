@@ -21,7 +21,7 @@ int main(int argc, char** argv) {
       return 1;
     }
   } catch (const std::exception& e) {
-    std::cerr << "[ORT_QNN_APP EXCEPTION]: " << e.what() << std::endl;
+    std::cerr << "[EXCEPTION]: " << e.what() << std::endl;
     return 1;
   }
 
