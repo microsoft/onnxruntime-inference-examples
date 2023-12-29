@@ -123,8 +123,8 @@ Usage: accuracy_test.exe [OPTIONS...] test_models_path
 ```shell
 $ .\accuracy_test -e cpu models
 
-Accuracy Results:
-=================
+[INFO]: Accuracy Results (CSV format):
+
 model_a/test_data_set_0,17.640392603599537
 model_a/test_data_set_1,21.326599488217347
 model_a/test_data_set_2,16.712691432087745
@@ -143,8 +143,8 @@ Use the `-s` command-line option to dump the expected outputs to disk (e.g., out
 ```shell
 $ .\accuracy_test -s -e cpu models
 
-Accuracy Results:
-=================
+[INFO]: Accuracy Results (CSV format):
+
 model_a/test_data_set_0,17.640392603599537
 ...
 ```
@@ -153,8 +153,8 @@ Use the `-l` command-line option to load the expected outputs directly from `out
 ```shell
 $ .\accuracy_test -l -e cpu models
 
-Accuracy Results:
-=================
+[INFO]: Accuracy Results (CSV format):
+
 model_a/test_data_set_0,17.640392603599537
 ...
 ```
@@ -168,8 +168,8 @@ model_a/test_data_set_0,17.640392603599537
 ```shell
 $ .\accuracy_test -e qnn "backend_path|QnnHtp.dll" -c "session.disable_cpu_ep_fallback|1" -o results_0.csv models
 
-Accuracy Results:
-=================
+[INFO]: Accuracy Results (CSV format):
+
 model_a/test_data_set_0,17.640392603599537
 model_a/test_data_set_1,21.426599488217347
 model_a/test_data_set_2,16.812691432087745
@@ -181,19 +181,20 @@ Use the `-a` command-line option to compare subsequent runs with previous accura
 ```shell
 .\accuracy_test -a results_o.csv -e qnn "backend_path|QnnHtp.dll" -c "session.disable_cpu_ep_fallback|1" models
 
-Accuracy Results:
-=================
+[INFO]: Accuracy Results (CSV format):
+
 model_a/test_data_set_0,16.640392603599537
 ...
 
-Comparing accuracy with results_0.csv
-===============================================
-Checking if model_a/test_data_set_0 degraded ... FAILED
+
+[INFO]: Comparing accuracy with results_0.csv
+
+ [1] Checking if model_a/test_data_set_0 degraded ... FAILED
         Output 0 SNR decreased: expected 17.640392603599537, actual 16.640392603599537
 
-Checking if model_a/test_data_set_1 degraded ... PASSED
-Checking if model_a/test_data_set_2 degraded ... PASSED
-Checking if model_a/test_data_set_3 degraded ... PASSED
+ [2] Checking if model_a/test_data_set_1 degraded ... PASSED
+ [3] Checking if model_a/test_data_set_2 degraded ... PASSED
+ [4] Checking if model_a/test_data_set_3 degraded ... PASSED
 ...
 
 [INFO]: 10/11 tests passed.
