@@ -92,11 +92,13 @@ Usage: accuracy_test.exe [OPTIONS...] test_models_path
                                   output_<index>.raw files. Defaults to false.
  -e/--execution_provider ep [EP_ARGS]  The execution provider to test (e.g., qnn or cpu)
                                        Defaults to CPU execution provider running QDQ model.
+ -c/--session_configs "<key1>|<val1> <key2>|<val2>"  Session configuration options for EP under test.
+                                                     Refer to onnxruntime_session_options_config_keys.h
  -o/--output_file path                 The output file into which to save accuracy results
  -a/--expected_accuracy_file path      The file containing expected accuracy results
 
 [EP_ARGS]: Specify EP-specific runtime options as key value pairs.
-  Example: -e <provider_name> "<key1>|<value1> <key2>|<value2>"
+  Example: -e <provider_name> "<key1>|<val1> <key2>|<val2>"
   [QNN only] [backend_path]: QNN backend path (e.g., 'C:\Path\QnnHtp.dll')
   [QNN only] [profiling_level]: QNN profiling level, options: 'basic', 'detailed',
                                 default 'off'.

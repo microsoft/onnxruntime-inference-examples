@@ -9,7 +9,7 @@
 #include <sstream>
 #include <unordered_set>
 
-static bool ParseQnnRuntimeOptions(std::string ep_config_string,
+static bool ParseQnnRuntimeOptions(const std::string& ep_config_string,
                                    std::unordered_map<std::string, std::string>& qnn_options) {
   std::istringstream ss(ep_config_string);
   std::string token;
@@ -116,9 +116,6 @@ bool ParseQnnEpArgs(AppArgs& app_args, CmdArgParser& cmd_args) {
   }
 
   app_args.session_options.AppendExecutionProvider("QNN", qnn_options);
-#if ORT_API_VERSION >= 16
-  app_args.session_options.AddConfigEntry(kOrtSessionOptionsDisableCPUEPFallback, "0");  // TODO: Parse config entries
-#endif
   app_args.uses_qdq_model = backend_iter->second.rfind("QnnHtp") != std::string::npos;
   app_args.supports_multithread_inference = false;  // TODO: Work on enabling multi-threaded inference.
   app_args.execution_provider = "qnn";

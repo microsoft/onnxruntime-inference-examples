@@ -387,7 +387,7 @@ static bool CompareToExpectedAccuracy(const std::vector<std::vector<AccMetrics>>
       }
     }
 
-    output_str_stream << "Checking if " << key << " degraded ... ";
+    output_str_stream << " [" << (total_tests + 1) << "] Checking if " << key << " degraded... ";
     if (passed) {
       output_str_stream << "PASSED" << std::endl;
     } else {
