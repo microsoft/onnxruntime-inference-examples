@@ -96,6 +96,8 @@ Usage: accuracy_test.exe [OPTIONS...] test_models_path
                                                      Refer to onnxruntime_session_options_config_keys.h
  -o/--output_file path                 The output file into which to save accuracy results
  -a/--expected_accuracy_file path      The file containing expected accuracy results
+ --model model_name                    Model to test. Option can be specified multiple times.
+                                       By default, all found models are tested.
 
 [EP_ARGS]: Specify EP-specific runtime options as key value pairs.
   Example: -e <provider_name> "<key1>|<val1> <key2>|<val2>"

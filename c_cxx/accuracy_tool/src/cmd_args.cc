@@ -33,8 +33,11 @@ void PrintUsage(std::ostream& stream, std::string_view prog_name) {
   stream << "                                                     Refer to onnxruntime_session_options_config_keys.h"
          << std::endl;
   stream << " -o/--output_file path                 The output file into which to save accuracy results" << std::endl;
-  stream << " -a/--expected_accuracy_file path      The file containing expected accuracy results" << std::endl
+  stream << " -a/--expected_accuracy_file path      The file containing expected accuracy results" << std::endl;
+  stream << " --model model_name                    Model to test. Option can be specified multiple times."
          << std::endl;
+  stream << "                                       By default, all found models are tested." << std::endl;
+  stream << std::endl;
   stream << "[EP_ARGS]: Specify EP-specific runtime options as key value pairs." << std::endl;
   stream << "  Example: -e <provider_name> \"<key1>|<val1> <key2>|<val2>\"" << std::endl;
   stream << "  [QNN only] [backend_path]: QNN backend path (e.g., 'C:\\Path\\QnnHtp.dll')" << std::endl;
@@ -162,6 +165,15 @@ bool ParseCmdLineArgs(AppArgs& app_args, int argc, char** argv) {
       }
 
       app_args.num_threads = std::min(static_cast<unsigned int>(n), std::thread::hardware_concurrency());
+    } else if (arg == "--model") {
+      if (!cmd_args.HasNext()) {
+        std::cerr << "[ERROR]: Must provide an argument after the " << arg << " option" << std::endl;
+        PrintUsage(std::cerr, prog_name);
+        return false;
+      }
+
+      arg = cmd_args.GetNext();
+      app_args.only_models.insert(std::string(arg));
     } else if (arg == "-a" || arg == "--expected_accuracy_file") {
       if (!cmd_args.HasNext()) {
         std::cerr << "[ERROR]: Must provide an argument after the " << arg << " option" << std::endl;

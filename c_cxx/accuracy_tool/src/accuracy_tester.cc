@@ -46,29 +46,17 @@ static bool CompareToExpectedAccuracy(const std::vector<std::vector<AccMetrics>>
 static bool GetExpectedAccuraciesFromFile(const std::filesystem::path& filepath,
                                           std::unordered_map<std::string, std::vector<double>>& expected_acc_map);
 
+static std::string GetCSVHeaderRow(size_t num_outputs);
+
 bool RunAccuracyTest(Ort::Env& env, const AppArgs& app_args) {
   assert(app_args.num_threads >= 1);
   TaskThreadPool pool(app_args.num_threads - 1);
   TaskThreadPool dummy_pool(0);  // For EPs that only support single-threaded inference (e.g., QNN).
   size_t total_tests = 0;
   size_t total_failed_tests = 0;
+  size_t max_num_outputs = 0;
 
-  std::ofstream output_file;
   std::ostringstream output_str_stream;
-
-  if (!app_args.output_file.empty()) {
-    output_file.open(app_args.output_file);
-
-    if (!output_file.is_open()) {
-      std::cerr << "[ERROR]: Unable to open output file " << app_args.output_file << std::endl;
-      return false;
-    }
-
-    output_file << "Model_And_Input, SNR" << std::endl;
-  } else {
-    output_str_stream << "Model_And_Input, SNR" << std::endl;
-  }
-
   std::unordered_map<std::string, std::vector<double>> expected_accuracies;
   std::ostringstream accuracy_cmp_result_stream;
 
@@ -80,11 +68,20 @@ bool RunAccuracyTest(Ort::Env& env, const AppArgs& app_args) {
 
   for (const std::filesystem::directory_entry& model_dir : std::filesystem::directory_iterator{app_args.test_dir}) {
     const std::filesystem::path& model_dir_path = model_dir.path();
+    const std::string model_name = model_dir_path.filename().string();
+
+    if (!app_args.only_models.empty() && app_args.only_models.count(model_name) == 0) {
+      continue;
+    }
+
     const std::vector<std::filesystem::path> dataset_paths = GetSortedDatasetPaths(model_dir_path);
 
     if (dataset_paths.empty()) {
       continue;  // Nothing to test.
     }
+
+    std::cout << "[INFO]: Testing model " << model_name << " (" << dataset_paths.size() << " datasets) ... "
+              << std::endl;
 
     std::filesystem::path base_model_path = model_dir_path / "model.onnx";
     std::filesystem::path ep_model_path;
@@ -128,14 +125,10 @@ bool RunAccuracyTest(Ort::Env& env, const AppArgs& app_args) {
       return false;
     }
 
-    // Print the accuracy results to file or stdout.
+    // Print the accuracy results to string stream.
     std::string acc_results = PrintAccuracyResults(test_accuracy_results, dataset_paths, model_dir);
-
-    if (output_file.is_open()) {
-      output_file << acc_results;
-    } else {
-      output_str_stream << acc_results;
-    }
+    output_str_stream << acc_results;
+    max_num_outputs = std::max(max_num_outputs, test_accuracy_results[0].size());
 
     // Compare with expected accuracy results if the user provided an input file with previous accuracy results.
     if (!app_args.expected_accuracy_file.empty()) {
@@ -146,9 +139,21 @@ bool RunAccuracyTest(Ort::Env& env, const AppArgs& app_args) {
     }
   }
 
-  if (!output_file.is_open()) {
+  const std::string csv_header_row = GetCSVHeaderRow(max_num_outputs);
+
+  if (!app_args.output_file.empty()) {
+    std::ofstream output_file(app_args.output_file);
+
+    if (!output_file.is_open()) {
+      std::cerr << "[ERROR]: Unable to open output file " << app_args.output_file << std::endl;
+      return false;
+    }
+
+    output_file << csv_header_row << output_str_stream.str();
+    std::cout << std::endl << "[INFO]: Saved accuracy results to " << app_args.output_file << std::endl << std::endl;
+  } else {
     std::cout << std::endl << "[INFO]: Accuracy results (CSV format):" << std::endl << std::endl;
-    std::cout << output_str_stream.str() << std::endl;
+    std::cout << csv_header_row << output_str_stream.str() << std::endl;
   }
 
   if (!app_args.expected_accuracy_file.empty()) {
@@ -305,6 +310,22 @@ static std::string PrintAccuracyResults(const std::vector<std::vector<AccMetrics
   return oss.str();
 }
 
+static std::string GetCSVHeaderRow(size_t num_outputs) {
+  assert(num_outputs > 0);
+  std::ostringstream oss;
+
+  oss << "Model_And_Input,";
+  for (size_t i = 0; i < num_outputs; i++) {
+    oss << "Output_" << i << "_SNR";
+    if (i != num_outputs - 1) {
+      oss << ",";
+    }
+  }
+  oss << std::endl;
+
+  return oss.str();
+}
+
 static bool GetExpectedAccuraciesFromFile(const std::filesystem::path& filepath,
                                           std::unordered_map<std::string, std::vector<double>>& expected_acc_map) {
   std::ifstream in_fs(filepath);
@@ -320,6 +341,10 @@ static bool GetExpectedAccuraciesFromFile(const std::filesystem::path& filepath,
 
   // Parse every row of the CSV file to fill out the expected accuracies map.
   while (in_fs.getline(&tmp_buf[0], tmp_buf.size())) {
+    if (tmp_buf[0] == '\0') {
+      continue;  // Skip empty line
+    }
+
     std::istringstream iss(tmp_buf.data());
 
     if (!iss.getline(&tmp_buf[0], tmp_buf.size(), ',')) {

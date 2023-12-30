@@ -8,6 +8,7 @@
 #include <ostream>
 #include <string>
 #include <string_view>
+#include <unordered_set>
 
 /// <summary>
 /// Convenience structure for getting individual command-line arguments.
@@ -54,6 +55,7 @@ struct AppArgs {
   std::filesystem::path test_dir;
   std::string output_file;
   std::filesystem::path expected_accuracy_file;
+  std::unordered_set<std::string> only_models;  // Only run these models.
   std::string execution_provider;
   bool uses_qdq_model = false;
   bool supports_multithread_inference = true;
