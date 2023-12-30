@@ -32,15 +32,21 @@ static bool GetEpAccuracy(Ort::Env& env, TaskThreadPool& pool, const std::filesy
                           std::vector<std::unique_ptr<char[]>>& all_outputs,
                           std::vector<std::vector<AccMetrics>>& test_accuracy_results);
 
-static void PrintAccuracyResults(const std::vector<std::vector<AccMetrics>>& test_accuracy_results,
-                                 const std::vector<std::filesystem::path>& dataset_paths,
-                                 const std::filesystem::directory_entry& model_dir, const std::string& output_file,
-                                 std::unordered_map<std::string, size_t>& test_name_to_acc_result_index);
-static bool CompareAccuracyWithExpectedValues(
-    const std::filesystem::path& expected_accuracy_file,
-    const std::vector<std::vector<AccMetrics>>& test_accuracy_results,
-    const std::unordered_map<std::string, size_t>& test_name_to_acc_result_index, size_t& total_tests,
-    size_t& total_failed_tests);
+static std::string PrintAccuracyResults(const std::vector<std::vector<AccMetrics>>& test_accuracy_results,
+                                        const std::vector<std::filesystem::path>& dataset_paths,
+                                        const std::filesystem::directory_entry& model_dir);
+
+static bool CompareToExpectedAccuracy(const std::vector<std::vector<AccMetrics>>& test_accuracy_results,
+                                      const std::unordered_map<std::string, std::vector<double>>& expected_accuracies,
+                                      const std::vector<std::filesystem::path>& dataset_paths,
+                                      const std::filesystem::directory_entry& model_dir,
+                                      std::ostringstream& output_str_stream, size_t& total_tests,
+                                      size_t& total_failed_tests);
+
+static bool GetExpectedAccuraciesFromFile(const std::filesystem::path& filepath,
+                                          std::unordered_map<std::string, std::vector<double>>& expected_acc_map);
+
+static std::string GetCSVHeaderRow(size_t num_outputs);
 
 bool RunAccuracyTest(Ort::Env& env, const AppArgs& app_args) {
   assert(app_args.num_threads >= 1);
@@ -48,14 +54,34 @@ bool RunAccuracyTest(Ort::Env& env, const AppArgs& app_args) {
   TaskThreadPool dummy_pool(0);  // For EPs that only support single-threaded inference (e.g., QNN).
   size_t total_tests = 0;
   size_t total_failed_tests = 0;
+  size_t max_num_outputs = 0;
+
+  std::ostringstream output_str_stream;
+  std::unordered_map<std::string, std::vector<double>> expected_accuracies;
+  std::ostringstream accuracy_cmp_result_stream;
+
+  if (!app_args.expected_accuracy_file.empty()) {
+    if (!GetExpectedAccuraciesFromFile(app_args.expected_accuracy_file, expected_accuracies)) {
+      return false;
+    }
+  }
 
   for (const std::filesystem::directory_entry& model_dir : std::filesystem::directory_iterator{app_args.test_dir}) {
     const std::filesystem::path& model_dir_path = model_dir.path();
+    const std::string model_name = model_dir_path.filename().string();
+
+    if (!app_args.only_models.empty() && app_args.only_models.count(model_name) == 0) {
+      continue;
+    }
+
     const std::vector<std::filesystem::path> dataset_paths = GetSortedDatasetPaths(model_dir_path);
 
     if (dataset_paths.empty()) {
       continue;  // Nothing to test.
     }
+
+    std::cout << "[INFO]: Testing model " << model_name << " (" << dataset_paths.size() << " datasets) ... "
+              << std::endl;
 
     std::filesystem::path base_model_path = model_dir_path / "model.onnx";
     std::filesystem::path ep_model_path;
@@ -99,26 +125,47 @@ bool RunAccuracyTest(Ort::Env& env, const AppArgs& app_args) {
       return false;
     }
 
-    // Print the accuracy results to file or stdout.
-    std::unordered_map<std::string, size_t> test_name_to_acc_result_index;
-    PrintAccuracyResults(test_accuracy_results, dataset_paths, model_dir, app_args.output_file,
-                         test_name_to_acc_result_index);
+    // Print the accuracy results to string stream.
+    std::string acc_results = PrintAccuracyResults(test_accuracy_results, dataset_paths, model_dir);
+    output_str_stream << acc_results;
+    max_num_outputs = std::max(max_num_outputs, test_accuracy_results[0].size());
 
     // Compare with expected accuracy results if the user provided an input file with previous accuracy results.
     if (!app_args.expected_accuracy_file.empty()) {
-      if (!CompareAccuracyWithExpectedValues(app_args.expected_accuracy_file, test_accuracy_results,
-                                             test_name_to_acc_result_index, total_tests, total_failed_tests)) {
+      if (!CompareToExpectedAccuracy(test_accuracy_results, expected_accuracies, dataset_paths, model_dir,
+                                     accuracy_cmp_result_stream, total_tests, total_failed_tests)) {
         return false;
       }
     }
   }
 
+  const std::string csv_header_row = GetCSVHeaderRow(max_num_outputs);
+
+  if (!app_args.output_file.empty()) {
+    std::ofstream output_file(app_args.output_file);
+
+    if (!output_file.is_open()) {
+      std::cerr << "[ERROR]: Unable to open output file " << app_args.output_file << std::endl;
+      return false;
+    }
+
+    output_file << csv_header_row << output_str_stream.str();
+    std::cout << std::endl << "[INFO]: Saved accuracy results to " << app_args.output_file << std::endl << std::endl;
+  } else {
+    std::cout << std::endl << "[INFO]: Accuracy results (CSV format):" << std::endl << std::endl;
+    std::cout << csv_header_row << output_str_stream.str() << std::endl;
+  }
+
   if (!app_args.expected_accuracy_file.empty()) {
     const size_t total_tests_passed = total_tests - total_failed_tests;
+
+    std::cout << "[INFO]: Comparing accuracy with " << app_args.expected_accuracy_file.filename().string() << std::endl
+              << std::endl;
+    std::cout << accuracy_cmp_result_stream.str() << std::endl;
     std::cout << std::endl
               << "[INFO]: " << total_tests_passed << "/" << total_tests << " tests passed." << std::endl
               << "[INFO]: " << total_failed_tests << "/" << total_tests << " tests failed." << std::endl;
-    return false;
+    return total_failed_tests == 0;
   }
 
   return true;
@@ -240,17 +287,15 @@ static bool GetEpAccuracy(Ort::Env& env, TaskThreadPool& pool, const std::filesy
   return true;
 }
 
-static void PrintAccuracyResults(const std::vector<std::vector<AccMetrics>>& test_accuracy_results,
-                                 const std::vector<std::filesystem::path>& dataset_paths,
-                                 const std::filesystem::directory_entry& model_dir, const std::string& output_file,
-                                 std::unordered_map<std::string, size_t>& test_name_to_acc_result_index) {
+static std::string PrintAccuracyResults(const std::vector<std::vector<AccMetrics>>& test_accuracy_results,
+                                        const std::vector<std::filesystem::path>& dataset_paths,
+                                        const std::filesystem::directory_entry& model_dir) {
   assert(test_accuracy_results.size() == dataset_paths.size());
   std::ostringstream oss;
   for (size_t i = 0; i < test_accuracy_results.size(); i++) {
     const std::filesystem::path& test_path = dataset_paths[i];
     const std::vector<AccMetrics>& metrics = test_accuracy_results[i];
     std::string key = model_dir.path().filename().string() + "/" + test_path.filename().string();
-    test_name_to_acc_result_index[key] = i;
 
     oss << key << ",";
     for (size_t j = 0; j < metrics.size(); j++) {
@@ -262,51 +307,93 @@ static void PrintAccuracyResults(const std::vector<std::vector<AccMetrics>>& tes
     oss << std::endl;
   }
 
-  if (output_file.empty()) {
-    std::cout << std::endl;
-    std::cout << "Accuracy Results:" << std::endl;
-    std::cout << "=================" << std::endl;
-    std::cout << oss.str() << std::endl;
-  } else {
-    std::ofstream out_fs(output_file);
-    out_fs << oss.str();
-    out_fs.close();
-    std::cout << "[INFO]: Saved accuracy results to " << output_file << std::endl;
-  }
+  return oss.str();
 }
 
-static bool CompareAccuracyWithExpectedValues(
-    const std::filesystem::path& expected_accuracy_file,
-    const std::vector<std::vector<AccMetrics>>& test_accuracy_results,
-    const std::unordered_map<std::string, size_t>& test_name_to_acc_result_index, size_t& total_tests,
-    size_t& total_failed_tests) {
-  std::cout << std::endl;
-  std::cout << "Comparing accuracy with " << expected_accuracy_file.filename().string() << std::endl;
-  std::cout << "===============================================" << std::endl;
-  std::ifstream in_fs(expected_accuracy_file);
-  constexpr size_t N = 512;
+static std::string GetCSVHeaderRow(size_t num_outputs) {
+  assert(num_outputs > 0);
+  std::ostringstream oss;
+
+  oss << "Model_And_Input,";
+  for (size_t i = 0; i < num_outputs; i++) {
+    oss << "Output_" << i << "_SNR";
+    if (i != num_outputs - 1) {
+      oss << ",";
+    }
+  }
+  oss << std::endl;
+
+  return oss.str();
+}
+
+static bool GetExpectedAccuraciesFromFile(const std::filesystem::path& filepath,
+                                          std::unordered_map<std::string, std::vector<double>>& expected_acc_map) {
+  std::ifstream in_fs(filepath);
+
+  constexpr size_t N = 1024;
   std::array<char, N> tmp_buf = {};
 
+  // Skip first row (contains column names for CSV file).
+  if (!in_fs.getline(&tmp_buf[0], tmp_buf.size())) {
+    std::cerr << "[ERROR]: Failed to read first row from expected accuracy file " << filepath << std::endl;
+    return false;
+  }
+
+  // Parse every row of the CSV file to fill out the expected accuracies map.
   while (in_fs.getline(&tmp_buf[0], tmp_buf.size())) {
+    if (tmp_buf[0] == '\0') {
+      continue;  // Skip empty line
+    }
+
     std::istringstream iss(tmp_buf.data());
+
     if (!iss.getline(&tmp_buf[0], tmp_buf.size(), ',')) {
-      std::cerr << "[ERROR]: Failed to parse expected accuracy file " << expected_accuracy_file << std::endl;
+      std::cerr << "[ERROR]: Failed to parse key from expected accuracy file " << filepath << std::endl;
       return false;
     }
 
     std::string key(tmp_buf.data());
-    auto it = test_name_to_acc_result_index.find(key);
-    if (it == test_name_to_acc_result_index.end()) {
-      std::cerr << "[ERROR]: " << key << " was not a test that was run.";
+
+    std::vector<double> output_snr_values;
+    while (iss.getline(&tmp_buf[0], tmp_buf.size(), ',')) {
+      output_snr_values.push_back(std::stod(tmp_buf.data()));
+    }
+
+    if (iss.bad()) {
+      std::cerr << "[ERROR]: Failed to parse output SNRs from expected accuracy file " << filepath << std::endl;
       return false;
     }
 
-    std::vector<double> expected_values;
-    while (iss.getline(&tmp_buf[0], tmp_buf.size(), ',')) {
-      expected_values.push_back(std::stod(tmp_buf.data()));
+    expected_acc_map[key] = std::move(output_snr_values);
+  }
+
+  if (in_fs.bad()) {
+    std::cerr << "[ERROR]: Failed to read from expected accuracy file " << filepath << std::endl;
+    return false;
+  }
+
+  return true;
+}
+
+static bool CompareToExpectedAccuracy(const std::vector<std::vector<AccMetrics>>& test_accuracy_results,
+                                      const std::unordered_map<std::string, std::vector<double>>& expected_accuracies,
+                                      const std::vector<std::filesystem::path>& dataset_paths,
+                                      const std::filesystem::directory_entry& model_dir,
+                                      std::ostringstream& output_str_stream, size_t& total_tests,
+                                      size_t& total_failed_tests) {
+  assert(test_accuracy_results.size() == dataset_paths.size());
+  for (size_t i = 0; i < test_accuracy_results.size(); i++) {
+    const std::filesystem::path& test_path = dataset_paths[i];
+    const std::vector<AccMetrics>& actual_output_metrics = test_accuracy_results[i];
+    std::string key = model_dir.path().filename().string() + "/" + test_path.filename().string();
+
+    auto it = expected_accuracies.find(key);
+    if (it == expected_accuracies.end()) {
+      std::cerr << "[ERROR]: " << key << " was not found in the expected accuracies.";
+      return false;
     }
 
-    const std::vector<AccMetrics>& actual_output_metrics = test_accuracy_results[it->second];
+    const std::vector<double>& expected_values = it->second;
     if (actual_output_metrics.size() != expected_values.size()) {
       std::cerr << "[ERROR]: test " << key << " does not have the expected number of outputs.";
       return false;
@@ -314,23 +401,23 @@ static bool CompareAccuracyWithExpectedValues(
 
     std::ostringstream oss;
     bool passed = true;
-    for (size_t i = 0; i < expected_values.size(); i++) {
-      const auto& metrics = actual_output_metrics[i];
+    for (size_t j = 0; j < expected_values.size(); j++) {
+      const auto& metrics = actual_output_metrics[j];
 
-      if (!(expected_values[i] - metrics.snr <= EPSILON_DBL)) {
+      if (!(expected_values[j] - metrics.snr <= EPSILON_DBL)) {
         passed = false;
-        oss << "\tOutput " << i << " SNR decreased: expected "
-            << std::setprecision(std::numeric_limits<double>::max_digits10) << expected_values[i] << ", actual "
+        oss << "\tOutput " << j << " SNR decreased: expected "
+            << std::setprecision(std::numeric_limits<double>::max_digits10) << expected_values[j] << ", actual "
             << metrics.snr << std::endl;
       }
     }
 
-    std::cout << "Checking if " << key << " degraded ... ";
+    output_str_stream << " [" << (total_tests + 1) << "] Checking if " << key << " degraded... ";
     if (passed) {
-      std::cout << "PASSED" << std::endl;
+      output_str_stream << "PASSED" << std::endl;
     } else {
-      std::cout << "FAILED" << std::endl;
-      std::cout << oss.str() << std::endl;
+      output_str_stream << "FAILED" << std::endl;
+      output_str_stream << oss.str() << std::endl;
       total_failed_tests += 1;
     }
     total_tests += 1;

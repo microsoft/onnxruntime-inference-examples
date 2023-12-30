@@ -8,8 +8,10 @@
 #include <iostream>
 #include <iterator>
 #include <ostream>
+#include <sstream>
 #include <string_view>
 #include <thread>
+#include <unordered_set>
 
 #include "ep_cmd_args/qnn_cmd_args.h"
 
@@ -26,11 +28,18 @@ void PrintUsage(std::ostream& stream, std::string_view prog_name) {
   stream << "                                  output_<index>.raw files. Defaults to false." << std::endl;
   stream << " -e/--execution_provider ep [EP_ARGS]  The execution provider to test (e.g., qnn or cpu)" << std::endl;
   stream << "                                       Defaults to CPU execution provider running QDQ model." << std::endl;
-  stream << " -o/--output_file path                 The output file into which to save accuracy results" << std::endl;
-  stream << " -a/--expected_accuracy_file path      The file containing expected accuracy results" << std::endl
+  stream << " -c/--session_configs \"<key1>|<val1> <key2>|<val2>\"  Session configuration options for EP under test."
          << std::endl;
+  stream << "                                                     Refer to onnxruntime_session_options_config_keys.h"
+         << std::endl;
+  stream << " -o/--output_file path                 The output file into which to save accuracy results" << std::endl;
+  stream << " -a/--expected_accuracy_file path      The file containing expected accuracy results" << std::endl;
+  stream << " --model model_name                    Model to test. Option can be specified multiple times."
+         << std::endl;
+  stream << "                                       By default, all found models are tested." << std::endl;
+  stream << std::endl;
   stream << "[EP_ARGS]: Specify EP-specific runtime options as key value pairs." << std::endl;
-  stream << "  Example: -e <provider_name> '<key1>|<value1> <key2>|<value2>'" << std::endl;
+  stream << "  Example: -e <provider_name> \"<key1>|<val1> <key2>|<val2>\"" << std::endl;
   stream << "  [QNN only] [backend_path]: QNN backend path (e.g., 'C:\\Path\\QnnHtp.dll')" << std::endl;
   stream << "  [QNN only] [profiling_level]: QNN profiling level, options: 'basic', 'detailed'," << std::endl;
   stream << "                                default 'off'." << std::endl;
@@ -45,6 +54,39 @@ void PrintUsage(std::ostream& stream, std::string_view prog_name) {
   stream << "  [QNN only] [qnn_saver_path]: QNN Saver backend path. e.g 'C:\\Path\\QnnSaver.dll'." << std::endl;
   stream << "  [QNN only] [htp_graph_finalization_optimization_mode]: QNN graph finalization" << std::endl;
   stream << "             optimization mode, options: '0', '1', '2', '3'. Default is '0'." << std::endl;
+}
+
+static bool ParseSessionConfigs(const std::string& configs_string,
+                                std::unordered_map<std::string, std::string>& session_configs) {
+  std::istringstream ss(configs_string);
+  std::string token;
+
+  while (ss >> token) {
+    if (token == "") {
+      continue;
+    }
+
+    std::string_view token_sv(token);
+
+    auto pos = token_sv.find("|");
+    if (pos == std::string_view::npos || pos == 0 || pos == token_sv.length()) {
+      std::cerr << "Use a '|' to separate the key and value for session configuration options." << std::endl;
+      return false;
+    }
+
+    std::string key(token_sv.substr(0, pos));
+    std::string value(token_sv.substr(pos + 1));
+
+    auto it = session_configs.find(key);
+    if (it != session_configs.end()) {
+      std::cerr << "[ERROR]: Specified duplicate session config option: " << key << std::endl;
+      return false;
+    }
+
+    session_configs.insert(std::make_pair(std::move(key), std::move(value)));
+  }
+
+  return true;
 }
 
 static void SetDefaultCpuEpArgs(AppArgs& app_args) {
@@ -123,6 +165,15 @@ bool ParseCmdLineArgs(AppArgs& app_args, int argc, char** argv) {
       }
 
       app_args.num_threads = std::min(static_cast<unsigned int>(n), std::thread::hardware_concurrency());
+    } else if (arg == "--model") {
+      if (!cmd_args.HasNext()) {
+        std::cerr << "[ERROR]: Must provide an argument after the " << arg << " option" << std::endl;
+        PrintUsage(std::cerr, prog_name);
+        return false;
+      }
+
+      arg = cmd_args.GetNext();
+      app_args.only_models.insert(std::string(arg));
     } else if (arg == "-a" || arg == "--expected_accuracy_file") {
       if (!cmd_args.HasNext()) {
         std::cerr << "[ERROR]: Must provide an argument after the " << arg << " option" << std::endl;
@@ -152,6 +203,23 @@ bool ParseCmdLineArgs(AppArgs& app_args, int argc, char** argv) {
         std::cerr << "[ERROR]: Unsupported execution provider: " << arg << std::endl;
         PrintUsage(std::cerr, prog_name);
         return false;
+      }
+    } else if (arg == "-c" || arg == "--session_configs") {
+      if (!cmd_args.HasNext()) {
+        std::cerr << "[ERROR]: Must provide an argument after the " << arg << " option" << std::endl;
+        PrintUsage(std::cerr, prog_name);
+        return false;
+      }
+
+      arg = cmd_args.GetNext();
+      std::unordered_map<std::string, std::string> session_configs;
+
+      if (!ParseSessionConfigs(std::string(arg), session_configs)) {
+        return false;
+      }
+
+      for (auto& it : session_configs) {
+        app_args.session_options.AddConfigEntry(it.first.c_str(), it.second.c_str());
       }
     } else if (arg == "-s" || arg == "--save_expected_outputs") {
       app_args.save_expected_outputs_to_disk = true;

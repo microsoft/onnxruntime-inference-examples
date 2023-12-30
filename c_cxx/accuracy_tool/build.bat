@@ -74,6 +74,10 @@ IF NOT "%2" == "" (
   SET cmake_args=%cmake_args% -DQNN_SDK_ROOTDIR=%fullpath_2%
 )
 
+IF NOT "%3" == "" (
+  SET cmake_args=%cmake_args% -DQNN_HEXAGON_ARCH_VERSION=%3%
+)
+
 REM Configure build with CMake
 cmake.exe -S . -B build\ -G "Visual Studio 17 2022" %cmake_args% -DCMAKE_BUILD_TYPE=Release
 
@@ -85,8 +89,8 @@ popd
 exit /b
 
 :HELP
-ECHO Usage: build.bat ONNXRUNTIME_ROOTDIR [QNN_SDK_ROOTDIR]
+ECHO Usage: build.bat ONNXRUNTIME_ROOTDIR [QNN_SDK_ROOTDIR] [QNN_HEXAGON_ARCH_VERSION]
 ECHO Example:                  build.bat 'C:\Program Files\onnxruntime'
 ECHO Example w/ NuGet package: build.bat '.\microsoft.ml.onnxruntime.qnn.1.16.0.nupkg'
-ECHO Example w/ QNN:           build.bat 'C:\Program Files\onnxruntime' 'C:\Qualcomm\AIStack\QNN\2.17.0.231124'
+ECHO Example w/ QNN:           build.bat 'C:\Program Files\onnxruntime' 'C:\Qualcomm\AIStack\QNN\2.17.0.231124' 68
 :END
