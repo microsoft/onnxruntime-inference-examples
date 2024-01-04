@@ -120,17 +120,17 @@ qnn_ep_sample.exe --cpu mobilenetv2-12_shape.onnx kitten_input.raw
 REM run mobilenetv2-12_quant_shape.onnx with QNN HTP backend
 qnn_ep_sample.exe --htp mobilenetv2-12_quant_shape.onnx kitten_input.raw
 
-REM load mobilenetv2-12_quant_shape.onnx with QNN HTP backend, generate mobilenetv2-12_quant_shape.onnx_qnn_ctx.onnx which has QNN context binary embedded
+REM load mobilenetv2-12_quant_shape.onnx with QNN HTP backend, generate mobilenetv2-12_quant_shape.onnx_ctx.onnx which has QNN context binary embedded
 REM This does not has to be run on real device with HTP, it can be done on x64 platform also, since it supports offline generation
 qnn_ep_sample.exe --htp mobilenetv2-12_quant_shape.onnx kitten_input.raw --gen_ctx
 
-REM TODO Check for mobilenetv2-12_quant_shape.onnx_qnn_ctx.onnx
+REM TODO Check for mobilenetv2-12_quant_shape.onnx_ctx.onnx
 
-IF EXIST mobilenetv2-12_quant_shape.onnx_qnn_ctx.onnx (
-    REM run mobilenetv2-12_quant_shape.onnx_qnn_ctx.onnx with QNN HTP backend (generted from previous step)
-    qnn_ep_sample.exe --htp mobilenetv2-12_quant_shape.onnx_qnn_ctx.onnx kitten_input.raw
+IF EXIST mobilenetv2-12_quant_shape.onnx_ctx.onnx (
+    REM run mobilenetv2-12_quant_shape.onnx_ctx.onnx with QNN HTP backend (generted from previous step)
+    qnn_ep_sample.exe --htp mobilenetv2-12_quant_shape.onnx_ctx.onnx kitten_input.raw
 ) ELSE (
-    ECHO mobilenetv2-12_quant_shape.onnx_qnn_ctx.onnx does not exist. It didn't get generated in previous step. Are you using ONNX 1.17+? or build from latest main branch
+    ECHO mobilenetv2-12_quant_shape.onnx_ctx.onnx does not exist. It didn't get generated in previous step. Are you using ONNX 1.17+? or build from latest main branch
 )
 
 

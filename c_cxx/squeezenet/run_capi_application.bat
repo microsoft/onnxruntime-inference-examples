@@ -1,4 +1,4 @@
-set ONNX_MODEL_URL="https://media.githubusercontent.com/media/onnx/models/main/vision/classification/squeezenet/model/squeezenet1.0-7.onnx"
+set ONNX_MODEL_URL="https://media.githubusercontent.com/media/onnx/models/main/archive/vision/classification/squeezenet/model/squeezenet1.0-7.onnx"
 set ONNX_MODEL="squeezenet.onnx"
 SET ONNXRUNTIME_ROOTDIR=%1
 SET ORT_PACKAGE=%2
@@ -25,5 +25,10 @@ for /f "tokens=*" %%a in ('"C:\\Program Files (x86)\\Microsoft Visual Studio\\In
 REM Copy ORT libraries to same folder for executable to run.
 cd Release
 powershell -Command "cp %ORT_LIB%\* ."
-powershell -Command "Invoke-WebRequest %ONNX_MODEL_URL% -Outfile %ONNX_MODEL%"
+if exist "C:\local\models\opset8\test_squeezenet\model.onnx" (
+    echo "Using local model"
+    powershell -Command "cp C:\local\models\opset8\test_squeezenet\model.onnx %ONNX_MODEL%"
+) else (
+    powershell -Command "Invoke-WebRequest %ONNX_MODEL_URL% -Outfile %ONNX_MODEL%"
+)
 capi_test.exe
