@@ -114,6 +114,12 @@ parser.add_argument(
     help="is symmetric or not"
 )
 parser.add_argument(
+    "--accuracy_level",
+    type=int, 
+    default=None,
+    help="accuracy level of the 4-bit quantized MatMul computation"
+)
+parser.add_argument(
     "--sampling_size",
     type=int, 
     default=8,
@@ -220,7 +226,8 @@ if __name__ == "__main__":
         quant = matmul_4bits_quantizer.MatMul4BitsQuantizer(model_file, 
                                                             block_size=args.block_size, 
                                                             is_symmetric=args.is_symmetric, 
-                                                            algo_config=algo_config)
+                                                            algo_config=algo_config,
+                                                            accuracy_level=args.accuracy_level)
         quant.process()
         quant.model.save_model_to_file(os.path.join(args.model_output, model_name), use_external_data_format=True)
         tokenizer.save_pretrained(args.model_output)

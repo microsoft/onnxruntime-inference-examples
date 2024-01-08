@@ -32,6 +32,9 @@ function init_params {
       --is_symmetric=*)
           is_symmetric=$(echo $var |cut -f2 -d=)
       ;;
+      --accuracy_level=*)
+          accuracy_level=$(echo $var |cut -f2 -d=)
+      ;;
     esac
   done
 
@@ -66,6 +69,7 @@ function run_tuning {
             --algorithm ${algorithm-RTN} \
             --block_size ${block_size-32} \
             --is_symmetric ${is_symmetric-False} \
+            --accuracy_level ${accuracy_level-0} \
             --quantize
 }
 

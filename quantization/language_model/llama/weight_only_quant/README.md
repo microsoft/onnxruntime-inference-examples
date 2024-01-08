@@ -42,7 +42,6 @@ optimum-cli export onnx --model meta-llama/Llama-2-7b-hf --task text-generation-
 bash run_quant.sh --model_input=/folder/of/model \ # folder path of onnx model, config and tokenizer
                   --model_output=/folder/of/quantized/model \ # folder path to save onnx model
                   --algorithm=RTN \ # or GPTQ
-                  --batch_size=batch_size \ # optional 
 ```
 
 ## 2. Benchmark
@@ -50,7 +49,6 @@ bash run_quant.sh --model_input=/folder/of/model \ # folder path of onnx model, 
 ```bash
 bash run_benchmark.sh --model_input=/folder/of/model \ # folder path of onnx model, config and tokenizer
                       --tasks=lambada_openai
-                      --batch_size=batch_size \ # optional
 ```
 
 
