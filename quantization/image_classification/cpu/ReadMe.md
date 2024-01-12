@@ -12,7 +12,7 @@ three parts:
 Pre-processing prepares a float32 model for quantization. Run the following command to pre-process
 model `mobilenetv2-7.onnx`.
 
-Model `resnet50-v1-12.onnx` can be downloaded from [ONNX repo](https://github.com/onnx/models/tree/main/vision/classification/resnet/model).
+Model `resnet50-v1-12.onnx` can be downloaded from [ONNX repo](https://github.com/onnx/models/tree/main/Computer_Vision/resnetv2_50_Opset18_timm).
 
 ```console
 python -m onnxruntime.quantization.preprocess --input mobilenetv2-7.onnx --output mobilenetv2-7-infer.onnx
