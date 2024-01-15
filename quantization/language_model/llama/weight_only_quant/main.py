@@ -25,10 +25,7 @@ import numpy as np
 import onnxruntime as ort
 from intel_extension_for_transformers.llm.evaluation.lm_eval import evaluate
 from transformers import LlamaConfig, LlamaTokenizer
-from onnxruntime.quantization import (
-    RTNWeightOnlyQuantConfig, 
-    GPTQWeightOnlyQuantConfig,
-    matmul_4bits_quantizer)
+from onnxruntime.quantization import matmul_4bits_quantizer
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(format = "%(asctime)s - %(levelname)s - %(name)s -   %(message)s",
@@ -218,10 +215,10 @@ if __name__ == "__main__":
         model_file = os.path.join(args.model_input, model_name)
 
         if args.algorithm.upper() == "RTN":
-            algo_config = RTNWeightOnlyQuantConfig()
+            algo_config = matmul_4bits_quantizer.RTNWeightOnlyQuantConfig()
         elif args.algorithm.upper() == "GPTQ":
             data_reader = GPTQDataloader(model_file, seqlen=args.seqlen, batch_size=1, sampling_size=args.sampling_size)
-            algo_config = GPTQWeightOnlyQuantConfig(calibration_data_reader=data_reader)
+            algo_config = matmul_4bits_quantizer.GPTQWeightOnlyQuantConfig(calibration_data_reader=data_reader)
         
         quant = matmul_4bits_quantizer.MatMul4BitsQuantizer(model_file, 
                                                             block_size=args.block_size, 
