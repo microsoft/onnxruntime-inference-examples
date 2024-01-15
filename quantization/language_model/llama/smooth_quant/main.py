@@ -147,12 +147,13 @@ class CalibDataloader(CalibrationDataReader):
             shuffle=False,
             collate_fn=self.collate_batch,
         )
-        self.dataloader = iter(dataloader)
 
         session = ort.InferenceSession(model_path)
         inputs_names = [input.name for input in session.get_inputs()]
         self.key_value_input_names = [key for key in inputs_names if (".key" in key) or (".value" in key)]
         self.use_cache = len(self.key_value_input_names) > 0
+
+        self.processed_data = iter(self.process_data(dataloader))
 
     def collate_batch(self, batch):
         input_ids_padded = []
@@ -166,29 +167,60 @@ class CalibDataloader(CalibrationDataReader):
             input_ids_padded.append(input_ids)
             attention_mask_padded.append(attention_mask)
         return torch.vstack(input_ids_padded), torch.vstack(attention_mask_padded)
+    
+    def process_data(self, dataloader):
+        processed_data = []
+        for (input_ids, attention_mask) in dataloader:
+            ort_input = {}
+            if not self.use_cache:
+                ort_input["input_ids"] = input_ids[:, :-1].detach().cpu().numpy().astype('int64')
+                ort_input["attention_mask"] = attention_mask[:, :-1].detach().cpu().numpy().astype('int64')
+            else:
+                num_attention_heads = config.num_key_value_heads
+                embed_size_per_head = config.hidden_size // config.num_attention_heads
+                shape = (self.batch_size, num_attention_heads, 0, embed_size_per_head)
+                key_or_value = np.zeros(shape, dtype=np.float32)
+
+                for key_value_input_name in self.key_value_input_names:
+                    ort_input[key_value_input_name] = key_or_value
+
+                ort_input["input_ids"] = input_ids[:, :-1].detach().cpu().numpy().astype('int64')
+                ort_input["attention_mask"] =  np.zeros([self.batch_size, ort_input['past_key_values.0.key'].shape[2]+1], dtype='int64')
+
+            input_shape = ort_input["input_ids"].shape
+            position_ids = torch.arange(0, input_shape[-1], dtype=torch.long).unsqueeze(0).view(-1, input_shape[-1])
+            ort_input["position_ids"] = position_ids.numpy()
+            processed_data.append(ort_input)
+        return processed_data
+
 
     def get_next(self) -> dict:
-        input_ids, attention_mask = next(self.dataloader)
-        ort_input = {}
-        if not self.use_cache:
-            ort_input["input_ids"] = input_ids[:, :-1].detach().cpu().numpy().astype('int64')
-            ort_input["attention_mask"] = attention_mask[:, :-1].detach().cpu().numpy().astype('int64')
-        else:
-            num_attention_heads = config.num_key_value_heads
-            embed_size_per_head = config.hidden_size // config.num_attention_heads
-            shape = (self.batch_size, num_attention_heads, 0, embed_size_per_head)
-            key_or_value = np.zeros(shape, dtype=np.float32)
+        return next(self.processed_data, None)
+        # res = next(self.dataloader, None)
+        # if res is not None:
+        #     input_ids, attention_mask = res
+        #     ort_input = {}
+        #     if not self.use_cache:
+        #         ort_input["input_ids"] = input_ids[:, :-1].detach().cpu().numpy().astype('int64')
+        #         ort_input["attention_mask"] = attention_mask[:, :-1].detach().cpu().numpy().astype('int64')
+        #     else:
+        #         num_attention_heads = config.num_key_value_heads
+        #         embed_size_per_head = config.hidden_size // config.num_attention_heads
+        #         shape = (self.batch_size, num_attention_heads, 0, embed_size_per_head)
+        #         key_or_value = np.zeros(shape, dtype=np.float32)
 
-            for key_value_input_name in self.key_value_input_names:
-                ort_input[key_value_input_name] = key_or_value
+        #         for key_value_input_name in self.key_value_input_names:
+        #             ort_input[key_value_input_name] = key_or_value
 
-            ort_input["input_ids"] = input_ids[:, :-1].detach().cpu().numpy().astype('int64')
-            ort_input["attention_mask"] =  np.zeros([self.batch_size, ort_input['past_key_values.0.key'].shape[2]+1], dtype='int64')
+        #         ort_input["input_ids"] = input_ids[:, :-1].detach().cpu().numpy().astype('int64')
+        #         ort_input["attention_mask"] =  np.zeros([self.batch_size, ort_input['past_key_values.0.key'].shape[2]+1], dtype='int64')
 
-        input_shape = ort_input["input_ids"].shape
-        position_ids = torch.arange(0, input_shape[-1], dtype=torch.long).unsqueeze(0).view(-1, input_shape[-1])
-        ort_input["position_ids"] = position_ids.numpy()
-        return ort_input
+        #     input_shape = ort_input["input_ids"].shape
+        #     position_ids = torch.arange(0, input_shape[-1], dtype=torch.long).unsqueeze(0).view(-1, input_shape[-1])
+        #     ort_input["position_ids"] = position_ids.numpy()
+        #     return ort_input
+        # else:
+        #     return None
 
 
 if __name__ == "__main__":
