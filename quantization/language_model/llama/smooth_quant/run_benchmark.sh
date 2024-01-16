@@ -13,20 +13,14 @@ function init_params {
   for var in "$@"
   do
     case $var in
-      --input_model=*)
-          input_model=$(echo $var |cut -f2 -d=)
-      ;;
-      --mode=*)
-          mode=$(echo $var |cut -f2 -d=)
+      --model_input=*)
+          model_input=$(echo $var |cut -f2 -d=)
       ;;
       --batch_size=*)
           batch_size=$(echo $var |cut -f2 -d=)
       ;;
       --tasks=*)
           tasks=$(echo $var |cut -f2 -d=)
-      ;;
-      --intra_op_num_threads=*)
-          intra_op_num_threads=$(echo $var |cut -f2 -d=)
       ;;
     esac
   done
@@ -36,18 +30,16 @@ function init_params {
 # run_benchmark
 function run_benchmark {
     
-    # Check if the input_model ends with the filename extension ".onnx"
-    if [[ $input_model =~ \.onnx$ ]]; then
+    # Check if the model_input ends with the filename extension ".onnx"
+    if [[ $model_input =~ \.onnx$ ]]; then
         # If the string ends with the filename extension, get the path of the file
-        input_model=$(dirname "$input_model")
+        model_input=$(dirname "$model_input")
     fi
 
     python main.py \
-            --model_path ${input_model} \
-            --mode=${mode} \
+            --model_input ${model_input} \
             --batch_size=${batch_size-1} \
             --tasks=${tasks-lambada_openai} \
-            --intra_op_num_threads=${intra_op_num_threads-4} \
             --benchmark
             
 }
