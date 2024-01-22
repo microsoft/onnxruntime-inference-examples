@@ -10,6 +10,7 @@ from pathlib import Path
 import subprocess
 from onnxruntime.quantization import CalibrationDataReader, create_calibrator, CalibrationMethod, write_calibration_table, QuantType, QuantizationMode, QDQQuantizer
 import argparse
+import time
 
 class BertDataReader(CalibrationDataReader):
     def __init__(self,
@@ -153,7 +154,7 @@ def get_predictions(example_id_in_current_stride,
 
         all_predictions[id] = prediction
 
-def inference(data_reader, ort_session, verbose=False):
+def inference(data_reader, ort_session, latency, verbose=False):
 
     _NetworkOutput = collections.namedtuple(  # pylint: disable=invalid-name
             "NetworkOutput",
@@ -178,7 +179,9 @@ def inference(data_reader, ort_session, verbose=False):
             token_list_in_current_stride = data_reader.token_list[-data_reader.example_stride:]
             outputs = []
 
+        start = time.time()
         output = ort_session.run(["output_start_logits","output_end_logits"], inputs)
+        latency.append(time.time() - start)
         outputs.append(output)
 
 
@@ -385,8 +388,20 @@ if __name__ == '__main__':
     sess_options = onnxruntime.SessionOptions()
     sess_options.graph_optimization_level = onnxruntime.GraphOptimizationLevel.ORT_DISABLE_ALL
     session = onnxruntime.InferenceSession(qdq_model_path, sess_options=sess_options, providers=["MIGraphXExecutionProvider"])
-    all_predictions = inference(data_reader, session) 
+    
+    print("Running Inferences")
+    latency = [] #Used for timing information
+    all_predictions = inference(data_reader, session, latency, flags.verbose) 
 
+    print("Inference Complete!")
+    print("Rate = {} QPS ".format(
+        format((((flags.batch) / (sum(latency[1:]) / len(latency[1:])))),
+                '.2f')))
+    print("Average Execution time = {} ms".format(
+            format(sum(latency[1:]) * 1000 / len(latency[1:]), '.2f')))
+
+
+    print(" Saving predictions")
     prediction_file = "./prediction.json"
     with open(prediction_file, "w") as f:
         f.write(json.dumps(all_predictions, indent=4))
