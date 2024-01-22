@@ -97,9 +97,9 @@ def evaluate(dataset, predictions, f1_acc):
     exact_match = 100.0 * exact_match / total
     f1 = 100.0 * f1 / total
     if (f1 < f1_acc - 0.5):
-        print("&&&& FAILED TensorRT BERT Squad Accuracy matches reference.")
+        print("&&&& FAILED MIGraphX BERT Squad Accuracy matches reference.")
     else:
-        print("&&&& PASSED TensorRT BERT Squad Accuracy matches reference.")
+        print("&&&& PASSED MIGraphX BERT Squad Accuracy matches reference.")
     return {'exact_match': exact_match, 'f1': f1}
 
 if __name__ == '__main__':
