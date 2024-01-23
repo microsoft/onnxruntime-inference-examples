@@ -104,7 +104,6 @@ class BertDataReader(CalibrationDataReader):
                     segment_ids = np.expand_dims(feature.segment_ids, axis=0)
 
             data.append({"input_ids": input_ids, "input_mask": input_mask, "segment_ids":segment_ids})
-            # data.append({"input_ids": input_ids, "input_mask": input_mask, "segment_ids":segment_ids})
 
         self.enum_data_dicts = iter(data)
         self.start_of_new_stride = True
@@ -179,11 +178,18 @@ def inference(data_reader, ort_session, latency, verbose=False):
             token_list_in_current_stride = data_reader.token_list[-data_reader.example_stride:]
             outputs = []
 
+        io_binding = session.io_binding()
+        io_binding.bind_cpu_input('input_ids', inputs['input_ids'])
+        io_binding.bind_cpu_input('input_mask', inputs['input_mask'])
+        io_binding.bind_cpu_input('segment_ids', inputs['segment_ids'])
+        io_binding.bind_output('output_start_logits')
+        io_binding.bind_output('output_end_logits')
         start = time.time()
-        output = ort_session.run(["output_start_logits","output_end_logits"], inputs)
+        #output = ort_session.run(["output_start_logits","output_end_logits"], inputs)
+        session.run_with_iobinding(io_binding)
         latency.append(time.time() - start)
+        output = io_binding.copy_outputs_to_cpu()
         outputs.append(output)
-
 
     # handle the last example stride
     get_predictions(example_id_in_current_stride, features_in_current_stride, token_list_in_current_stride, data_reader.batch_size, outputs, _NetworkOutput, all_predictions)
@@ -247,6 +253,23 @@ def parse_input_args():
         type=float
     )
 
+    parser.add_argument(
+        "--no_eval",
+        action="store_false",
+        required=False,
+        default=True,
+        help='Turn off evaluate output result for f1 and exact match score. Default False',
+    )
+
+    parser.add_argument(
+        "--ort_verbose",
+        action="store_true",
+        required=False,
+        default=False,
+        help='Turn on onnxruntime verbose flags',
+    )
+
+
     parser.add_argument("--batch",
                         required=False,
                         default=1,
@@ -271,6 +294,13 @@ def parse_input_args():
                         help='Number of calibration for QDQ Quantiation in int8. Default is 100',
                         type=int)
 
+    parser.add_argument("--samples",
+                        required=False,
+                        default=0,
+                        help='Number of samples to test with. Default is 0 (All the samples in the dataset)',
+                        type=int)
+
+
     parser.add_argument(
         "--verbose",
         action="store_true",
@@ -278,7 +308,7 @@ def parse_input_args():
         default=False,
         help='Show verbose output',
     )
-
+    
     return parser.parse_args()
 
 
@@ -300,6 +330,10 @@ if __name__ == '__main__':
 
     flags = parse_input_args()
 
+    if flags.samples <= flags.batch:
+        print("Error: Sample count must be smaller than batch size. Exiting")
+        exit()
+
     # Model, dataset and quantization settings
     model_path = flags.model
     
@@ -309,7 +343,7 @@ if __name__ == '__main__':
     elif flags.version == 2.0:
         squad_json = "./squad/dev-v2.0.json" # uncomment it if you want to use squad v2.0 as dataset
     else:
-        print("Warning version " + str(flags.version) + " of squad dataset not a valid choice")
+        print("Error: version " + str(flags.version) + " of squad dataset not a valid choice")
         exit()
     
     vocab_file = "./vocab.txt"
@@ -384,8 +418,12 @@ if __name__ == '__main__':
 
    # QDQ model inference and get SQUAD prediction 
     batch_size = flags.batch 
-    data_reader = BertDataReader(qdq_model_path, squad_json, vocab_file, batch_size, sequence_lengths[-1], doc_stride[-1])
+    data_reader = BertDataReader(qdq_model_path, squad_json, vocab_file, batch_size, sequence_lengths[-1], doc_stride[-1], end_index=flags.samples)
     sess_options = onnxruntime.SessionOptions()
+    if flags.ort_verbose:
+        sess_options.log_severity_level = 0
+        sess_options.log_verbosity_level = 0
+
     sess_options.graph_optimization_level = onnxruntime.GraphOptimizationLevel.ORT_DISABLE_ALL
     session = onnxruntime.InferenceSession(qdq_model_path, sess_options=sess_options, providers=["MIGraphXExecutionProvider"])
     
@@ -400,13 +438,15 @@ if __name__ == '__main__':
     print("Average Execution time = {} ms".format(
             format(sum(latency[1:]) * 1000 / len(latency[1:]), '.2f')))
 
+    # Verify output result from run
+    if flags.no_eval:
+        print(" Saving predictions")
+        prediction_file = "./prediction.json"
+        with open(prediction_file, "w") as f:
+            f.write(json.dumps(all_predictions, indent=4))
+            print("\nOutput dump to {}".format(prediction_file))
 
-    print(" Saving predictions")
-    prediction_file = "./prediction.json"
-    with open(prediction_file, "w") as f:
-        f.write(json.dumps(all_predictions, indent=4))
-        print("\nOutput dump to {}".format(prediction_file))
 
-    print("Evaluate QDQ model for SQUAD v"+ str(flags.version))
-    subprocess.call(['python', './squad/evaluate-v'+ str(flags.version) + '.py', './squad/dev-v' + str(flags.version) + '.json', './prediction.json', '90'])
+        print("Evaluate QDQ model for SQUAD v"+ str(flags.version))
+        subprocess.call(['python', './squad/evaluate-v'+ str(flags.version) + '.py', './squad/dev-v' + str(flags.version) + '.json', './prediction.json', '90'])
 
