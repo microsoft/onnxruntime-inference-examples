@@ -346,7 +346,7 @@ if __name__ == '__main__':
         print("Error: version " + str(flags.version) + " of squad dataset not a valid choice")
         exit()
     
-    vocab_file = "./vocab.txt"
+    vocab_file = "./squad/vocab.txt"
     augmented_model_path = "./augmented_model.onnx"
     qdq_model_path = "./qdq_model.onnx"
 
