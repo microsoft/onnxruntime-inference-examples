@@ -4,7 +4,8 @@ import os
 import sys
 import numpy as np
 from PIL import Image
-from onnxruntime.quantization import quantize_static, CalibrationDataReader, QuantFormat, QuantType
+from onnxruntime.quantization import quantize, quantize_static, CalibrationDataReader, QuantFormat, QuantType
+from onnxruntime.quantization.execution_providers.qnn import get_qnn_qdq_config
 import onnxruntime as ort
 import onnx
 from onnx import shape_inference
@@ -110,15 +111,12 @@ def main():
     qdq_model_file = input_model_file.replace(".onnx", "_quant.onnx")
     static_shape_qdq_model_file = qdq_model_file.replace(".onnx", "_shape.onnx")
     dr = GenerateRandomCalibrationData('./images')
-    quantize_static(input_model_file,
-                    qdq_model_file,
-                    dr,
-                    op_types_to_quantize=['Conv','Add','Gemm','Clip','Reshape','Transpose','Squeeze' ,'Unsqueeze','Resize','MaxPool','AveragePool','Concat','MatMul','Pow','Div','Sub','Sqrt','Gather','Mul','Softmax','Split','Where', 'ReduceMean', 'Sigmoid', 'Tanh', 'Slice', 'Relu'],
-                    quant_format=QuantFormat.QDQ,
-                    per_channel=False,
-                    activation_type=QuantType.QUInt8,
-                    weight_type=QuantType.QUInt8,
-                    extra_options={"ForceQuantizeNoInputCheck":"True"})
+
+    qnn_config = get_qnn_qdq_config(input_model_file,
+                                    dr,
+                                    activation_type=QuantType.QUInt8,
+                                    weight_type=QuantType.QUInt8)
+    quantize(input_model_file, qdq_model_file, qnn_config)    
     print('Calibrated and quantized model saved.')
 
     print('Run with quantized model.')

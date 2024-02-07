@@ -52,10 +52,10 @@ IF NOT EXIST mobilenetv2-12_shape.onnx (
 
 :INSTALL_PYTHON_DEPS_AND_RUN_HELPER
 @ECHO ON
-pip install opencv-python
-pip install pillow
-pip install onnx
-pip install onnxruntime
+python -m pip install opencv-python
+python -m pip install pillow
+python -m pip install onnx
+python -m pip install onnxruntime
 python mobilenetv2_helper.py
 @ECHO OFF
 GOTO END_PYTHON
