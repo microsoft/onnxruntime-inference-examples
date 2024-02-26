@@ -1,19 +1,33 @@
 {
-  "name": "ort-sam",
-  "private": true,
-  "version": "1.0.0",
-  "description": "An example how to run segment-anything with webgpu in onnxruntime-web.",
+  "name": "segment-anything-demo",
+  "version": "0.0.0",
+  "description": "onnxruntime segment anything demo",
+  "main": "index.js",
+  "type": "module",
   "scripts": {
-    "build": "webpack --config ./webpack.config.js --mode production",
-    "dev": "webpack --config ./webpack.config.js --mode development"
+    "dev": "webpack serve --no-client-overlay",
+    "build": "webpack",
+    "build1": "node scripts/build.js"
+  },
+  "keywords": [
+    "onnxruntime",
+    "webgpu",
+    "segment-anything",
+    "deep learning",
+    "AI"
+  ],
+  "author": "me",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "copy-webpack-plugin": "^12.0.2",
+    "esbuild": "^0.20.1",
+    "eslint": "^8.57.0",
+    "onnxruntime-common": "^1.17.1",
+    "onnxruntime-web": "^1.17.1",
+    "webpack": "^5.90.3",
+    "webpack-cli": "^5.1.4"
   },
   "devDependencies": {
-    "eslint": "^8.40.0"
-  },
-  "dependencies": {
-    "copy-webpack-plugin": "^11.0.0",
-    "onnxruntime-web": "^1.17.0-dev.20231102-178f7caaeb",
-    "webpack": "^5.82.1",
-    "webpack-cli": "^5.1.1"
+    "webpack-dev-server": "^5.0.2"
   }
 }
