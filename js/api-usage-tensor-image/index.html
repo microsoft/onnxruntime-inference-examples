@@ -65,7 +65,6 @@
     }
 
     function main() {
-      var img = document.getElementById("original-image");
       document.getElementById("file-in").onchange = function (evt) {
           let target = evt.target || window.event.src, files = target.files;
           if (FileReader && files && files.length) {
