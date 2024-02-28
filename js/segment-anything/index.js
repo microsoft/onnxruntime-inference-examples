@@ -27,13 +27,25 @@ const MODELS = {
             size: 17,
         },
     ],
+    sam_b_int8: [
+        {
+            name: "sam-b-encoder-int8",
+            url: "https://huggingface.co/schmuell/sam-b-fp16/resolve/main/sam_vit_b-encoder-int8.onnx",
+            size: 108,
+        },
+        {
+            name: "sam-b-decoder-int8",
+            url: "https://huggingface.co/schmuell/sam-b-fp16/resolve/main/sam_vit_b-decoder-int8.onnx",
+            size: 5,
+        },
+    ],
 };
 
 const config = getConfig();
 
 ort.env.wasm.wasmPaths = 'dist/';
 ort.env.wasm.numThreads = config.threads;
-ort.env.wasm.proxy = false;
+// ort.env.wasm.proxy = config.provider == "wasm";
 
 let canvas;
 let filein;
