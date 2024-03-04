@@ -17,6 +17,7 @@ const ctx = canvas.getContext('2d');
 let labels;
 let insession = false;
 let processed = 0;
+let frames_start = 0;
 let frames = 0;
 let latencies = 0;
 
@@ -135,6 +136,10 @@ async function main() {
         console.log("loadedmetadata");
     });
 
+    video.addEventListener('seeked', () => {
+        frames_start = undefined;
+    });
+
     video.addEventListener("play", () => {
         let w = video.videoWidth;
         let h = video.videoHeight;
@@ -143,12 +148,18 @@ async function main() {
         processed = 0;
         frames = 0;
         latencies = 0;
+        frames_start = undefined;
 
         document.getElementById('resolution').innerText = `${w}x${h}`;
 
         const frameCallback = (now, metadata) => {
             const data = ctx.getImageData(0, 0, w, h);
             frames = metadata.presentedFrames;
+            if (frames_start === undefined) {
+                frames_start = frames;
+                processed = 0;
+            }
+            console.log(`${frames_start} - ${frames}`);
             if (!insession) {
                 insession = true;
                 ort.Tensor.fromImage(data).then((pixel_values) => {
@@ -158,8 +169,9 @@ async function main() {
                         latencies += end - start;
                         processed++;
                         if (processed % 10 == 0) {
+                            const frames_seen = frames - frames_start;
                             document.getElementById('latency').innerText = (latencies / processed).toFixed(2) + "ms";
-                            document.getElementById('dropped').innerText = (100 * (frames - processed) / frames).toFixed(1) + "%";
+                            document.getElementById('dropped').innerText = (100 * (frames_seen - processed) / frames_seen).toFixed(1) + "%";
                         }
                         ctx.drawImage(video, 0, 0);
                         const t = outputs.outputs;
