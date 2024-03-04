@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous" />
+  <script type="module" src="dist/index.js"></script>
+  <title>yolov9-c realtime object detection</title>
+</head>
+
+<style>
+  /* Add rounded corners to blocks */
+  .rounded-block {
+    border-radius: 10px;
+    border: 1px solid #ccc;
+    padding: 20px;
+    position: relative;
+  }
+
+  /* Move text inside the border */
+  .rounded-block h4 {
+    position: absolute;
+    top: 00%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 5px 10px;
+    background-color: #212529;
+    font-size: 18px;
+  }
+
+  .higlight {
+    display: inline-block;
+  }
+
+  .higlight:hover {
+    border: 1px solid red;
+  }
+</style>
+
+<body data-bs-theme="dark">
+  <div class="container-fluid">
+    <h2>yolov9-c realtime object detection</h2>
+
+    <div class="row">
+      <div class="col">
+        <video id="video" controls muted></video>
+      </div>
+      <div class="col">
+        <div class="rounded-block" style="margin-top: 40px; max-width: 200px;">
+          <h4>Latencies</h4>
+          <div style="margin-top: 10px;">
+            latency: <div id="latency" class="higlight"></div>
+          </div>
+          <div style="margin-top: 10px;">
+            dropped: <div id="dropped" class="higlight"></div>
+          </div>
+          <div style="margin-top: 10px;">
+            resolution: <div id="resolution" class="higlight"></div>
+          </div>
+        </div>
+        <div style="margin-top: 40px;">
+          <form>
+            <div class="form-group ">
+              <input title="Upload Video" type="file" id="file-in" name="file-in" accept=".mp4,.webm|video/*">
+            </div>
+          </form>
+        </div>
+      </div>
+
+    </div>
+    <div class="row">
+      <div class="col">
+        <canvas id="canvas"></canvas>
+      </div>
+    </div>
+    <div>
+      <p class="text-lg-start">
+      <div id="status" style="font: 1em consolas;"></div>
+      </p>
+    </div>
+  </div>
+</body>
+</html>

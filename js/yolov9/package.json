@@ -1,0 +1,33 @@
+{
+  "name": "yolov9 with onnxruntime-web/webgpu",
+  "version": "0.0.0",
+  "description": "yolov9 with onnxruntime-web/webgpu",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "webpack serve --no-client-overlay",
+    "build": "webpack",
+    "build1": "node scripts/build.js"
+  },
+  "keywords": [
+    "onnxruntime",
+    "webgpu",
+    "segment-anything",
+    "deep learning",
+    "AI"
+  ],
+  "author": "me",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "copy-webpack-plugin": "^12.0.2",
+    "esbuild": "^0.20.1",
+    "eslint": "^8.57.0",
+    "onnxruntime-common": "file:../../../onnxruntime/js/common",
+    "onnxruntime-web": "file:../../../onnxruntime/js/web",
+    "webpack": "^5.90.3",
+    "webpack-cli": "^5.1.4"
+  },
+  "devDependencies": {
+    "webpack-dev-server": "^5.0.2"
+  }
+}
