@@ -25,6 +25,10 @@ import cv2
 import sys
 from onnxruntime.quantization import quantize_dynamic, QuantType
 
+import openvino
+import onnxruntime.tools.add_openvino_win_libs as utils
+utils.add_openvino_libs_to_path()
+
 CLASSES = yaml_load(check_yaml('coco128.yaml'))['names']
         
 def parse_arguments():
