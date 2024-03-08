@@ -1,11 +1,11 @@
-#include <iostream>
-#include <ctime>
-#include <vector>
 #include <onnxruntime_lite_custom_op.h>
+
+#include <ctime>
+#include <iostream>
+#include <vector>
 
 using namespace std;
 using namespace Ort::Custom;
-
 
 void KernelOne(const Ort::Custom::Tensor<float>& X, const Ort::Custom::Tensor<float>& Y,
                Ort::Custom::Tensor<float>& Z) {
@@ -22,7 +22,8 @@ int main() {
   Ort::Env env(ORT_LOGGING_LEVEL_WARNING, "test");
   Ort::CustomOpDomain v1_domain{"v1"};
   // please make sure that custom_op_one has the same lifetime as the consuming session
-  std::unique_ptr<OrtLiteCustomOp> custom_op_one{Ort::Custom::CreateLiteCustomOp("CustomOpOne", "CPUExecutionProvider", KernelOne)};
+  std::unique_ptr<OrtLiteCustomOp> custom_op_one{
+      Ort::Custom::CreateLiteCustomOp("CustomOpOne", "CPUExecutionProvider", KernelOne)};
   v1_domain.Add(custom_op_one.get());
   Ort::SessionOptions session_options;
   session_options.Add(v1_domain);
@@ -44,15 +45,15 @@ int main() {
   Ort::AllocatorWithDefaultOptions allocator;
   size_t numInputNodes = session.GetInputCount();
   for (int i = 0; i < numInputNodes; i++) {
-          auto input_name = session.GetInputNameAllocated(i, allocator);
-          inputNodeNameAllocatedStrings.push_back(std::move(input_name));
-          input_names.emplace_back(inputNodeNameAllocatedStrings.back().get());
+    auto input_name = session.GetInputNameAllocated(i, allocator);
+    inputNodeNameAllocatedStrings.push_back(std::move(input_name));
+    input_names.emplace_back(inputNodeNameAllocatedStrings.back().get());
   }
   size_t numOutputNodes = session.GetOutputCount();
   for (int i = 0; i < numOutputNodes; i++) {
-          auto output_name = session.GetOutputNameAllocated(i, allocator);
-          outputNodeNameAllocatedStrings.push_back(std::move(output_name));
-          output_names.emplace_back(outputNodeNameAllocatedStrings.back().get());
+    auto output_name = session.GetOutputNameAllocated(i, allocator);
+    outputNodeNameAllocatedStrings.push_back(std::move(output_name));
+    output_names.emplace_back(outputNodeNameAllocatedStrings.back().get());
   }
 
   std::vector<int64_t> input_shape = {3};
@@ -74,7 +75,7 @@ int main() {
   for (auto j = 0; j < output_tensors.size(); j++) {
     const float* floatarr = output_tensors[j].GetTensorMutableData<float>();
     for (int i = 0; i < 3; i++) {
-        std::cout << floatarr[i] << " ";
+      std::cout << floatarr[i] << " ";
     }
     std::cout << std::endl;
   }
