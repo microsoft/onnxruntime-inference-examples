@@ -19,7 +19,6 @@ def parse_args(args_list):
     parser.add_argument('-m', "--input_model",help="path to pb model", default='mobilenetv2-12_shape.onnx')
     
     args = parser.parse_args(args_list)
-    print(args)
     return args
 
 if __name__ == '__main__':
