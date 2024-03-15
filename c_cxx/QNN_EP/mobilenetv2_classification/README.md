@@ -13,7 +13,7 @@
     - Need to set the EP provider option "enable_htp_fp16_precision" to "1". Otherwise it is with FP32 precision and runs very slow.
   - f. run the float16 model on QNN HTP backend.
     - [Convert the float32 model to float16 model](https://onnxruntime.ai/docs/performance/model-optimizations/float16.html).
-    - It set keep_io_types=True, so that IOs are still float32 IO. Here is the script example [to_fp16.py](https://github.com/microsoft/onnxruntime-inference-examples/blob/main/c_cxx/QNN_EP/mobilenetv2_classification/to_fp16.py)
+    - It set keep_io_types=True, so that IOs are still float32. Here is the script example [to_fp16.py](https://github.com/microsoft/onnxruntime-inference-examples/blob/main/c_cxx/QNN_EP/mobilenetv2_classification/to_fp16.py)
 - The sample downloads the mobilenetv2 model from Onnx model zoo, and use mobilenetv2_helper.py to quantize the float32 model to QDQ model which is required for HTP backend
 - The sample is targeted to run on QC ARM64 device.
 - There are 2 ways to improve the session creation time by using of QNN context binary:
@@ -51,7 +51,7 @@
 - Visual Studio 2022
 - Python (needed to quantize model)
 - Qualcomm AI Engine Direct SDK (QNN SDK) from https://qpm.qualcomm.com/main/tools/details/qualcomm_ai_engine_direct
-    - Last known working QNN version (by building ORT from source): 2.14.1, 2.15.0, 2.15.1, 2.15.3
+    - Last known working QNN version (by building ORT from source): 2.18, 2.19, 2.20
 - OnnxRuntime ARM Build with QNN support such as ONNX Runtime (ORT) Microsoft.ML.OnnxRuntime.QNN 1.17+
   - Download from https://www.nuget.org/packages/Microsoft.ML.OnnxRuntime.QNN and unzip
   - Please wait for ONNX Runtime 1.17+ if you want to use ORT Nuget package. This example requires a latest change in main branch [PR 17757](https://github.com/microsoft/onnxruntime/pull/17757).
