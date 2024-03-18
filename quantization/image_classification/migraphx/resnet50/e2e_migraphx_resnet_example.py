@@ -6,9 +6,41 @@ import numpy as np
 import logging
 from PIL import Image
 import onnx
+import argparse
 import onnxruntime
 from onnxruntime.quantization import CalibrationDataReader, create_calibrator, write_calibration_table
 
+def parse_input_args():
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument(
+        "--fp16",
+        action="store_true",
+        required=False,
+        default=False,
+        help='Perform fp16 quantizaton in addition to int8',
+    )
+
+    parser.add_argument(
+        "--image_dir",
+        required=False,
+        default="./ILSVRC2012",
+        help='Target DIR for images to infer. Default is .ILSVRC2012')
+
+    parser.add_argument("--batch",
+                        required=False,
+                        default=20,
+                        help='Batch size of images per inference',
+                        type=int)
+
+
+    parser.add_argument("--cal_size",
+                        required=False,
+                        default=1000,
+                        help='Size of images for calibration',
+                        type=int)
+
+    return parser.parse_args()
 
 class ImageNetDataReader(CalibrationDataReader):
     def __init__(self,
@@ -317,13 +349,14 @@ if __name__ == '__main__':
     Please download Resnet50 model from ONNX model zoo https://github.com/onnx/models/blob/master/vision/classification/resnet/model/resnet50-v2-7.tar.gz
     Untar the model into the workspace
     '''
+    flags = parse_input_args()
 
     # Dataset settings
     model_path = "./resnet50-v2-7.onnx"
-    ilsvrc2012_dataset_path = "./ILSVRC2012"
+    ilsvrc2012_dataset_path = flags.image_dir
     augmented_model_path = "./augmented_model.onnx"
-    batch_size = 20
-    calibration_dataset_size = 1000  # Size of dataset for calibration
+    batch_size = flags.batch
+    calibration_dataset_size = flags.cal_size  # Size of dataset for calibration
 
     # INT8 calibration setting
     calibration_table_generation_enable = True  # Enable/Disable INT8 calibration
@@ -364,6 +397,11 @@ if __name__ == '__main__':
         write_calibration_table(serial_cal_tensors)
         print("Write complete")
 
+    if flags.fp16:
+        os.environ["ORT_MIGRAPHX_FP16_ENABLE"] = 1
+    else:
+        os.environ["ORT_MIGRAPHX_FP16_ENABLE"] = 0
+
     # Run prediction in MIGraphX EP138G
     data_reader = ImageNetDataReader(ilsvrc2012_dataset_path,
                                      start_index=calibration_dataset_size,
@@ -382,3 +420,7 @@ if __name__ == '__main__':
     print("Read out answer")
     result = evaluator.get_result()
     evaluator.evaluate(result)
+
+    #Set OS flags to off to ensure we don't interfere with other test runs
+    os.environ["ORT_MIGRAPHX_FP16_ENABLE"] = 0
+    os.environ["ORT_MIGRAPHX_INT8_ENABLE"] = 0
