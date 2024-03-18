@@ -65,7 +65,7 @@ void DequantizedData(float* out, const T_QuantType* in, int32_t offset, float sc
 }
 
 void run_ort_qnn_ep(const std::string& backend, const std::string& model_path, const std::string& input_path,
-                    bool generated_from_native_qnn, bool generate_ctx) {
+                    bool generated_from_native_qnn, bool generate_ctx, bool float32_model) {
   std::wstring model_path_wstr = std::wstring(model_path.begin(), model_path.end());
 
   const OrtApi* g_ort = OrtGetApiBase()->GetApi(ORT_API_VERSION);
@@ -81,6 +81,15 @@ void run_ort_qnn_ep(const std::string& backend, const std::string& model_path, c
   // More option details refers to https://onnxruntime.ai/docs/execution-providers/QNN-ExecutionProvider.html
   std::vector<const char*> options_keys = {"backend_path"};
   std::vector<const char*> options_values = {backend.c_str()};
+
+  // Need to set the HTP FP16 precision for float32 model, otherwise it's FP32 precision and runs very slow
+  // No need to set it for float16 model
+  const std::string ENABLE_HTP_FP16_PRECISION = "enable_htp_fp16_precision";
+  const std::string ENABLE_HTP_FP16_PRECISION_VALUE = "1";
+  if (float32_model) {
+    options_keys.push_back(ENABLE_HTP_FP16_PRECISION.c_str());
+    options_values.push_back(ENABLE_HTP_FP16_PRECISION_VALUE.c_str());
+  }
 
   // If it runs from a QDQ model on HTP backend
   // It will generate an Onnx model with Qnn context binary.
@@ -247,6 +256,8 @@ constexpr const char* CPUBACKEDN = "--cpu";
 constexpr const char* HTPBACKEDN = "--htp";
 constexpr const char* QNNCTXBINARY = "--qnn";
 constexpr const char* GENERATE_CTX = "--gen_ctx";
+constexpr const char* FLOAT32 = "--fp32";
+constexpr const char* FLOAT16 = "--fp16";
 
 int main(int argc, char* argv[]) {
 
@@ -268,6 +279,7 @@ int main(int argc, char* argv[]) {
 
   std::string backend = "";
   bool generated_from_native_qnn = false;
+  bool float32_model = false;
   if (strcmp(argv[1], CPUBACKEDN) == 0) {
     backend = "QnnCpu.dll";
     if (generate_ctx) {
@@ -283,6 +295,11 @@ int main(int argc, char* argv[]) {
       std::cout << "--gen_ctx won't work with --qnn." << std::endl;
       return 1;
     }
+  } else if (strcmp(argv[1], FLOAT32) == 0) {
+    backend = "QnnHtp.dll";
+    float32_model = true;
+  } else if (strcmp(argv[1], FLOAT16) == 0) {
+    backend = "QnnHtp.dll";
   } else {
     std::cout << "This sample only support option cpu, htp, qnn." << std::endl;
     PrintHelp();
@@ -292,6 +309,6 @@ int main(int argc, char* argv[]) {
   std::string model_path(argv[2]);
   std::string input_path(argv[3]);
 
-  run_ort_qnn_ep(backend, model_path, input_path, generated_from_native_qnn, generate_ctx);
+  run_ort_qnn_ep(backend, model_path, input_path, generated_from_native_qnn, generate_ctx, float32_model);
   return 0;
 }
