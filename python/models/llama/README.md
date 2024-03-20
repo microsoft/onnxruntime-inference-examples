@@ -65,7 +65,6 @@ This folder contains a Jupyter notebook that demonstrates how to export, optimiz
 
 | Engine | Batch Size | Prompt Length | Prompt Processing Latency (ms) | Prompt Processing Throughput (tps) | Average Latency of First 128 Tokens Generated (ms) | Average Throughput of First 128 Tokens Generated (tps) | Average Latency of First 256 Tokens Generated (ms) | Average Throughput of First 256 Tokens Generated (tps) | Wall-Clock Latency (s) | Wall-Clock Throughput (tps) |
 |-----------------|----|------|-------------|-------------|-------------|-------------|-------------|-------------|-------------|-------------|
-
 | onnxruntime     | 1  | 16   | 11.13351822 | 1437.101883 | 10.54286957 | 94.85083673 | 10.57387795 | 94.57268227 | 3.068660975 | 88.6380093  |
 | onnxruntime     | 1  | 64   | 11.76165581 | 5441.41072  | 10.52967831 | 94.9696629  | 10.58431901 | 94.47938965 | 3.021231651 | 105.9170686 |
 | onnxruntime     | 1  | 256  | 21.47537231 | 11920.63151 | 10.69651358 | 93.48840561 | 10.74470952 | 93.06905859 | 3.068811178 | 166.8398511 |
