@@ -17,10 +17,10 @@ When using webpack on nodejs modules it is not common to include modules like on
    ```sh
    npm run build
    ```
-   this generates the bundle file `./dist/main.js`
+   this generates the bundle file `./dist/bundle.min.js`
 
 3. run with
    ```sh
-   node dist/main.js
+   node dist/bundle.min.js
    ```
    
