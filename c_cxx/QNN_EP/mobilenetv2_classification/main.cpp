@@ -65,7 +65,7 @@ void DequantizedData(float* out, const T_QuantType* in, int32_t offset, float sc
 }
 
 void run_ort_qnn_ep(const std::string& backend, const std::string& model_path, const std::string& input_path,
-                    bool generated_from_native_qnn, bool generate_ctx, bool float32_model) {
+                    bool generate_ctx, bool float32_model) {
   std::wstring model_path_wstr = std::wstring(model_path.begin(), model_path.end());
 
   const OrtApi* g_ort = OrtGetApiBase()->GetApi(ORT_API_VERSION);
@@ -195,19 +195,13 @@ void run_ort_qnn_ep(const std::string& backend, const std::string& model_path, c
   input_raw_file.read(reinterpret_cast<char*>(&input_data[0]), num_elements * sizeof(float));
 
   CheckStatus(g_ort, g_ort->CreateCpuMemoryInfo(OrtArenaAllocator, OrtMemTypeDefault, &memory_info));
-  // QNN native tool chain generated quantized model use quantized data as inputs & outputs
-  if (generated_from_native_qnn) {
-    size_t input_data_length = input_data_size * sizeof(uint8_t);
-    QuantizedData(quantized_input_data.data(), input_data.data(), -116, 0.015875209f, input_data_size);
-    CheckStatus(g_ort, g_ort->CreateTensorWithDataAsOrtValue(
-                           memory_info, reinterpret_cast<void*>(quantized_input_data.data()), input_data_length,
-                           input_node_dims[0].data(), input_node_dims[0].size(), input_types[0], &input_tensors[0]));
-  } else { // Ort generate QDQ model still use float32 data as inputs & outputs
-    size_t input_data_length = input_data_size * sizeof(float);
-    CheckStatus(g_ort, g_ort->CreateTensorWithDataAsOrtValue(
-                           memory_info, reinterpret_cast<void*>(input_data.data()), input_data_length,
-                           input_node_dims[0].data(), input_node_dims[0].size(), input_types[0], &input_tensors[0]));
-  }
+  // QNN native tool chain generated quantized model use quantized data as inputs & outputs by default,
+  // We wrapped it with Q and DQ node in gen_qnn_ctx_onnx_model.py, so the inputs & outputs are still float
+  // Ort generate QDQ model still use float32 data as inputs & outputs
+  size_t input_data_length = input_data_size * sizeof(float);
+  CheckStatus(g_ort, g_ort->CreateTensorWithDataAsOrtValue(
+                         memory_info, reinterpret_cast<void*>(input_data.data()), input_data_length,
+                         input_node_dims[0].data(), input_node_dims[0].size(), input_types[0], &input_tensors[0]));
   g_ort->ReleaseMemoryInfo(memory_info);
 
   CheckStatus(g_ort, g_ort->Run(session, nullptr, input_node_names.data(), (const OrtValue* const*)input_tensors.data(),
@@ -219,13 +213,7 @@ void run_ort_qnn_ep(const std::string& backend, const std::string& model_path, c
   void* output_buffer;
   CheckStatus(g_ort, g_ort->GetTensorMutableData(output_tensors[0], &output_buffer));
   float* float_buffer = nullptr;
-  if (generated_from_native_qnn) {
-    uint8_t* buffer = reinterpret_cast<uint8_t*>(output_buffer);
-    DequantizedData(output_data.data(), buffer, -86, 0.08069417f, output_data_size);
-    float_buffer = output_data.data();
-  } else {
-    float_buffer = reinterpret_cast<float*>(output_buffer);
-  }
+  float_buffer = reinterpret_cast<float*>(output_buffer);
 
   auto max = std::max_element(float_buffer, float_buffer + output_data_size);
   int max_index = static_cast<int>(std::distance(float_buffer, max));
@@ -278,7 +266,6 @@ int main(int argc, char* argv[]) {
   }
 
   std::string backend = "";
-  bool generated_from_native_qnn = false;
   bool float32_model = false;
   if (strcmp(argv[1], CPUBACKEDN) == 0) {
     backend = "QnnCpu.dll";
@@ -290,7 +277,6 @@ int main(int argc, char* argv[]) {
     backend = "QnnHtp.dll";
   } else if (strcmp(argv[1], QNNCTXBINARY) == 0) {
     backend = "QnnHtp.dll";
-    generated_from_native_qnn = true;
     if (generate_ctx) {
       std::cout << "--gen_ctx won't work with --qnn." << std::endl;
       return 1;
@@ -309,6 +295,6 @@ int main(int argc, char* argv[]) {
   std::string model_path(argv[2]);
   std::string input_path(argv[3]);
 
-  run_ort_qnn_ep(backend, model_path, input_path, generated_from_native_qnn, generate_ctx, float32_model);
+  run_ort_qnn_ep(backend, model_path, input_path, generate_ctx, float32_model);
   return 0;
 }
