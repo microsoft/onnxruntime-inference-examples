@@ -22,48 +22,6 @@ bool CheckStatus(const OrtApi* g_ort, OrtStatus* status) {
   return true;
 }
 
-template <typename T_QuantType>
-void QuantizedData(T_QuantType* out, const float* in, int32_t offset, float scale, size_t num_elements) {
-  static_assert(std::is_unsigned<T_QuantType>::value, "QuantizedData supports unsigned only!");
-
-  if (nullptr == out || nullptr == in) {
-    throw Ort::Exception("Received a nullptr", OrtErrorCode::ORT_EP_FAIL);
-  }
-
-  size_t data_type_size_in_bytes = sizeof(T_QuantType);
-  size_t bit_width = data_type_size_in_bytes * 8;
-  double true_bit_width_max = pow(2, bit_width) - 1;
-  double encoding_min = offset * scale;
-  double encoding_max = (true_bit_width_max + offset) * scale;
-  double encoding_range = encoding_max - encoding_min;
-
-  for (size_t i = 0; i < num_elements; ++i) {
-    int quantized_value = static_cast<int>(round(true_bit_width_max * (in[i] - encoding_min) / encoding_range));
-    if (quantized_value < 0) {
-      quantized_value = 0;
-    } else if (quantized_value > (int)true_bit_width_max) {
-      quantized_value = (int)true_bit_width_max;
-    }
-    out[i] = static_cast<T_QuantType>(quantized_value);
-  }
-}
-
-
-template <typename T_QuantType>
-void DequantizedData(float* out, const T_QuantType* in, int32_t offset, float scale, size_t num_elements) {
-  static_assert(std::is_unsigned<T_QuantType>::value, "DequantizedData supports unsigned only!");
-
-  if (nullptr == out || nullptr == in) {
-    throw Ort::Exception("Received a nullptr", OrtErrorCode::ORT_EP_FAIL);
-  }
-
-  for (size_t i = 0; i < num_elements; i++) {
-    double quantized_value = static_cast<double>(in[i]);
-    double offset_double = static_cast<double>(offset);
-    out[i] = static_cast<float>((quantized_value + offset_double) * scale);
-  }
-}
-
 void run_ort_qnn_ep(const std::string& backend, const std::string& model_path, const std::string& input_path,
                     bool generate_ctx, bool float32_model) {
   std::wstring model_path_wstr = std::wstring(model_path.begin(), model_path.end());
