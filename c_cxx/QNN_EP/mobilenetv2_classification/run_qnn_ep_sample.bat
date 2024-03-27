@@ -156,9 +156,11 @@ IF EXIST mobilenetv2-12_quant_shape.onnx_ctx.onnx (
 REM run mobilenetv2-12_net_qnn_ctx.onnx (generated from native QNN) with QNN HTP backend
 qnn_ep_sample.exe --qnn mobilenetv2-12_net_qnn_ctx.onnx kitten_input_nhwc.raw
 
+REM only works for v73 and higher
 REM run mobilenetv2-12_shape.onnx (float32 model) with QNN HTP backend with FP16 precision
 qnn_ep_sample.exe --fp32 mobilenetv2-12_shape.onnx kitten_input.raw
 
+REM only works for v73 and higher
 REM run mobilenetv2-12_shape_fp16.onnx (float16 model with float32 IO) with QNN HTP backend 
 qnn_ep_sample.exe --fp16 mobilenetv2-12_shape_fp16.onnx kitten_input.raw
 
