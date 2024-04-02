@@ -375,7 +375,7 @@ if __name__ == '__main__':
             data_reader = BertDataReader(model_path, squad_json, vocab_file, batch_size, sequence_lengths[-1], doc_stride[-1], start_index=i, end_index=(i+stride))
             calibrator.collect_data(data_reader)
 
-        compute_range = calibrator.compute_range()
+        compute_range = calibrator.compute_data()
         write_calibration_table(compute_range)
         print("Calibration is done. Calibration cache is saved to calibration.json")
 
