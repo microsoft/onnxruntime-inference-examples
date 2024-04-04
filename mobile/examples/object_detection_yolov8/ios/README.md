@@ -20,3 +20,32 @@ We use pre-trained yolov8 model in this sample app. The original yolov8n.pt mode
 4. Select any image for detecting objects.
 5. On Xcode console you can see bounding box, class and score as a result.
 
+
+### Steps to build and run
+
+
+### Step 1: Clone the ONNX runtime mobile examples source code
+
+Clone this repository to get the sample application. Then open the project under the folder `mobile\examples\object_detection_yolov8\ios`.
+
+
+### Step 2: Prepare the model
+
+- The model used is under `mobile/examples/object_detection_yolov8/ios/yolo-ios/yolo-ios/yolov8n.ort`.
+
+
+### Step 3: Connect Android Device and Run the app
+  Connect your IOS Device to your computer or select the IOS Simulator in Xcode.
+
+  Then after running this app it will be installed on your device or simulator.
+
+  Now you can try and test the object detection IOS app by 
+  1. Click the "+" button from top, it will open your photo album, pick any   image that you want to test.
+  2. Your selected image will be shown on the screen. Then click "Start Processing" button, it will start detecting objects in image/photo. You will see loader on the screen while processing that image.
+  3. After completion you will see image with bounding boxes with detected class name.
+
+#
+Here are some sample example screenshots of the app.
+
+<img width=20% src="images/IMG_1139.PNG" alt="App Screenshot 1" />
+<img width=20% src="images/IMG_1140.PNG" alt="App Screenshot 2" />

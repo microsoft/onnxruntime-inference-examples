@@ -20,6 +20,8 @@
 		260738062B91AF68008014F5 /* ModelHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 260738052B91AF68008014F5 /* ModelHandler.swift */; };
 		260738082B91DFDA008014F5 /* labelmap.txt in Resources */ = {isa = PBXBuildFile; fileRef = 260738072B91DFDA008014F5 /* labelmap.txt */; };
 		2607380E2B95D207008014F5 /* yolov8n.ort in Resources */ = {isa = PBXBuildFile; fileRef = 2607380D2B95D207008014F5 /* yolov8n.ort */; };
+		26CBC3682BBEB44E0036B7D0 /* IMG_1139.PNG in Resources */ = {isa = PBXBuildFile; fileRef = 26CBC3662BBEB44E0036B7D0 /* IMG_1139.PNG */; };
+		26CBC3692BBEB44E0036B7D0 /* IMG_1140.PNG in Resources */ = {isa = PBXBuildFile; fileRef = 26CBC3672BBEB44E0036B7D0 /* IMG_1140.PNG */; };
 		33DF679EE66C3F4F44099B56 /* Pods_yolo_ios.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BD344AB12C4F1A281D7F46D4 /* Pods_yolo_ios.framework */; };
 		67122ED79DB36FAB7237C91B /* Pods_yolo_ios_yolo_iosUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7B39F828D374AE21FA8D60CC /* Pods_yolo_ios_yolo_iosUITests.framework */; };
 		BAC5AD988782414116DDEF0D /* Pods_yolo_iosTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F99F4EFF9BEDCC528BF35BA1 /* Pods_yolo_iosTests.framework */; };
@@ -61,6 +63,8 @@
 		260738052B91AF68008014F5 /* ModelHandler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ModelHandler.swift; sourceTree = "<group>"; };
 		260738072B91DFDA008014F5 /* labelmap.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = labelmap.txt; sourceTree = "<group>"; };
 		2607380D2B95D207008014F5 /* yolov8n.ort */ = {isa = PBXFileReference; lastKnownFileType = file; path = yolov8n.ort; sourceTree = "<group>"; };
+		26CBC3662BBEB44E0036B7D0 /* IMG_1139.PNG */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = IMG_1139.PNG; sourceTree = "<group>"; };
+		26CBC3672BBEB44E0036B7D0 /* IMG_1140.PNG */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = IMG_1140.PNG; sourceTree = "<group>"; };
 		7B39F828D374AE21FA8D60CC /* Pods_yolo_ios_yolo_iosUITests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_yolo_ios_yolo_iosUITests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		8BF2D4F5AD65BC5CCBF3C000 /* Pods-yolo-ios-yolo-iosUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-yolo-ios-yolo-iosUITests.release.xcconfig"; path = "Target Support Files/Pods-yolo-ios-yolo-iosUITests/Pods-yolo-ios-yolo-iosUITests.release.xcconfig"; sourceTree = "<group>"; };
 		91F5FA3C325DCAE34C72FD4B /* Pods-yolo-iosTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-yolo-iosTests.release.xcconfig"; path = "Target Support Files/Pods-yolo-iosTests/Pods-yolo-iosTests.release.xcconfig"; sourceTree = "<group>"; };
@@ -124,6 +128,7 @@
 		260737CD2B9060DD008014F5 /* yolo-ios */ = {
 			isa = PBXGroup;
 			children = (
+				26CBC3652BBEB42D0036B7D0 /* images */,
 				2607380D2B95D207008014F5 /* yolov8n.ort */,
 				260738052B91AF68008014F5 /* ModelHandler.swift */,
 				260737CE2B9060DD008014F5 /* AppDelegate.swift */,
@@ -154,6 +159,15 @@
 				260737F42B9060DF008014F5 /* yolo_iosUITestsLaunchTests.swift */,
 			);
 			path = "yolo-iosUITests";
+			sourceTree = "<group>";
+		};
+		26CBC3652BBEB42D0036B7D0 /* images */ = {
+			isa = PBXGroup;
+			children = (
+				26CBC3662BBEB44E0036B7D0 /* IMG_1139.PNG */,
+				26CBC3672BBEB44E0036B7D0 /* IMG_1140.PNG */,
+			);
+			path = images;
 			sourceTree = "<group>";
 		};
 		A60814F2EF9C6B88BBB139F3 /* Pods */ = {
@@ -287,7 +301,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				260737DE2B9060DF008014F5 /* LaunchScreen.storyboard in Resources */,
+				26CBC3682BBEB44E0036B7D0 /* IMG_1139.PNG in Resources */,
 				2607380E2B95D207008014F5 /* yolov8n.ort in Resources */,
+				26CBC3692BBEB44E0036B7D0 /* IMG_1140.PNG in Resources */,
 				260737DB2B9060DF008014F5 /* Assets.xcassets in Resources */,
 				260737D62B9060DD008014F5 /* Main.storyboard in Resources */,
 				260738082B91DFDA008014F5 /* labelmap.txt in Resources */,

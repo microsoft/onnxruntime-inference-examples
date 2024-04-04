@@ -489,7 +489,7 @@ func drawBoundingBoxes(on image: CGImage, with detectionObjects: [DetectionObjec
         
         // 4. draw classname for bounding box
         // assign font
-        let myfont = CTFontCreateWithName("Apple Braille" as CFString, 19, nil)
+        let myfont = CTFontCreateWithName("Apple Braille" as CFString, 20, nil)
         
         // create string
         let attributedString = NSAttributedString(string:  detectionObject.className, attributes: [NSAttributedString.Key.font: myfont, NSAttributedString.Key.foregroundColor: UIColor.green])
