@@ -136,11 +136,11 @@ class ModelHandler: NSObject {
     }
     
     // This method preprocesses the image, runs the ort inferencesession and returns the tensor result
-    func runModel(cgImage: CGImage) {
+    func runModel(cgImage: CGImage) -> UIImage?{
         // scale image to 640 * 640
-        guard let image =  resizeCgImage(cgImage) else { return }
+        guard let image =  resizeCgImage(cgImage) else { return nil }
 
-        guard let format = vImage_CGImageFormat(bitsPerComponent: 8, bitsPerPixel: 24, colorSpace: CGColorSpaceCreateDeviceRGB(), bitmapInfo: CGBitmapInfo(rawValue: CGImageAlphaInfo.none.rawValue)) else { return }
+        guard let format = vImage_CGImageFormat(bitsPerComponent: 8, bitsPerPixel: 24, colorSpace: CGColorSpaceCreateDeviceRGB(), bitmapInfo: CGBitmapInfo(rawValue: CGImageAlphaInfo.none.rawValue)) else { return  nil }
         
         var buffer = try! vImage_Buffer(cgImage: image, format: format)
         
@@ -248,9 +248,24 @@ class ModelHandler: NSObject {
             print("*******************************************************************")
             print("Result : ", finalBoxes)
             
+            let (imageWithRectangles) = drawBoundingBoxes(on: image, with: finalBoxes)
+            
+            if let imageWithRectangles  {
+                
+                print("uiImage: \(imageWithRectangles)")
+                
+                let uiImageWithRectangles = UIImage(cgImage: imageWithRectangles)
+              
+                return uiImageWithRectangles
+            } else {
+                print("Failed to draw rectangles on the image.")
+                return nil
+            }
+            
         }catch {
             // Handle the error here
             print("Error occurred: \(error)")
+            return nil
         }
     }
     
@@ -422,6 +437,74 @@ func nonMaxSuppression(boxes: [DetectionObject], threshold: Float) -> [Detection
         }
     }
     return selected
+}
+
+// Define a function to draw bounding boxes for detected objects with classname.
+func drawBoundingBoxes(on image: CGImage, with detectionObjects: [DetectionObject]) -> (CGImage?) {
+    print("Original image width In Draw Reactangle :: \(image.width), Original image height In Draw Reactangle :: \(image.height)")
+    let colorSpace = CGColorSpaceCreateDeviceRGB()
+    // 1. Calculate scaling for image height and width according to original image height width and resized image height and width
+    let imgScaleX = Float(image.width)/Float(640);
+    let imgScaleY = Float(image.height)/Float(640) ;
+   print("Image scale X : \(imgScaleX), image scale Y : \(imgScaleY)")
+
+    // 2. Create image context from original image
+    guard let context = CGContext(data: nil,
+                                  width: image.width,
+                                  height: image.height,
+                                  bitsPerComponent: image.bitsPerComponent,
+                                  bytesPerRow: image.bytesPerRow,
+                                  space: colorSpace,
+                                  bitmapInfo: image.bitmapInfo.rawValue) else {
+        return nil
+    }
+    context.draw(image, in: CGRect(x: 0, y: 0, width: image.width, height: image.height))
+    print("Context created for image : \(context)")
+
+    // 3. Draw bounding boxes
+    for detectionObject in detectionObjects {
+        guard detectionObject.bounds.count == 4,
+              let x = detectionObject.bounds[0],
+              let y = detectionObject.bounds[1],
+              let width = detectionObject.bounds[2],
+              let height = detectionObject.bounds[3] else {
+            continue
+        }
+        
+        let startX = imgScaleX * (x - (width/2));
+        let startY =  imgScaleY * (y + ( height/2));
+        let rectWidth = imgScaleX *  width;
+        let rectHeight =   imgScaleY * height;
+        print("Scaled dimensions :  tempX: \(startX), tempY:  \(startY)  rectW: \(rectWidth), rectH : \(rectHeight)")
+
+        // create react from x,y, height and width coordinates
+        let rect = CGRect(x: CGFloat(startX), y: CGFloat(Float(image.height) - startY), width: CGFloat(rectWidth), height: CGFloat(rectHeight))
+        
+        print("React we Draw: \(rect)")
+        context.setStrokeColor(UIColor.red.cgColor)
+        context.setLineWidth(2.0)
+        // add rect to the image context
+        context.addRect(rect)
+        context.drawPath(using: .stroke)
+        
+        // 4. draw classname for bounding box
+        // assign font
+        let myfont = CTFontCreateWithName("Apple Braille" as CFString, 19, nil)
+        
+        // create string
+        let attributedString = NSAttributedString(string:  detectionObject.className, attributes: [NSAttributedString.Key.font: myfont, NSAttributedString.Key.foregroundColor: UIColor.green])
+        
+        // create rect for class name text
+        let textRect =  CGRect(x: CGFloat(startX), y: CGFloat(Float(image.height) - startY + 40), width: CGFloat(rectWidth), height: CGFloat(rectHeight))
+
+        // calculate text frame
+        let framesetter = CTFramesetterCreateWithAttributedString(attributedString)
+        let textFrame = CTFramesetterCreateFrame(framesetter, CFRange(), CGPath(rect: textRect, transform: nil), nil)
+        
+        CTFrameDraw(textFrame, context)
+    }
+    
+    return context.makeImage()
 }
 
 // MARK: - Extensions
