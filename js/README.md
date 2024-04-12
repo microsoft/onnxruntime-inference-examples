@@ -44,8 +44,10 @@ Click links for README of each examples.
 
 ### Simple Applications
 
-* [OpenAI Whisper](ort-whisper) - demonstrates how to run [whisper tiny.en](https://github.com/openai/whisper) in your browser using [onnxruntime-web](https://github.com/microsoft/onnxruntime) and the browser's audio interfaces.
+* [OpenAI Whisper](ort-whisper) - run [whisper tiny.en](https://github.com/openai/whisper) in your browser using [onnxruntime-web](https://github.com/microsoft/onnxruntime/tree/main/js) and the browser's audio interfaces.
 
-* [Facebook Segment-Anything](segment-anything) - demonstrates how to run [segment-anything](https://github.com/facebookresearch/segment-anything) in your browser using [onnxruntime-web](https://github.com/microsoft/onnxruntime/js) with webgpu.
+* [Facebook Segment-Anything](segment-anything) - run [segment-anything](https://github.com/facebookresearch/segment-anything) in your browser using [onnxruntime-web](https://github.com/microsoft/onnxruntime/tree/main/js) and webgpu.
 
-* [Stable Diffusion Turbo](sd-turbo) - demonstrates how to run [Stable Diffusion Turbo](https://huggingface.co/stabilityai/sd-turbo) in your browser using [onnxruntime-web](https://github.com/microsoft/onnxruntime/js) with webgpu.
+* [Stable Diffusion Turbo](sd-turbo) - run [Stable Diffusion Turbo](https://huggingface.co/stabilityai/sd-turbo) in your browser using [onnxruntime-web](https://github.com/microsoft/onnxruntime/tree/main/js) and webgpu.
+
+* [YoloV9](yolov9) - run [YoloV9](https://huggingface.co/Xenova/yolov9-c_all) in your browser using [onnxruntime-web](https://github.com/microsoft/onnxruntime/tree/main/js) and webgpu.
