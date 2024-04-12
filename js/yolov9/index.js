@@ -1,4 +1,4 @@
-import * as ort from './dist/esm/ort.webgpu.min.js';
+import ort from 'onnxruntime-web/webgpu'
 
 ort.env.wasm.numThreads = 1;
 ort.env.wasm.simd = true;
@@ -18,7 +18,7 @@ let processed = 0;
 let latencies = 0;
 let start_time = 0;
 
-video.src = 'traffic-480.mp4';
+// video.src = 'traffic-480.mp4';
 
 function log(i) {
     console.log(i);

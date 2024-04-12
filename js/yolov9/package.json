@@ -6,13 +6,12 @@
   "type": "module",
   "scripts": {
     "dev": "webpack serve --no-client-overlay",
-    "build": "webpack",
-    "build1": "node scripts/build.js"
+    "build": "webpack"
   },
   "keywords": [
     "onnxruntime",
     "webgpu",
-    "segment-anything",
+    "yolo",
     "deep learning",
     "AI"
   ],
@@ -22,8 +21,7 @@
     "copy-webpack-plugin": "^12.0.2",
     "esbuild": "^0.20.1",
     "eslint": "^8.57.0",
-    "onnxruntime-common": "file:../../../onnxruntime/js/common",
-    "onnxruntime-web": "file:../../../onnxruntime/js/web",
+    "onnxruntime-web": "^1.17.3",
     "webpack": "^5.90.3",
     "webpack-cli": "^5.1.4"
   },
