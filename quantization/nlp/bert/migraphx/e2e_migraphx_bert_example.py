@@ -362,7 +362,7 @@ if __name__ == '__main__':
         # Generate INT8 calibration cache
         print("Calibration starts ...")
         calibrator = create_calibrator(model_path, op_types_to_quantize, augmented_model_path=augmented_model_path, calibrate_method=CalibrationMethod.Percentile)
-        calibrator.set_execution_providers(["ROCMExecutionProvider"]) 
+        calibrator.set_execution_providers(["MIGraphXExecutionProvider"]) 
 
         '''
         We can use one data reader to do data pre-processing, however,
@@ -376,7 +376,16 @@ if __name__ == '__main__':
             calibrator.collect_data(data_reader)
 
         compute_range = calibrator.compute_data()
-        write_calibration_table(compute_range)
+
+        #  ORT returns data as return TensorsData(cal, self.collector.compute_collection_result())
+        #  Need to fix this for serialization but also convert values to float from float32 in order for JSON to correctly
+        #  write out calibration table
+        json_compute_range = {}
+        for k, v in compute_range.data.items():
+            json_compute_range[k] = (float(v.range_value[0]), float(v.range_value[1]))
+
+
+        write_calibration_table(json_compute_range)
         print("Calibration is done. Calibration cache is saved to calibration.json")
 
         # Generate QDQ model
@@ -439,7 +448,7 @@ if __name__ == '__main__':
             format(sum(latency[1:]) * 1000 / len(latency[1:]), '.2f')))
 
     # Verify output result from run
-    if flags.no_eval:
+    if not flags.no_eval:
         print(" Saving predictions")
         prediction_file = "./prediction.json"
         with open(prediction_file, "w") as f:
@@ -448,5 +457,5 @@ if __name__ == '__main__':
 
 
         print("Evaluate QDQ model for SQUAD v"+ str(flags.version))
-        subprocess.call(['python', './squad/evaluate-v'+ str(flags.version) + '.py', './squad/dev-v' + str(flags.version) + '.json', './prediction.json', '90'])
+        subprocess.call(['python3', './squad/evaluate-v'+ str(flags.version) + '.py', './squad/dev-v' + str(flags.version) + '.json', './prediction.json', '90'])
 
