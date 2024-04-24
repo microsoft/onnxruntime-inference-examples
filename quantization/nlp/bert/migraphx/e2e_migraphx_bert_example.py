@@ -103,7 +103,10 @@ class BertDataReader(CalibrationDataReader):
                     input_mask = np.expand_dims(feature.input_mask, axis=0)
                     segment_ids = np.expand_dims(feature.segment_ids, axis=0)
 
-            data.append({"input_ids": input_ids, "input_mask": input_mask, "segment_ids":segment_ids})
+            if flags.version == 1.1:
+                data.append({"input_ids": input_ids, "input_mask": input_mask, "segment_ids":segment_ids})
+            elif flags.version == 2.0:
+                data.append({"input_ids": input_ids, "attention_mask": input_mask, "token_type_ids":segment_ids})
 
         self.enum_data_dicts = iter(data)
         self.start_of_new_stride = True
@@ -179,9 +182,16 @@ def inference(data_reader, ort_session, latency, verbose=False):
             outputs = []
 
         io_binding = session.io_binding()
-        io_binding.bind_cpu_input('input_ids', inputs['input_ids'])
-        io_binding.bind_cpu_input('input_mask', inputs['input_mask'])
-        io_binding.bind_cpu_input('segment_ids', inputs['segment_ids'])
+
+        if flags.version == 1.1:
+            io_binding.bind_cpu_input('segment_ids', inputs['segment_ids'])
+            io_binding.bind_cpu_input('input_mask', inputs['input_mask'])
+            io_binding.bind_cpu_input('input_ids', inputs['input_ids'])
+        elif flags.version == 2.0:
+            io_binding.bind_cpu_input('token_type_ids', inputs['token_type_ids'])
+            io_binding.bind_cpu_input('attention_mask', inputs['attention_mask'])
+            io_binding.bind_cpu_input('input_ids', inputs['input_ids'])
+
         io_binding.bind_output('output_start_logits')
         io_binding.bind_output('output_end_logits')
         start = time.time()
@@ -414,6 +424,8 @@ if __name__ == '__main__':
         quantizer.model.save_model_to_file(qdq_model_path, False)
         print("QDQ model is saved to ", qdq_model_path)
         os.environ["ORT_MIGRAPHX_INT8_ENABLE"] = "1"  # Enable MIGRAPHX INT8 precision
+        os.environ["ORT_MIGRAPHX_INT8_CALIBRATION_TABLE_NAME"] = "calibration.flatbuffers"  # Calibration table name
+        os.environ["ORT_MIGRAPHX_INT8_NATIVE_CALIBRATION_TABLE"] = "0"  # Calibration table name
     else:
         qdq_model_path = model_path
         os.environ["ORT_MIGRAPHX_INT8_ENABLE"] = "0"  # Disable MIGRAPHX INT8 precision
