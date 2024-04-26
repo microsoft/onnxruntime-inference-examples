@@ -401,7 +401,7 @@ if __name__ == '__main__':
         # Generate QDQ model
         mode = QuantizationMode.QLinearOps
 
-        model = onnx.load_model(Path(model_path), False)
+        model = onnx.load_model(model_path, False)
 
         # In TRT, it recommended to add QDQ pair to inputs of Add node followed by ReduceMean node.
         # Mirroring here what TRT does in MIGraphX Quantization to be able to perform an apples to apples comparison
