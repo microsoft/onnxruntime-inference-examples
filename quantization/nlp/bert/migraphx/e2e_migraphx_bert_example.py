@@ -368,6 +368,8 @@ if __name__ == '__main__':
     batch_size = flags.batch
 
     if flags.int8:
+        model = onnx.load_model(model_path, False)
+
         # Generate INT8 calibration cache
         print("Calibration starts ...")
         calibrator = create_calibrator(model_path, op_types_to_quantize, augmented_model_path=augmented_model_path, calibrate_method=CalibrationMethod.Percentile)
@@ -400,7 +402,6 @@ if __name__ == '__main__':
         # Generate QDQ model
         mode = QuantizationMode.QLinearOps
 
-        model = onnx.load_model(model_path, False)
 
         # In TRT, it recommended to add QDQ pair to inputs of Add node followed by ReduceMean node.
         # Mirroring here what TRT does in MIGraphX Quantization to be able to perform an apples to apples comparison
