@@ -6,7 +6,6 @@ import json
 import collections
 import data_processing as dp
 import tokenization
-from pathlib import Path
 import subprocess
 from onnxruntime.quantization import CalibrationDataReader, create_calibrator, CalibrationMethod, write_calibration_table, QuantType, QuantizationMode, QDQQuantizer
 import argparse
