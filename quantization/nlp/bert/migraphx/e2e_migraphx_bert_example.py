@@ -368,7 +368,7 @@ if __name__ == '__main__':
     batch_size = flags.batch
 
     if flags.int8:
-        model = onnx.load_model(model_path, False)
+        model = onnx.load_model(model_path)
 
         # Generate INT8 calibration cache
         print("Calibration starts ...")
