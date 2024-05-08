@@ -382,9 +382,9 @@ if __name__ == '__main__':
         So let multiple data readers to handle different stride of dataset to avoid OOM.
         '''
         stride = 10
-        for i in range(0, calib_num, stride):
-            data_reader = BertDataReader(model_path, squad_json, vocab_file, batch_size, sequence_lengths[-1], doc_stride[-1], start_index=i, end_index=(i+stride))
-            calibrator.collect_data(data_reader)
+        #for i in range(0, calib_num, stride):
+        data_reader = BertDataReader(model_path, squad_json, vocab_file, batch_size, sequence_lengths[-1], doc_stride[-1], start_index=0, end_index=calib_num)
+        calibrator.collect_data(data_reader)
 
         compute_range = calibrator.compute_data()
 
