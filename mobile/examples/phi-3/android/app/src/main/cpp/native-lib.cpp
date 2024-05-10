@@ -116,8 +116,8 @@ Java_ai_onnxruntime_genai_demo_GenAIWrapper_run(JNIEnv *env, jobject thiz, jlong
     check_result(OgaCreateGeneratorParams(model, &generator_params));
     GeneratorParamsPtr gp_cleanup{generator_params, OgaDestroyGeneratorParams};
 
-    // generatorParams.SetSearchOption("max_length", 200);
-    check_result(OgaGeneratorParamsSetSearchNumber(generator_params, "max_length", 120));  // TODO: Rename this API. 'search number' is really opaque
+    // generatorParams.SetSearchOption("max_length", 120);
+    check_result(OgaGeneratorParamsSetSearchNumber(generator_params, "max_length", 120));
     // generatorParams.SetInputSequences(sequences);
     check_result(OgaGeneratorParamsSetInputSequences(generator_params, sequences));
 
@@ -176,9 +176,6 @@ Java_ai_onnxruntime_genai_demo_GenAIWrapper_run(JNIEnv *env, jobject thiz, jlong
             check_result(OgaGenerator_ComputeLogits(generator));
             check_result(OgaGenerator_GenerateNextToken(generator));
 
-            // TODO: Do we need to do something to ensure there's only one sequence being generated?
-            // TODO: seem to lack a way to get the number of sequences in the generator as there's no equivalent to
-            //       OgaSequencesCount
             const int32_t* seq = OgaGenerator_GetSequenceData(generator, 0);
             size_t seq_len = OgaGenerator_GetSequenceCount(generator, 0);  // last token
             const char* token = nullptr;

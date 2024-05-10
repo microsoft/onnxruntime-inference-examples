@@ -14,7 +14,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-
 import ai.onnxruntime.genai.demo.databinding.ActivityMainBinding;
 
 public class MainActivity extends AppCompatActivity implements GenAIWrapper.TokenUpdateListener {
@@ -115,7 +114,7 @@ public class MainActivity extends AppCompatActivity implements GenAIWrapper.Toke
         });
     }
 
-    public void setVisibility(){
+    public void setVisibility() {
         TextView view = (TextView) findViewById(R.id.user_text);
         view.setVisibility(View.VISIBLE);
         TextView botView = (TextView) findViewById(R.id.sample_text);

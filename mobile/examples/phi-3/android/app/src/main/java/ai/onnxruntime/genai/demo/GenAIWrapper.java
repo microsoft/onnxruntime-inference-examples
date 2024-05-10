@@ -1,64 +1,183 @@
 package ai.onnxruntime.genai.demo;
 
+import androidx.appcompat.app.AppCompatActivity;
+
+import android.content.Context;
+import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.TextView;
+import android.widget.Toast;
 
-public class GenAIWrapper implements AutoCloseable {
-    // Load the GenAI library on application startup.
-    // TODO: Do we need to load the onnxruntime library explicitly?
-    // TODO: Will this work with them under
-    static {
-        System.loadLibrary("genai");  // JNI layer
-        System.loadLibrary("onnxruntime-genai");
-        System.loadLibrary("onnxruntime");
-    }
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
-    private final long nativeModel;
-    private final long nativeTokenizer;
-    private TokenUpdateListener listener;
+import ai.onnxruntime.genai.demo.databinding.ActivityMainBinding;
 
+public class MainActivity extends AppCompatActivity implements GenAIWrapper.TokenUpdateListener {
 
-    public interface TokenUpdateListener {
-        void onTokenUpdate(String token);
-    }
+    private ActivityMainBinding binding;
+    private EditText userMsgEdt;
+    private GenAIWrapper genAIWrapper;
+    private ImageButton sendMsgIB;
+    private TextView generatedTV;
+    private TextView promptTV;
+    private static final String TAG = "genai.demo.MainActivity";
 
-    public GenAIWrapper(String modelPath) {
-        nativeModel = loadModel(modelPath);
-        nativeTokenizer = createTokenizer(nativeModel);
-    }
-
-    public void setTokenUpdateListener(TokenUpdateListener listener) {
-        this.listener = listener;
-    }
-
-    String run(String prompt) {
-        return run(nativeModel, nativeTokenizer, prompt, /* useCallback*/ true);
+    private static boolean fileExists(Context context, String fileName) {
+        File file = new File(context.getFilesDir(), fileName);
+        return file.exists();
     }
 
     @Override
-    public void close() throws Exception {
-        if (nativeTokenizer != 0) {
-            releaseTokenizer(nativeTokenizer);
-        }
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
 
-        if (nativeModel != 0) {
-            releaseModel(nativeModel);
-        }
+        binding = ActivityMainBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
+
+        // Trigger the download operation when the application is created
+        downloadModels(
+                getApplicationContext());
+
+        sendMsgIB = findViewById(R.id.idIBSend);
+        userMsgEdt = findViewById(R.id.idEdtMessage);
+        generatedTV = findViewById(R.id.sample_text);
+        promptTV = findViewById(R.id.user_text);
+
+        // adding on click listener for send message button.
+        sendMsgIB.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Checking if the message entered
+                // by user is empty or not.
+                if (userMsgEdt.getText().toString().isEmpty()) {
+                    // if the edit text is empty display a toast message.
+                    Toast.makeText(MainActivity.this, "Please enter your message..", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                String promptQuestion = userMsgEdt.getText().toString();
+                String promptQuestion_formatted = "<|user|>" + promptQuestion + "<|end|><|assistant|>";
+                Log.i("GenAI: prompt question", promptQuestion_formatted);
+                setVisibility();
+
+                // Disable send button while responding to prompt.
+                sendMsgIB.setEnabled(false);
+
+                promptTV.setText(promptQuestion_formatted);
+                // Clear Edit Text or prompt question.
+                userMsgEdt.setText("");
+                generatedTV.setText("");
+
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        genAIWrapper.run(promptQuestion_formatted);
+
+                        runOnUiThread(() -> {
+                            sendMsgIB.setEnabled(true);
+                        });
+                    }
+                }).start();
+            }
+        });
     }
 
-    public void gotNextToken(String token) {
-        // TODO: Hook this up with the caller providing the callback func to the ctor of this class,
-        // or alternatively to run() with it being passed into the run method
-        Log.i("GenAI", "gotNextToken: " + token);
-        // Call the listener method to update the token in MainActivity
-        if (listener != null) {
-            listener.onTokenUpdate(token);
+    @Override
+    protected void onDestroy() {
+        try {
+            genAIWrapper.close();
+        } catch (Exception e) {
+            Log.e(TAG, "exception from closing genAIWrapper", e);
         }
+        genAIWrapper = null;
+        super.onDestroy();
     }
 
-    private native long loadModel(String modelPath);
-    private native void releaseModel(long nativeModel);
-    private native long createTokenizer(long nativeModel);
-    private native void releaseTokenizer(long nativeTokenizer);
+    private void downloadModels(Context context) {
+        List<String> urls = Arrays.asList(
+                "https://huggingface.co/microsoft/Phi-3-mini-4k-instruct-onnx/resolve/main/cpu_and_mobile/cpu-int4-rtn-block-32-acc-level-4/added_tokens.json?download=true",
+                "https://huggingface.co/microsoft/Phi-3-mini-4k-instruct-onnx/resolve/main/cpu_and_mobile/cpu-int4-rtn-block-32-acc-level-4/config.json?download=true",
+                "https://huggingface.co/microsoft/Phi-3-mini-4k-instruct-onnx/resolve/main/cpu_and_mobile/cpu-int4-rtn-block-32-acc-level-4/configuration_phi3.py?download=true",
+                "https://huggingface.co/microsoft/Phi-3-mini-4k-instruct-onnx/resolve/main/cpu_and_mobile/cpu-int4-rtn-block-32-acc-level-4/genai_config.json?download=true",
+                "https://huggingface.co/microsoft/Phi-3-mini-4k-instruct-onnx/resolve/main/cpu_and_mobile/cpu-int4-rtn-block-32-acc-level-4/phi3-mini-4k-instruct-cpu-int4-rtn-block-32-acc-level-4.onnx?download=true",
+                "https://huggingface.co/microsoft/Phi-3-mini-4k-instruct-onnx/resolve/main/cpu_and_mobile/cpu-int4-rtn-block-32-acc-level-4/phi3-mini-4k-instruct-cpu-int4-rtn-block-32-acc-level-4.onnx.data?download=true",
+                "https://huggingface.co/microsoft/Phi-3-mini-4k-instruct-onnx/resolve/main/cpu_and_mobile/cpu-int4-rtn-block-32-acc-level-4/special_tokens_map.json?download=true",
+                "https://huggingface.co/microsoft/Phi-3-mini-4k-instruct-onnx/resolve/main/cpu_and_mobile/cpu-int4-rtn-block-32-acc-level-4/tokenizer.json?download=true",
+                "https://huggingface.co/microsoft/Phi-3-mini-4k-instruct-onnx/resolve/main/cpu_and_mobile/cpu-int4-rtn-block-32-acc-level-4/tokenizer.model?download=true",
+                "https://huggingface.co/microsoft/Phi-3-mini-4k-instruct-onnx/resolve/main/cpu_and_mobile/cpu-int4-rtn-block-32-acc-level-4/tokenizer_config.json?download=true");
 
-    private native String run(long nativeModel, long nativeTokenizer, String prompt, boolean useCallback);
+        List<String> fileNames = Arrays.asList("added_tokens.json",
+                "config.json", "configuration_phi3.py", "genai_config.json",
+                "phi3-mini-4k-instruct-cpu-int4-rtn-block-32-acc-level-4.onnx",
+                "phi3-mini-4k-instruct-cpu-int4-rtn-block-32-acc-level-4.onnx.data",
+                "special_tokens_map.json", "tokenizer.model", "tokenizer.json",
+                "tokenizer_config.json");
+
+        Toast.makeText(this, "Downloading model for the app...", Toast.LENGTH_SHORT).show();
+
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        for (int i = 0; i < urls.size(); i++) {
+            final int index = i;
+            String url = urls.get(index);
+            String fileName = fileNames.get(index);
+            if (fileExists(context, fileName)) {
+                // Display a message using Toast
+                Toast.makeText(this, "File already exists. Skipping Download.", Toast.LENGTH_SHORT).show();
+
+                Log.d(TAG, "File " + fileName + " already exists. Skipping download.");
+                // note: since we always download the files lists together for once,
+                // so assuming if one filename exists, then the download model step has already
+                // be
+                // done.
+                genAIWrapper = createGenAIWrapper();
+                break;
+            }
+            executor.execute(() -> {
+                ModelDownloader.downloadModel(context, url, fileName, new ModelDownloader.DownloadCallback() {
+                    @Override
+                    public void onDownloadComplete() {
+                        Log.d(TAG, "Download complete for " + fileName);
+                        if (index == urls.size() - 1) {
+                            // Last download completed, create GenAIWrapper
+                            genAIWrapper = createGenAIWrapper();
+                            Log.d(TAG, "All downloads completed");
+                        }
+                    }
+                });
+            });
+        }
+        executor.shutdown();
+    }
+
+    private GenAIWrapper createGenAIWrapper() {
+        // Create GenAIWrapper object and load model from android device file path.
+        GenAIWrapper wrapper = new GenAIWrapper(getFilesDir().getPath());
+        wrapper.setTokenUpdateListener(this);
+        return wrapper;
+    }
+
+    @Override
+    public void onTokenUpdate(String token) {
+        runOnUiThread(() -> {
+            // Update and aggregate the generated text and write to text box.
+            CharSequence generated = generatedTV.getText();
+            generatedTV.setText(generated + token);
+            generatedTV.invalidate();
+        });
+    }
+
+    public void setVisibility() {
+        TextView view = (TextView) findViewById(R.id.user_text);
+        view.setVisibility(View.VISIBLE);
+        TextView botView = (TextView) findViewById(R.id.sample_text);
+        botView.setVisibility(View.VISIBLE);
+    }
 }
