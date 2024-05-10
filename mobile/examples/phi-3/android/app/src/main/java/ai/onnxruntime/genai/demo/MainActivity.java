@@ -2,6 +2,7 @@ package ai.onnxruntime.genai.demo;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -13,6 +14,9 @@ import android.widget.Toast;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import ai.onnxruntime.genai.demo.databinding.ActivityMainBinding;
 
@@ -26,14 +30,21 @@ public class MainActivity extends AppCompatActivity implements GenAIWrapper.Toke
     private TextView promptTV;
     private static final String TAG = "genai.demo.MainActivity";
 
+    private static boolean fileExists(Context context, String fileName) {
+        File file = new File(context.getFilesDir(), fileName);
+        return file.exists();
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        genAIWrapper = createGenAIWrapper();
-
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+
+        // Trigger the download operation when the application is created
+        downloadModels(
+                getApplicationContext());
 
         sendMsgIB = findViewById(R.id.idIBSend);
         userMsgEdt = findViewById(R.id.idEdtMessage);
@@ -90,17 +101,66 @@ public class MainActivity extends AppCompatActivity implements GenAIWrapper.Toke
         super.onDestroy();
     }
 
+    private void downloadModels(Context context) {
+        List<String> urls = Arrays.asList(
+                "https://huggingface.co/microsoft/Phi-3-mini-4k-instruct-onnx/resolve/main/cpu_and_mobile/cpu-int4-rtn-block-32-acc-level-4/added_tokens.json?download=true",
+                "https://huggingface.co/microsoft/Phi-3-mini-4k-instruct-onnx/resolve/main/cpu_and_mobile/cpu-int4-rtn-block-32-acc-level-4/config.json?download=true",
+                "https://huggingface.co/microsoft/Phi-3-mini-4k-instruct-onnx/resolve/main/cpu_and_mobile/cpu-int4-rtn-block-32-acc-level-4/configuration_phi3.py?download=true",
+                "https://huggingface.co/microsoft/Phi-3-mini-4k-instruct-onnx/resolve/main/cpu_and_mobile/cpu-int4-rtn-block-32-acc-level-4/genai_config.json?download=true",
+                "https://huggingface.co/microsoft/Phi-3-mini-4k-instruct-onnx/resolve/main/cpu_and_mobile/cpu-int4-rtn-block-32-acc-level-4/phi3-mini-4k-instruct-cpu-int4-rtn-block-32-acc-level-4.onnx?download=true",
+                "https://huggingface.co/microsoft/Phi-3-mini-4k-instruct-onnx/resolve/main/cpu_and_mobile/cpu-int4-rtn-block-32-acc-level-4/phi3-mini-4k-instruct-cpu-int4-rtn-block-32-acc-level-4.onnx.data?download=true",
+                "https://huggingface.co/microsoft/Phi-3-mini-4k-instruct-onnx/resolve/main/cpu_and_mobile/cpu-int4-rtn-block-32-acc-level-4/special_tokens_map.json?download=true",
+                "https://huggingface.co/microsoft/Phi-3-mini-4k-instruct-onnx/resolve/main/cpu_and_mobile/cpu-int4-rtn-block-32-acc-level-4/tokenizer.json?download=true",
+                "https://huggingface.co/microsoft/Phi-3-mini-4k-instruct-onnx/resolve/main/cpu_and_mobile/cpu-int4-rtn-block-32-acc-level-4/tokenizer.model?download=true",
+                "https://huggingface.co/microsoft/Phi-3-mini-4k-instruct-onnx/resolve/main/cpu_and_mobile/cpu-int4-rtn-block-32-acc-level-4/tokenizer_config.json?download=true");
+
+        List<String> fileNames = Arrays.asList("added_tokens.json",
+                "config.json", "configuration_phi3.py", "genai_config.json",
+                "phi3-mini-4k-instruct-cpu-int4-rtn-block-32-acc-level-4.onnx",
+                "phi3-mini-4k-instruct-cpu-int4-rtn-block-32-acc-level-4.onnx.data",
+                "special_tokens_map.json", "tokenizer.model", "tokenizer.json",
+                "tokenizer_config.json");
+
+        Toast.makeText(this, "Downloading model for the app...", Toast.LENGTH_SHORT).show();
+
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        for (int i = 0; i < urls.size(); i++) {
+            final int index = i;
+            String url = urls.get(index);
+            String fileName = fileNames.get(index);
+            if (fileExists(context, fileName)) {
+                // Display a message using Toast
+                Toast.makeText(this, "File already exists. Skipping Download.", Toast.LENGTH_SHORT).show();
+
+                Log.d(TAG, "File " + fileName + " already exists. Skipping download.");
+                // note: since we always download the files lists together for once,
+                // so assuming if one filename exists, then the download model step has already
+                // be
+                // done.
+                genAIWrapper = createGenAIWrapper();
+                break;
+            }
+            executor.execute(() -> {
+                ModelDownloader.downloadModel(context, url, fileName, new ModelDownloader.DownloadCallback() {
+                    @Override
+                    public void onDownloadComplete() {
+                        Log.d(TAG, "Download complete for " + fileName);
+                        if (index == urls.size() - 1) {
+                            // Last download completed, create GenAIWrapper
+                            genAIWrapper = createGenAIWrapper();
+                            Log.d(TAG, "All downloads completed");
+                        }
+                    }
+                });
+            });
+        }
+        executor.shutdown();
+    }
+
     private GenAIWrapper createGenAIWrapper() {
-        // manually upload the model. easiest from Android Studio.
-        // Create emulator. Make sure it has at least 8GB of internal storage!
-        // Debug app to do initial copy
-        // In Device Explorer navigate to /data/data/ai.onnxruntime.genai.demo/files
-        // Right-click on the files folder an update the phi-int4-cpu folder.
-
-        String modelDirName = "cpu-int4-rtn-block-32-acc-level-4/";
-        GenAIWrapper wrapper = new GenAIWrapper("/data/data/ai.onnxruntime.genai.demo/files" + "/" + modelDirName);
+        // Create GenAIWrapper object and load model from android device file path.
+        GenAIWrapper wrapper = new GenAIWrapper(getFilesDir().getPath());
         wrapper.setTokenUpdateListener(this);
-
         return wrapper;
     }
 
