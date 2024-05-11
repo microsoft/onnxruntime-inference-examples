@@ -4,6 +4,9 @@ This repository contains an example of running [Phi-3-mini-4k-instruct](https://
 
 You can try out the live demo [here](https://guschmue.github.io/ort-webgpu/chat/index.html).
 
+We keep this example simple and use the onnxruntime-web api directly without a 
+more advanced framework like [transformers.js](https://github.com/xenova/transformers.js).
+
 ## Getting Started
 
 ### Prerequisites
