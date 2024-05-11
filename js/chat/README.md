@@ -42,5 +42,9 @@ Point your browser to  http://localhost:5173/.
 
 The model used in this project is hosted on [Hugging Face](https://huggingface.co/schmuell/phi3-int4). It was created using the [onnx model builder](https://github.com/microsoft/onnxruntime-genai/tree/main/src/python/py/models).
 
-You create the model with 
-```python builder.py -m microsoft/Phi-3-mini-4k-instruct -o $your_output -p int4 -e web```
+You can create the model with 
+
+```sh
+python builder.py -m microsoft/Phi-3-mini-4k-instruct -o $your_output -p int4 -e web
+```
+
