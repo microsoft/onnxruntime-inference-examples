@@ -17,8 +17,16 @@ export default defineConfig({
                     dest: path.join(__dirname, 'dist/dist')
                 },
                 {
+                    src: 'node_modules/onnxruntime-web/dist/*jsep*.wasm',
+                    dest: path.join(__dirname, 'dist')
+                },
+                {
                     src: 'node_modules/@xenova/transformers/dist/transformers.js',
                     dest: path.join(__dirname, 'dist/dist')
+                },
+                {
+                    src: 'node_modules/@xenova/transformers/dist/transformers.js',
+                    dest: path.join(__dirname, 'dist')
                 }
 
             ]
