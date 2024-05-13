@@ -40,6 +40,9 @@ public class GenAIWrapper implements AutoCloseable {
         if (nativeModel != 0) {
             releaseModel(nativeModel);
         }
+
+        nativeTokenizer = 0;
+        nativeModel = 0;
     }
 
     public void gotNextToken(String token) {
