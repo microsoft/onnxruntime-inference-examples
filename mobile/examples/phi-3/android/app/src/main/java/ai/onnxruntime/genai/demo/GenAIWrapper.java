@@ -18,7 +18,7 @@ public class GenAIWrapper implements AutoCloseable {
         void onTokenUpdate(String token);
     }
 
-    public GenAIWrapper(String modelPath) {
+    public GenAIWrapper(String modelPath) throws GenAIException {
         nativeModel = loadModel(modelPath);
         nativeTokenizer = createTokenizer(nativeModel);
     }
