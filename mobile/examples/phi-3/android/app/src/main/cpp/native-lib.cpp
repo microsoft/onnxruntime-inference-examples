@@ -104,21 +104,17 @@ Java_ai_onnxruntime_genai_demo_GenAIWrapper_run(JNIEnv *env, jobject thiz, jlong
         ThrowIfError(env, result);
     };
 
-    // var sequences = tokenizer.Encode(prompt);
     OgaSequences* sequences = nullptr;
     check_result(OgaCreateSequences(&sequences));
     SequencesPtr seq_cleanup{sequences, OgaDestroySequences};
 
     check_result(OgaTokenizerEncode(tokenizer, prompt, sequences));
 
-    // using GeneratorParams generatorParams = new GeneratorParams(model);
     OgaGeneratorParams* generator_params = nullptr;
     check_result(OgaCreateGeneratorParams(model, &generator_params));
     GeneratorParamsPtr gp_cleanup{generator_params, OgaDestroyGeneratorParams};
 
-    // generatorParams.SetSearchOption("max_length", 120);
     check_result(OgaGeneratorParamsSetSearchNumber(generator_params, "max_length", 120));
-    // generatorParams.SetInputSequences(sequences);
     check_result(OgaGeneratorParamsSetInputSequences(generator_params, sequences));
 
     __android_log_print(ANDROID_LOG_DEBUG, "native", "starting token generation");
@@ -134,7 +130,6 @@ Java_ai_onnxruntime_genai_demo_GenAIWrapper_run(JNIEnv *env, jobject thiz, jlong
     jstring output_text;
 
     if (!use_callback) {
-        // var outputSequences = model.Generate(generatorParams);
         OgaSequences *output_sequences = nullptr;
         check_result(OgaGenerate(model, generator_params, &output_sequences));
         SequencesPtr output_seq_cleanup(output_sequences, OgaDestroySequences);
@@ -142,20 +137,17 @@ Java_ai_onnxruntime_genai_demo_GenAIWrapper_run(JNIEnv *env, jobject thiz, jlong
         size_t num_sequences = OgaSequencesCount(output_sequences);
         __android_log_print(ANDROID_LOG_DEBUG, "native", "%zu sequences generated", num_sequences);
 
-        // var outputString = tokenizer.Decode(outputSequences[0]);
-        // TODO: Is there only ever 1 sequence in the output? Handling just one for simplicity for now.
+        // TODO: Handling just one sentence for simplicity for now.
         const int32_t* tokens = OgaSequencesGetSequenceData(output_sequences, 0);
         size_t num_tokens = OgaSequencesGetSequenceCount(output_sequences, 0);
 
         output_text = decode_tokens(tokens, num_tokens);
     }
     else {
-        // using var tokenizerStream = tokenizer.CreateStream();
         OgaTokenizerStream* tokenizer_stream = nullptr;
         check_result(OgaCreateTokenizerStream(tokenizer, &tokenizer_stream));
         TokenizerStreamPtr stream_cleanup(tokenizer_stream, OgaDestroyTokenizerStream);
 
-        // using var generator = new Generator(model, generatorParams);
         OgaGenerator *generator = nullptr;
         check_result(OgaCreateGenerator(model, generator_params, &generator));
         GeneratorPtr gen_cleanup(generator, OgaDestroyGenerator);
@@ -169,10 +161,7 @@ Java_ai_onnxruntime_genai_demo_GenAIWrapper_run(JNIEnv *env, jobject thiz, jlong
             env->DeleteLocalRef(jtoken);
         };
 
-        // while (!generator.IsDone())
         while (!OgaGenerator_IsDone(generator)) {
-            // generator.ComputeLogits();
-            // generator.GenerateNextTokenTop();
             check_result(OgaGenerator_ComputeLogits(generator));
             check_result(OgaGenerator_GenerateNextToken(generator));
 

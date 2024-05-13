@@ -28,7 +28,7 @@ Follow this link to download **Phi-3-mini**: https://huggingface.co/microsoft/Ph
 
 The folder is too large to add to the app `assets` folder so we have to manually get it onto the device.
 
-#### TODO: Will update the following instructions to remove the manual copying steps
+#### [Optional] Follow the below instructions to manually copy input models to android test devices
 From Android Studio:
   - create (if necessary) and run your emulator
     - make sure it has at least 8GB of internal storage
