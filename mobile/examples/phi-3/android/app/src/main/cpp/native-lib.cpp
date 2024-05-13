@@ -137,7 +137,7 @@ Java_ai_onnxruntime_genai_demo_GenAIWrapper_run(JNIEnv *env, jobject thiz, jlong
         size_t num_sequences = OgaSequencesCount(output_sequences);
         __android_log_print(ANDROID_LOG_DEBUG, "native", "%zu sequences generated", num_sequences);
 
-        // TODO: Handling just one sentence for simplicity for now.
+        // We don't handle batched requests, so there will only be one sequence and we can hardcode using `0` as the index.
         const int32_t* tokens = OgaSequencesGetSequenceData(output_sequences, 0);
         size_t num_tokens = OgaSequencesGetSequenceCount(output_sequences, 0);
 
