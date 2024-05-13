@@ -9,7 +9,7 @@ body {
   padding: 10px;
   border-radius: 10px;
   white-space: pre-wrap;
-  max-width: 70%;
+  width: fit-content;
 }
 
 .response-message {
