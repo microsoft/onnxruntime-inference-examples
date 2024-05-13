@@ -2,7 +2,7 @@
 
 ## Overview
 
-This is a basic Phi-3 example application for [ONNX Runtime](https://github.com/microsoft/onnxruntime) on Android with [Ort-GenAI](https://github.com/microsoft/onnxruntime-genai) support for running generative AI models . This app demonstrates the usage of phi-3 model in a simple question answering chatbot mode.
+This is a basic Phi-3 example application for [ONNX Runtime](https://github.com/microsoft/onnxruntime) on Android with [Ort-GenAI](https://github.com/microsoft/onnxruntime-genai) support for running generative AI models. This app demonstrates the usage of phi-3 model in a simple question answering chatbot mode.
 
 ### Model
 The model used here is from the source: [HuggingFace](https://huggingface.co/microsoft/Phi-3-mini-4k-instruct-onnx#phi-3-mini-4k-instruct-onnx-models)
