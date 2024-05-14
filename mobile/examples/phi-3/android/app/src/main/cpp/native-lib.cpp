@@ -49,11 +49,8 @@ namespace {
 extern "C" JNIEXPORT jlong JNICALL
 Java_ai_onnxruntime_genai_demo_GenAIWrapper_loadModel(JNIEnv *env, jobject thiz, jstring model_path) {
     CString path{env, model_path};
-    __android_log_print(ANDROID_LOG_DEBUG, "native", "loadModel %s", path.cstr);
-
     OgaModel *model = nullptr;
     OgaResult *result = OgaCreateModel(path, &model);
-    __android_log_print(ANDROID_LOG_DEBUG, "native", "model address %p", model);
 
     ThrowIfError(env, result);
 
@@ -63,7 +60,6 @@ Java_ai_onnxruntime_genai_demo_GenAIWrapper_loadModel(JNIEnv *env, jobject thiz,
 extern "C" JNIEXPORT void JNICALL
 Java_ai_onnxruntime_genai_demo_GenAIWrapper_releaseModel(JNIEnv *env, jobject thiz, jlong native_model) {
     auto* model = reinterpret_cast<OgaModel*>(native_model);
-    __android_log_print(ANDROID_LOG_DEBUG, "native", "releaseModel: %p", model);
     OgaDestroyModel(model);
 }
 
@@ -72,7 +68,6 @@ Java_ai_onnxruntime_genai_demo_GenAIWrapper_createTokenizer(JNIEnv *env, jobject
     const auto* model = reinterpret_cast<const OgaModel*>(native_model);
     OgaTokenizer *tokenizer = nullptr;
     OgaResult* result = OgaCreateTokenizer(model, &tokenizer);
-    __android_log_print(ANDROID_LOG_DEBUG, "native", "tokenizer address: %p", tokenizer);
 
     ThrowIfError(env, result);
 
@@ -82,7 +77,6 @@ Java_ai_onnxruntime_genai_demo_GenAIWrapper_createTokenizer(JNIEnv *env, jobject
 extern "C" JNIEXPORT void JNICALL
 Java_ai_onnxruntime_genai_demo_GenAIWrapper_releaseTokenizer(JNIEnv *env, jobject thiz, jlong native_tokenizer) {
     auto* tokenizer = reinterpret_cast<OgaTokenizer*>(native_tokenizer);
-    __android_log_print(ANDROID_LOG_DEBUG, "native", "releaseTokenizer: %p", tokenizer);
     OgaDestroyTokenizer(tokenizer);
 }
 

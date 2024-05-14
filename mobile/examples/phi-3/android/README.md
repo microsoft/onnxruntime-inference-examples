@@ -28,19 +28,23 @@ Follow this link to download **Phi-3-mini**: https://huggingface.co/microsoft/Ph
 
 The folder is too large to add to the app `assets` folder so we have to manually get it onto the device.
 
-#### [Optional] Follow the below instructions to manually copy input models to android test devices
+#### [Optional] Follow the below instructions if you want to directly copy models to android device directory
+
+The current set up downloads Phi-3-mini model from huggingface repo to the device folder.
+
+However, in case anything breaks (Or you want to test your own local models), you can also follow the below instructions
+to manually copy the input models to the device file directory:
+
 From Android Studio:
-  - create (if necessary) and run your emulator
+  - create (if necessary) and run your emulator/device
     - make sure it has at least 8GB of internal storage
   - debug/run the app so it's deployed to the device and creates it's `files` directory
     - expected to be `/data/data/ai.onnxruntime.genai.demo/files`
-      - this is the path returned by `getFilesDir()` in MainActivity
-    - not sure what triggers the creation of this directory. 
-      - if you debug the app and set a breakpoint on the call to create the GenAIWrapper instance in MainActivity.onCreate it should exist when the breakpoint is hit
+      - this is the path returned by `getFilesDir()`
   - Open Device Explorer in Android Studio
   - Navigate to `/data/data/ai.onnxruntime.genai.demo/files`
-    - adjust as needed if the value returned by getFilesDir() differs for your emulator
-  - copy the whole phi-2 folder (should be called phi2-int4-cpu) to the `files` directory
+    - adjust as needed if the value returned by getFilesDir() differs for your emulator or device
+  - copy the whole [phi-3](https://huggingface.co/microsoft/Phi-3-mini-4k-instruct-onnx/tree/main/cpu_and_mobile/cpu-int4-rtn-block-32-acc-level-4) model folder to the `files` directory
 
 ### Step 3: Connect Android Device and Run the app
   Connect your Android Device to your computer or select the Android Emulator in Android Studio Device manager.
