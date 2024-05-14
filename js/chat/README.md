@@ -5,7 +5,7 @@ This repository contains an example of running [Phi-3-mini-4k-instruct](https://
 You can try out the live demo [here](https://guschmue.github.io/ort-webgpu/chat/index.html).
 
 We keep this example simple and use the onnxruntime-web api directly without a 
-more advanced framework like [transformers.js](https://github.com/xenova/transformers.js).
+higher level framework like [transformers.js](https://github.com/xenova/transformers.js).
 
 ## Getting Started
 
@@ -23,7 +23,7 @@ npm install
 
 ### Building the project
 
-Build the project using vite:
+Build the project:
 
 ```sh
 npm run build
@@ -32,14 +32,13 @@ npm run build
 The output can be found in the ***dist*** directory.
 
 ### Building for developent
-For development you can use vite.
-You must run ```npm run build``` once to setup the dist directory.
 
 ```sh
 npm run dev
 ```
 
-Point your browser to  http://localhost:5173/.
+This will build the project and start a dev server.
+Point your browser to http://localhost:8080/.
 
 ### The ONNX Model
 
@@ -50,4 +49,3 @@ You can create the model with
 ```sh
 python builder.py -m microsoft/Phi-3-mini-4k-instruct -o $your_output -p int4 -e web
 ```
-
