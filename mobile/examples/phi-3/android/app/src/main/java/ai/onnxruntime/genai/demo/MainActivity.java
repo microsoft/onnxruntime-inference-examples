@@ -43,8 +43,12 @@ public class MainActivity extends AppCompatActivity implements GenAIWrapper.Toke
         setContentView(binding.getRoot());
 
         // Trigger the download operation when the application is created
-        downloadModels(
-                getApplicationContext());
+        try {
+            downloadModels(
+                    getApplicationContext());
+        } catch (GenAIException e) {
+            throw new RuntimeException(e);
+        }
 
         sendMsgIB = findViewById(R.id.idIBSend);
         userMsgEdt = findViewById(R.id.idEdtMessage);
@@ -79,7 +83,11 @@ public class MainActivity extends AppCompatActivity implements GenAIWrapper.Toke
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
-                        genAIWrapper.run(promptQuestion_formatted);
+                        try {
+                            genAIWrapper.run(promptQuestion_formatted);
+                        } catch (GenAIException e) {
+                            throw new RuntimeException(e);
+                        }
 
                         runOnUiThread(() -> {
                             sendMsgIB.setEnabled(true);
@@ -101,7 +109,7 @@ public class MainActivity extends AppCompatActivity implements GenAIWrapper.Toke
         super.onDestroy();
     }
 
-    private void downloadModels(Context context) {
+    private void downloadModels(Context context) throws GenAIException {
         List<String> urls = Arrays.asList(
                 "https://huggingface.co/microsoft/Phi-3-mini-4k-instruct-onnx/resolve/main/cpu_and_mobile/cpu-int4-rtn-block-32-acc-level-4/added_tokens.json?download=true",
                 "https://huggingface.co/microsoft/Phi-3-mini-4k-instruct-onnx/resolve/main/cpu_and_mobile/cpu-int4-rtn-block-32-acc-level-4/config.json?download=true",
@@ -143,7 +151,7 @@ public class MainActivity extends AppCompatActivity implements GenAIWrapper.Toke
             executor.execute(() -> {
                 ModelDownloader.downloadModel(context, url, fileName, new ModelDownloader.DownloadCallback() {
                     @Override
-                    public void onDownloadComplete() {
+                    public void onDownloadComplete() throws GenAIException {
                         Log.d(TAG, "Download complete for " + fileName);
                         if (index == urls.size() - 1) {
                             // Last download completed, create GenAIWrapper
@@ -157,7 +165,7 @@ public class MainActivity extends AppCompatActivity implements GenAIWrapper.Toke
         executor.shutdown();
     }
 
-    private GenAIWrapper createGenAIWrapper() {
+    private GenAIWrapper createGenAIWrapper() throws GenAIException {
         // Create GenAIWrapper object and load model from android device file path.
         GenAIWrapper wrapper = new GenAIWrapper(getFilesDir().getPath());
         wrapper.setTokenUpdateListener(this);

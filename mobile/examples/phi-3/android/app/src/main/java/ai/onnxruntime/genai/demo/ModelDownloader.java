@@ -17,7 +17,7 @@ import java.net.URL;
 
 public class ModelDownloader {
   interface DownloadCallback {
-    void onDownloadComplete();
+    void onDownloadComplete() throws GenAIException;
   }
 
   public static void downloadModel(Context context, String url, String fileName, DownloadCallback callback) {
@@ -58,6 +58,8 @@ public class ModelDownloader {
     } catch (IOException e) {
       e.printStackTrace();
       Log.e(TAG, "Exception occurred during model download: " + e.getMessage());
+    } catch (GenAIException e) {
+        throw new RuntimeException(e);
     }
   }
 }

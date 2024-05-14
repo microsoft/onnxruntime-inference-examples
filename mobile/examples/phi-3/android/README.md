@@ -2,7 +2,7 @@
 
 ## Overview
 
-This is a basic Phi-3 example application for [ONNX Runtime](https://github.com/microsoft/onnxruntime) on Android with [Ort-GenAI](https://github.com/microsoft/onnxruntime-genai) support for running generative AI models. This app demonstrates the usage of phi-3 model in a simple question answering chatbot mode.
+This is a basic [Phi-3](https://huggingface.co/microsoft/Phi-3-mini-4k-instruct-onnx) example application for [ONNX Runtime](https://github.com/microsoft/onnxruntime) on Android with [Ort-GenAI](https://github.com/microsoft/onnxruntime-genai) support for running generative AI models. This app demonstrates the usage of phi-3 model in a simple question answering chatbot mode.
 
 ### Model
 The model used here is from the source: [HuggingFace](https://huggingface.co/microsoft/Phi-3-mini-4k-instruct-onnx#phi-3-mini-4k-instruct-onnx-models)
@@ -22,19 +22,14 @@ Clone this repository to get the sample application.
 
 `git@github.com:microsoft/onnxruntime-inference-examples.git`
 
-### Step 2: Prepare the model and required packages
+### [Optional] Step 2: Prepare the model
 
-Follow this link to download **Phi-3-mini**: https://huggingface.co/microsoft/Phi-3-mini-4k-instruct-onnx/tree/main/cpu_and_mobile/cpu-int4-rtn-block-32-acc-level-4
+The current set up supports downloading Phi-3-mini model directly from Huggingface repo to the android device folder. However, it takes time since the model data is >2.5G.
 
-The folder is too large to add to the app `assets` folder so we have to manually get it onto the device.
+You can also follow this link to download **Phi-3-mini**: https://huggingface.co/microsoft/Phi-3-mini-4k-instruct-onnx/tree/main/cpu_and_mobile/cpu-int4-rtn-block-32-acc-level-4
+and manually copy to the android device file directory following the below instructions:
 
-#### [Optional] Follow the below instructions to manually copy models to android device directory
-
-The current set up downloads Phi-3-mini model from huggingface repo to the device folder.
-
-However, in case anything breaks (Or you want to test your own local models), you can also follow the below instructions
-to manually copy the input models to the device file directory:
-
+#### Steps for manual copying models to android device directory:
 From Android Studio:
   - create (if necessary) and run your emulator/device
     - make sure it has at least 8GB of internal storage

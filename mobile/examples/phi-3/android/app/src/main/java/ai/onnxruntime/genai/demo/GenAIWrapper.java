@@ -27,8 +27,8 @@ public class GenAIWrapper implements AutoCloseable {
         this.listener = listener;
     }
 
-    String run(String prompt) throws GenAIException {
-        return run(nativeModel, nativeTokenizer, prompt, /* useCallback */ true);
+    void run(String prompt) throws GenAIException {
+        run(nativeModel, nativeTokenizer, prompt, /* useCallback */ true);
     }
 
     @Override
