@@ -71,7 +71,7 @@ public class MainActivity extends AppCompatActivity implements GenAIWrapper.Toke
                 // Disable send button while responding to prompt.
                 sendMsgIB.setEnabled(false);
 
-                promptTV.setText(promptQuestion_formatted);
+                promptTV.setText(promptQuestion);
                 // Clear Edit Text or prompt question.
                 userMsgEdt.setText("");
                 generatedTV.setText("");
@@ -121,7 +121,7 @@ public class MainActivity extends AppCompatActivity implements GenAIWrapper.Toke
                 "special_tokens_map.json", "tokenizer.model", "tokenizer.json",
                 "tokenizer_config.json");
 
-        Toast.makeText(this, "Downloading model for the app...", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "Downloading model for the app... Model Size greater than 2GB, please allow a few minutes to download.", Toast.LENGTH_SHORT).show();
 
         ExecutorService executor = Executors.newSingleThreadExecutor();
         for (int i = 0; i < urls.size(); i++) {

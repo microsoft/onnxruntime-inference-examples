@@ -10,8 +10,8 @@ public class GenAIWrapper implements AutoCloseable {
         System.loadLibrary("onnxruntime");
     }
 
-    private final long nativeModel;
-    private final long nativeTokenizer;
+    private long nativeModel;
+    private long nativeTokenizer;
     private TokenUpdateListener listener;
 
     public interface TokenUpdateListener {
