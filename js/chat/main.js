@@ -1,4 +1,4 @@
-import { env, AutoTokenizer } from './dist/transformers.js';
+import { env, AutoTokenizer } from '@xenova/transformers';
 import { LLM } from './llm.js';
 import { marked } from 'marked';
 
@@ -106,14 +106,15 @@ async function submitRequest(e) {
   if (context === undefined) {
     context = "";
   }
-  // Create user message element and append to chat history
+
+  // append to chat history
   let chatHistory = document.getElementById('chat-history');
   let userMessageDiv = document.createElement('div');
   userMessageDiv.className = 'mb-2 user-message';
   userMessageDiv.innerText = input;
   chatHistory.appendChild(userMessageDiv);
 
-  // Create response container
+  // container for llm response
   let responseDiv = document.createElement('div');
   responseDiv.className = 'response-message mb-2 text-start';
   responseDiv.style.minHeight = '3em';
@@ -227,14 +228,15 @@ async function Query(continuation, query, cb) {
 
   const { input_ids } = await tokenizer(prompt, { return_tensor: false, padding: true, truncation: true });
 
-  // clear caches TODO: for continuation we should use kv_cache
+  // clear caches 
+  // TODO: use kv_cache for continuation
   llm.initilize_feed();
 
   const start_timer = performance.now();
   const output_index = llm.output_tokens.length + input_ids.length;
   const output_tokens = await llm.generate(input_ids, (output_tokens) => {
     if (output_tokens.length == input_ids.length + 1) {
-      // time to first token = prefill
+      // time to first token
       const took = (performance.now() - start_timer) / 1000;
       console.log(`time to first token in ${took.toFixed(1)}sec, ${input_ids.length} tokens`);
     }
@@ -249,6 +251,7 @@ async function Query(continuation, query, cb) {
 
 //
 // Load the model and tokenizer
+//
 async function Init(hasFP16) {
   try {
     tokenizer = await AutoTokenizer.from_pretrained(config.model.path);

@@ -2,7 +2,7 @@ import * as ort from 'onnxruntime-web/webgpu';
 
 ort.env.wasm.numThreads = 1;
 ort.env.wasm.simd = true;
-ort.env.wasm.wasmPaths = document.location.pathname.replace('index.html', '') + 'dist/';
+ort.env.wasm.wasmPaths = document.location.pathname.replace('index.html', 'dist/');
 
 
 function log(i) { console.log(i); document.getElementById('status').innerText += `\n${i}`; }
@@ -33,6 +33,9 @@ async function fetchAndCache(url) {
     }
 }
 
+//
+// class to handle a large language model on top of onnxruntime-web
+//
 export class LLM {
     sess = undefined;
     profiler = false;
@@ -117,6 +120,8 @@ export class LLM {
 
     initilize_feed() {
         const feed = this.feed;
+
+        // dispose of previous gpu buffers
         for (const name in feed) {
             const t = feed[name];
             if (t.location === 'gpu-buffer') {
@@ -124,6 +129,7 @@ export class LLM {
             }
         }
         this.feed = {};
+        // key value cache is zero copy, just pass gpu buffer as referece
         const empty = (this.dtype === "float16") ? new Uint16Array() : [];
         for (let i = 0; i < this.num_layers; ++i) {
             this.feed[`past_key_values.${i}.key`] = new ort.Tensor(this.dtype, empty, this.kv_dims)
@@ -132,6 +138,8 @@ export class LLM {
         this.output_tokens = [];
     }
 
+    //
+    // poor mens argmax
     argmax(t) {
         const arr = t.data;
         const start = t.dims[2] * (t.dims[1] - 1);
@@ -151,11 +159,14 @@ export class LLM {
         return maxidx;
     }
 
+    //
+    // update key value cache
+    //
     update_kv_cache(feed, outputs) {
         for (const name in outputs) {
             if (name.startsWith('present')) {
                 let newName = name.replace('present', 'past_key_values');
-                // free old gpu buffer
+                // dispose previous gpu buffers
                 const t = feed[newName];
                 if (t.location === 'gpu-buffer') {
                     t.dispose();
@@ -165,10 +176,16 @@ export class LLM {
         }
     }
 
+    //
+    // tell generate to stop()
+    //
     abort() {
         this.stop = true;
     }
 
+    // 
+    // prefill prompt and generate tokens
+    //
     async generate(tokens, callback, options) {
         const max_tokens = options.max_tokens || 256;
         const feed = this.feed;
@@ -179,8 +196,8 @@ export class LLM {
         this.output_tokens.push(...input_ids.data);
 
         let last_token = 0n;
-        let input_len = input_ids.size;
         let seqlen = this.output_tokens.length;
+        const input_len = input_ids.size;
 
         if (this.need_position_ids) {
             feed['position_ids'] = new ort.Tensor('int64', BigInt64Array.from({ length: input_len }, (_, i) => BigInt(seqlen - input_len + i)), [1, input_len]);
@@ -197,7 +214,6 @@ export class LLM {
             }
             this.update_kv_cache(feed, outputs);
             feed['input_ids'] = new ort.Tensor('int64', BigInt64Array.from([last_token]), [1, 1]);
-            input_len = 1;
             if (this.need_position_ids) {
                 feed['position_ids'] = new ort.Tensor('int64', BigInt64Array.from([BigInt(seqlen)]), [1, 1]);
             }
