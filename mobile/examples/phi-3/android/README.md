@@ -28,7 +28,7 @@ Follow this link to download **Phi-3-mini**: https://huggingface.co/microsoft/Ph
 
 The folder is too large to add to the app `assets` folder so we have to manually get it onto the device.
 
-#### [Optional] Follow the below instructions if you want to directly copy models to android device directory
+#### [Optional] Follow the below instructions to manually copy models to android device directory
 
 The current set up downloads Phi-3-mini model from huggingface repo to the device folder.
 
