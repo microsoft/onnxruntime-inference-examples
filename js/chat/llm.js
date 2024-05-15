@@ -2,7 +2,7 @@ import * as ort from 'onnxruntime-web/webgpu';
 
 ort.env.wasm.numThreads = 1;
 ort.env.wasm.simd = true;
-ort.env.wasm.wasmPaths = document.location.pathname.replace('index.html', 'dist/');
+ort.env.wasm.wasmPaths = document.location.pathname.replace('index.html', '') + 'dist/';
 
 
 function log(i) { console.log(i); document.getElementById('status').innerText += `\n${i}`; }
