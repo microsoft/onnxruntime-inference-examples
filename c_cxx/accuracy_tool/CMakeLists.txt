@@ -32,7 +32,7 @@ if(QNN_SDK_ROOTDIR)
   endif()
 
   if(NOT QNN_HEXAGON_ARCH_VERSION)
-    set(QNN_HEXAGON_ARCH_VERSION "68")
+    set(QNN_HEXAGON_ARCH_VERSION "73")
     message(WARNING "Assuming QNN Hexagon version ${QNN_HEXAGON_ARCH_VERSION}. Set with -DQNN_HEXAGON_ARCH_VERSION")
   endif()
 
@@ -94,12 +94,13 @@ endfunction()
 # Windows might have an onnxruntime.dll in the system directory so it's more robust to manually copy the dlls to
 # the output dir.
 if(MSVC)
-  target_copy_artifacts(accuracy_test "${ONNXRUNTIME_ROOTDIR}/bin/*.dll")
+  target_copy_artifacts(accuracy_test "${ONNXRUNTIME_ROOTDIR}/bin/*")
 endif()
 
 if(EXISTS "${QNN_SDK_ROOTDIR}")
   set(QNN_SDK_HEX_DIR "${QNN_SDK_ROOTDIR}/lib/hexagon-v${QNN_HEXAGON_ARCH_VERSION}/unsigned")
   target_copy_artifacts(accuracy_test "${QNN_SDK_HEX_DIR}/*.so")
+  target_copy_artifacts(accuracy_test "${QNN_SDK_HEX_DIR}/*.cat")
 
   if(WIN32)
     set(QNN_WIN_ARCH_DIR "x86_64-windows-msvc")
