@@ -48,17 +48,14 @@ IF "%~x1" == ".nupkg" (
   mkdir _generated_onnxruntime_rootdir\bin 2>nul
   copy /y _ort_extracted_nuget\build\native\include\* _generated_onnxruntime_rootdir\include\
   IF "%PROCESSOR_ARCHITECTURE%" == "ARM64" (
-    copy /y _ort_extracted_nuget\runtimes\win-arm64\native\*.lib _generated_onnxruntime_rootdir\lib\
-    copy /y _ort_extracted_nuget\runtimes\win-arm64\native\*.dll _generated_onnxruntime_rootdir\lib\
-    copy /y _ort_extracted_nuget\runtimes\win-arm64\native\*.dll _generated_onnxruntime_rootdir\bin\
-    copy /y _ort_extracted_nuget\runtimes\win-arm64\native\*.exe _generated_onnxruntime_rootdir\bin\
+    copy /y _ort_extracted_nuget\runtimes\win-arm64\native\* _generated_onnxruntime_rootdir\lib\
+    copy /y _ort_extracted_nuget\runtimes\win-arm64\native\* _generated_onnxruntime_rootdir\bin\
   ) ELSE (
-    copy /y _ort_extracted_nuget\runtimes\win-x64\native\*.lib _generated_onnxruntime_rootdir\lib\
-    copy /y _ort_extracted_nuget\runtimes\win-x64\native\*.dll _generated_onnxruntime_rootdir\lib\
-    copy /y _ort_extracted_nuget\runtimes\win-x64\native\*.dll _generated_onnxruntime_rootdir\bin\
-    copy /y _ort_extracted_nuget\runtimes\win-x64\native\*.exe _generated_onnxruntime_rootdir\bin\
+    copy /y _ort_extracted_nuget\runtimes\win-x64\native\* _generated_onnxruntime_rootdir\lib\
+    copy /y _ort_extracted_nuget\runtimes\win-x64\native\* _generated_onnxruntime_rootdir\bin\
   )
   copy /y _ort_extracted_nuget\*.txt _generated_onnxruntime_rootdir\
+  copy /y _ort_extracted_nuget\*.pdf _generated_onnxruntime_rootdir\
   copy /y _ort_extracted_nuget\LICENSE _generated_onnxruntime_rootdir\
   copy /y _ort_extracted_nuget\README.md _generated_onnxruntime_rootdir\
   copy /y _ort_extracted_nuget\Privacy.md _generated_onnxruntime_rootdir\
