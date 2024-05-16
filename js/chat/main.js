@@ -4,12 +4,7 @@ import { marked } from 'marked';
 
 
 const MODELS = {
-  "tinyllama": { name: "tinyllama", path: "schmuell/TinyLlama-1.1B-Chat-v1.0-int4", file: "decoder_model_merged" },
-  "tinyllama_fp16": { name: "tinyllama-fp16", path: "schmuell/TinyLlama-1.1B-Chat-v1.0-fp16", externaldata: true, file: "decoder_model_merged" },
-  "phi2": { name: "phi2", path: "schmuell/phi2-int4", file: "decoder_model_merged" },
   "phi3": { name: "phi3", path: "schmuell/phi3-int4", externaldata: true },
-  "phi3-1": { name: "phi3-1", path: "schmuell/phi3-1", externaldata: true },
-  "stablelm": { name: "stablelm", path: "schmuell/stablelm-2-zephyr-1_6b-int4", file: "decoder_model_merged" },
 }
 
 const preCannedQueries = {

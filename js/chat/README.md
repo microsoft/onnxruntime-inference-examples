@@ -40,12 +40,15 @@ npm run dev
 This will build the project and start a dev server.
 Point your browser to http://localhost:8080/.
 
-### The ONNX Model
+### The Phi3 ONNX Model
 
-The model used in this project is hosted on [Hugging Face](https://huggingface.co/schmuell/phi3-int4). It was created using the [onnx model builder](https://github.com/microsoft/onnxruntime-genai/tree/main/src/python/py/models).
+The model used in this example is hosted on [Hugging Face](https://huggingface.co/microsoft/Phi-3-mini-4k-instruct-onnx-web). It is slightly different than the ONNX model for CUDA or CPU:
+1. The model output 'logits' is kept as float32 (even for float16 models) since Javascript does not support float16.
+2. Our WebGPU implementation uses the custom Multiheaded Attention operator instread of Group Query Attention.
+3. Phi3 is larger then 2GB and we need to use external data files. To keep them cacheable in the browser,
+ both model.onnx and model.onnx.data are kept under 2GB.
 
-You can create the model with 
+The model was created using the [ONNX genai model builder](https://github.com/microsoft/onnxruntime-genai/tree/main/src/python/py/models).
 
-```sh
-python builder.py -m microsoft/Phi-3-mini-4k-instruct -o $your_output -p int4 -e web
-```
+If you like to create the model yourself, you can use [Olive](https://github.com/microsoft/Olive/).
+An example how to create the model for ONNX Runtime Web with Olive can be found [here](https://github.com/microsoft/Olive/tree/main/examples/phi3).
