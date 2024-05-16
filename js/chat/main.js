@@ -4,7 +4,8 @@ import { marked } from 'marked';
 
 
 const MODELS = {
-  "phi3": { name: "phi3", path: "schmuell/phi3-int4", externaldata: true },
+  "phi3": { name: "phi3", path: "microsoft/Phi-3-mini-4k-instruct-onnx-web", externaldata: true },
+  "phi3dev": { name: "phi3dev", path: "schmuell/Phi-3-mini-4k-instruct-onnx-web", externaldata: true },
 }
 
 const preCannedQueries = {

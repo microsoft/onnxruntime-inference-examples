@@ -60,7 +60,7 @@ export class LLM {
 
         const model_path = (local) ? "models/" + model.path : "https://huggingface.co/" + model.path + "/resolve/main";
         let model_file = model.file || "model";
-        model_file = (hasFP16 && model_file != "decoder_model_merged") ? model_file + "_fp16.onnx" : model_file + ".onnx";
+        model_file = (hasFP16) ? model_file + "_q4f16.onnx" : model_file + "_q4.onnx";
 
         log(`loading... ${model.name},  ${provider}`);
         const json_bytes = await fetchAndCache(model_path + "/config.json");
@@ -68,7 +68,7 @@ export class LLM {
         const model_config = JSON.parse(textDecoder.decode(json_bytes));
 
         const model_bytes = await fetchAndCache(model_path + "/onnx/" + model_file);
-        const externaldata = (model.externaldata) ? await fetchAndCache(model_path + "/onnx/" + model_file + '.data') : false;
+        const externaldata = (model.externaldata) ? await fetchAndCache(model_path + "/onnx/" + model_file + '_data') : false;
         let modelSize = model_bytes.byteLength;
         if (externaldata) {
             modelSize += externaldata.byteLength;
@@ -93,7 +93,7 @@ export class LLM {
             opt.externalData = [
                 {
                     data: externaldata,
-                    path: model_file + ".data",
+                    path: model_file + "_data",
                 },
             ]
         }
@@ -184,7 +184,7 @@ export class LLM {
     }
 
     // 
-    // prefill prompt and generate tokens
+    // prefill prompt and generate tokens, greedy search only
     //
     async generate(tokens, callback, options) {
         const max_tokens = options.max_tokens || 256;
