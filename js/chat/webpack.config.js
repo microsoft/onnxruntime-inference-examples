@@ -23,7 +23,7 @@ export default {
         new CopyWebpackPlugin({
             patterns: [
                 {
-                    from: 'node_modules/onnxruntime-web/dist/*.jsep.wasm',
+                    from: 'node_modules/onnxruntime-web/dist/*.jsep.*',
                     to: 'dist/[name][ext]'
                 },
             ],
