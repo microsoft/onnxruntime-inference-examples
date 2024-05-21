@@ -68,7 +68,7 @@ public class MainActivity extends AppCompatActivity implements GenAIWrapper.Toke
                 }
 
                 String promptQuestion = userMsgEdt.getText().toString();
-                String promptQuestion_formatted = "<|user|>" + promptQuestion + "<|end|><|assistant|>";
+                String promptQuestion_formatted = "<|user|>\n" + promptQuestion + "<|end|>\n<|assistant|>";
                 Log.i("GenAI: prompt question", promptQuestion_formatted);
                 setVisibility();
 
