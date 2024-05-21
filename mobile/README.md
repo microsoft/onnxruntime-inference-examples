@@ -81,3 +81,9 @@ This example shows how to use ORT to do speech recognition using the [Whisper](h
 This is an example React Native Expo project which demonstrates basic usage of ORT such as loading onnx models and creating inference sessions, etc.
 
 - [React Native Basic Sample](examples/React_Native/ort-rn-basic-usage/)
+
+### Phi-3 Sample
+
+This is a basic Phi-3 (Android for now) example application with ONNX Runtime mobile and ONNX Runtime Generate() API with support for efficiently running generative AI models. This app demonstrates the usage of phi-3 model in a simple question answering chatbot mode.
+
+- [Android Phi-3](examples/phi-3/android)
