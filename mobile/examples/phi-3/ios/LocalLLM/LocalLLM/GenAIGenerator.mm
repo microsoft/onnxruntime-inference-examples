@@ -12,23 +12,20 @@
 
     NSString *llmPath = [[NSBundle mainBundle] resourcePath];
     char const *modelPath = llmPath.cString;
-//
+
     auto model =  OgaModel::Create(modelPath);
-//
+
     auto tokenizer = OgaTokenizer::Create(*model);
-//
-//    const char* prompt = "<|system|>You are a helpful AI assistant.<|end|><|user|>Can you introduce yourself?<|end|><|assistant|>";
-//
+
     NSString *promptString = [NSString stringWithFormat:@"<|user|>\n%@<|end|>\n<|assistant|>", input_user_question];
     const char* prompt = [promptString UTF8String];
     
     auto sequences = OgaSequences::Create();
     tokenizer->Encode(prompt, *sequences);
-//
+
     auto params = OgaGeneratorParams::Create(*model);
     params->SetSearchOption("max_length", 200);
     params->SetInputSequences(*sequences);
-//
 
 //  Streaming Output to generate token by token
     auto tokenizer_stream = OgaTokenizerStream::Create(*tokenizer);
