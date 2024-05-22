@@ -13,40 +13,11 @@
 		51D4C8D82BFD22D70029FCEA /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51D4C8D72BFD22D70029FCEA /* ContentView.swift */; };
 		51D4C8DA2BFD22DB0029FCEA /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 51D4C8D92BFD22DB0029FCEA /* Assets.xcassets */; };
 		51D4C8DD2BFD22DB0029FCEA /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 51D4C8DC2BFD22DB0029FCEA /* Preview Assets.xcassets */; };
-		51D4C8E72BFD22DC0029FCEA /* LocalLLMTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51D4C8E62BFD22DC0029FCEA /* LocalLLMTests.swift */; };
-		51D4C8F12BFD22DC0029FCEA /* LocalLLMUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51D4C8F02BFD22DC0029FCEA /* LocalLLMUITests.swift */; };
-		51D4C8F32BFD22DC0029FCEA /* LocalLLMUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51D4C8F22BFD22DC0029FCEA /* LocalLLMUITestsLaunchTests.swift */; };
 		51D4C9072BFD26150029FCEA /* libonnxruntime-genai.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 51D4C9052BFD26150029FCEA /* libonnxruntime-genai.dylib */; };
 		51D4C9082BFD26EB0029FCEA /* libonnxruntime-genai.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 51D4C9052BFD26150029FCEA /* libonnxruntime-genai.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		51D4C90E2BFD28DD0029FCEA /* GenAIGenerator.mm in Sources */ = {isa = PBXBuildFile; fileRef = 51D4C90D2BFD28DD0029FCEA /* GenAIGenerator.mm */; };
-		51D4C9152BFD483E0029FCEA /* tokenizer.json in CopyFiles */ = {isa = PBXBuildFile; fileRef = 51D4C9102BFD483E0029FCEA /* tokenizer.json */; };
-		51D4C9162BFD483E0029FCEA /* phi3-mini-4k-instruct-cpu-int4-rtn-block-32-acc-level-4.onnx in CopyFiles */ = {isa = PBXBuildFile; fileRef = 51D4C9112BFD483E0029FCEA /* phi3-mini-4k-instruct-cpu-int4-rtn-block-32-acc-level-4.onnx */; };
-		51D4C9172BFD483E0029FCEA /* special_tokens_map.json in CopyFiles */ = {isa = PBXBuildFile; fileRef = 51D4C9122BFD483E0029FCEA /* special_tokens_map.json */; };
-		51D4C9182BFD483E0029FCEA /* phi3-mini-4k-instruct-cpu-int4-rtn-block-32-acc-level-4.onnx.data in CopyFiles */ = {isa = PBXBuildFile; fileRef = 51D4C9132BFD483E0029FCEA /* phi3-mini-4k-instruct-cpu-int4-rtn-block-32-acc-level-4.onnx.data */; };
-		51D4C9192BFD483E0029FCEA /* tokenizer_config.json in CopyFiles */ = {isa = PBXBuildFile; fileRef = 51D4C9142BFD483E0029FCEA /* tokenizer_config.json */; };
-		51D4C91E2BFD48490029FCEA /* config.json in CopyFiles */ = {isa = PBXBuildFile; fileRef = 51D4C91A2BFD48490029FCEA /* config.json */; };
-		51D4C91F2BFD48490029FCEA /* added_tokens.json in CopyFiles */ = {isa = PBXBuildFile; fileRef = 51D4C91B2BFD48490029FCEA /* added_tokens.json */; };
-		51D4C9202BFD48490029FCEA /* configuration_phi3.py in CopyFiles */ = {isa = PBXBuildFile; fileRef = 51D4C91C2BFD48490029FCEA /* configuration_phi3.py */; };
-		51D4C9212BFD48490029FCEA /* genai_config.json in CopyFiles */ = {isa = PBXBuildFile; fileRef = 51D4C91D2BFD48490029FCEA /* genai_config.json */; };
 		51D4C9232BFD507A0029FCEA /* SharedTokenUpdater.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51D4C9222BFD50790029FCEA /* SharedTokenUpdater.swift */; };
 /* End PBXBuildFile section */
-
-/* Begin PBXContainerItemProxy section */
-		51D4C8E32BFD22DC0029FCEA /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 51D4C8CA2BFD22D70029FCEA /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 51D4C8D12BFD22D70029FCEA;
-			remoteInfo = LocalLLM;
-		};
-		51D4C8ED2BFD22DC0029FCEA /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 51D4C8CA2BFD22D70029FCEA /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 51D4C8D12BFD22D70029FCEA;
-			remoteInfo = LocalLLM;
-		};
-/* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
 		51D4C9092BFD26EB0029FCEA /* Embed Libraries */ = {
@@ -67,15 +38,6 @@
 			dstPath = "";
 			dstSubfolderSpec = 7;
 			files = (
-				51D4C9152BFD483E0029FCEA /* tokenizer.json in CopyFiles */,
-				51D4C9162BFD483E0029FCEA /* phi3-mini-4k-instruct-cpu-int4-rtn-block-32-acc-level-4.onnx in CopyFiles */,
-				51D4C9172BFD483E0029FCEA /* special_tokens_map.json in CopyFiles */,
-				51D4C9182BFD483E0029FCEA /* phi3-mini-4k-instruct-cpu-int4-rtn-block-32-acc-level-4.onnx.data in CopyFiles */,
-				51D4C9192BFD483E0029FCEA /* tokenizer_config.json in CopyFiles */,
-				51D4C91E2BFD48490029FCEA /* config.json in CopyFiles */,
-				51D4C91F2BFD48490029FCEA /* added_tokens.json in CopyFiles */,
-				51D4C9202BFD48490029FCEA /* configuration_phi3.py in CopyFiles */,
-				51D4C9212BFD48490029FCEA /* genai_config.json in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -88,11 +50,6 @@
 		51D4C8D72BFD22D70029FCEA /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		51D4C8D92BFD22DB0029FCEA /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		51D4C8DC2BFD22DB0029FCEA /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
-		51D4C8E22BFD22DC0029FCEA /* LocalLLMTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = LocalLLMTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		51D4C8E62BFD22DC0029FCEA /* LocalLLMTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalLLMTests.swift; sourceTree = "<group>"; };
-		51D4C8EC2BFD22DC0029FCEA /* LocalLLMUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = LocalLLMUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		51D4C8F02BFD22DC0029FCEA /* LocalLLMUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalLLMUITests.swift; sourceTree = "<group>"; };
-		51D4C8F22BFD22DC0029FCEA /* LocalLLMUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalLLMUITestsLaunchTests.swift; sourceTree = "<group>"; };
 		51D4C9002BFD25B50029FCEA /* ort_genai_c.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ort_genai_c.h; sourceTree = "<group>"; };
 		51D4C9012BFD25B50029FCEA /* ort_genai.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ort_genai.h; sourceTree = "<group>"; };
 		51D4C9022BFD25B60029FCEA /* onnxruntime_c_api.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = onnxruntime_c_api.h; sourceTree = "<group>"; };
@@ -122,20 +79,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		51D4C8DF2BFD22DC0029FCEA /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		51D4C8E92BFD22DC0029FCEA /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -160,8 +103,6 @@
 				51D4C9142BFD483E0029FCEA /* tokenizer_config.json */,
 				51D4C9102BFD483E0029FCEA /* tokenizer.json */,
 				51D4C8D42BFD22D70029FCEA /* LocalLLM */,
-				51D4C8E52BFD22DC0029FCEA /* LocalLLMTests */,
-				51D4C8EF2BFD22DC0029FCEA /* LocalLLMUITests */,
 				51D4C8D32BFD22D70029FCEA /* Products */,
 				5156483B2BFDBB6E005CA50C /* Frameworks */,
 			);
@@ -171,8 +112,6 @@
 			isa = PBXGroup;
 			children = (
 				51D4C8D22BFD22D70029FCEA /* LocalLLM.app */,
-				51D4C8E22BFD22DC0029FCEA /* LocalLLMTests.xctest */,
-				51D4C8EC2BFD22DC0029FCEA /* LocalLLMUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -200,23 +139,6 @@
 				51D4C8DC2BFD22DB0029FCEA /* Preview Assets.xcassets */,
 			);
 			path = "Preview Content";
-			sourceTree = "<group>";
-		};
-		51D4C8E52BFD22DC0029FCEA /* LocalLLMTests */ = {
-			isa = PBXGroup;
-			children = (
-				51D4C8E62BFD22DC0029FCEA /* LocalLLMTests.swift */,
-			);
-			path = LocalLLMTests;
-			sourceTree = "<group>";
-		};
-		51D4C8EF2BFD22DC0029FCEA /* LocalLLMUITests */ = {
-			isa = PBXGroup;
-			children = (
-				51D4C8F02BFD22DC0029FCEA /* LocalLLMUITests.swift */,
-				51D4C8F22BFD22DC0029FCEA /* LocalLLMUITestsLaunchTests.swift */,
-			);
-			path = LocalLLMUITests;
 			sourceTree = "<group>";
 		};
 		51D4C8FF2BFD25890029FCEA /* header */ = {
@@ -259,42 +181,6 @@
 			productReference = 51D4C8D22BFD22D70029FCEA /* LocalLLM.app */;
 			productType = "com.apple.product-type.application";
 		};
-		51D4C8E12BFD22DC0029FCEA /* LocalLLMTests */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 51D4C8F92BFD22DC0029FCEA /* Build configuration list for PBXNativeTarget "LocalLLMTests" */;
-			buildPhases = (
-				51D4C8DE2BFD22DC0029FCEA /* Sources */,
-				51D4C8DF2BFD22DC0029FCEA /* Frameworks */,
-				51D4C8E02BFD22DC0029FCEA /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				51D4C8E42BFD22DC0029FCEA /* PBXTargetDependency */,
-			);
-			name = LocalLLMTests;
-			productName = LocalLLMTests;
-			productReference = 51D4C8E22BFD22DC0029FCEA /* LocalLLMTests.xctest */;
-			productType = "com.apple.product-type.bundle.unit-test";
-		};
-		51D4C8EB2BFD22DC0029FCEA /* LocalLLMUITests */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 51D4C8FC2BFD22DC0029FCEA /* Build configuration list for PBXNativeTarget "LocalLLMUITests" */;
-			buildPhases = (
-				51D4C8E82BFD22DC0029FCEA /* Sources */,
-				51D4C8E92BFD22DC0029FCEA /* Frameworks */,
-				51D4C8EA2BFD22DC0029FCEA /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				51D4C8EE2BFD22DC0029FCEA /* PBXTargetDependency */,
-			);
-			name = LocalLLMUITests;
-			productName = LocalLLMUITests;
-			productReference = 51D4C8EC2BFD22DC0029FCEA /* LocalLLMUITests.xctest */;
-			productType = "com.apple.product-type.bundle.ui-testing";
-		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -308,14 +194,6 @@
 					51D4C8D12BFD22D70029FCEA = {
 						CreatedOnToolsVersion = 15.2;
 						LastSwiftMigration = 1520;
-					};
-					51D4C8E12BFD22DC0029FCEA = {
-						CreatedOnToolsVersion = 15.2;
-						TestTargetID = 51D4C8D12BFD22D70029FCEA;
-					};
-					51D4C8EB2BFD22DC0029FCEA = {
-						CreatedOnToolsVersion = 15.2;
-						TestTargetID = 51D4C8D12BFD22D70029FCEA;
 					};
 				};
 			};
@@ -333,8 +211,6 @@
 			projectRoot = "";
 			targets = (
 				51D4C8D12BFD22D70029FCEA /* LocalLLM */,
-				51D4C8E12BFD22DC0029FCEA /* LocalLLMTests */,
-				51D4C8EB2BFD22DC0029FCEA /* LocalLLMUITests */,
 			);
 		};
 /* End PBXProject section */
@@ -346,20 +222,6 @@
 			files = (
 				51D4C8DD2BFD22DB0029FCEA /* Preview Assets.xcassets in Resources */,
 				51D4C8DA2BFD22DB0029FCEA /* Assets.xcassets in Resources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		51D4C8E02BFD22DC0029FCEA /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		51D4C8EA2BFD22DC0029FCEA /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -377,37 +239,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		51D4C8DE2BFD22DC0029FCEA /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				51D4C8E72BFD22DC0029FCEA /* LocalLLMTests.swift in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		51D4C8E82BFD22DC0029FCEA /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				51D4C8F32BFD22DC0029FCEA /* LocalLLMUITestsLaunchTests.swift in Sources */,
-				51D4C8F12BFD22DC0029FCEA /* LocalLLMUITests.swift in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXSourcesBuildPhase section */
-
-/* Begin PBXTargetDependency section */
-		51D4C8E42BFD22DC0029FCEA /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 51D4C8D12BFD22D70029FCEA /* LocalLLM */;
-			targetProxy = 51D4C8E32BFD22DC0029FCEA /* PBXContainerItemProxy */;
-		};
-		51D4C8EE2BFD22DC0029FCEA /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 51D4C8D12BFD22D70029FCEA /* LocalLLM */;
-			targetProxy = 51D4C8ED2BFD22DC0029FCEA /* PBXContainerItemProxy */;
-		};
-/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		51D4C8F42BFD22DC0029FCEA /* Debug */ = {
@@ -618,82 +450,6 @@
 			};
 			name = Release;
 		};
-		51D4C8FA2BFD22DC0029FCEA /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
-				BUNDLE_LOADER = "$(TEST_HOST)";
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = UBF8T346G9;
-				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 17.2;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = ai.onnxruntime.genai.demo.LocalLLMTests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/LocalLLM.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/LocalLLM";
-			};
-			name = Debug;
-		};
-		51D4C8FB2BFD22DC0029FCEA /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
-				BUNDLE_LOADER = "$(TEST_HOST)";
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = UBF8T346G9;
-				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 17.2;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = ai.onnxruntime.genai.demo.LocalLLMTests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/LocalLLM.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/LocalLLM";
-			};
-			name = Release;
-		};
-		51D4C8FD2BFD22DC0029FCEA /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = UBF8T346G9;
-				GENERATE_INFOPLIST_FILE = YES;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = ai.onnxruntime.genai.demo.LocalLLMUITests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_TARGET_NAME = LocalLLM;
-			};
-			name = Debug;
-		};
-		51D4C8FE2BFD22DC0029FCEA /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = UBF8T346G9;
-				GENERATE_INFOPLIST_FILE = YES;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = ai.onnxruntime.genai.demo.LocalLLMUITests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_TARGET_NAME = LocalLLM;
-			};
-			name = Release;
-		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -711,24 +467,6 @@
 			buildConfigurations = (
 				51D4C8F72BFD22DC0029FCEA /* Debug */,
 				51D4C8F82BFD22DC0029FCEA /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		51D4C8F92BFD22DC0029FCEA /* Build configuration list for PBXNativeTarget "LocalLLMTests" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				51D4C8FA2BFD22DC0029FCEA /* Debug */,
-				51D4C8FB2BFD22DC0029FCEA /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		51D4C8FC2BFD22DC0029FCEA /* Build configuration list for PBXNativeTarget "LocalLLMUITests" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				51D4C8FD2BFD22DC0029FCEA /* Debug */,
-				51D4C8FE2BFD22DC0029FCEA /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
