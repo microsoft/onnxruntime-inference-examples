@@ -20,7 +20,7 @@ struct ContentView: View {
             Button("Generate Tokens") {
                 DispatchQueue.global(qos: .background).async {
                     // TODO: add user prompt question UI
-                    GenAIGenerator.generate("<|user|>\n" + "Who is the current US president?" + "<|end|>\n<|assistant|>");
+                    GenAIGenerator.generate("Who is the current US president?");
                 }
             }
         }
