@@ -126,7 +126,7 @@ public class MainActivity extends AppCompatActivity implements GenAIWrapper.Toke
                 "config.json", "configuration_phi3.py", "genai_config.json",
                 "phi3-mini-4k-instruct-cpu-int4-rtn-block-32-acc-level-4.onnx",
                 "phi3-mini-4k-instruct-cpu-int4-rtn-block-32-acc-level-4.onnx.data",
-                "special_tokens_map.json", "tokenizer.model", "tokenizer.json",
+                "special_tokens_map.json", "tokenizer.json", "tokenizer.model",
                 "tokenizer_config.json");
 
         Toast.makeText(this, "Downloading model for the app... Model Size greater than 2GB, please allow a few minutes to download.", Toast.LENGTH_SHORT).show();
