@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
+import android.util.Pair;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -110,32 +111,46 @@ public class MainActivity extends AppCompatActivity implements GenAIWrapper.Toke
     }
 
     private void downloadModels(Context context) throws GenAIException {
-        List<String> urls = Arrays.asList(
-                "https://huggingface.co/microsoft/Phi-3-mini-4k-instruct-onnx/resolve/main/cpu_and_mobile/cpu-int4-rtn-block-32-acc-level-4/added_tokens.json?download=true",
-                "https://huggingface.co/microsoft/Phi-3-mini-4k-instruct-onnx/resolve/main/cpu_and_mobile/cpu-int4-rtn-block-32-acc-level-4/config.json?download=true",
-                "https://huggingface.co/microsoft/Phi-3-mini-4k-instruct-onnx/resolve/main/cpu_and_mobile/cpu-int4-rtn-block-32-acc-level-4/configuration_phi3.py?download=true",
-                "https://huggingface.co/microsoft/Phi-3-mini-4k-instruct-onnx/resolve/main/cpu_and_mobile/cpu-int4-rtn-block-32-acc-level-4/genai_config.json?download=true",
-                "https://huggingface.co/microsoft/Phi-3-mini-4k-instruct-onnx/resolve/main/cpu_and_mobile/cpu-int4-rtn-block-32-acc-level-4/phi3-mini-4k-instruct-cpu-int4-rtn-block-32-acc-level-4.onnx?download=true",
-                "https://huggingface.co/microsoft/Phi-3-mini-4k-instruct-onnx/resolve/main/cpu_and_mobile/cpu-int4-rtn-block-32-acc-level-4/phi3-mini-4k-instruct-cpu-int4-rtn-block-32-acc-level-4.onnx.data?download=true",
-                "https://huggingface.co/microsoft/Phi-3-mini-4k-instruct-onnx/resolve/main/cpu_and_mobile/cpu-int4-rtn-block-32-acc-level-4/special_tokens_map.json?download=true",
-                "https://huggingface.co/microsoft/Phi-3-mini-4k-instruct-onnx/resolve/main/cpu_and_mobile/cpu-int4-rtn-block-32-acc-level-4/tokenizer.json?download=true",
-                "https://huggingface.co/microsoft/Phi-3-mini-4k-instruct-onnx/resolve/main/cpu_and_mobile/cpu-int4-rtn-block-32-acc-level-4/tokenizer.model?download=true",
-                "https://huggingface.co/microsoft/Phi-3-mini-4k-instruct-onnx/resolve/main/cpu_and_mobile/cpu-int4-rtn-block-32-acc-level-4/tokenizer_config.json?download=true");
-
-        List<String> fileNames = Arrays.asList("added_tokens.json",
-                "config.json", "configuration_phi3.py", "genai_config.json",
-                "phi3-mini-4k-instruct-cpu-int4-rtn-block-32-acc-level-4.onnx",
-                "phi3-mini-4k-instruct-cpu-int4-rtn-block-32-acc-level-4.onnx.data",
-                "special_tokens_map.json", "tokenizer.model", "tokenizer.json",
-                "tokenizer_config.json");
-
-        Toast.makeText(this, "Downloading model for the app... Model Size greater than 2GB, please allow a few minutes to download.", Toast.LENGTH_SHORT).show();
+        List<Pair<String, String>> urlFilePairs = Arrays.asList(
+                new Pair<>(
+                        "https://huggingface.co/microsoft/Phi-3-mini-4k-instruct-onnx/resolve/main/cpu_and_mobile/cpu-int4-rtn-block-32-acc-level-4/added_tokens.json?download=true",
+                        "added_tokens.json"),
+                new Pair<>(
+                        "https://huggingface.co/microsoft/Phi-3-mini-4k-instruct-onnx/resolve/main/cpu_and_mobile/cpu-int4-rtn-block-32-acc-level-4/config.json?download=true",
+                        "config.json"),
+                new Pair<>(
+                        "https://huggingface.co/microsoft/Phi-3-mini-4k-instruct-onnx/resolve/main/cpu_and_mobile/cpu-int4-rtn-block-32-acc-level-4/configuration_phi3.py?download=true",
+                        "configuration_phi3.py"),
+                new Pair<>(
+                        "https://huggingface.co/microsoft/Phi-3-mini-4k-instruct-onnx/resolve/main/cpu_and_mobile/cpu-int4-rtn-block-32-acc-level-4/genai_config.json?download=true",
+                        "genai_config.json"),
+                new Pair<>(
+                        "https://huggingface.co/microsoft/Phi-3-mini-4k-instruct-onnx/resolve/main/cpu_and_mobile/cpu-int4-rtn-block-32-acc-level-4/phi3-mini-4k-instruct-cpu-int4-rtn-block-32-acc-level-4.onnx?download=true",
+                        "phi3-mini-4k-instruct-cpu-int4-rtn-block-32-acc-level-4.onnx"),
+                new Pair<>(
+                        "https://huggingface.co/microsoft/Phi-3-mini-4k-instruct-onnx/resolve/main/cpu_and_mobile/cpu-int4-rtn-block-32-acc-level-4/phi3-mini-4k-instruct-cpu-int4-rtn-block-32-acc-level-4.onnx.data?download=true",
+                        "phi3-mini-4k-instruct-cpu-int4-rtn-block-32-acc-level-4.onnx.data"),
+                new Pair<>(
+                        "https://huggingface.co/microsoft/Phi-3-mini-4k-instruct-onnx/resolve/main/cpu_and_mobile/cpu-int4-rtn-block-32-acc-level-4/special_tokens_map.json?download=true",
+                        "special_tokens_map.json"),
+                new Pair<>(
+                        "https://huggingface.co/microsoft/Phi-3-mini-4k-instruct-onnx/resolve/main/cpu_and_mobile/cpu-int4-rtn-block-32-acc-level-4/tokenizer.json?download=true",
+                        "tokenizer.json"),
+                new Pair<>(
+                        "https://huggingface.co/microsoft/Phi-3-mini-4k-instruct-onnx/resolve/main/cpu_and_mobile/cpu-int4-rtn-block-32-acc-level-4/tokenizer.model?download=true",
+                        "tokenizer.model"),
+                new Pair<>(
+                        "https://huggingface.co/microsoft/Phi-3-mini-4k-instruct-onnx/resolve/main/cpu_and_mobile/cpu-int4-rtn-block-32-acc-level-4/tokenizer_config.json?download=true",
+                        "tokenizer_config.json"));
+        Toast.makeText(this,
+                "Downloading model for the app... Model Size greater than 2GB, please allow a few minutes to download.",
+                Toast.LENGTH_SHORT).show();
 
         ExecutorService executor = Executors.newSingleThreadExecutor();
-        for (int i = 0; i < urls.size(); i++) {
+        for (int i = 0; i < urlFilePairs.size(); i++) {
             final int index = i;
-            String url = urls.get(index);
-            String fileName = fileNames.get(index);
+            String url = urlFilePairs.get(index).first;
+            String fileName = urlFilePairs.get(index).second;
             if (fileExists(context, fileName)) {
                 // Display a message using Toast
                 Toast.makeText(this, "File already exists. Skipping Download.", Toast.LENGTH_SHORT).show();
@@ -153,7 +168,7 @@ public class MainActivity extends AppCompatActivity implements GenAIWrapper.Toke
                     @Override
                     public void onDownloadComplete() throws GenAIException {
                         Log.d(TAG, "Download complete for " + fileName);
-                        if (index == urls.size() - 1) {
+                        if (index == urlFilePairs.size() - 1) {
                             // Last download completed, create GenAIWrapper
                             genAIWrapper = createGenAIWrapper();
                             Log.d(TAG, "All downloads completed");
