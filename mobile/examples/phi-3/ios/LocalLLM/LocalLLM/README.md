@@ -6,6 +6,14 @@
 
 See the general prerequisites [here](../../../../../README.md#General-Prerequisites).
 
+For this application, the following prerequisites are preferred:
+
+1. macOS 14+
+
+2. Xcode 15+ (latest Xcode version perferred.)
+
+3. iOS SDK 16.x + (iPhone 14 or iPhone 15 powered by a A16 or A17 preferred)
+
 **Note**: 
   The current Xcode project contains a built .dylib for ORT and ORT GenAI. The following steps `A, B, C` under `step 1.` for building from source for the libraries are optional.
   However if you want to build from source to include the latest updates, please use the `step 1.` as a reference.
@@ -14,20 +22,14 @@ See the general prerequisites [here](../../../../../README.md#General-Prerequisi
 
 #### **A. Preparation**
 
-1. macOS 14+
+1. Install Python 3.10+
 
-2. Xcode 15+
-
-3. iOS SDK 16.x + (iPhone 14 or iPhone 15 powered by a A16 or A17 preferred)
-
-4. Install Python 3.10+
-
-5. Install flatbuffers
+2. Install flatbuffers
   ```
     pip3 install flatbuffers
   ```
 
-6. Install [CMake](https://cmake.org/download/)
+3. Install [CMake](https://cmake.org/download/)
 
 #### **B. Compiling ONNX Runtime for iOS**
 
@@ -77,15 +79,17 @@ The app uses Objective-C/C++ since using Generative AI with ONNX Runtime C++ API
 If you built from source and get the latest .dylibs for ORT and ORT GenAI, please copy the dylibs over to `<PROJECT_ROOT>/lib` and copy the latest header source files over to `<PROJECT_ROOT>/header` .
 
 Source header files required including:
-`<ORT_MAIN_SOURCE_REPO>/onnxruntime/core/session/onnxruntime_c_api.h`
-`<ORT_GENAI_MAIN_SOURCE_REPO>/src/ort_genai.h`
-`<ORT_GENAI_MAIN_SOURCE_REPO>/src/ort_genai_c.h`
+`<ORT_MAIN_SOURCE_REPO>/onnxruntime/core/session/onnxruntime_c_api.h`,
+`<ORT_GENAI_MAIN_SOURCE_REPO>/src/ort_genai.h`,
+`<ORT_GENAI_MAIN_SOURCE_REPO>/src/ort_genai_c.h`.
 
 ### 4. Copy the ONNX quantized INT4 model to the App application project
 
 Download from hf repo: <https://huggingface.co/microsoft/Phi-3-mini-128k-instruct-onnx/tree/main/cpu_and_mobile/cpu-int4-rtn-block-32-acc-level-4>
 
 After downloading completes, you need to copy files over to the `Resources` directory in the `Destination` column of `Target-LocalLLM`->`Build Phases`-> `New Copy File Phases` -> `Copy Files`.
+
+Upon app launching, Xcode will automatically copy and install the model files from Resources folder and directly download to the iOS device.
 
 ### 5. Run the app and checkout the streaming output token results
 
