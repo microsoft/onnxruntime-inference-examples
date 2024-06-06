@@ -2,9 +2,13 @@
 
 ## **Steps**
 
+### General prerequisites
+
+See the general prerequisites [here](../../../../../README.md#General-Prerequisites).
+
 **Note**: 
-  The current Xcode project contains a built .dylib for ORT and ORT GenAI. The following steps `A, B, C` are optional.
-  However if you want to build from source for the libraries, can use the steps as a reference.
+  The current Xcode project contains a built .dylib for ORT and ORT GenAI. The following steps `A, B, C` under `step 1.` for building from source for the libraries are optional.
+  However if you want to build from source to include the latest updates, please use the `step 1.` as a reference.
 
 ### 1. Steps to build from source for ONNX Runtime and Generative AI libraries [Optional]
 
@@ -64,11 +68,11 @@ python3 build.py --parallel --build_dir ./build_iphoneos --ios --ios_sysroot iph
 ```
 
 
-#### 2. Create/Open the iOS application in Xcode
+### 2. Create/Open the iOS application in Xcode
 
 The app uses Objective-C/C++ since using Generative AI with ONNX Runtime C++ API, Objective-C has better compatiblility.
 
-#### 3. Copy over latest header files and required .dylibs built from source [Optional]
+### 3. Copy over latest header files and required .dylibs built from source [Optional]
 
 If you built from source and get the latest .dylibs for ORT and ORT GenAI, please copy the dylibs over to `<PROJECT_ROOT>/lib` and copy the latest header source files over to `<PROJECT_ROOT>/header` .
 
@@ -77,13 +81,13 @@ Source header files required including:
 `<ORT_GENAI_MAIN_SOURCE_REPO>/src/ort_genai.h`
 `<ORT_GENAI_MAIN_SOURCE_REPO>/src/ort_genai_c.h`
 
-#### 4. Copy the ONNX quantized INT4 model to the App application project**
+### 4. Copy the ONNX quantized INT4 model to the App application project
 
 Download from hf repo: <https://huggingface.co/microsoft/Phi-3-mini-128k-instruct-onnx/tree/main/cpu_and_mobile/cpu-int4-rtn-block-32-acc-level-4>
 
 After downloading completes, you need to copy files over to the `Resources` directory in the `Destination` column of `Target-LocalLLM`->`Build Phases`-> `New Copy File Phases` -> `Copy Files`.
 
-#### 5. Run the app and checkout the streaming output token results**
+### 5. Run the app and checkout the streaming output token results
 
 **Note**: The current app only sets up with a simple initial prompt question, you can adjust/try your own or refine the UI based on requirements.
 
