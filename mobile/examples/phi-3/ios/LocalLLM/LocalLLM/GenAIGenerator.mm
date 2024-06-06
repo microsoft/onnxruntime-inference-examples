@@ -44,9 +44,6 @@
     // Add decoded token to SharedTokenUpdater
     NSString* decodedTokenString = [NSString stringWithUTF8String:decode_tokens];
     [SharedTokenUpdater.shared addDecodedToken:decodedTokenString];
-
-    // Introduce a delay to allow the UI to update
-    [NSThread sleepForTimeInterval:0.01];  // Adjust the delay as needed
   }
 }
 @end
