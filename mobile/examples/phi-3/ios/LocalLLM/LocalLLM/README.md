@@ -53,7 +53,7 @@ sudo xcode-select -switch /Applications/Xcode.app/Contents/Developer
 
 ```
 
-  1. ONNX Runtime needs to be compiled based on different platforms. For iOS, you can compile for arm64 or x86_64 based on needs. If you running on ios simulator on an Intel mac, compile for x86_64. And arm64 for an ARM based mac to run the simulator or actual iphone device.
+  1. ONNX Runtime needs to be compiled based on different platforms. For iOS, you can compile for arm64 or x86_64 based on needs. If you are running an iOS simulator on an Intel mac, compile for x86_64. Use arm64 for an ARM based mac to run the simulator, and to run on an iPhone.
    
   2. It is recommended to directly use the latest iOS SDK for compilation. Of course, you can also lower the version to be compatible with past SDKs.
 
