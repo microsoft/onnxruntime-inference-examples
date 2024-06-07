@@ -69,21 +69,20 @@ python3 build.py --parallel --build_dir ./build_iphoneos --ios --ios_sysroot iph
 
 ```
 
+#### **D. Copy over latest header files and required .dylibs built from source**
 
-### 2. Create/Open the iOS application in Xcode
-
-The app uses Objective-C/C++ since using Generative AI with ONNX Runtime C++ API, Objective-C has better compatiblility.
-
-### 3. Copy over latest header files and required .dylibs built from source [Optional]
-
-If you built from source and get the latest .dylibs for ORT and ORT GenAI, please copy the dylibs over to `<PROJECT_ROOT>/lib` and copy the latest header source files over to `<PROJECT_ROOT>/header` .
+If you build from source and get the latest .dylibs for ORT and ORT GenAI, please copy the .dylibs over to `mobile\examples\phi-3\ios\LocalLLM\LocalLLM\lib` and copy the latest header files over to `mobile\examples\phi-3\ios\LocalLLM\LocalLLM\header`.
 
 Source header files required including:
 `<ORT_MAIN_SOURCE_REPO>/onnxruntime/core/session/onnxruntime_c_api.h`,
 `<ORT_GENAI_MAIN_SOURCE_REPO>/src/ort_genai.h`,
 `<ORT_GENAI_MAIN_SOURCE_REPO>/src/ort_genai_c.h`.
 
-### 4. Copy the ONNX quantized INT4 model to the App application project
+### 2. Create/Open the iOS application in Xcode
+
+The app uses Objective-C/C++ since using Generative AI with ONNX Runtime C++ API, Objective-C has better compatiblility.
+
+### 3. Copy the ONNX quantized INT4 model to the App application project
 
 Download from hf repo: <https://huggingface.co/microsoft/Phi-3-mini-128k-instruct-onnx/tree/main/cpu_and_mobile/cpu-int4-rtn-block-32-acc-level-4>
 
@@ -91,7 +90,7 @@ After downloading completes, you need to copy files over to the `Resources` dire
 
 Upon app launching, Xcode will automatically copy and install the model files from Resources folder and directly download to the iOS device.
 
-### 5. Run the app and checkout the streaming output token results
+### 4. Run the app and checkout the streaming output token results
 
 **Note**: The current app only sets up with a simple initial prompt question, you can adjust/try your own or refine the UI based on requirements.
 
