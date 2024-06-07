@@ -73,12 +73,14 @@ python3 build.py --parallel --build_dir ./build_iphoneos --ios --ios_sysroot iph
 
 If you build from source and get the latest .dylibs for ORT and ORT GenAI, please copy the .dylibs over to `mobile\examples\phi-3\ios\LocalLLM\LocalLLM\lib` and copy the latest header files over to `mobile\examples\phi-3\ios\LocalLLM\LocalLLM\header` 
 
+Usually the build output path for libonnxruntime.dylib is under `<ORT_PROJECT_ROOT>/build/intermediates/<platform>_<arch>/<build_config>/<build_config-platform>/libonnxruntime.dylib` and the build output path for libonnxruntime-genai.dylib is under `<ORT_GENAI_PROJECT_ROOT>/build/<build_config-platform>/libonnxruntime-genai.dylib`. For example: 
+it may look like: `onnxruntime/build/intermediates/iphoneos_arm64/Release/Release-iphoneos/libonnxruntime.1.19.0.dylib`
+and similarly `onnxruntime-genai/build/Release/Release-iphoneos/libonnxruntime-genai.dylib`.
 The resulting header directory should correctly contains:
-`mobile\examples\phi-3\ios\LocalLLM\LocalLLM\header\libonnxruntime-genai.dylib`
-`mobile\examples\phi-3\ios\LocalLLM\LocalLLM\header\libonnxruntime.1.19.0.dylib`
+`mobile\examples\phi-3\ios\LocalLLM\LocalLLM\lib\libonnxruntime-genai.dylib`
+`mobile\examples\phi-3\ios\LocalLLM\LocalLLM\lib\libonnxruntime.1.19.0.dylib`
 
-
-Source header files required including:
+And the source header files required including:
 `<ORT_MAIN_SOURCE_REPO>/onnxruntime/core/session/onnxruntime_c_api.h`,
 `<ORT_GENAI_MAIN_SOURCE_REPO>/src/ort_genai.h`,
 `<ORT_GENAI_MAIN_SOURCE_REPO>/src/ort_genai_c.h`.
