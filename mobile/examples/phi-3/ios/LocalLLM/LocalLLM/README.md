@@ -22,14 +22,14 @@ For this application, the following prerequisites are preferred:
 
 #### **A. Preparation**
 
-1. Install Python 3.10+
+   - Install Python 3.10+
 
-2. Install flatbuffers
-  ```
-    pip3 install flatbuffers
-  ```
+   - Install flatbuffers
+     ```
+       pip3 install flatbuffers
+     ```
 
-3. Install [CMake](https://cmake.org/download/)
+   - Install [CMake](https://cmake.org/download/)
 
 #### **B. Compiling ONNX Runtime for iOS**
 
@@ -39,7 +39,7 @@ git clone https://github.com/microsoft/onnxruntime.git
 
 cd onnxruntime
 
-./build.sh --build_shared_lib --ios --skip_tests --parallel --build_dir ./build_ios --ios --apple_sysroot iphoneos --osx_arch arm64 --apple_deploy_target 16.6 --cmake_generator Xcode --config Release
+./build.sh --build_shared_lib --skip_tests --parallel --build_dir ./build_ios --ios --apple_sysroot iphoneos --osx_arch arm64 --apple_deploy_target 16.6 --cmake_generator Xcode --config Release
 
 ```
 
@@ -53,9 +53,9 @@ sudo xcode-select -switch /Applications/Xcode.app/Contents/Developer
 
 ```
 
-  1. ONNX Runtime needs to be compiled based on different platforms. For iOS, you can compile for arm64 or x86_64 based on needs. If you are running an iOS simulator on an Intel mac, compile for x86_64. Use arm64 for an ARM based mac to run the simulator, and to run on an iPhone.
+  2. ONNX Runtime needs to be compiled based on different platforms. For iOS, you can compile for arm64 or x86_64 based on needs. If you are running an iOS simulator on an Intel mac, compile for x86_64. Use arm64 for an ARM based mac to run the simulator, and to run on an iPhone.
    
-  2. It is recommended to directly use the latest iOS SDK for compilation. Of course, you can also lower the version to be compatible with past SDKs.
+  3. It is recommended to directly use the latest iOS SDK for compilation. Of course, you can also lower the version to be compatible with past SDKs.
 
 #### **C. Compiling Generative AI with ONNX Runtime for iOS**
 
