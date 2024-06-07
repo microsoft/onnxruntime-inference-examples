@@ -73,16 +73,19 @@ python3 build.py --parallel --build_dir ./build_iphoneos --ios --ios_sysroot iph
 
 If you build from source and get the latest .dylibs for ORT and ORT GenAI, please copy the .dylibs over to `mobile\examples\phi-3\ios\LocalLLM\LocalLLM\lib` and copy the latest header files over to `mobile\examples\phi-3\ios\LocalLLM\LocalLLM\header` 
 
-Usually the build output path for libonnxruntime.dylib is under `<ORT_PROJECT_ROOT>/build/intermediates/<platform>_<arch>/<build_config>/<build_config-platform>/libonnxruntime.dylib` and the build output path for libonnxruntime-genai.dylib is under `<ORT_GENAI_PROJECT_ROOT>/build/<build_config-platform>/libonnxruntime-genai.dylib`. For example: 
-it may look like: `onnxruntime/build/intermediates/iphoneos_arm64/Release/Release-iphoneos/libonnxruntime.1.19.0.dylib`
-and similarly `onnxruntime-genai/build/Release/Release-iphoneos/libonnxruntime-genai.dylib`.
-(The absolute path may be slightly different based on build folder/config/architecture.)
+The build output path for libonnxruntime.dylib is `<ORT_PROJECT_ROOT>/build/intermediates/<platform>_<arch>/<build_config>/<build_config-platform>/libonnxruntime.dylib` 
+The build output path for libonnxruntime-genai.dylib is `<ORT_GENAI_PROJECT_ROOT>/build/<build_config-platform>/libonnxruntime-genai.dylib`. 
 
-The resulting header directory should correctly contains:
-`mobile\examples\phi-3\ios\LocalLLM\LocalLLM\lib\libonnxruntime-genai.dylib`
-`mobile\examples\phi-3\ios\LocalLLM\LocalLLM\lib\libonnxruntime.1.19.0.dylib`
+For example: 
+- `onnxruntime/build/intermediates/iphoneos_arm64/Release/Release-iphoneos/libonnxruntime.1.19.0.dylib`
+- `onnxruntime-genai/build/Release/Release-iphoneos/libonnxruntime-genai.dylib`.
 
-And the source header files required including:
+Note that you will need to build and copy the correct dylib for the target architecture you wish to run the app on.
+e.g. 
+if you want to run on the iOS simulator on an Intel mac, you must build both onnxruntime and onnxruntime-genai for x86_64 and copy the dylibs to the app's `lib` directory.
+if you want to run on an iPhone, you must build both onnxruntime and onnxruntime-genai for arm64 and copy the dylibs to the app's `lib` directory.
+
+The header files to copy are:
 `<ORT_MAIN_SOURCE_REPO>/onnxruntime/core/session/onnxruntime_c_api.h`,
 `<ORT_GENAI_MAIN_SOURCE_REPO>/src/ort_genai.h`,
 `<ORT_GENAI_MAIN_SOURCE_REPO>/src/ort_genai_c.h`.
