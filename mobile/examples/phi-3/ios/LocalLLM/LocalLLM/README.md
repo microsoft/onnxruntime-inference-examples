@@ -71,7 +71,12 @@ python3 build.py --parallel --build_dir ./build_iphoneos --ios --ios_sysroot iph
 
 #### **D. Copy over latest header files and required .dylibs built from source**
 
-If you build from source and get the latest .dylibs for ORT and ORT GenAI, please copy the .dylibs over to `mobile\examples\phi-3\ios\LocalLLM\LocalLLM\lib` and copy the latest header files over to `mobile\examples\phi-3\ios\LocalLLM\LocalLLM\header`.
+If you build from source and get the latest .dylibs for ORT and ORT GenAI, please copy the .dylibs over to `mobile\examples\phi-3\ios\LocalLLM\LocalLLM\lib` and copy the latest header files over to `mobile\examples\phi-3\ios\LocalLLM\LocalLLM\header` 
+
+The resulting header directory should correctly contains:
+`mobile\examples\phi-3\ios\LocalLLM\LocalLLM\header\libonnxruntime-genai.dylib`
+`mobile\examples\phi-3\ios\LocalLLM\LocalLLM\header\libonnxruntime.1.19.0.dylib`
+
 
 Source header files required including:
 `<ORT_MAIN_SOURCE_REPO>/onnxruntime/core/session/onnxruntime_c_api.h`,
