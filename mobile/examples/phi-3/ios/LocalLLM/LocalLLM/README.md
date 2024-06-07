@@ -76,6 +76,8 @@ If you build from source and get the latest .dylibs for ORT and ORT GenAI, pleas
 Usually the build output path for libonnxruntime.dylib is under `<ORT_PROJECT_ROOT>/build/intermediates/<platform>_<arch>/<build_config>/<build_config-platform>/libonnxruntime.dylib` and the build output path for libonnxruntime-genai.dylib is under `<ORT_GENAI_PROJECT_ROOT>/build/<build_config-platform>/libonnxruntime-genai.dylib`. For example: 
 it may look like: `onnxruntime/build/intermediates/iphoneos_arm64/Release/Release-iphoneos/libonnxruntime.1.19.0.dylib`
 and similarly `onnxruntime-genai/build/Release/Release-iphoneos/libonnxruntime-genai.dylib`.
+(The absolute path may be slightly different based on build folder/config/architecture.)
+
 The resulting header directory should correctly contains:
 `mobile\examples\phi-3\ios\LocalLLM\LocalLLM\lib\libonnxruntime-genai.dylib`
 `mobile\examples\phi-3\ios\LocalLLM\LocalLLM\lib\libonnxruntime.1.19.0.dylib`
