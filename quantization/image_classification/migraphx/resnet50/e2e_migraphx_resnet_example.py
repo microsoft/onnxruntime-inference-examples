@@ -167,6 +167,8 @@ class ImageNetDataReader(CalibrationDataReader):
         '''
         def preprocess_images(input, channels=3, height=224, width=224):
             image = input.resize((width, height), Image.Resampling.LANCZOS)
+            if image.mode in ["CMYK", "RGBA"]:
+                image = image.convert("RGB")
             input_data = np.asarray(image).astype(np.float32)
             if len(input_data.shape) != 2:
                 input_data = input_data.transpose([2, 0, 1])
@@ -291,7 +293,6 @@ class ImageClassificationEvaluator:
     def top_k_accuracy(self, truth, prediction, k=1):
         '''From https://github.com/chainer/chainer/issues/606
         '''
-
         y = np.argsort(prediction)[:, -k:]
         return np.any(y.T == truth.argmax(axis=1), axis=0).mean()
 
@@ -301,7 +302,7 @@ class ImageClassificationEvaluator:
         y_prediction = np.empty((total_val_images, 1000), dtype=np.float32)
         i = 0
         for res in prediction_results:
-            y_prediction[i:i + batch_size, :] = res[0]
+            y_prediction[i:i + res[0].shape[0], :] = res[0]
             i = i + batch_size
         print("top 1: ", self.top_k_accuracy(self.synset_id, y_prediction, k=1))
         print("top 5: ", self.top_k_accuracy(self.synset_id, y_prediction, k=5))
