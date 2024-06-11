@@ -1,63 +1,47 @@
-# Run Segment-Anything in your browser using webgpu and onnxruntime-web
+# Segment-Anything: Browser-Based Image Segmentation with WebGPU and ONNX Runtime Web
 
-This example demonstrates how to run [Segment-Anything](https://github.com/facebookresearch/segment-anything) in your 
-browser using [onnxruntime-web](https://github.com/microsoft/onnxruntime) and webgpu.
+This repository contains an example of running [Segment-Anything](https://github.com/facebookresearch/segment-anything), an encoder/decoder model for image segmentation, in a browser using [ONNX Runtime Web](https://github.com/microsoft/onnxruntime) with WebGPU.
 
-Segment-Anything is a encoder/decoder model. The encoder creates embeddings and using the embeddings the decoder creates the segmentation mask.
+You can try out the live demo [here](https://guschmue.github.io/ort-webgpu/segment-anything/index.html).
 
-One can run the decoder in onnxruntime-web using WebAssembly with  latencies at ~200ms. 
+## Model Overview
 
-The encoder is much more compute intensive and takes ~45sec using WebAssembly what is not practical.
-Using webgpu we can speedup the encoder ~50 times and it becomes visible to run it inside the browser, even on a integrated GPU.
+Segment-Anything creates embeddings for an image using an encoder. These embeddings are then used by the decoder to create and update the segmentation mask. The decoder can run in ONNX Runtime Web using WebAssembly with latencies at ~200ms. 
 
-## Usage
+The encoder is more compute-intensive, taking ~45sec in WebAssembly, which is not practical. However, by using WebGPU, we can speed up the encoder, making it feasible to run it inside the browser, even on an integrated GPU.
+
+## Getting Started
+
+### Prerequisites
+
+Ensure that you have [Node.js](https://nodejs.org/) installed on your machine.
 
 ### Installation
-First, install the required dependencies by running the following command in your terminal:
+
+1. Install the required dependencies:
+
 ```sh
 npm install
 ```
 
-### Build the code
-Next, bundle the code using webpack by running:
+### Building the Project
+
+1. Bundle the code using webpack:
+
 ```sh
 npm run build
 ```
-this generates the bundle file `./dist/bundle.min.js`
 
-### Create an ONNX Model
+This command generates the bundle file `./dist/index.js`.
 
-We use [samexporter](https://github.com/vietanhdev/samexporter) to export encoder and decoder to onnx.
-Install samexporter:
+### The ONNX Model
+
+The model used in this project is hosted on [Hugging Face](https://huggingface.co/schmuell/sam-b-fp16). It was created using [samexporter](https://github.com/vietanhdev/samexporter).
+
+### Running the Project
+
+Start a web server to serve the current folder at http://localhost:8888/. To start the server, run:
+
 ```sh
-pip install https://github.com/vietanhdev/samexporter
+npm run dev
 ```
-Download the pytorch model from [Segment-Anything](https://github.com/facebookresearch/segment-anything). We use the smallest flavor (vit_b).
-```sh
-curl -o models/sam_vit_b_01ec64.pth https://dl.fbaipublicfiles.com/segment_anything/sam_vit_b_01ec64.pth
-```
-Export both encoder and decoder to onnx:
-```sh
-python -m samexporter.export_encoder --checkpoint models/sam_vit_b_01ec64.pth \
-    --output models/sam_vit_b_01ec64.encoder.onnx \
-    --model-type vit_b 
-
-python -m samexporter.export_decoder --checkpoint models/sam_vit_b_01ec64.pth \
-    --output models/sam_vit_b_01ec64.decoder.onnx \
-    --model-type vit_b \
-    --return-single-mask
-```
-### Start a web server
-Use NPM package `light-server` to serve the current folder at http://localhost:8888/.
-To start the server, run:
-```sh
-npx light-server -s . -p 8888
-```
-
-### Point your browser at the web server
-Once the web server is running, open your browser and navigate to http://localhost:8888/. 
-You should now be able to run Segment-Anything in your browser.
-
-## TODO
-* add support for fp16
-* add support for MobileSam

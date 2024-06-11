@@ -52,16 +52,31 @@ IF NOT EXIST mobilenetv2-12_shape.onnx (
 
 :INSTALL_PYTHON_DEPS_AND_RUN_HELPER
 @ECHO ON
-pip install opencv-python
-pip install pillow
-pip install onnx
-pip install onnxruntime
+python -m pip install opencv-python
+python -m pip install pillow
+python -m pip install onnx
+python -m pip install onnxruntime
 python mobilenetv2_helper.py
 @ECHO OFF
 GOTO END_PYTHON
 
 :END_PYTHON
 
+REM Converter float32 model to float16 model
+IF NOT EXIST mobilenetv2-12_shape_fp16.onnx (
+    GOTO INSTALL_CONVERTER_AND_RUN
+) ELSE (
+    GOTO END_CONVERTER
+)
+
+:INSTALL_CONVERTER_AND_RUN
+@ECHO ON
+python -m pip install onnxconverter-common
+python to_fp16.py
+@ECHO OFF
+GOTO END_CONVERTER
+
+:END_CONVERTER
 
 REM Download add_trans_cast.py file
 set QNN_CTX_ONNX_GEN_SCRIPT_URL="https://raw.githubusercontent.com/microsoft/onnxruntime/main/onnxruntime/python/tools/qnn/gen_qnn_ctx_onnx_model.py"
@@ -106,9 +121,13 @@ copy /y %ORT_BIN%\libQnnHtpV68Skel.so .
 IF EXIST %ORT_BIN%\libQnnHtpV73Skel.so (
     copy /y %ORT_BIN%\libQnnHtpV73Skel.so
 )
+IF EXIST %ORT_BIN%\libqnnhtpv73.cat (
+    copy /y %ORT_BIN%\libqnnhtpv73.cat
+)
 copy /y ..\..\mobilenetv2-12_shape.onnx .
 copy /y ..\..\mobilenetv2-12_quant_shape.onnx .
 copy /y ..\..\mobilenetv2-12_net_qnn_ctx.onnx .
+copy /y ..\..\mobilenetv2-12_shape_fp16.onnx .
 copy /y ..\..\kitten_input.raw .
 copy /y ..\..\kitten_input_nhwc.raw .
 copy /y ..\..\synset.txt .
@@ -136,6 +155,14 @@ IF EXIST mobilenetv2-12_quant_shape.onnx_ctx.onnx (
 
 REM run mobilenetv2-12_net_qnn_ctx.onnx (generated from native QNN) with QNN HTP backend
 qnn_ep_sample.exe --qnn mobilenetv2-12_net_qnn_ctx.onnx kitten_input_nhwc.raw
+
+REM only works for v73 and higher
+REM run mobilenetv2-12_shape.onnx (float32 model) with QNN HTP backend with FP16 precision
+qnn_ep_sample.exe --fp32 mobilenetv2-12_shape.onnx kitten_input.raw
+
+REM only works for v73 and higher
+REM run mobilenetv2-12_shape_fp16.onnx (float16 model with float32 IO) with QNN HTP backend 
+qnn_ep_sample.exe --fp16 mobilenetv2-12_shape_fp16.onnx kitten_input.raw
 
 :EXIT
 popd

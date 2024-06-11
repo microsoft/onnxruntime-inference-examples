@@ -398,9 +398,15 @@ if __name__ == '__main__':
         print("Write complete")
 
     if flags.fp16:
+<<<<<<< add_migx_bert_squad_quant_example
         os.environ["ORT_MIGRAPHX_FP16_ENABLE"] = 1
     else:
         os.environ["ORT_MIGRAPHX_FP16_ENABLE"] = 0
+=======
+        os.environ["ORT_MIGRAPHX_FP16_ENABLE"] = "1"
+    else:
+        os.environ["ORT_MIGRAPHX_FP16_ENABLE"] = "0"
+>>>>>>> main
 
     # Run prediction in MIGraphX EP138G
     data_reader = ImageNetDataReader(ilsvrc2012_dataset_path,
@@ -422,5 +428,11 @@ if __name__ == '__main__':
     evaluator.evaluate(result)
 
     #Set OS flags to off to ensure we don't interfere with other test runs
+<<<<<<< add_migx_bert_squad_quant_example
     os.environ["ORT_MIGRAPHX_FP16_ENABLE"] = 0
     os.environ["ORT_MIGRAPHX_INT8_ENABLE"] = 0
+=======
+
+    os.environ["ORT_MIGRAPHX_FP16_ENABLE"] = "0"
+    os.environ["ORT_MIGRAPHX_INT8_ENABLE"] = "0"
+>>>>>>> main

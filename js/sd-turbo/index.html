@@ -1,0 +1,55 @@
+<html>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous" />
+<script type="module">
+    import { AutoTokenizer } from 'https://cdn.jsdelivr.net/npm/@xenova/transformers/dist/transformers.js'
+    window.AutoTokenizer = AutoTokenizer;
+</script>
+<script type="module" src="dist/index.js"></script>
+
+<head>
+    <title>Stable Diffusion Turbo</title>
+</head>
+
+<style>
+    .onerow {
+        display: flex;
+    }
+</style>
+
+<body data-bs-theme="dark">
+    <div class="container">
+        <div class="row pt-3">
+            <div class="col-md-9 col-12">
+                <h2>Stable Diffusion Turbo</h2>
+            </div>
+        </div>
+        <div class="container p-2 card" id="input-area">
+            <div class="input-group">
+                <textarea class="form-control" id="user-input" placeholder="Type your question here..."></textarea>
+                <button id="send-button" class="btn btn-primary">Send</button>
+            </div>
+        </div>
+        <div id="image_area">
+            <div class="onerow">
+                <div id="img_div_0" style="margin-right: 4px;">
+                    <canvas id="img_canvas_0"></canvas>
+                </div>
+                <div id="img_div_1" style="margin-right: 4px;">
+                    <canvas id="img_canvas_1"></canvas>
+                </div>
+                <div id="img_div_2" style="margin-right: 4px;">
+                    <canvas id="img_canvas_2"></canvas>
+                </div>
+                <div id="img_div_3" style="margin-right: 4px;">
+                    <canvas id="img_canvas_3"></canvas>
+                </div>
+            </div>
+        </div>
+        <p class="text-lg-start">
+        <div id="status" style="font: 1em consolas;"></div>
+        </p>
+    </div>
+</body>
+
+</html>

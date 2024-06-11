@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
 		<TargetFrameworks>net6.0-android;net6.0-ios</TargetFrameworks>
@@ -56,7 +56,7 @@
 
 	<ItemGroup>
 	  <PackageReference Include="Microsoft.ML.OnnxRuntime" Version="1.12.1" />
-	  <PackageReference Include="SkiaSharp" Version="2.88.1" />
+	  <PackageReference Include="SkiaSharp" Version="2.88.6" />
 	</ItemGroup>
 
 	<!--<ItemGroup>

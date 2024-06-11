@@ -2,10 +2,22 @@
 This tool measures the accuracy of a set of models on a given execution provider. The accuracy is computed by comparing with the expected results, which are either loaded from file or attained by running the model with the CPU execution provider.
 
 ## Build instructions on Windows
-Run the following commands in a terminal to generate a Visual Studio project and compile the tool. Make sure to specify the location of your ONNX Runtime installation. You can either [download an ONNX Runtime release package](https://github.com/microsoft/onnxruntime/releases/) or you can [build ONNX Runtime from source](https://www.onnxruntime.ai/docs/build/).
+### Using an ONNX Runtime NuGet package
+Download an ONNX Runtime NuGet package with the desired execution provider(s):
+- [Microsoft.ML.OnnxRuntime](https://www.nuget.org/packages/Microsoft.ML.OnnxRuntime)
+- [Microsoft.ML.OnnxRuntime.QNN](https://www.nuget.org/packages/Microsoft.ML.OnnxRuntime.QNN)
+- [Microsoft.ML.OnnxRuntime.Gpu](https://www.nuget.org/packages/Microsoft.ML.OnnxRuntime.Gpu)
+- Others: https://www.nuget.org/packages?q=Microsoft.ML.OnnxRuntime
 
+Clone this onnxruntime-inference-examples repository:
 ```shell
-$ build.bat 'C:\onnxruntime'
+ git clone https://github.com/Microsoft/onnxruntime-inference-examples.git
+ cd onnxruntime-inference-examples\c_cxx\accuracy_tool
+```
+
+Run `build.bat` with the path to the ONNX Runtime NuGet package as the first argument.
+```shell
+$ build.bat .\microsoft.ml.onnxruntime.1.18.0.nupkg
 ```
 
 Run the following command to open the solution file with Visual Studio.
@@ -20,20 +32,76 @@ Alternatively, you can directly run the executable from the terminal:
 .\build\Release\accuracy_test.exe --help
 ```
 
-### Building with QNN execution provider
-To test model accuracy with the QNN execution provider, provide the path to location of your Qualcomm AI Engine Direct SDK (QNN SDK) and, optionally, the hexagon architecture version (e.g., 68 or 73).
-The QNN SDK can be downloaded from https://qpm.qualcomm.com/main/tools/details/qualcomm_ai_engine_direct.
-Providing the QNN SDK path will ensure that the appropriate QNN SDK dynamic libraries (e.g., QnnHtp.dll) are automatically copied to the build directory.
+### Using an ONNX Runtime source build
+#### Build ONNX Runtime from source
+Refer to the documentation for [building ONNX Runtime from source](https://www.onnxruntime.ai/docs/build/) with the desired execution providers.
 
+The following commands build ONNX Runtime from source with the CPU EP.
+
+Clone the ONNX Runtime repository:
 ```shell
-$ build.bat 'C:\onnxruntime' 'C:\Qualcomm\AIStack\QNN\2.17.0.231124' 68
+ git clone --recursive https://github.com/Microsoft/onnxruntime.git
+ cd onnxruntime
 ```
 
+Build ONNX Runtime from source. Replace `<ORT_INSTALL_DIR>` with your desired installation directory.
+```shell
+.\build.bat --config RelWithDebInfo --build_shared_lib --parallel --compile_no_warning_as_error --skip_submodule_sync --skip_tests --cmake_extra_defines CMAKE_INSTALL_PREFIX=<ORT_INSTALL_DIR>
+```
 
-Note that you can also provide a [NuGet package](https://www.nuget.org/packages/Microsoft.ML.OnnxRuntime.QNN) as the first argument to `build.bat`:
+Install ONNX Runtime to `<ORT_INSTALL_DIR>`:
+```shell
+ cmake --install .\build\RelWithDebInfo --config RelWithDebInfo
+```
+
+#### Build accuracy tool
+Clone this onnxruntime-inference-examples repository:
+```shell
+ git clone https://github.com/Microsoft/onnxruntime-inference-examples.git
+ cd onnxruntime-inference-examples\c_cxx\accuracy_tool
+```
+
+Run `build.bat` with the path to the ONNX Runtime installation directory as the first argument.
+```shell
+$ build.bat <ORT_INSTALL_DIR>
+```
+
+Run the following command to open the solution file with Visual Studio.
 
 ```shell
-$ build.bat '.\microsoft.ml.onnxruntime.qnn.1.16.0.nupkg' 'C:\Qualcomm\AIStack\QNN\2.17.0.231124' 68
+$ devenv .\build\onnxruntime_accuracy_test.sln
+```
+
+Alternatively, you can directly run the executable from the terminal:
+
+```shell
+.\build\Release\accuracy_test.exe --help
+```
+
+### Using an ONNX Runtime Github release package
+Download an ONNX Runtime release package from https://github.com/microsoft/onnxruntime/releases/ and extract it to your desired installation directory (`<ORT_INSTALL_DIR>`).
+
+Clone this onnxruntime-inference-examples repository:
+```shell
+ git clone https://github.com/Microsoft/onnxruntime-inference-examples.git
+ cd onnxruntime-inference-examples\c_cxx\accuracy_tool
+```
+
+Run `build.bat` with the path to the extracted ONNX Runtime installation directory as the first argument.
+```shell
+$ build.bat <ORT_INSTALL_DIR>
+```
+
+Run the following command to open the solution file with Visual Studio.
+
+```shell
+$ devenv .\build\onnxruntime_accuracy_test.sln
+```
+
+Alternatively, you can directly run the executable from the terminal:
+
+```shell
+.\build\Release\accuracy_test.exe --help
 ```
 
 ## Setup test models and inputs

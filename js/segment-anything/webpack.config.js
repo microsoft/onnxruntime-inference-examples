@@ -1,27 +1,52 @@
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT license
+import CopyWebpackPlugin from 'copy-webpack-plugin';
+import TerserPlugin from 'terser-webpack-plugin';
+import { fileURLToPath } from 'url';
+import path from 'path';
 
-const path = require('path');
-const CopyPlugin = require("copy-webpack-plugin");
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-module.exports = () => {
-    return {
-        target: ['web'],
-        // eslint-disable-next-line no-undef
-        entry: path.resolve(__dirname, 'main.js'),
-        devtool: 'inline-source-map',
-        output: {
-            // eslint-disable-next-line no-undef
-            path: path.resolve(__dirname, 'dist'),
-            filename: 'bundle.min.js',
-            library: {
-                type: 'umd'
-            }
+/**
+ * @type {import('webpack').Configuration}
+ */
+export default {
+    mode: 'development',
+    devtool: 'source-map',
+    entry: {
+        'dist/index': './index.js',
+        'dist/index.min': './index.js',
+    },
+    output: {
+        filename: '[name].js',
+        path: __dirname,
+        library: {
+            type: 'module',
         },
-        plugins: [new CopyPlugin({
-            // Use copy plugin to copy *.wasm to output folder.
-            patterns: [{ from: 'node_modules/onnxruntime-web/dist/*.wasm', to: '[name][ext]' }]
+    },
+    plugins: [
+        // Copy .wasm files to dist folder
+        new CopyWebpackPlugin({
+            patterns: [
+                {
+                    from: 'node_modules/onnxruntime-web/dist/*.wasm',
+                    to: 'dist/[name][ext]'
+                },
+            ],
+        }),
+    ],
+    optimization: {
+        minimize: true,
+        minimizer: [new TerserPlugin({
+            test: /\.min\.js$/,
+            extractComments: false,
         })],
-        mode: 'production'
-    }
+    },
+    devServer: {
+        static: {
+            directory: __dirname
+        },
+        port: 8080
+    },
+    experiments: {
+        outputModule: true,
+    },
 };

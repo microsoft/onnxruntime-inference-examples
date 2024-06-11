@@ -1,0 +1,477 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		5156483D2BFDBB6F005CA50C /* libonnxruntime.1.19.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5156483C2BFDBB6F005CA50C /* libonnxruntime.1.19.0.dylib */; };
+		5156483E2BFDBB6F005CA50C /* libonnxruntime.1.19.0.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 5156483C2BFDBB6F005CA50C /* libonnxruntime.1.19.0.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		51D4C8D62BFD22D70029FCEA /* LocalLLMApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51D4C8D52BFD22D70029FCEA /* LocalLLMApp.swift */; };
+		51D4C8D82BFD22D70029FCEA /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51D4C8D72BFD22D70029FCEA /* ContentView.swift */; };
+		51D4C8DA2BFD22DB0029FCEA /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 51D4C8D92BFD22DB0029FCEA /* Assets.xcassets */; };
+		51D4C8DD2BFD22DB0029FCEA /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 51D4C8DC2BFD22DB0029FCEA /* Preview Assets.xcassets */; };
+		51D4C9072BFD26150029FCEA /* libonnxruntime-genai.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 51D4C9052BFD26150029FCEA /* libonnxruntime-genai.dylib */; };
+		51D4C9082BFD26EB0029FCEA /* libonnxruntime-genai.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 51D4C9052BFD26150029FCEA /* libonnxruntime-genai.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		51D4C90E2BFD28DD0029FCEA /* GenAIGenerator.mm in Sources */ = {isa = PBXBuildFile; fileRef = 51D4C90D2BFD28DD0029FCEA /* GenAIGenerator.mm */; };
+		51D4C9232BFD507A0029FCEA /* SharedTokenUpdater.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51D4C9222BFD50790029FCEA /* SharedTokenUpdater.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		51D4C9092BFD26EB0029FCEA /* Embed Libraries */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				5156483E2BFDBB6F005CA50C /* libonnxruntime.1.19.0.dylib in Embed Libraries */,
+				51D4C9082BFD26EB0029FCEA /* libonnxruntime-genai.dylib in Embed Libraries */,
+			);
+			name = "Embed Libraries";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		51D4C90F2BFD48180029FCEA /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 7;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		5156483C2BFDBB6F005CA50C /* libonnxruntime.1.19.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libonnxruntime.1.19.0.dylib; path = LocalLLM/lib/libonnxruntime.1.19.0.dylib; sourceTree = "<group>"; };
+		51D4C8D22BFD22D70029FCEA /* LocalLLM.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LocalLLM.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		51D4C8D52BFD22D70029FCEA /* LocalLLMApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalLLMApp.swift; sourceTree = "<group>"; };
+		51D4C8D72BFD22D70029FCEA /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		51D4C8D92BFD22DB0029FCEA /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		51D4C8DC2BFD22DB0029FCEA /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		51D4C9002BFD25B50029FCEA /* ort_genai_c.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ort_genai_c.h; sourceTree = "<group>"; };
+		51D4C9012BFD25B50029FCEA /* ort_genai.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ort_genai.h; sourceTree = "<group>"; };
+		51D4C9022BFD25B60029FCEA /* onnxruntime_c_api.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = onnxruntime_c_api.h; sourceTree = "<group>"; };
+		51D4C9052BFD26150029FCEA /* libonnxruntime-genai.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = "libonnxruntime-genai.dylib"; sourceTree = "<group>"; };
+		51D4C90B2BFD28BF0029FCEA /* GenAIGenerator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GenAIGenerator.h; sourceTree = "<group>"; };
+		51D4C90C2BFD28DD0029FCEA /* LocalLLM-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "LocalLLM-Bridging-Header.h"; sourceTree = "<group>"; };
+		51D4C90D2BFD28DD0029FCEA /* GenAIGenerator.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = GenAIGenerator.mm; sourceTree = "<group>"; };
+		51D4C9102BFD483E0029FCEA /* tokenizer.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = tokenizer.json; path = ../GenAIApp/tokenizer.json; sourceTree = "<group>"; };
+		51D4C9112BFD483E0029FCEA /* phi3-mini-4k-instruct-cpu-int4-rtn-block-32-acc-level-4.onnx */ = {isa = PBXFileReference; lastKnownFileType = file; name = "phi3-mini-4k-instruct-cpu-int4-rtn-block-32-acc-level-4.onnx"; path = "../GenAIApp/phi3-mini-4k-instruct-cpu-int4-rtn-block-32-acc-level-4.onnx"; sourceTree = "<group>"; };
+		51D4C9122BFD483E0029FCEA /* special_tokens_map.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = special_tokens_map.json; path = ../GenAIApp/special_tokens_map.json; sourceTree = "<group>"; };
+		51D4C9132BFD483E0029FCEA /* phi3-mini-4k-instruct-cpu-int4-rtn-block-32-acc-level-4.onnx.data */ = {isa = PBXFileReference; lastKnownFileType = file; name = "phi3-mini-4k-instruct-cpu-int4-rtn-block-32-acc-level-4.onnx.data"; path = "../GenAIApp/phi3-mini-4k-instruct-cpu-int4-rtn-block-32-acc-level-4.onnx.data"; sourceTree = "<group>"; };
+		51D4C9142BFD483E0029FCEA /* tokenizer_config.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = tokenizer_config.json; path = ../GenAIApp/tokenizer_config.json; sourceTree = "<group>"; };
+		51D4C91A2BFD48490029FCEA /* config.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = config.json; path = ../GenAIApp/config.json; sourceTree = "<group>"; };
+		51D4C91B2BFD48490029FCEA /* added_tokens.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = added_tokens.json; path = ../GenAIApp/added_tokens.json; sourceTree = "<group>"; };
+		51D4C91C2BFD48490029FCEA /* configuration_phi3.py */ = {isa = PBXFileReference; lastKnownFileType = text.script.python; name = configuration_phi3.py; path = ../GenAIApp/configuration_phi3.py; sourceTree = "<group>"; };
+		51D4C91D2BFD48490029FCEA /* genai_config.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = genai_config.json; path = ../GenAIApp/genai_config.json; sourceTree = "<group>"; };
+		51D4C9222BFD50790029FCEA /* SharedTokenUpdater.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedTokenUpdater.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		51D4C8CF2BFD22D70029FCEA /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				5156483D2BFDBB6F005CA50C /* libonnxruntime.1.19.0.dylib in Frameworks */,
+				51D4C9072BFD26150029FCEA /* libonnxruntime-genai.dylib in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		5156483B2BFDBB6E005CA50C /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				5156483C2BFDBB6F005CA50C /* libonnxruntime.1.19.0.dylib */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		51D4C8C92BFD22D70029FCEA = {
+			isa = PBXGroup;
+			children = (
+				51D4C91B2BFD48490029FCEA /* added_tokens.json */,
+				51D4C91A2BFD48490029FCEA /* config.json */,
+				51D4C91C2BFD48490029FCEA /* configuration_phi3.py */,
+				51D4C91D2BFD48490029FCEA /* genai_config.json */,
+				51D4C9112BFD483E0029FCEA /* phi3-mini-4k-instruct-cpu-int4-rtn-block-32-acc-level-4.onnx */,
+				51D4C9132BFD483E0029FCEA /* phi3-mini-4k-instruct-cpu-int4-rtn-block-32-acc-level-4.onnx.data */,
+				51D4C9122BFD483E0029FCEA /* special_tokens_map.json */,
+				51D4C9142BFD483E0029FCEA /* tokenizer_config.json */,
+				51D4C9102BFD483E0029FCEA /* tokenizer.json */,
+				51D4C8D42BFD22D70029FCEA /* LocalLLM */,
+				51D4C8D32BFD22D70029FCEA /* Products */,
+				5156483B2BFDBB6E005CA50C /* Frameworks */,
+			);
+			sourceTree = "<group>";
+		};
+		51D4C8D32BFD22D70029FCEA /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				51D4C8D22BFD22D70029FCEA /* LocalLLM.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		51D4C8D42BFD22D70029FCEA /* LocalLLM */ = {
+			isa = PBXGroup;
+			children = (
+				51D4C9032BFD25BA0029FCEA /* lib */,
+				51D4C8FF2BFD25890029FCEA /* header */,
+				51D4C8D52BFD22D70029FCEA /* LocalLLMApp.swift */,
+				51D4C8D72BFD22D70029FCEA /* ContentView.swift */,
+				51D4C8D92BFD22DB0029FCEA /* Assets.xcassets */,
+				51D4C8DB2BFD22DB0029FCEA /* Preview Content */,
+				51D4C90B2BFD28BF0029FCEA /* GenAIGenerator.h */,
+				51D4C90D2BFD28DD0029FCEA /* GenAIGenerator.mm */,
+				51D4C90C2BFD28DD0029FCEA /* LocalLLM-Bridging-Header.h */,
+				51D4C9222BFD50790029FCEA /* SharedTokenUpdater.swift */,
+			);
+			path = LocalLLM;
+			sourceTree = "<group>";
+		};
+		51D4C8DB2BFD22DB0029FCEA /* Preview Content */ = {
+			isa = PBXGroup;
+			children = (
+				51D4C8DC2BFD22DB0029FCEA /* Preview Assets.xcassets */,
+			);
+			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+		51D4C8FF2BFD25890029FCEA /* header */ = {
+			isa = PBXGroup;
+			children = (
+				51D4C9022BFD25B60029FCEA /* onnxruntime_c_api.h */,
+				51D4C9002BFD25B50029FCEA /* ort_genai_c.h */,
+				51D4C9012BFD25B50029FCEA /* ort_genai.h */,
+			);
+			path = header;
+			sourceTree = "<group>";
+		};
+		51D4C9032BFD25BA0029FCEA /* lib */ = {
+			isa = PBXGroup;
+			children = (
+				51D4C9052BFD26150029FCEA /* libonnxruntime-genai.dylib */,
+			);
+			path = lib;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		51D4C8D12BFD22D70029FCEA /* LocalLLM */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 51D4C8F62BFD22DC0029FCEA /* Build configuration list for PBXNativeTarget "LocalLLM" */;
+			buildPhases = (
+				51D4C8CE2BFD22D70029FCEA /* Sources */,
+				51D4C8CF2BFD22D70029FCEA /* Frameworks */,
+				51D4C8D02BFD22D70029FCEA /* Resources */,
+				51D4C9092BFD26EB0029FCEA /* Embed Libraries */,
+				51D4C90F2BFD48180029FCEA /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = LocalLLM;
+			productName = LocalLLM;
+			productReference = 51D4C8D22BFD22D70029FCEA /* LocalLLM.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		51D4C8CA2BFD22D70029FCEA /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1520;
+				LastUpgradeCheck = 1520;
+				TargetAttributes = {
+					51D4C8D12BFD22D70029FCEA = {
+						CreatedOnToolsVersion = 15.2;
+						LastSwiftMigration = 1520;
+					};
+				};
+			};
+			buildConfigurationList = 51D4C8CD2BFD22D70029FCEA /* Build configuration list for PBXProject "LocalLLM" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 51D4C8C92BFD22D70029FCEA;
+			productRefGroup = 51D4C8D32BFD22D70029FCEA /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				51D4C8D12BFD22D70029FCEA /* LocalLLM */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		51D4C8D02BFD22D70029FCEA /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				51D4C8DD2BFD22DB0029FCEA /* Preview Assets.xcassets in Resources */,
+				51D4C8DA2BFD22DB0029FCEA /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		51D4C8CE2BFD22D70029FCEA /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				51D4C9232BFD507A0029FCEA /* SharedTokenUpdater.swift in Sources */,
+				51D4C90E2BFD28DD0029FCEA /* GenAIGenerator.mm in Sources */,
+				51D4C8D82BFD22D70029FCEA /* ContentView.swift in Sources */,
+				51D4C8D62BFD22D70029FCEA /* LocalLLMApp.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		51D4C8F42BFD22DC0029FCEA /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEFINES_MODULE = YES;
+				EMBED_ASSET_PACKS_IN_PRODUCT_BUNDLE = YES;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.6;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_INCLUDE_PATHS = "";
+				SWIFT_INSTALL_MODULE = YES;
+				SWIFT_INSTALL_OBJC_HEADER = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "LocalLLM/LocalLLM-Bridging-Header.h";
+				SWIFT_OBJC_INTERFACE_HEADER_NAME = "LocalLLM-Swift.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_PRECOMPILE_BRIDGING_HEADER = NO;
+			};
+			name = Debug;
+		};
+		51D4C8F52BFD22DC0029FCEA /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEFINES_MODULE = YES;
+				EMBED_ASSET_PACKS_IN_PRODUCT_BUNDLE = YES;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.6;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_INCLUDE_PATHS = "";
+				SWIFT_INSTALL_MODULE = YES;
+				SWIFT_INSTALL_OBJC_HEADER = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "LocalLLM/LocalLLM-Bridging-Header.h";
+				SWIFT_OBJC_INTERFACE_HEADER_NAME = "LocalLLM-Swift.h";
+				SWIFT_PRECOMPILE_BRIDGING_HEADER = NO;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		51D4C8F72BFD22DC0029FCEA /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"LocalLLM/Preview Content\"";
+				DEVELOPMENT_TEAM = UBF8T346G9;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/LocalLLM/lib",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = ai.onnxruntime.genai.demo.LocalLLM;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "LocalLLM/LocalLLM-Bridging-Header.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		51D4C8F82BFD22DC0029FCEA /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"LocalLLM/Preview Content\"";
+				DEVELOPMENT_TEAM = UBF8T346G9;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/LocalLLM/lib",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = ai.onnxruntime.genai.demo.LocalLLM;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "LocalLLM/LocalLLM-Bridging-Header.h";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		51D4C8CD2BFD22D70029FCEA /* Build configuration list for PBXProject "LocalLLM" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				51D4C8F42BFD22DC0029FCEA /* Debug */,
+				51D4C8F52BFD22DC0029FCEA /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		51D4C8F62BFD22DC0029FCEA /* Build configuration list for PBXNativeTarget "LocalLLM" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				51D4C8F72BFD22DC0029FCEA /* Debug */,
+				51D4C8F82BFD22DC0029FCEA /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 51D4C8CA2BFD22D70029FCEA /* Project object */;
+}

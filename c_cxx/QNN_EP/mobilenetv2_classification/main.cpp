@@ -22,50 +22,8 @@ bool CheckStatus(const OrtApi* g_ort, OrtStatus* status) {
   return true;
 }
 
-template <typename T_QuantType>
-void QuantizedData(T_QuantType* out, const float* in, int32_t offset, float scale, size_t num_elements) {
-  static_assert(std::is_unsigned<T_QuantType>::value, "QuantizedData supports unsigned only!");
-
-  if (nullptr == out || nullptr == in) {
-    throw Ort::Exception("Received a nullptr", OrtErrorCode::ORT_EP_FAIL);
-  }
-
-  size_t data_type_size_in_bytes = sizeof(T_QuantType);
-  size_t bit_width = data_type_size_in_bytes * 8;
-  double true_bit_width_max = pow(2, bit_width) - 1;
-  double encoding_min = offset * scale;
-  double encoding_max = (true_bit_width_max + offset) * scale;
-  double encoding_range = encoding_max - encoding_min;
-
-  for (size_t i = 0; i < num_elements; ++i) {
-    int quantized_value = static_cast<int>(round(true_bit_width_max * (in[i] - encoding_min) / encoding_range));
-    if (quantized_value < 0) {
-      quantized_value = 0;
-    } else if (quantized_value > (int)true_bit_width_max) {
-      quantized_value = (int)true_bit_width_max;
-    }
-    out[i] = static_cast<T_QuantType>(quantized_value);
-  }
-}
-
-
-template <typename T_QuantType>
-void DequantizedData(float* out, const T_QuantType* in, int32_t offset, float scale, size_t num_elements) {
-  static_assert(std::is_unsigned<T_QuantType>::value, "DequantizedData supports unsigned only!");
-
-  if (nullptr == out || nullptr == in) {
-    throw Ort::Exception("Received a nullptr", OrtErrorCode::ORT_EP_FAIL);
-  }
-
-  for (size_t i = 0; i < num_elements; i++) {
-    double quantized_value = static_cast<double>(in[i]);
-    double offset_double = static_cast<double>(offset);
-    out[i] = static_cast<float>((quantized_value + offset_double) * scale);
-  }
-}
-
 void run_ort_qnn_ep(const std::string& backend, const std::string& model_path, const std::string& input_path,
-                    bool generated_from_native_qnn, bool generate_ctx) {
+                    bool generate_ctx, bool float32_model) {
   std::wstring model_path_wstr = std::wstring(model_path.begin(), model_path.end());
 
   const OrtApi* g_ort = OrtGetApiBase()->GetApi(ORT_API_VERSION);
@@ -81,6 +39,15 @@ void run_ort_qnn_ep(const std::string& backend, const std::string& model_path, c
   // More option details refers to https://onnxruntime.ai/docs/execution-providers/QNN-ExecutionProvider.html
   std::vector<const char*> options_keys = {"backend_path"};
   std::vector<const char*> options_values = {backend.c_str()};
+
+  // Need to set the HTP FP16 precision for float32 model, otherwise it's FP32 precision and runs very slow
+  // No need to set it for float16 model
+  const std::string ENABLE_HTP_FP16_PRECISION = "enable_htp_fp16_precision";
+  const std::string ENABLE_HTP_FP16_PRECISION_VALUE = "1";
+  if (float32_model) {
+    options_keys.push_back(ENABLE_HTP_FP16_PRECISION.c_str());
+    options_values.push_back(ENABLE_HTP_FP16_PRECISION_VALUE.c_str());
+  }
 
   // If it runs from a QDQ model on HTP backend
   // It will generate an Onnx model with Qnn context binary.
@@ -186,19 +153,13 @@ void run_ort_qnn_ep(const std::string& backend, const std::string& model_path, c
   input_raw_file.read(reinterpret_cast<char*>(&input_data[0]), num_elements * sizeof(float));
 
   CheckStatus(g_ort, g_ort->CreateCpuMemoryInfo(OrtArenaAllocator, OrtMemTypeDefault, &memory_info));
-  // QNN native tool chain generated quantized model use quantized data as inputs & outputs
-  if (generated_from_native_qnn) {
-    size_t input_data_length = input_data_size * sizeof(uint8_t);
-    QuantizedData(quantized_input_data.data(), input_data.data(), -116, 0.015875209f, input_data_size);
-    CheckStatus(g_ort, g_ort->CreateTensorWithDataAsOrtValue(
-                           memory_info, reinterpret_cast<void*>(quantized_input_data.data()), input_data_length,
-                           input_node_dims[0].data(), input_node_dims[0].size(), input_types[0], &input_tensors[0]));
-  } else { // Ort generate QDQ model still use float32 data as inputs & outputs
-    size_t input_data_length = input_data_size * sizeof(float);
-    CheckStatus(g_ort, g_ort->CreateTensorWithDataAsOrtValue(
-                           memory_info, reinterpret_cast<void*>(input_data.data()), input_data_length,
-                           input_node_dims[0].data(), input_node_dims[0].size(), input_types[0], &input_tensors[0]));
-  }
+  // QNN native tool chain generated quantized model use quantized data as inputs & outputs by default,
+  // We wrapped it with Q and DQ node in gen_qnn_ctx_onnx_model.py, so the inputs & outputs are still float
+  // Ort generate QDQ model still use float32 data as inputs & outputs
+  size_t input_data_length = input_data_size * sizeof(float);
+  CheckStatus(g_ort, g_ort->CreateTensorWithDataAsOrtValue(
+                         memory_info, reinterpret_cast<void*>(input_data.data()), input_data_length,
+                         input_node_dims[0].data(), input_node_dims[0].size(), input_types[0], &input_tensors[0]));
   g_ort->ReleaseMemoryInfo(memory_info);
 
   CheckStatus(g_ort, g_ort->Run(session, nullptr, input_node_names.data(), (const OrtValue* const*)input_tensors.data(),
@@ -210,13 +171,7 @@ void run_ort_qnn_ep(const std::string& backend, const std::string& model_path, c
   void* output_buffer;
   CheckStatus(g_ort, g_ort->GetTensorMutableData(output_tensors[0], &output_buffer));
   float* float_buffer = nullptr;
-  if (generated_from_native_qnn) {
-    uint8_t* buffer = reinterpret_cast<uint8_t*>(output_buffer);
-    DequantizedData(output_data.data(), buffer, -86, 0.08069417f, output_data_size);
-    float_buffer = output_data.data();
-  } else {
-    float_buffer = reinterpret_cast<float*>(output_buffer);
-  }
+  float_buffer = reinterpret_cast<float*>(output_buffer);
 
   auto max = std::max_element(float_buffer, float_buffer + output_data_size);
   int max_index = static_cast<int>(std::distance(float_buffer, max));
@@ -247,6 +202,8 @@ constexpr const char* CPUBACKEDN = "--cpu";
 constexpr const char* HTPBACKEDN = "--htp";
 constexpr const char* QNNCTXBINARY = "--qnn";
 constexpr const char* GENERATE_CTX = "--gen_ctx";
+constexpr const char* FLOAT32 = "--fp32";
+constexpr const char* FLOAT16 = "--fp16";
 
 int main(int argc, char* argv[]) {
 
@@ -267,7 +224,7 @@ int main(int argc, char* argv[]) {
   }
 
   std::string backend = "";
-  bool generated_from_native_qnn = false;
+  bool float32_model = false;
   if (strcmp(argv[1], CPUBACKEDN) == 0) {
     backend = "QnnCpu.dll";
     if (generate_ctx) {
@@ -278,11 +235,15 @@ int main(int argc, char* argv[]) {
     backend = "QnnHtp.dll";
   } else if (strcmp(argv[1], QNNCTXBINARY) == 0) {
     backend = "QnnHtp.dll";
-    generated_from_native_qnn = true;
     if (generate_ctx) {
       std::cout << "--gen_ctx won't work with --qnn." << std::endl;
       return 1;
     }
+  } else if (strcmp(argv[1], FLOAT32) == 0) {
+    backend = "QnnHtp.dll";
+    float32_model = true;
+  } else if (strcmp(argv[1], FLOAT16) == 0) {
+    backend = "QnnHtp.dll";
   } else {
     std::cout << "This sample only support option cpu, htp, qnn." << std::endl;
     PrintHelp();
@@ -292,6 +253,6 @@ int main(int argc, char* argv[]) {
   std::string model_path(argv[2]);
   std::string input_path(argv[3]);
 
-  run_ort_qnn_ep(backend, model_path, input_path, generated_from_native_qnn, generate_ctx);
+  run_ort_qnn_ep(backend, model_path, input_path, generate_ctx, float32_model);
   return 0;
 }
