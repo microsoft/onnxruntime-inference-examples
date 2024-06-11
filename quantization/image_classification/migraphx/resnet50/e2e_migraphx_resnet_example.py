@@ -22,6 +22,14 @@ def parse_input_args():
     )
 
     parser.add_argument(
+        "--fp32",
+        action="store_true",
+        required=False,
+        default=False,
+        help='Perform no quantization',
+    )
+
+    parser.add_argument(
         "--image_dir",
         required=False,
         default="./ILSVRC2012",
@@ -56,10 +64,10 @@ class ImageNetDataReader(CalibrationDataReader):
         '''
         :param image_folder: image dataset folder
         :param width: image width
-        :param height: image height 
+        :param height: image height
         :param start_index: start index of images
         :param end_index: end index of images
-        :param stride: image size of each data get 
+        :param stride: image size of each data get
         :param batch_size: batch size of inference
         :param model_path: model name and path
         :param input_name: model input name
@@ -153,12 +161,14 @@ class ImageNetDataReader(CalibrationDataReader):
         parameter images_folder: path to folder storing images
         parameter height: image height in pixels
         parameter width: image width in pixels
-        parameter start_index: image index to start with   
+        parameter start_index: image index to start with
         parameter size_limit: number of images to load. Default is 0 which means all images are picked.
         return: list of matrices characterizing multiple images
         '''
         def preprocess_images(input, channels=3, height=224, width=224):
             image = input.resize((width, height), Image.Resampling.LANCZOS)
+            if image.mode in ["CMYK", "RGBA"]:
+                image = image.convert("RGB")
             input_data = np.asarray(image).astype(np.float32)
             if len(input_data.shape) != 2:
                 input_data = input_data.transpose([2, 0, 1])
@@ -249,7 +259,7 @@ class ImageClassificationEvaluator:
                  providers=["MIGraphXExecutionProvider"]):
         '''
         :param model_path: ONNX model to validate
-        :param synset_id: ILSVRC2012 synset id        
+        :param synset_id: ILSVRC2012 synset id
         :param data_reader: user implemented object to read in and preprocess calibration dataset
                             based on CalibrationDataReader Interface
         :param providers: ORT execution provider type
@@ -281,9 +291,8 @@ class ImageClassificationEvaluator:
         self.prediction_result_list = inference_outputs_list
 
     def top_k_accuracy(self, truth, prediction, k=1):
-        '''From https://github.com/chainer/chainer/issues/606        
+        '''From https://github.com/chainer/chainer/issues/606
         '''
-
         y = np.argsort(prediction)[:, -k:]
         return np.any(y.T == truth.argmax(axis=1), axis=0).mean()
 
@@ -293,7 +302,7 @@ class ImageClassificationEvaluator:
         y_prediction = np.empty((total_val_images, 1000), dtype=np.float32)
         i = 0
         for res in prediction_results:
-            y_prediction[i:i + batch_size, :] = res[0]
+            y_prediction[i:i + res[0].shape[0], :] = res[0]
             i = i + batch_size
         print("top 1: ", self.top_k_accuracy(self.synset_id, y_prediction, k=1))
         print("top 5: ", self.top_k_accuracy(self.synset_id, y_prediction, k=5))
@@ -344,8 +353,9 @@ if __name__ == '__main__':
     2. Download ILSVRC2012 validation dataset and development kit from http://www.image-net.org/challenges/LSVRC/2012/downloads.
     3. Extract validation dataset JPEG files to 'ILSVRC2012/val'.
     4. Extract development kit to 'ILSVRC2012/devkit'. Two files in the development kit are used, 'ILSVRC2012_validation_ground_truth.txt' and 'meta.mat'.
+       These are also available to download at https://github.com/miraclewkf/MobileNetV2-PyTorch/tree/master/ImageNet/ILSVRC2012_devkit_t12/data
     5. Download 'synset_words.txt' from https://github.com/HoldenCaulfieldRye/caffe/blob/master/data/ilsvrc12/synset_words.txt into 'ILSVRC2012/'.
-    
+
     Please download Resnet50 model from ONNX model zoo https://github.com/onnx/models/blob/master/vision/classification/resnet/model/resnet50-v2-7.tar.gz
     Untar the model into the workspace
     '''
@@ -356,15 +366,18 @@ if __name__ == '__main__':
     ilsvrc2012_dataset_path = flags.image_dir
     augmented_model_path = "./augmented_model.onnx"
     batch_size = flags.batch
-    calibration_dataset_size = flags.cal_size  # Size of dataset for calibration
+    calibration_dataset_size = 0 if flags.fp32 else flags.cal_size  # Size of dataset for calibration
 
-    # INT8 calibration setting
-    calibration_table_generation_enable = True  # Enable/Disable INT8 calibration
+    calibration_table_generation_enable = False
+    if not flags.fp32:
+        # INT8 calibration setting
+        calibration_table_generation_enable = True  # Enable/Disable INT8 calibration
 
-    # MIGraphX EP INT8 settings
-    os.environ["ORT_MIGRAPHX_INT8_ENABLE"] = "1"  # Enable INT8 precision
-    os.environ["ORT_MIGRAPHX_INT8_CALIBRATION_TABLE_NAME"] = "calibration.flatbuffers"  # Calibration table name
-    os.environ["ORT_MIGRAPHX_INT8_NATIVE_CALIBRATION_TABLE"] = "0"  # Calibration table name
+        # MIGraphX EP INT8 settings
+        os.environ["ORT_MIGRAPHX_INT8_ENABLE"] = "1"  # Enable INT8 precision
+        os.environ["ORT_MIGRAPHX_INT8_CALIBRATION_TABLE_NAME"] = "calibration.flatbuffers"  # Calibration table name
+        os.environ["ORT_MIGRAPHX_INT8_NATIVE_CALIBRATION_TABLE"] = "0"  # Calibration table name
+
     execution_provider = ["MIGraphXExecutionProvider"]
 
     # Convert static batch to dynamic batch
@@ -378,7 +391,7 @@ if __name__ == '__main__':
     if calibration_table_generation_enable:
         print("Generating Calibration Table")
         calibrator = create_calibrator(new_model_path, [], augmented_model_path=augmented_model_path)
-        calibrator.set_execution_providers(["ROCMExecutionProvider"])        
+        calibrator.set_execution_providers(["ROCMExecutionProvider"])
         data_reader = ImageNetDataReader(ilsvrc2012_dataset_path,
                                          start_index=0,
                                          end_index=calibration_dataset_size,
@@ -391,7 +404,7 @@ if __name__ == '__main__':
 
         serial_cal_tensors = {}
         for keys, values in cal_tensors.data.items():
-            serial_cal_tensors[keys] = values.range_value
+            serial_cal_tensors[keys] = [float(x[0]) for x in values.range_value]
 
         print("Writing calibration table")
         write_calibration_table(serial_cal_tensors)
