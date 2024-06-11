@@ -23,7 +23,7 @@ class BertDataReader(CalibrationDataReader):
                  end_index=0):
         self.model_path = model_path
         self.data = dp.read_squad_json(squad_json)
-        self.max_seq_length = max_seq_length
+        self.max_seq_length = 384 #max_seq_length
         self.batch_size = batch_size
         self.example_stride = batch_size # number of examples as one example stride. (set to equal to batch size) 
         self.start_index = start_index # squad example index to start with
@@ -183,9 +183,9 @@ def inference(data_reader, ort_session, latency, verbose=False):
         io_binding = session.io_binding()
 
         if flags.version == 1.1:
-            io_binding.bind_cpu_input('segment_ids', inputs['segment_ids'])
-            io_binding.bind_cpu_input('input_mask', inputs['input_mask'])
             io_binding.bind_cpu_input('input_ids', inputs['input_ids'])
+            io_binding.bind_cpu_input('input_mask', inputs['input_mask'])
+            io_binding.bind_cpu_input('segment_ids', inputs['segment_ids'])
         elif flags.version == 2.0:
             io_binding.bind_cpu_input('token_type_ids', inputs['token_type_ids'])
             io_binding.bind_cpu_input('attention_mask', inputs['attention_mask'])
@@ -264,9 +264,9 @@ def parse_input_args():
 
     parser.add_argument(
         "--no_eval",
-        action="store_false",
+        action="store_true",
         required=False,
-        default=True,
+        default=False,
         help='Turn off evaluate output result for f1 and exact match score. Default False',
     )
 
@@ -278,6 +278,13 @@ def parse_input_args():
         help='Turn on onnxruntime verbose flags',
     )
 
+    parser.add_argument(
+        "--ort_quant",
+        action="store_false",
+        required=False,
+        default=False,
+        help='Turn on Onnxruntime Quantizer instead of MIGraphX Quantizer',
+    )
 
     parser.add_argument("--batch",
                         required=False,
@@ -364,7 +371,7 @@ if __name__ == '__main__':
 
     doc_stride = [flags.doc_stride]
     calib_num = flags.cal_num
-    op_types_to_quantize = ['MatMul', 'Add']
+    op_types_to_quantize = ['MatMul', 'Conv']
     batch_size = flags.batch
 
     if flags.int8:
@@ -399,33 +406,37 @@ if __name__ == '__main__':
         write_calibration_table(json_compute_range)
         print("Calibration is done. Calibration cache is saved to calibration.json")
 
-        # Generate QDQ model
-        mode = QuantizationMode.QLinearOps
+        if flags.ort_quant:
+            print("Int8 Quantization Done with Onnxruntime Quantizer")
+            # Generate QDQ model
+            mode = QuantizationMode.QLinearOps
+            # In TRT, it recommended to add QDQ pair to inputs of Add node followed by ReduceMean node.
+            # Mirroring here what TRT does in MIGraphX Quantization to be able to perform an apples to apples comparison
+            nodes_to_exclude = get_op_nodes_not_followed_by_specific_op(model, "Add", "ReduceMean")
+            quantizer = QDQQuantizer(
+                model,
+                True, #per_channel
+                False, #reduce_range
+                mode,
+                True,  #static
+                QuantType.QInt8, #weight_type
+                QuantType.QInt8, #activation_type
+                compute_range,
+                [], #nodes_to_quantize
+                nodes_to_exclude,
+                op_types_to_quantize,
+                {'ActivationSymmetric' : True, 'AddQDQPairToWeight' : True, 'OpTypesToExcludeOutputQuantization': op_types_to_quantize, 'DedicatedQDQPair': True, 'QDQOpTypePerChannelSupportToAxis': {'MatMul': 1} }) #extra_options
+            quantizer.quantize_model()
+            quantizer.model.save_model_to_file(qdq_model_path, False) 
+            print("QDQ model is saved to ", qdq_model_path)
+        else:
+            qdq_model_path = model_path
+            print("Int8 Quantization Done with MIGraphX")
+            #Quantize with MIGraphX's INT8 quantizer instead 
+            os.environ["ORT_MIGRAPHX_INT8_ENABLE"] = "1"  # Enable MIGRAPHX INT8 precision
+            os.environ["ORT_MIGRAPHX_INT8_CALIBRATION_TABLE_NAME"] = "calibration.flatbuffers"  # Calibration table name
+            os.environ["ORT_MIGRAPHX_INT8_NATIVE_CALIBRATION_TABLE"] = "0"  # Calibration table name
 
-
-        # In TRT, it recommended to add QDQ pair to inputs of Add node followed by ReduceMean node.
-        # Mirroring here what TRT does in MIGraphX Quantization to be able to perform an apples to apples comparison
-        nodes_to_exclude = get_op_nodes_not_followed_by_specific_op(model, "Add", "ReduceMean")
-
-        quantizer = QDQQuantizer(
-            model,
-            True, #per_channel
-            False, #reduce_range
-            mode,
-            True,  #static
-            QuantType.QInt8, #weight_type
-            QuantType.QInt8, #activation_type
-            compute_range,
-            [], #nodes_to_quantize
-            nodes_to_exclude,
-            op_types_to_quantize,
-            {'ActivationSymmetric' : True, 'AddQDQPairToWeight' : True, 'OpTypesToExcludeOutputQuantization': op_types_to_quantize, 'DedicatedQDQPair': True, 'QDQOpTypePerChannelSupportToAxis': {'MatMul': 1} }) #extra_options
-        quantizer.quantize_model()
-        quantizer.model.save_model_to_file(qdq_model_path, False)
-        print("QDQ model is saved to ", qdq_model_path)
-        os.environ["ORT_MIGRAPHX_INT8_ENABLE"] = "1"  # Enable MIGRAPHX INT8 precision
-        os.environ["ORT_MIGRAPHX_INT8_CALIBRATION_TABLE_NAME"] = "calibration.flatbuffers"  # Calibration table name
-        os.environ["ORT_MIGRAPHX_INT8_NATIVE_CALIBRATION_TABLE"] = "0"  # Calibration table name
     else:
         qdq_model_path = model_path
         os.environ["ORT_MIGRAPHX_INT8_ENABLE"] = "0"  # Disable MIGRAPHX INT8 precision
