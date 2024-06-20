@@ -180,7 +180,7 @@ def inference(data_reader, ort_session, latency, verbose=False):
             token_list_in_current_stride = data_reader.token_list[-data_reader.example_stride:]
             outputs = []
 
-        io_binding = session.io_binding()
+        io_binding = ort_session.io_binding()
 
         if flags.version == 1.1:
             io_binding.bind_cpu_input('input_ids', inputs['input_ids'])
@@ -195,7 +195,7 @@ def inference(data_reader, ort_session, latency, verbose=False):
         io_binding.bind_output('output_end_logits')
         start = time.time()
         #output = ort_session.run(["output_start_logits","output_end_logits"], inputs)
-        session.run_with_iobinding(io_binding)
+        ort_session.run_with_iobinding(io_binding)
         latency.append(time.time() - start)
         output = io_binding.copy_outputs_to_cpu()
         outputs.append(output)
@@ -457,11 +457,11 @@ if __name__ == '__main__':
         sess_options.log_verbosity_level = 0
 
     sess_options.graph_optimization_level = onnxruntime.GraphOptimizationLevel.ORT_DISABLE_ALL
-    session = onnxruntime.InferenceSession(qdq_model_path, sess_options=sess_options, providers=["MIGraphXExecutionProvider"])
+    ort_session = onnxruntime.InferenceSession(qdq_model_path, sess_options=sess_options, providers=["MIGraphXExecutionProvider"])
     
     print("Running Inferences")
     latency = [] #Used for timing information
-    all_predictions = inference(data_reader, session, latency, flags.verbose) 
+    all_predictions = inference(data_reader, ort_session, latency, flags.verbose) 
 
     print("Inference Complete!")
     print("Rate = {} QPS ".format(
