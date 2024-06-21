@@ -347,7 +347,7 @@ if __name__ == '__main__':
     flags = parse_input_args()
 
     if flags.samples <= flags.batch:
-        print("Error: Sample count must be smaller than batch size. Exiting")
+        print("Error: Sample count must be greater than batch size. Exiting")
         exit()
 
     # Model, dataset and quantization settings
