@@ -15,22 +15,22 @@ class BertDataReader(CalibrationDataReader):
     def __init__(self,
                  model_path,
                  squad_json,
-                 vocab_file,
+                 tokens,
                  batch_size,
                  max_seq_length,
                  doc_stride,
                  start_index=0,
                  end_index=0):
         self.model_path = model_path
-        self.data = dp.read_squad_json(squad_json)
-        self.max_seq_length = 384 #max_seq_length
+        self.data = squad_json # Input list to read from
+        self.tokenizer = tokens
+        self.max_seq_length = max_seq_length
         self.batch_size = batch_size
         self.example_stride = batch_size # number of examples as one example stride. (set to equal to batch size) 
         self.start_index = start_index # squad example index to start with
         self.end_index = len(self.data) if end_index == 0 else end_index 
         self.current_example_index = start_index
         self.current_feature_index = 0 # global feature index (one example can have more than one feature) 
-        self.tokenizer = tokenization.BertTokenizer(vocab_file=vocab_file, do_lower_case=True)
         self.doc_stride = doc_stride 
         self.max_query_length = 64
         self.enum_data_dicts = iter([])
@@ -104,8 +104,9 @@ class BertDataReader(CalibrationDataReader):
 
             if flags.version == 1.1:
                 data.append({"input_ids": input_ids, "input_mask": input_mask, "segment_ids":segment_ids})
-            elif flags.version == 2.0:
+            elif flags.version >= 2.0:
                 data.append({"input_ids": input_ids, "attention_mask": input_mask, "token_type_ids":segment_ids})
+
 
         self.enum_data_dicts = iter(data)
         self.start_of_new_stride = True
@@ -187,12 +188,22 @@ def inference(data_reader, ort_session, latency, verbose=False):
             io_binding.bind_cpu_input('input_mask', inputs['input_mask'])
             io_binding.bind_cpu_input('segment_ids', inputs['segment_ids'])
         elif flags.version == 2.0:
+            io_binding.bind_cpu_input('segment_ids', inputs['token_type_ids'])
+            io_binding.bind_cpu_input('input_mask', inputs['attention_mask'])
+            io_binding.bind_cpu_input('input_ids', inputs['input_ids'])
+        elif flags.version == 2.1:
             io_binding.bind_cpu_input('token_type_ids', inputs['token_type_ids'])
             io_binding.bind_cpu_input('attention_mask', inputs['attention_mask'])
             io_binding.bind_cpu_input('input_ids', inputs['input_ids'])
 
-        io_binding.bind_output('output_start_logits')
-        io_binding.bind_output('output_end_logits')
+
+        if flags.version <= 2.0:
+            io_binding.bind_output('output_start_logits')
+            io_binding.bind_output('output_end_logits')
+        else:
+            io_binding.bind_output('start_logits')
+            io_binding.bind_output('end_logits')
+
         start = time.time()
         #output = ort_session.run(["output_start_logits","output_end_logits"], inputs)
         ort_session.run_with_iobinding(io_binding)
@@ -248,10 +259,29 @@ def parse_input_args():
 
     parser.add_argument(
         "--model",
-        action="store_true",
+        action="store",
         required=False,
         default="./model.onnx",
+        type=str,
         help='Path to the desired model to be run. Default ins ./model.onnx',
+    )
+
+    parser.add_argument(
+        "--vocab",
+        action="store",
+        required=False,
+        default="./squad/vocab.txt",
+        type=str,
+        help='Path to the vocab of the model. Default is ./squad/vocab.txt',
+    )
+
+    parser.add_argument(
+        "--token",
+        action="store",
+        required=False,
+        default=None,
+        type=str,
+        help='Path to the tokenized inputs. Default is None and will be taken from vocab file',
     )
 
     parser.add_argument(
@@ -312,7 +342,7 @@ def parse_input_args():
 
     parser.add_argument("--samples",
                         required=False,
-                        default=0,
+                        default=1000,
                         help='Number of samples to test with. Default is 0 (All the samples in the dataset)',
                         type=int)
 
@@ -326,6 +356,16 @@ def parse_input_args():
     )
     
     return parser.parse_args()
+
+def output_run_config(flags, samples):
+    print ("filename:" + flags.model)
+    print ("Samples: " + str(samples) + " Batch size: " + str(flags.batch))
+    print ("Sequence length: " + str(flags.seq_len))
+    print ("Model Quantization: fp16:" + str(flags.fp16) + " int8:" + str(flags.int8))
+    if flags.ort_quant and flags.int8:
+        print ("Quantizer: Onnxruntime")
+    else:
+        print("Quantizer: MIGraphX")
 
 
 if __name__ == '__main__':
@@ -346,23 +386,21 @@ if __name__ == '__main__':
 
     flags = parse_input_args()
 
-    if flags.samples <= flags.batch:
-        print("Error: Sample count must be greater than batch size. Exiting")
-        exit()
-
     # Model, dataset and quantization settings
     model_path = flags.model
     
     # Set squad version   
     if flags.version == 1.1:
         squad_json = "./squad/dev-v1.1.json"
-    elif flags.version == 2.0:
+    elif flags.version >= 2.0:
         squad_json = "./squad/dev-v2.0.json" # uncomment it if you want to use squad v2.0 as dataset
     else:
         print("Error: version " + str(flags.version) + " of squad dataset not a valid choice")
         exit()
     
-    vocab_file = "./squad/vocab.txt"
+    vocab_file = flags.vocab
+    if vocab_file is None:
+        vocab_file = "./squad/vocab.txt"
     augmented_model_path = "./augmented_model.onnx"
     qdq_model_path = "./qdq_model.onnx"
 
@@ -373,6 +411,24 @@ if __name__ == '__main__':
     calib_num = flags.cal_num
     op_types_to_quantize = ['MatMul', 'Conv']
     batch_size = flags.batch
+
+    # Preprocess input data once.
+    input_dataset   = dp.read_squad_json(squad_json)
+
+    input_tokens = flags.token
+    if input_tokens is None:
+        input_tokens = tokenization.BertTokenizer(vocab_file=vocab_file, do_lower_case=True)
+
+    samples = flags.samples
+    if flags.samples > len(input_dataset):
+        print("Selecting more samples than available defaulting to " + str(len(input_dataset)) + " samples")
+        samples = len(input_dataset)
+
+    if samples < flags.batch:
+        print("Selecting less samples than target batch size. Setting to " + str(flags.batch) + " samples")
+        samples = flags.batch
+
+    model_quants = "" 
 
     if flags.int8:
         model = onnx.load_model(model_path)
@@ -390,7 +446,7 @@ if __name__ == '__main__':
         '''
         stride = 10
         #for i in range(0, calib_num, stride):
-        data_reader = BertDataReader(model_path, squad_json, vocab_file, batch_size, sequence_lengths[-1], doc_stride[-1], start_index=0, end_index=calib_num)
+        data_reader = BertDataReader(model_path, input_dataset, input_tokens, batch_size, sequence_lengths[-1], doc_stride[-1], start_index=0, end_index=calib_num)
         calibrator.collect_data(data_reader)
 
         compute_range = calibrator.compute_data()
@@ -405,6 +461,8 @@ if __name__ == '__main__':
 
         write_calibration_table(json_compute_range)
         print("Calibration is done. Calibration cache is saved to calibration.json")
+
+        model_quants = model_quants + "_int8"
 
         if flags.ort_quant:
             print("Int8 Quantization Done with Onnxruntime Quantizer")
@@ -436,7 +494,6 @@ if __name__ == '__main__':
             os.environ["ORT_MIGRAPHX_INT8_ENABLE"] = "1"  # Enable MIGRAPHX INT8 precision
             os.environ["ORT_MIGRAPHX_INT8_CALIBRATION_TABLE_NAME"] = "calibration.flatbuffers"  # Calibration table name
             os.environ["ORT_MIGRAPHX_INT8_NATIVE_CALIBRATION_TABLE"] = "0"  # Calibration table name
-
     else:
         qdq_model_path = model_path
         os.environ["ORT_MIGRAPHX_INT8_ENABLE"] = "0"  # Disable MIGRAPHX INT8 precision
@@ -444,13 +501,18 @@ if __name__ == '__main__':
     # No fp16 cal needed, MIGraphX will handle that through Onnxruntime & MIGraphX Execution Provider during compile
     if flags.fp16:
         os.environ["ORT_MIGRAPHX_FP16_ENABLE"] = "1"  # Enable MIGRAPHX FP16 precision
+        model_quants = model_quants + "_fp16"
     else:   
         os.environ["ORT_MIGRAPHX_FP16_ENABLE"] = "0"  # Disable MIGRAPHX FP16 precision
-    
+
+    os.environ["ORT_MIGRAPHX_SAVE_COMPILED_MODEL"] = "1"
+    os.environ["ORT_MIGRAPHX_LOAD_COMPILED_MODEL"] = "1"
+    os.environ["ORT_MIGRAPHX_SAVE_COMPILE_PATH"] = (qdq_model_path) + "_b" + str(flags.batch) + (model_quants) + ".mxr"
+    os.environ["ORT_MIGRAPHX_SAVE_COMPILE_PATH"] = (qdq_model_path) + "_b" + str(flags.batch) + str(model_quants) + ".mxr"
 
    # QDQ model inference and get SQUAD prediction 
     batch_size = flags.batch 
-    data_reader = BertDataReader(qdq_model_path, squad_json, vocab_file, batch_size, sequence_lengths[-1], doc_stride[-1], end_index=flags.samples)
+    data_reader = BertDataReader(qdq_model_path, input_dataset, input_tokens, batch_size, sequence_lengths[-1], doc_stride[-1], end_index=samples)
     sess_options = onnxruntime.SessionOptions()
     if flags.ort_verbose:
         sess_options.log_severity_level = 0
@@ -464,11 +526,15 @@ if __name__ == '__main__':
     all_predictions = inference(data_reader, ort_session, latency, flags.verbose) 
 
     print("Inference Complete!")
+
+    output_run_config(flags, samples)
+
     print("Rate = {} QPS ".format(
         format((((flags.batch) / (sum(latency[1:]) / len(latency[1:])))),
                 '.2f')))
     print("Average Execution time = {} ms".format(
             format(sum(latency[1:]) * 1000 / len(latency[1:]), '.2f')))
+
 
     # Verify output result from run
     if not flags.no_eval:
@@ -478,7 +544,11 @@ if __name__ == '__main__':
             f.write(json.dumps(all_predictions, indent=4))
             print("\nOutput dump to {}".format(prediction_file))
 
-
-        print("Evaluate QDQ model for SQUAD v"+ str(flags.version))
-        subprocess.call(['python3', './squad/evaluate-v'+ str(flags.version) + '.py', './squad/dev-v' + str(flags.version) + '.json', './prediction.json', '90'])
-
+        version = flags.version
+        if flags.version > 2.0:
+            version = 2.0
+        print("Evaluate QDQ model for SQUAD v"+ str(version))
+        if version == 1.1:
+            subprocess.call(['python3', './squad/evaluate-v'+ str(version) + '.py', './squad/dev-v' + str(version) + '.json', './prediction.json', '90'])
+        else:
+            subprocess.call(['python3', './squad/evaluate-v'+ str(version) + '.py', './squad/dev-v' + str(version) + '.json', './prediction.json'])
