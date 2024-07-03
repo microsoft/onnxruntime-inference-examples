@@ -507,8 +507,8 @@ if __name__ == '__main__':
 
     os.environ["ORT_MIGRAPHX_SAVE_COMPILED_MODEL"] = "1"
     os.environ["ORT_MIGRAPHX_LOAD_COMPILED_MODEL"] = "1"
-    os.environ["ORT_MIGRAPHX_SAVE_COMPILE_PATH"] = (qdq_model_path) + "_b" + str(flags.batch) + (model_quants) + ".mxr"
-    os.environ["ORT_MIGRAPHX_SAVE_COMPILE_PATH"] = (qdq_model_path) + "_b" + str(flags.batch) + str(model_quants) + ".mxr"
+    os.environ["ORT_MIGRAPHX_SAVE_COMPILE_PATH"] = (qdq_model_path) + "_s" + str(flags.seq_len) + "_b" + str(flags.batch) + (model_quants) + ".mxr"
+    os.environ["ORT_MIGRAPHX_LOAD_COMPILE_PATH"] = (qdq_model_path) + "_s" + str(flags.seq_len) + "_b" + str(flags.batch) + str(model_quants) + ".mxr"
 
    # QDQ model inference and get SQUAD prediction 
     batch_size = flags.batch 
