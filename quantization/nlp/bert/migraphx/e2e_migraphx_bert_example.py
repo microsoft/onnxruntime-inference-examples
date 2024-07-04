@@ -18,6 +18,7 @@ class BertDataReader(CalibrationDataReader):
                  tokens,
                  batch_size,
                  max_seq_length,
+                 max_query_length,
                  doc_stride,
                  start_index=0,
                  end_index=0):
@@ -32,7 +33,7 @@ class BertDataReader(CalibrationDataReader):
         self.current_example_index = start_index
         self.current_feature_index = 0 # global feature index (one example can have more than one feature) 
         self.doc_stride = doc_stride 
-        self.max_query_length = 64
+        self.max_query_length = max_query_length
         self.enum_data_dicts = iter([])
         self.features_list = []
         self.token_list = []
@@ -328,6 +329,12 @@ def parse_input_args():
                         help='sequence length of the model. Default is 384',
                         type=int)
 
+    parser.add_argument("--query_len",
+                        required=False,
+                        default=64,
+                        help='max querry length of the model. Default is 64',
+                        type=int)
+
     parser.add_argument("--doc_stride",
                         required=False,
                         default=128,
@@ -446,7 +453,7 @@ if __name__ == '__main__':
         '''
         stride = 10
         #for i in range(0, calib_num, stride):
-        data_reader = BertDataReader(model_path, input_dataset, input_tokens, batch_size, sequence_lengths[-1], doc_stride[-1], start_index=0, end_index=calib_num)
+        data_reader = BertDataReader(model_path, input_dataset, input_tokens, batch_size, sequence_lengths[-1], flags.query_length, doc_stride[-1], start_index=0, end_index=calib_num)
         calibrator.collect_data(data_reader)
 
         compute_range = calibrator.compute_data()
@@ -512,7 +519,7 @@ if __name__ == '__main__':
 
    # QDQ model inference and get SQUAD prediction 
     batch_size = flags.batch 
-    data_reader = BertDataReader(qdq_model_path, input_dataset, input_tokens, batch_size, sequence_lengths[-1], doc_stride[-1], end_index=samples)
+    data_reader = BertDataReader(qdq_model_path, input_dataset, input_tokens, batch_size, sequence_lengths[-1], flags.query_len, doc_stride[-1], end_index=samples)
     sess_options = onnxruntime.SessionOptions()
     if flags.ort_verbose:
         sess_options.log_severity_level = 0
