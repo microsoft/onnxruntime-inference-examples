@@ -52,15 +52,20 @@ class BertDataReader(CalibrationDataReader):
             return None
         elif self.current_example_index + self.example_stride > self.end_index:
             self.example_stride = self.end_index - self.current_example_index
-
-        if self.current_example_index % 10 == 0:
-            current_batch = int(self.current_feature_index / self.batch_size) 
-            if verbose:
-                print("Reading example index {:}, batch {:}, containing {:} sentences".format(self.current_example_index, current_batch, self.batch_size))
+            
+        if verbose:
+            current_batch = int(self.current_example_index / self.batch_size) 
+            print("Example stride:" + str(self.example_stride))
+            print("Reading example index {:}, batch {:}, containing {:} sentences".format(self.current_example_index, current_batch, self.batch_size))
 
         # example could have more than one feature
         # we collect all the features of examples and process them in one example stride
         features_in_current_stride = []
+        if verbose:
+            print("prev_example_index: " + str(self.current_example_index))
+            print("prev_feature_index: " + str(self.current_feature_index))
+            print("features in prev stride: " + str(len(features_in_current_stride)))
+
         for i in range(self.example_stride):
             example = self.data[self.current_example_index+ i]
             features = dp.convert_example_to_features(example.doc_tokens, example.question_text, self.tokenizer, self.max_seq_length, self.doc_stride, self.max_query_length)
@@ -71,6 +76,10 @@ class BertDataReader(CalibrationDataReader):
         self.current_example_index += self.example_stride
         self.current_feature_index+= len(features_in_current_stride)
 
+        if verbose:
+            print("current_example_index: " + str(self.current_example_index))
+            print("current_feature_index: " + str(self.current_feature_index))
+            print("features in current stride: " + str(len(features_in_current_stride)))
 
         # following layout shows three examples as example stride with batch size 2:
         # 
@@ -92,17 +101,39 @@ class BertDataReader(CalibrationDataReader):
 
             for i in range(self.batch_size):
                 if feature_idx + i >= len(features_in_current_stride):
+                    # Pad with same/last feature so we don't have to recompile the model due to varying inputs
+                    # It appears this means we're running with a dynamic batch
+                    if i < self.batch_size:
+                        for j in range(self.batch_size - i):
+                            input_ids = np.vstack([input_ids, feature.input_ids])
+                            input_mask = np.vstack([input_mask, feature.input_mask])
+                            segment_ids = np.vstack([segment_ids, feature.segment_ids])
+                    if verbose:
+                        print("End of features, repeating last feature as padding")
+                        print("Break")
                     break
                 feature = features_in_current_stride[feature_idx + i]
+                if verbose:
+                    print("Feature Index:" + str(feature_idx))
                 if len(input_ids) and len(segment_ids) and len(input_mask):
+                    if verbose:
+                        print("vstack")
                     input_ids = np.vstack([input_ids, feature.input_ids])
                     input_mask = np.vstack([input_mask, feature.input_mask])
                     segment_ids = np.vstack([segment_ids, feature.segment_ids])
                 else:
+                    if verbose:
+                        print("expand_dims")
+                        print(feature.input_ids.shape)
                     input_ids = np.expand_dims(feature.input_ids, axis=0)
                     input_mask = np.expand_dims(feature.input_mask, axis=0)
                     segment_ids = np.expand_dims(feature.segment_ids, axis=0)
 
+            if verbose:
+                print("Input ID shape " + str(input_ids.shape))
+                print("input mask shape " + str(input_mask.shape))
+                print("Segment ID shape" + str(segment_ids.shape))
+                print("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
             if flags.version == 1.1:
                 data.append({"input_ids": input_ids, "input_mask": input_mask, "segment_ids":segment_ids})
             elif flags.version >= 2.0:
@@ -174,6 +205,8 @@ def inference(data_reader, ort_session, latency, verbose=False):
             break
 
         if data_reader.start_of_new_stride:
+            if verbose:
+                print("Start of new stride")
             get_predictions(example_id_in_current_stride, features_in_current_stride, token_list_in_current_stride, data_reader.batch_size, outputs, _NetworkOutput, all_predictions)
 
             # reset current example stride
@@ -205,12 +238,18 @@ def inference(data_reader, ort_session, latency, verbose=False):
             io_binding.bind_output('start_logits')
             io_binding.bind_output('end_logits')
 
+        if verbose:
+            print("Before Inference")
+
         start = time.time()
         #output = ort_session.run(["output_start_logits","output_end_logits"], inputs)
         ort_session.run_with_iobinding(io_binding)
         latency.append(time.time() - start)
         output = io_binding.copy_outputs_to_cpu()
         outputs.append(output)
+
+        if verbose:
+            print("After Inference")
 
     # handle the last example stride
     get_predictions(example_id_in_current_stride, features_in_current_stride, token_list_in_current_stride, data_reader.batch_size, outputs, _NetworkOutput, all_predictions)
