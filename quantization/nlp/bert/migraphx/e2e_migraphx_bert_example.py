@@ -298,6 +298,15 @@ def parse_input_args():
     )
 
     parser.add_argument(
+        "--ep",
+        action="store",
+        required=False,
+        default="MIGraphX",
+        type=str,
+        help='The desired execution provider [MIGraphX, ROCm] are the options; Default is MIGraphX',
+    )
+
+    parser.add_argument(
         "--model",
         action="store",
         required=False,
@@ -352,7 +361,7 @@ def parse_input_args():
         "--ort_quant",
         action="store_false",
         required=False,
-        default=False,
+        default="MIGraphX",
         help='Turn on Onnxruntime Quantizer instead of MIGraphX Quantizer',
     )
     
@@ -443,7 +452,15 @@ if __name__ == '__main__':
 
     # Model, dataset and quantization settings
     model_path = flags.model
-    
+
+    if flags.ep == "MIGraphX":
+        ep = "MIGraphXExecutionProvider"
+    elif flags.ep == "ROCm":
+        ep = "ROCMExecutionProvider"
+    else:
+        print("Error: EP:" + str(flags.ep) + " Invalid")
+        exit
+
     # Set squad version   
     if flags.version == 1.1:
         squad_json = "./squad/dev-v1.1.json"
@@ -491,7 +508,7 @@ if __name__ == '__main__':
         # Generate INT8 calibration cache
         print("Calibration starts ...")
         calibrator = create_calibrator(model_path, op_types_to_quantize, augmented_model_path=augmented_model_path, calibrate_method=CalibrationMethod.Percentile)
-        calibrator.set_execution_providers(["MIGraphXExecutionProvider"]) 
+        calibrator.set_execution_providers([ep]) 
 
         '''
         We can use one data reader to do data pre-processing, however,
@@ -544,7 +561,7 @@ if __name__ == '__main__':
             print("QDQ model is saved to ", qdq_model_path)
         else:
             qdq_model_path = model_path
-            print("Int8 Quantization Done with MIGraphX")
+            print("Int8 Quantization Done with " + ep)
             #Quantize with MIGraphX's INT8 quantizer instead 
             os.environ["ORT_MIGRAPHX_INT8_ENABLE"] = "1"  # Enable MIGRAPHX INT8 precision
             os.environ["ORT_MIGRAPHX_INT8_CALIBRATION_TABLE_NAME"] = "calibration.flatbuffers"  # Calibration table name
@@ -575,7 +592,7 @@ if __name__ == '__main__':
         sess_options.log_verbosity_level = 0
 
     sess_options.graph_optimization_level = onnxruntime.GraphOptimizationLevel.ORT_DISABLE_ALL
-    ort_session = onnxruntime.InferenceSession(qdq_model_path, sess_options=sess_options, providers=["MIGraphXExecutionProvider"])
+    ort_session = onnxruntime.InferenceSession(qdq_model_path, sess_options=sess_options, providers=[ep])
     
     print("Running Inferences")
     latency = [] #Used for timing information
