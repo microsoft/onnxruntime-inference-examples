@@ -14,15 +14,10 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        externalNativeBuild {
-            cmake {
-                cppFlags += "-std=c++17"
-            }
-        }
 
         ndk {
             //noinspection ChromeOsAbiSupport
-            abiFilters += listOf("arm64-v8a", "x86_64")
+            abiFilters += listOf("arm64-v8a")
         }
     }
 
@@ -41,12 +36,6 @@ android {
         targetCompatibility = JavaVersion.VERSION_1_8
     }
 
-    externalNativeBuild {
-        cmake {
-            path = file("src/main/cpp/CMakeLists.txt")
-            version = "3.22.1"
-        }
-    }
     buildFeatures {
         viewBinding = true
     }
@@ -60,4 +49,9 @@ dependencies {
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
+
+    // ONNX Runtime with GenAI
+    implementation("com.microsoft.onnxruntime:onnxruntime-android:latest.release")
+    implementation(files("libs/onnxruntime-genai-android-0.4.0-dev.aar"))
+
 }

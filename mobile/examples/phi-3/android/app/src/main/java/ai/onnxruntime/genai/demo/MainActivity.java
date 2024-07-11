@@ -4,9 +4,11 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.util.Pair;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
@@ -18,14 +20,18 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.function.Consumer;
 
+import ai.onnxruntime.genai.GenAIException;
+import ai.onnxruntime.genai.GeneratorParams;
 import ai.onnxruntime.genai.demo.databinding.ActivityMainBinding;
+import ai.onnxruntime.genai.SimpleGenAI;
 
-public class MainActivity extends AppCompatActivity implements GenAIWrapper.TokenUpdateListener {
+public class MainActivity extends AppCompatActivity implements Consumer<String> {
 
     private ActivityMainBinding binding;
     private EditText userMsgEdt;
-    private GenAIWrapper genAIWrapper;
+    private SimpleGenAI simpleGenAI;
     private ImageButton sendMsgIB;
     private TextView generatedTV;
     private TextView promptTV;
@@ -56,10 +62,22 @@ public class MainActivity extends AppCompatActivity implements GenAIWrapper.Toke
         generatedTV = findViewById(R.id.sample_text);
         promptTV = findViewById(R.id.user_text);
 
+        Consumer<String> tokenListener = this;
+
+        //enable scrolling and resizing of text boxes
+        generatedTV.setMovementMethod(new ScrollingMovementMethod());
+        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+
         // adding on click listener for send message button.
         sendMsgIB.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (simpleGenAI == null) {
+                    // if the edit text is empty display a toast message.
+                    Toast.makeText(MainActivity.this, "Model not loaded yet, please wait...", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
                 // Checking if the message entered
                 // by user is empty or not.
                 if (userMsgEdt.getText().toString().isEmpty()) {
@@ -85,7 +103,9 @@ public class MainActivity extends AppCompatActivity implements GenAIWrapper.Toke
                     @Override
                     public void run() {
                         try {
-                            genAIWrapper.run(promptQuestion_formatted);
+                            GeneratorParams generatorParams = simpleGenAI.createGeneratorParams(promptQuestion_formatted);
+
+                            String result = simpleGenAI.generate(generatorParams, tokenListener);
                         } catch (GenAIException e) {
                             throw new RuntimeException(e);
                         }
@@ -101,12 +121,7 @@ public class MainActivity extends AppCompatActivity implements GenAIWrapper.Toke
 
     @Override
     protected void onDestroy() {
-        try {
-            genAIWrapper.close();
-        } catch (Exception e) {
-            Log.e(TAG, "exception from closing genAIWrapper", e);
-        }
-        genAIWrapper = null;
+        simpleGenAI = null;
         super.onDestroy();
     }
 
@@ -160,8 +175,11 @@ public class MainActivity extends AppCompatActivity implements GenAIWrapper.Toke
                 // so assuming if one filename exists, then the download model step has already
                 // be
                 // done.
-                genAIWrapper = createGenAIWrapper();
-                break;
+                if (index == urlFilePairs.size() - 1) {
+                    simpleGenAI = new SimpleGenAI(getFilesDir().getPath());
+                    break;
+                }
+                continue;
             }
             executor.execute(() -> {
                 ModelDownloader.downloadModel(context, url, fileName, new ModelDownloader.DownloadCallback() {
@@ -170,7 +188,7 @@ public class MainActivity extends AppCompatActivity implements GenAIWrapper.Toke
                         Log.d(TAG, "Download complete for " + fileName);
                         if (index == urlFilePairs.size() - 1) {
                             // Last download completed, create GenAIWrapper
-                            genAIWrapper = createGenAIWrapper();
+                            simpleGenAI = new SimpleGenAI(getFilesDir().getPath());
                             Log.d(TAG, "All downloads completed");
                         }
                     }
@@ -180,15 +198,8 @@ public class MainActivity extends AppCompatActivity implements GenAIWrapper.Toke
         executor.shutdown();
     }
 
-    private GenAIWrapper createGenAIWrapper() throws GenAIException {
-        // Create GenAIWrapper object and load model from android device file path.
-        GenAIWrapper wrapper = new GenAIWrapper(getFilesDir().getPath());
-        wrapper.setTokenUpdateListener(this);
-        return wrapper;
-    }
-
     @Override
-    public void onTokenUpdate(String token) {
+    public void accept(String token) {
         runOnUiThread(() -> {
             // Update and aggregate the generated text and write to text box.
             CharSequence generated = generatedTV.getText();

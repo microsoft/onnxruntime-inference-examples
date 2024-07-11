@@ -15,6 +15,8 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+import ai.onnxruntime.genai.GenAIException;
+
 public class ModelDownloader {
   interface DownloadCallback {
     void onDownloadComplete() throws GenAIException;
