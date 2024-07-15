@@ -437,3 +437,5 @@ config.json
 .ipynb_aml_checkpoints
 *.ipynb.amltmp
 
+## Android Studio IDE files
+.idea/

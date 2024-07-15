@@ -23,15 +23,20 @@ import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 
 import ai.onnxruntime.genai.GenAIException;
+import ai.onnxruntime.genai.Generator;
 import ai.onnxruntime.genai.GeneratorParams;
+import ai.onnxruntime.genai.Sequences;
+import ai.onnxruntime.genai.TokenizerStream;
 import ai.onnxruntime.genai.demo.databinding.ActivityMainBinding;
-import ai.onnxruntime.genai.SimpleGenAI;
+import ai.onnxruntime.genai.Model;
+import ai.onnxruntime.genai.Tokenizer;
 
 public class MainActivity extends AppCompatActivity implements Consumer<String> {
 
     private ActivityMainBinding binding;
     private EditText userMsgEdt;
-    private SimpleGenAI simpleGenAI;
+    private Model model;
+    private Tokenizer tokenizer;
     private ImageButton sendMsgIB;
     private TextView generatedTV;
     private TextView promptTV;
@@ -72,7 +77,7 @@ public class MainActivity extends AppCompatActivity implements Consumer<String> 
         sendMsgIB.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (simpleGenAI == null) {
+                if (model == null) {
                     // if the edit text is empty display a toast message.
                     Toast.makeText(MainActivity.this, "Model not loaded yet, please wait...", Toast.LENGTH_SHORT).show();
                     return;
@@ -103,10 +108,29 @@ public class MainActivity extends AppCompatActivity implements Consumer<String> 
                     @Override
                     public void run() {
                         try {
-                            GeneratorParams generatorParams = simpleGenAI.createGeneratorParams(promptQuestion_formatted);
+                            TokenizerStream stream = tokenizer.createStream();
 
-                            String result = simpleGenAI.generate(generatorParams, tokenListener);
-                        } catch (GenAIException e) {
+                            GeneratorParams generatorParams = model.createGeneratorParams();
+                            //generatorParams.setSearchOption("length_penalty", 1000);
+                            generatorParams.setSearchOption("max_length", 500);
+
+                            Sequences encodedPrompt = tokenizer.encode(promptQuestion_formatted);
+                            generatorParams.setInput(encodedPrompt);
+
+                            Generator generator = new Generator(model, generatorParams);
+
+                            while (!generator.isDone()) {
+                                generator.computeLogits();
+                                generator.generateNextToken();
+                 
+                                int token = generator.getLastTokenInSequence(0);
+                 
+                                tokenListener.accept(stream.decode(token));
+                            }
+
+                            generator.close();
+                        }
+                        catch (GenAIException e) {
                             throw new RuntimeException(e);
                         }
 
@@ -121,7 +145,10 @@ public class MainActivity extends AppCompatActivity implements Consumer<String> 
 
     @Override
     protected void onDestroy() {
-        simpleGenAI = null;
+        tokenizer.close();
+        tokenizer = null;
+        model.close();
+        model = null;
         super.onDestroy();
     }
 
@@ -176,19 +203,33 @@ public class MainActivity extends AppCompatActivity implements Consumer<String> 
                 // be
                 // done.
                 if (index == urlFilePairs.size() - 1) {
-                    simpleGenAI = new SimpleGenAI(getFilesDir().getPath());
+                    model = new Model(getFilesDir().getPath());
+                    tokenizer = model.createTokenizer();
                     break;
                 }
                 continue;
             }
             executor.execute(() -> {
                 ModelDownloader.downloadModel(context, url, fileName, new ModelDownloader.DownloadCallback() {
+                    private long pctDone = 0;
+                    @Override
+                    public void onDownloadProgress(long bytesDone, long bytesTotal) {
+                        if (bytesTotal > 0) {
+                            long newPctDone = bytesDone * 100 / bytesTotal;
+                            if (newPctDone > pctDone) {
+                                pctDone = newPctDone;
+                                Log.d(TAG, "Download" + fileName + ": " + pctDone
+                                    + "% of " + (bytesTotal/1024) + " KB");
+                            }
+                        }
+                    }
                     @Override
                     public void onDownloadComplete() throws GenAIException {
                         Log.d(TAG, "Download complete for " + fileName);
                         if (index == urlFilePairs.size() - 1) {
                             // Last download completed, create GenAIWrapper
-                            simpleGenAI = new SimpleGenAI(getFilesDir().getPath());
+                            model = new Model(getFilesDir().getPath());
+                            tokenizer = model.createTokenizer();
                             Log.d(TAG, "All downloads completed");
                         }
                     }
@@ -205,6 +246,8 @@ public class MainActivity extends AppCompatActivity implements Consumer<String> 
             CharSequence generated = generatedTV.getText();
             generatedTV.setText(generated + token);
             generatedTV.invalidate();
+            final int scrollAmount = generatedTV.getLayout().getLineTop(generatedTV.getLineCount()) - generatedTV.getHeight();
+            generatedTV.scrollTo(0, Math.max(scrollAmount, 0));
         });
     }
 
