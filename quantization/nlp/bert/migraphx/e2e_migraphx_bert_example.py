@@ -518,7 +518,7 @@ if __name__ == '__main__':
         '''
         stride = 10
         #for i in range(0, calib_num, stride):
-        data_reader = BertDataReader(model_path, input_dataset, input_tokens, batch_size, sequence_lengths[-1], flags.query_length, doc_stride[-1], start_index=0, end_index=calib_num)
+        data_reader = BertDataReader(model_path, input_dataset, input_tokens, batch_size, sequence_lengths[-1], flags.query_len, doc_stride[-1], start_index=0, end_index=calib_num)
         calibrator.collect_data(data_reader)
 
         compute_range = calibrator.compute_data()
