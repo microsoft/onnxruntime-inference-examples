@@ -92,7 +92,7 @@ public class MainActivity extends AppCompatActivity implements Consumer<String> 
                 }
 
                 String promptQuestion = userMsgEdt.getText().toString();
-                String promptQuestion_formatted = "<|user|>\n" + promptQuestion + "<|end|>\n<|assistant|>";
+                String promptQuestion_formatted = "<system>You are a helpful AI assistant. Answer in one paragraph or less<|end|><|user|>"+promptQuestion+"<|end|>\n<assistant|>";
                 Log.i("GenAI: prompt question", promptQuestion_formatted);
                 setVisibility();
 
@@ -128,7 +128,7 @@ public class MainActivity extends AppCompatActivity implements Consumer<String> 
                                 tokenListener.accept(stream.decode(token));
                             }
 
-                            generator.close();
+                            //generator.close();
                         }
                         catch (GenAIException e) {
                             throw new RuntimeException(e);
