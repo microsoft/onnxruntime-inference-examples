@@ -39,11 +39,24 @@ struct CString {
   JNIEnv *env_;
   jstring str_;
 };
+
+void SetEnvironmentVariables(std::string qnnLibPath) {
+  std::stringstream path;
+  path << qnnLibPath << ";/system/lib/rfsa/adsp;/system/vendor/lib/rfsa/adsp;/dsp";
+  setenv("ADSP_LIBRARY_PATH", path.str().c_str(), 1 /*override*/) == 0;
+  setenv("LD_LIBRARY_PATH", qnnLibPath.c_str(), 1);
+}
 }  // namespace
 
 extern "C" JNIEXPORT jlong JNICALL Java_ai_onnxruntime_genai_demo_GenAIWrapper_loadModel(JNIEnv *env, jobject thiz,
                                                                                          jstring model_path) {
   try {
+    // hacky place to initialize, but we should come here first
+    [[maybe_unused]] static bool is_env_initialized = []() -> bool {
+      SetEnvironmentVariables("/data/local/tmp/qnn_lib");
+      return true;
+    }();
+
     CString path{env, model_path};
     std::unique_ptr<OgaModel> model = OgaModel::Create(path);
     return (jlong)model.release();
