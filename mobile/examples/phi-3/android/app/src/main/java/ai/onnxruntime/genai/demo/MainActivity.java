@@ -45,8 +45,9 @@ public class MainActivity extends AppCompatActivity implements GenAIWrapper.Toke
 
         // Trigger the download operation when the application is created
         try {
-            downloadModels(
-                    getApplicationContext());
+            //downloadModels(getApplicationContext());
+            String modelPath = "/data/local/tmp/onnxruntime-genai/models/phi3/phi3-split-qnn";
+            genAIWrapper = createGenAIWrapper(modelPath);
         } catch (GenAIException e) {
             throw new RuntimeException(e);
         }
@@ -70,7 +71,7 @@ public class MainActivity extends AppCompatActivity implements GenAIWrapper.Toke
 
                 String promptQuestion = userMsgEdt.getText().toString();
                 String promptQuestion_formatted = "<|user|>\n" + promptQuestion + "<|end|>\n<|assistant|>";
-                Log.i("GenAI: prompt question", promptQuestion_formatted);
+                Log.i(TAG, "prompt question: " + promptQuestion_formatted);
                 setVisibility();
 
                 // Disable send button while responding to prompt.
@@ -160,7 +161,7 @@ public class MainActivity extends AppCompatActivity implements GenAIWrapper.Toke
                 // so assuming if one filename exists, then the download model step has already
                 // be
                 // done.
-                genAIWrapper = createGenAIWrapper();
+                genAIWrapper = createGenAIWrapper(getFilesDir().getPath());
                 break;
             }
             executor.execute(() -> {
@@ -170,7 +171,7 @@ public class MainActivity extends AppCompatActivity implements GenAIWrapper.Toke
                         Log.d(TAG, "Download complete for " + fileName);
                         if (index == urlFilePairs.size() - 1) {
                             // Last download completed, create GenAIWrapper
-                            genAIWrapper = createGenAIWrapper();
+                            genAIWrapper = createGenAIWrapper(getFilesDir().getPath());
                             Log.d(TAG, "All downloads completed");
                         }
                     }
@@ -180,9 +181,9 @@ public class MainActivity extends AppCompatActivity implements GenAIWrapper.Toke
         executor.shutdown();
     }
 
-    private GenAIWrapper createGenAIWrapper() throws GenAIException {
+    private GenAIWrapper createGenAIWrapper(String modelPath) throws GenAIException {
         // Create GenAIWrapper object and load model from android device file path.
-        GenAIWrapper wrapper = new GenAIWrapper(getFilesDir().getPath());
+        GenAIWrapper wrapper = new GenAIWrapper(modelPath);
         wrapper.setTokenUpdateListener(this);
         return wrapper;
     }

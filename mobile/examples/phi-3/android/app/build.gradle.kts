@@ -22,7 +22,9 @@ android {
 
         ndk {
             //noinspection ChromeOsAbiSupport
-            abiFilters += listOf("arm64-v8a", "x86_64")
+            //abiFilters += listOf("arm64-v8a", "x86_64")
+            abiFilters += listOf("arm64-v8a")
+            version = "26.1.10909125"
         }
     }
 

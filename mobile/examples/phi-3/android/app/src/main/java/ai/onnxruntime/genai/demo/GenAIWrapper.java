@@ -28,7 +28,7 @@ public class GenAIWrapper implements AutoCloseable {
     }
 
     void run(String prompt) throws GenAIException {
-        run(nativeModel, nativeTokenizer, prompt, /* useCallback */ true);
+        run(nativeModel, nativeTokenizer, prompt);
     }
 
     @Override
@@ -60,5 +60,5 @@ public class GenAIWrapper implements AutoCloseable {
 
     private native void releaseTokenizer(long nativeTokenizer);
 
-    private native String run(long nativeModel, long nativeTokenizer, String prompt, boolean useCallback);
+    private native void run(long nativeModel, long nativeTokenizer, String prompt);
 }
