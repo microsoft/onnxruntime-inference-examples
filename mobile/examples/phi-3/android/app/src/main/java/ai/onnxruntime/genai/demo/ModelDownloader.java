@@ -19,7 +19,6 @@ import ai.onnxruntime.genai.GenAIException;
 
 public class ModelDownloader {
   interface DownloadCallback {
-    void onDownloadProgress(long doneBytes, long totalBytes);
     void onDownloadComplete() throws GenAIException;
   }
 
@@ -35,17 +34,11 @@ public class ModelDownloader {
       if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
         InputStream inputStream = connection.getInputStream();
         FileOutputStream outputStream = new FileOutputStream(tempFile);
-        long totalFileSize = connection.getHeaderFieldLong("Content-Length", -1);
 
         byte[] buffer = new byte[4096];
-        long totalBytesRead = 0;
         int bytesRead;
         while ((bytesRead = inputStream.read(buffer)) != -1) {
           outputStream.write(buffer, 0, bytesRead);
-          if (callback != null) {
-            totalBytesRead += bytesRead;
-            callback.onDownloadProgress(totalBytesRead, totalFileSize);
-          }
         }
 
         outputStream.flush();
@@ -68,7 +61,7 @@ public class ModelDownloader {
       e.printStackTrace();
       Log.e(TAG, "Exception occurred during model download: " + e.getMessage());
     } catch (GenAIException e) {
-        throw new RuntimeException(e);
+      throw new RuntimeException(e);
     }
   }
 }

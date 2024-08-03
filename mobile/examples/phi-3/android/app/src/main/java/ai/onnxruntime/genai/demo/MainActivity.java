@@ -112,6 +112,7 @@ public class MainActivity extends AppCompatActivity implements Consumer<String> 
                             TokenizerStream stream = tokenizer.createStream();
 
                             GeneratorParams generatorParams = model.createGeneratorParams();
+                            //examples for optional parameters to format AI response
                             //generatorParams.setSearchOption("length_penalty", 1000);
                             //generatorParams.setSearchOption("max_length", 500);
 
@@ -203,12 +204,9 @@ public class MainActivity extends AppCompatActivity implements Consumer<String> 
                     long pctDone = 100 * bytesRead / bytesTotal;
                     if (pctDone > lastPctDone) {
                         Log.d(TAG, "Downloading files: " + pctDone + "%");
-                        //if (pctDone / 10 > lastPctDone / 10) {
                         runOnUiThread(() -> {
                             progressText.setText("Downloading: " + pctDone + "%");
-                            //Toast.makeText(context, "Downloading: " + pctDone + "%", Toast.LENGTH_SHORT).show();
                         });
-                        //}
                     }
                 }
                 @Override
