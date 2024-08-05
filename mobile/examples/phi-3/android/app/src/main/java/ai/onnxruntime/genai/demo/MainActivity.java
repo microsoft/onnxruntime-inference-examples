@@ -108,18 +108,22 @@ public class MainActivity extends AppCompatActivity implements Consumer<String> 
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
+                        TokenizerStream stream = null;
+                        GeneratorParams generatorParams = null;
+                        Generator generator = null;
+                        Sequences encodedPrompt = null;
                         try {
-                            TokenizerStream stream = tokenizer.createStream();
+                            stream = tokenizer.createStream();
 
-                            GeneratorParams generatorParams = model.createGeneratorParams();
+                            generatorParams = model.createGeneratorParams();
                             //examples for optional parameters to format AI response
                             //generatorParams.setSearchOption("length_penalty", 1000);
                             //generatorParams.setSearchOption("max_length", 500);
 
-                            Sequences encodedPrompt = tokenizer.encode(promptQuestion_formatted);
+                            encodedPrompt = tokenizer.encode(promptQuestion_formatted);
                             generatorParams.setInput(encodedPrompt);
 
-                            Generator generator = new Generator(model, generatorParams);
+                            generator = new Generator(model, generatorParams);
 
                             while (!generator.isDone()) {
                                 generator.computeLogits();
@@ -131,10 +135,17 @@ public class MainActivity extends AppCompatActivity implements Consumer<String> 
                             }
 
                             generator.close();
+                            encodedPrompt.close();
+                            stream.close();
                             generatorParams.close();
 
                         }
                         catch (GenAIException e) {
+                            Log.e(TAG, "Exception occurred during model query: " + e.getMessage());
+                            if (generator != null) generator.close();
+                            if (encodedPrompt != null) encodedPrompt.close();
+                            if (stream != null) stream.close();
+                            if (generatorParams != null) generatorParams.close();
                             throw new RuntimeException(e);
                         }
 
