@@ -307,6 +307,15 @@ def parse_input_args():
     )
 
     parser.add_argument(
+        "--cal_ep",
+        action="store",
+        required=False,
+        default="MIGraphX",
+        type=str,
+        help='The desired execution provider [MIGraphX, ROCm] for int8 quantization; Default is MIGraphX',
+    )
+
+    parser.add_argument(
         "--model",
         action="store",
         required=False,
@@ -359,9 +368,9 @@ def parse_input_args():
 
     parser.add_argument(
         "--ort_quant",
-        action="store_false",
+        action="store_true",
         required=False,
-        default="MIGraphX",
+        default=False,
         help='Turn on Onnxruntime Quantizer instead of MIGraphX Quantizer',
     )
     
@@ -461,6 +470,17 @@ if __name__ == '__main__':
         print("Error: EP:" + str(flags.ep) + " Invalid")
         exit
 
+    cal_ep = "MIGraphXExecutionProvider"
+    if not flags.ort_quant and flags.int8:
+        if flags.cal_ep == "MIGraphX":
+            cal_ep = "MIGraphXExecutionProvider"
+        elif flags.cal_ep == "ROCm":
+            cal_ep = "ROCMExecutionProvider"
+        else:
+            print("Error: cal_ep:" + str(flags.cal_ep) + " Invalid")
+            exit
+
+
     # Set squad version   
     if flags.version == 1.1:
         squad_json = "./squad/dev-v1.1.json"
@@ -506,9 +526,9 @@ if __name__ == '__main__':
         model = onnx.load_model(model_path)
 
         # Generate INT8 calibration cache
-        print("Calibration starts ...")
+        print("Calibration data compute starts with " + str(cal_ep))
         calibrator = create_calibrator(model_path, op_types_to_quantize, augmented_model_path=augmented_model_path, calibrate_method=CalibrationMethod.Percentile)
-        calibrator.set_execution_providers([ep]) 
+        calibrator.set_execution_providers([cal_ep]) 
 
         '''
         We can use one data reader to do data pre-processing, however,
@@ -538,7 +558,6 @@ if __name__ == '__main__':
 
         if flags.ort_quant:
             print("Int8 Quantization Done with Onnxruntime Quantizer")
-            # Generate QDQ model
             mode = QuantizationMode.QLinearOps
             # In TRT, it recommended to add QDQ pair to inputs of Add node followed by ReduceMean node.
             # Mirroring here what TRT does in MIGraphX Quantization to be able to perform an apples to apples comparison
@@ -561,7 +580,7 @@ if __name__ == '__main__':
             print("QDQ model is saved to ", qdq_model_path)
         else:
             qdq_model_path = model_path
-            print("Int8 Quantization Done with " + ep)
+            print("Int8 Quantization Done with " + cal_ep)
             #Quantize with MIGraphX's INT8 quantizer instead 
             os.environ["ORT_MIGRAPHX_INT8_ENABLE"] = "1"  # Enable MIGRAPHX INT8 precision
             os.environ["ORT_MIGRAPHX_INT8_CALIBRATION_TABLE_NAME"] = "calibration.flatbuffers"  # Calibration table name
