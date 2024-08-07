@@ -312,7 +312,7 @@ def parse_input_args():
         required=False,
         default="MIGraphX",
         type=str,
-        help='The desired execution provider [MIGraphX, ROCm] for int8 quantization; Default is MIGraphX',
+        help='The desired execution provider [MIGraphX, ROCm, CPU] for int8 quantization; Default is MIGraphX',
     )
 
     parser.add_argument(
@@ -376,7 +376,7 @@ def parse_input_args():
     
     parser.add_argument(
         "--save_load",
-        action="store_false",
+        action="store_true",
         required=False,
         default=False,
         help='Turn on Onnxruntime Model save loading to speed up inference',
@@ -471,11 +471,13 @@ if __name__ == '__main__':
         exit
 
     cal_ep = "MIGraphXExecutionProvider"
-    if not flags.ort_quant and flags.int8:
+    if flags.int8:
         if flags.cal_ep == "MIGraphX":
             cal_ep = "MIGraphXExecutionProvider"
         elif flags.cal_ep == "ROCm":
             cal_ep = "ROCMExecutionProvider"
+        elif flags.cal_ep == "CPU":
+            cal_ep = "CPUExecutionProvider"
         else:
             print("Error: cal_ep:" + str(flags.cal_ep) + " Invalid")
             exit
@@ -597,10 +599,12 @@ if __name__ == '__main__':
         os.environ["ORT_MIGRAPHX_FP16_ENABLE"] = "0"  # Disable MIGRAPHX FP16 precision
 
     if flags.save_load:
+        model_name = str(qdq_model_path) + "_s" + str(flags.seq_len) + "_b" + str(flags.batch) + str(model_quants) + ".mxr"
+        print("save load model from " + str(model_name))
         os.environ["ORT_MIGRAPHX_SAVE_COMPILED_MODEL"] = "1"
         os.environ["ORT_MIGRAPHX_LOAD_COMPILED_MODEL"] = "1"
-        os.environ["ORT_MIGRAPHX_SAVE_COMPILE_PATH"] = (qdq_model_path) + "_s" + str(flags.seq_len) + "_b" + str(flags.batch) + (model_quants) + ".mxr"
-        os.environ["ORT_MIGRAPHX_LOAD_COMPILE_PATH"] = (qdq_model_path) + "_s" + str(flags.seq_len) + "_b" + str(flags.batch) + str(model_quants) + ".mxr"
+        os.environ["ORT_MIGRAPHX_SAVE_COMPILE_PATH"] = model_name
+        os.environ["ORT_MIGRAPHX_LOAD_COMPILE_PATH"] = model_name
 
    # QDQ model inference and get SQUAD prediction 
     batch_size = flags.batch 
