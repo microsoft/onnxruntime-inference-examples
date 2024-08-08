@@ -46,8 +46,6 @@ stages:
     pool:
       vmImage: "macOS-12"
 
-    dependsOn: ProcessParameters
-
     variables:
       OrtPodVersionSpecifier: $[ stageDependencies.ProcessParameters.j.outputs['SetVariables.OrtPodVersionSpecifier'] ]
 
