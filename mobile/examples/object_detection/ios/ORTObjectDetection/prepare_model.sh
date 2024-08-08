@@ -16,6 +16,8 @@ curl -L -o "${DOWNLOAD_DIR}/tflite_model/model.tar.gz" \
 
 # Extract model
 tar -xzf "${DOWNLOAD_DIR}/tflite_model/model.tar.gz" -C "${DOWNLOAD_DIR}/tflite_model"
+# Extract the labelmap.txt file within the tflite file
+unzip "${DOWNLOAD_DIR}/tflite_model/1.tflite" labelmap.txt -d "${DOWNLOAD_DIR}"
 
 # Convert tflite model to onnx model
 python -m tf2onnx.convert --tflite "${DOWNLOAD_DIR}/tflite_model/1.tflite" --opset 13 --output "${DOWNLOAD_DIR}/ssd_mobilenet_v1.onnx"
