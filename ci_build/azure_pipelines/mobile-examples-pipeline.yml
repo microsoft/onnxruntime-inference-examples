@@ -56,11 +56,9 @@ stages:
 
     strategy:
       matrix:
-        full:
-          OrtPodNamePrefix: onnxruntime
+        onnx_model:
           XcodeArgs: 'GCC_PREPROCESSOR_DEFINITIONS="$GCC_PREPROCESSOR_DEFINITIONS ORT_BASIC_USAGE_USE_ONNX_FORMAT_MODEL"'
-        mobile:
-          OrtPodNamePrefix: onnxruntime-mobile
+        ort_format_model:
           XcodeArgs: ''
 
     steps:
@@ -73,12 +71,10 @@ stages:
       workingDirectory: mobile/examples/basic_usage/ios
       displayName: "Generate model"
 
-    - bash: |
-        set -e
-        PODFILE=mobile/examples/basic_usage/ios/Podfile
-        sed -i "" -e "s/pod 'onnxruntime-objc'/pod '$(OrtPodNamePrefix)-objc'$(OrtPodVersionSpecifier)/" ${PODFILE}
-        cat ${PODFILE}
-      displayName: "Update Podfile"
+    - template: templates/update-podfile-step.yml
+      parameters:
+        podfilePath: 'mobile/examples/basic_usage/ios/Podfile'
+        ortPodVersionSpecifier: $(OrtPodVersionSpecifier)
 
     - script: pod install
       workingDirectory: 'mobile/examples/basic_usage/ios'
@@ -147,13 +143,6 @@ stages:
     variables:
       OrtPodVersionSpecifier: $[ stageDependencies.ProcessParameters.j.outputs['SetVariables.OrtPodVersionSpecifier'] ]
 
-    strategy:
-      matrix:
-        full:
-          OrtPodNamePrefix: onnxruntime
-        mobile:
-          OrtPodNamePrefix: onnxruntime-mobile
-
     steps:
     - template: templates/use-python-step.yml
 
@@ -164,12 +153,10 @@ stages:
       workingDirectory: mobile/examples/speech_recognition/ios
       displayName: "Generate model"
 
-    - bash: |
-        set -e
-        PODFILE=mobile/examples/speech_recognition/ios/Podfile
-        sed -i "" -e "s/pod 'onnxruntime-objc'/pod '$(OrtPodNamePrefix)-objc'$(OrtPodVersionSpecifier)/" ${PODFILE}
-        cat ${PODFILE}
-      displayName: "Update Podfile"
+    - template: templates/update-podfile-step.yml
+      parameters:
+        podfilePath: 'mobile/examples/basic_usage/ios/Podfile'
+        ortPodVersionSpecifier: $(OrtPodVersionSpecifier)
 
     - script: pod install
       workingDirectory: 'mobile/examples/speech_recognition/ios'
@@ -191,13 +178,6 @@ stages:
     variables:
       OrtPodVersionSpecifier: $[ stageDependencies.ProcessParameters.j.outputs['SetVariables.OrtPodVersionSpecifier'] ]
 
-    strategy:
-      matrix:
-        full:
-          OrtPodNamePrefix: onnxruntime
-        mobile:
-          OrtPodNamePrefix: onnxruntime-mobile
-
     steps:
     - template: templates/use-python-step.yml
 
@@ -208,12 +188,10 @@ stages:
       workingDirectory: mobile/examples/object_detection/ios/ORTObjectDetection
       displayName: "Generate model"
 
-    - bash: |
-        set -e
-        PODFILE=mobile/examples/object_detection/ios/Podfile
-        sed -i "" -e "s/pod 'onnxruntime-objc'/pod '$(OrtPodNamePrefix)-objc'$(OrtPodVersionSpecifier)/" ${PODFILE}
-        cat ${PODFILE}
-      displayName: "Update Podfile"
+    - template: templates/update-podfile-step.yml
+      parameters:
+        podfilePath: 'mobile/examples/basic_usage/ios/Podfile'
+        ortPodVersionSpecifier: $(OrtPodVersionSpecifier)
 
     - script: pod install
       workingDirectory: 'mobile/examples/object_detection/ios'
@@ -272,11 +250,9 @@ stages:
 
     strategy:
       matrix:
-        full:
-          OrtPackageName: onnxruntime-android
+        onnx_model:
           ModelFormat: onnx
-        mobile:
-          OrtPackageName: onnxruntime-mobile
+        ort_format_model:
           ModelFormat: ort
 
     steps:
@@ -290,15 +266,6 @@ stages:
         ./prepare_models.py --output_dir ./app/src/main/res/raw --format $(ModelFormat)
       workingDirectory: mobile/examples/image_classification/android
       displayName: "Generate models"
-
-    - bash: |
-        set -e
-        GRADLE_FILE=mobile/examples/image_classification/android/app/build.gradle
-        sed -i "" \
-          -e "s/implementation 'com.microsoft.onnxruntime:onnxruntime-android:latest.release'/implementation 'com.microsoft.onnxruntime:$(OrtPackageName):latest.release'/" \
-          ${GRADLE_FILE}
-        cat ${GRADLE_FILE}
-      displayName: "Update build.gradle"
 
     - template: templates/run-with-android-emulator-steps.yml
       parameters:
