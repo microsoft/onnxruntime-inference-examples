@@ -207,14 +207,6 @@ stages:
 
     steps:
     - template: templates/use-python-step.yml
-      
-    - script: |
-        python3 ./ci_build/python/run_android_emulator.py \
-          --android-sdk-root ${ANDROID_SDK_ROOT} \
-          --create-avd --system-image "system-images;android-30;default;x86_64" \
-          --start --emulator-extra-args="-partition-size 4096" \
-          --emulator-pid-file $(Build.BinariesDirectory)/emulator.pid
-      displayName: "Start Android emulator"
     
     - task: JavaToolInstaller@0
       displayName: Use jdk 11
@@ -223,19 +215,14 @@ stages:
         jdkArchitectureOption: "x64"
         jdkSourceOption: "PreInstalled"
 
-    - bash: |
-        set -e
-        ./gradlew connectedDebugAndroidTest --no-daemon
-      workingDirectory: mobile/examples/object_detection/android
-      displayName: "Build and run tests"
-
-    - script: |
-        python ./ci_build/python/run_android_emulator.py \
-          --android-sdk-root ${ANDROID_SDK_ROOT} \
-          --stop \
-          --emulator-pid-file $(Build.BinariesDirectory)/emulator.pid
-      displayName: "Stop Android emulator"
-      condition: always()
+    - template: templates/run-with-android-emulator-steps.yml
+      parameters:
+        steps:
+        - bash: |
+            set -e
+            ./gradlew connectedDebugAndroidTest --no-daemon
+          workingDirectory: mobile/examples/object_detection/android
+          displayName: "Build and run tests"
 
 # mobile/examples/image_classification/android
 - stage: ImageClassificationAndroid
@@ -266,7 +253,9 @@ stages:
     - template: templates/run-with-android-emulator-steps.yml
       parameters:
         steps:
-        - bash: ./gradlew connectedDebugAndroidTest --no-daemon
+        - bash: |
+            set -e
+            ./gradlew connectedDebugAndroidTest --no-daemon
           workingDirectory: mobile/examples/image_classification/android
           displayName: "Build and run tests"
 
