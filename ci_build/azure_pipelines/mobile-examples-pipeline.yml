@@ -97,8 +97,6 @@ stages:
     - template: templates/use-python-step.yml
 
     - template: templates/use-jdk-step.yml
-      parameters:
-        jdkVersion: "17"
 
     - template: templates/run-with-android-emulator-steps.yml
       parameters:
@@ -120,8 +118,6 @@ stages:
     - template: templates/use-python-step.yml
 
     - template: templates/use-jdk-step.yml
-      parameters:
-        jdkVersion: "17"
 
     - template: templates/run-with-android-emulator-steps.yml
       parameters:
