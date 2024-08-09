@@ -4,13 +4,18 @@ parameters:
   type: string
   default: "default"
 
+variables:
+  - name: AndroidTestAgentPool
+    value: "onnxruntime-Ubuntu2204-AMD-CPU"
+  - name: IosTestAgentVmImage
+    value: "macOS-12"
+
 stages:
 - stage: ProcessParameters
   dependsOn: []
   jobs:
   - job: j
-    pool:
-      vmImage: "ubuntu-20.04"
+    pool: "onnxruntime-Ubuntu2204-AMD-CPU"
 
     steps:
     - checkout: none
@@ -44,7 +49,7 @@ stages:
   jobs:
   - job: j
     pool:
-      vmImage: "macOS-12"
+      vmImage: ${{ variables.IosTestAgentVmImage }}
 
     variables:
       OrtPodVersionSpecifier: $[ stageDependencies.ProcessParameters.j.outputs['SetVariables.OrtPodVersionSpecifier'] ]
@@ -90,8 +95,7 @@ stages:
   dependsOn: ProcessParameters
   jobs:
   - job: j
-    pool:
-      vmImage: "macOS-12"
+    pool: ${{ variables.AndroidTestAgentPool }}
 
     steps:
     - template: templates/use-python-step.yml
@@ -114,8 +118,7 @@ stages:
   dependsOn: ProcessParameters
   jobs:
   - job: j
-    pool:
-      vmImage: "macOS-12"
+    pool: ${{ variables.AndroidTestAgentPool }}
 
     steps:
     - template: templates/use-python-step.yml
@@ -139,7 +142,7 @@ stages:
   jobs:
   - job: j
     pool:
-      vmImage: "macOS-12"
+      vmImage: ${{ variables.IosTestAgentVmImage }}
 
     variables:
       OrtPodVersionSpecifier: $[ stageDependencies.ProcessParameters.j.outputs['SetVariables.OrtPodVersionSpecifier'] ]
@@ -183,7 +186,7 @@ stages:
   jobs:
   - job: j
     pool:
-      vmImage: "macOS-12"
+      vmImage: ${{ variables.IosTestAgentVmImage }}
 
     variables:
       OrtPodVersionSpecifier: $[ stageDependencies.ProcessParameters.j.outputs['SetVariables.OrtPodVersionSpecifier'] ]
@@ -226,8 +229,7 @@ stages:
   dependsOn: ProcessParameters
   jobs:
   - job: j
-    pool:
-      vmImage: "macOS-12"
+    pool: ${{ variables.AndroidTestAgentPool }}
 
     steps:
     - template: templates/use-python-step.yml
@@ -266,8 +268,7 @@ stages:
   dependsOn: ProcessParameters
   jobs:
   - job: j
-    pool:
-      vmImage: "macOS-12"
+    pool: ${{ variables.AndroidTestAgentPool }}
 
     strategy:
       matrix:
@@ -314,8 +315,7 @@ stages:
   dependsOn: ProcessParameters
   jobs:
   - job: j
-    pool:
-      vmImage: "macOS-12"
+    pool: ${{ variables.AndroidTestAgentPool }}
 
     steps:
     - template: templates/use-python-step.yml
@@ -340,7 +340,7 @@ stages:
   jobs:
   - job: j
     pool:
-      vmImage: "macOS-12"
+      vmImage: ${{ variables.IosTestAgentVmImage }}
 
     steps:
     
@@ -358,8 +358,7 @@ stages:
   dependsOn: ProcessParameters
   jobs:
   - job: j
-    pool:
-      vmImage: "macOS-12"
+    pool: ${{ variables.AndroidTestAgentPool }}
 
     steps:
     - template: templates/use-python-step.yml
@@ -386,7 +385,7 @@ stages:
   jobs:
   - job: j
     pool:
-      vmImage: "macOS-12"
+      vmImage: ${{ variables.IosTestAgentVmImage }}
 
     steps:
     - script: pod install
