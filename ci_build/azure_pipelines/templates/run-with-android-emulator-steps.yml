@@ -3,7 +3,16 @@ parameters:
   type: stepList
 
 steps:
-- bash: |
+- script: |
+    if [[ ":$PATH:" == *":${ANDROID_SDK_ROOT}/emulator:"* ]]; then
+      echo "${ANDROID_SDK_ROOT}/emulator is in PATH"
+    else
+      ${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager --install "emulator"
+      echo "##vso[task.prependpath]${ANDROID_SDK_ROOT}/emulator"
+    fi
+  displayName: Check if emulator are installed and add to PATH
+
+- script: |
     set -e -x
 
     ORT_EXAMPLES_BUILD_ANDROID_EMULATOR_PID_FILE="$(Build.BinariesDirectory)/android_emulator.pid"
@@ -26,7 +35,7 @@ steps:
   displayName: Install psutil for emulator shutdown by run_android_emulator.py
   condition: always()
 
-- bash: |
+- script: |
     set -e -x
 
     if [[ -n "${ORT_EXAMPLES_BUILD_ANDROID_EMULATOR_PID_FILE-}" ]]; then
