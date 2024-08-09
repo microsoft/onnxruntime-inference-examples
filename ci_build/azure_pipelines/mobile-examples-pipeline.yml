@@ -155,7 +155,7 @@ stages:
 
     - template: templates/update-podfile-step.yml
       parameters:
-        podfilePath: 'mobile/examples/basic_usage/ios/Podfile'
+        podfilePath: 'mobile/examples/speech_recognition/ios/Podfile'
         ortPodVersionSpecifier: $(OrtPodVersionSpecifier)
 
     - script: pod install
@@ -190,7 +190,7 @@ stages:
 
     - template: templates/update-podfile-step.yml
       parameters:
-        podfilePath: 'mobile/examples/basic_usage/ios/Podfile'
+        podfilePath: 'mobile/examples/object_detection/ios/Podfile'
         ortPodVersionSpecifier: $(OrtPodVersionSpecifier)
 
     - script: pod install
