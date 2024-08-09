@@ -435,10 +435,11 @@ def output_run_config(flags, samples):
     print ("Samples: " + str(samples) + " Batch size: " + str(flags.batch))
     print ("Sequence length: " + str(flags.seq_len))
     print ("Model Quantization: fp16:" + str(flags.fp16) + " int8:" + str(flags.int8))
-    if flags.ort_quant and flags.int8:
-        print ("Quantizer: Onnxruntime")
-    else:
-        print("Quantizer: MIGraphX")
+    if flags.int8:
+        if flags.ort_quant:
+            print ("Quantizer: Onnxruntime")
+        else:
+            print("Quantizer: MIGraphX")
 
 
 if __name__ == '__main__':
