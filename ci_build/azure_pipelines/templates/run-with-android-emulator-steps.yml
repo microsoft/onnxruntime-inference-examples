@@ -10,8 +10,8 @@ steps:
 
     python ./ci_build/python/run_android_emulator.py \
       --android-sdk-root "${ANDROID_SDK_ROOT}" \
-      --create-avd --system-image "system-images;android-30;default;x86_64" \
-      --start --emulator-extra-args="-partition-size 4096" \
+      --create-avd --system-image "system-images;android-31;default;x86_64" \
+      --start --emulator-extra-args="-partition-size 2047" \
       --emulator-pid-file "${ORT_EXAMPLES_BUILD_ANDROID_EMULATOR_PID_FILE}"
 
     set +x  # do not output next line or it may be parsed again with a trailing quote
@@ -19,6 +19,12 @@ steps:
   displayName: "Create and start Android emulator"
 
 - ${{ parameters.steps }}
+
+- script: |
+    set -e -x
+    python3 -m pip install psutil
+  displayName: Install psutil for emulator shutdown by run_android_emulator.py
+  condition: always()
 
 - bash: |
     set -e -x
