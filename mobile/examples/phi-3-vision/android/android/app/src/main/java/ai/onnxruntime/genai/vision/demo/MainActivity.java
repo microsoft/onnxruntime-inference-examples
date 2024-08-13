@@ -183,24 +183,29 @@ public class MainActivity extends AppCompatActivity implements Consumer<String> 
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
+                        TokenizerStream stream = null;
+                        GeneratorParams generatorParams = null;
+                        Generator generator = null;
+                        Sequences encodedPrompt = null;
+                        Images images = null;
+                        NamedTensors inputTensors = null;
                         try {
-                            TokenizerStream stream = multiModalProcessor.createStream();
+                            stream = multiModalProcessor.createStream();
 
-                            GeneratorParams generatorParams = model.createGeneratorParams();
+                            generatorParams = model.createGeneratorParams();
                             //examples for optional parameters to format AI response
                             //generatorParams.setSearchOption("length_penalty", 1000);
                             //generatorParams.setSearchOption("max_length", 500);
 
-                            Images images = null;
                             if (inputImage != null) {
                                 images = inputImage.getImages();
                             }
 
 
-                            NamedTensors inputTensors = multiModalProcessor.processImages(promptQuestion_formatted, images);
+                            inputTensors = multiModalProcessor.processImages(promptQuestion_formatted, images);
                             generatorParams.setInput(inputTensors);
 
-                            Generator generator = new Generator(model, generatorParams);
+                            generator = new Generator(model, generatorParams);
 
                             while (!generator.isDone()) {
                                 generator.computeLogits();
@@ -210,10 +215,21 @@ public class MainActivity extends AppCompatActivity implements Consumer<String> 
                  
                                 tokenListener.accept(stream.decode(token));
                             }
-
                             generator.close();
+                            encodedPrompt.close();
+                            stream.close();
+                            generatorParams.close();
+                            images.close();
+                            inputTensors.close();
                         }
                         catch (GenAIException e) {
+                            Log.e(TAG, "Exception occurred during model query: " + e.getMessage());
+                            if (generator != null) generator.close();
+                            if (encodedPrompt != null) encodedPrompt.close();
+                            if (stream != null) stream.close();
+                            if (generatorParams != null) generatorParams.close();
+                            if (images != null) images.close();
+                            if (inputTensors != null) inputTensors.close();
                             throw new RuntimeException(e);
                         }
 
