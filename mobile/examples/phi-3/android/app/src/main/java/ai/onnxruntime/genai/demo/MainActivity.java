@@ -79,7 +79,7 @@ public class MainActivity extends AppCompatActivity implements Consumer<String> 
             @Override
             public void onClick(View v) {
                 if (model == null) {
-                    // if the edit text is empty display a toast message.
+                    // if user tries to submit prompt while model is still downloading, display a toast message.
                     Toast.makeText(MainActivity.this, "Model not loaded yet, please wait...", Toast.LENGTH_SHORT).show();
                     return;
                 }
