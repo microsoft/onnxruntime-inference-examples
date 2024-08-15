@@ -3,15 +3,34 @@ parameters:
   type: stepList
 
 steps:
-- bash: |
+- script: |
+    if [[ ":$PATH:" == *":${ANDROID_SDK_ROOT}/emulator:"* ]]; then
+      echo "${ANDROID_SDK_ROOT}/emulator is in PATH"
+    else
+      ${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager --install "emulator"
+      echo "##vso[task.prependpath]${ANDROID_SDK_ROOT}/emulator"
+    fi
+  displayName: Check if emulator is installed and add to PATH
+
+- script: |
+    if [[ ":$PATH:" == *":${ANDROID_SDK_ROOT}/platform-tools:"* ]]; then
+        echo "${ANDROID_SDK_ROOT}/platform-tools is in PATH"
+    else
+        ${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager --install "platform-tools"
+        echo "##vso[task.prependpath]${ANDROID_SDK_ROOT}/platform-tools"
+    fi
+    ls -R ${ANDROID_SDK_ROOT}/platform-tools
+  displayName: Check if platform tools are installed and add to PATH
+
+- script: |
     set -e -x
 
     ORT_EXAMPLES_BUILD_ANDROID_EMULATOR_PID_FILE="$(Build.BinariesDirectory)/android_emulator.pid"
 
     python ./ci_build/python/run_android_emulator.py \
       --android-sdk-root "${ANDROID_SDK_ROOT}" \
-      --create-avd --system-image "system-images;android-30;default;x86_64" \
-      --start --emulator-extra-args="-partition-size 4096" \
+      --create-avd --system-image "system-images;android-31;default;x86_64" \
+      --start --emulator-extra-args="-partition-size 2047" \
       --emulator-pid-file "${ORT_EXAMPLES_BUILD_ANDROID_EMULATOR_PID_FILE}"
 
     set +x  # do not output next line or it may be parsed again with a trailing quote
@@ -20,7 +39,13 @@ steps:
 
 - ${{ parameters.steps }}
 
-- bash: |
+- script: |
+    set -e -x
+    python3 -m pip install psutil
+  displayName: Install psutil for emulator shutdown by run_android_emulator.py
+  condition: always()
+
+- script: |
     set -e -x
 
     if [[ -n "${ORT_EXAMPLES_BUILD_ANDROID_EMULATOR_PID_FILE-}" ]]; then
