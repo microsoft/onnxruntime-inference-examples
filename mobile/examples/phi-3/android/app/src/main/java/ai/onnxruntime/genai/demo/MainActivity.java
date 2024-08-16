@@ -78,7 +78,7 @@ public class MainActivity extends AppCompatActivity implements Consumer<String> 
         sendMsgIB.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (model == null) {
+                if (tokenizer == null) {
                     // if user tries to submit prompt while model is still downloading, display a toast message.
                     Toast.makeText(MainActivity.this, "Model not loaded yet, please wait...", Toast.LENGTH_SHORT).show();
                     return;
@@ -133,20 +133,15 @@ public class MainActivity extends AppCompatActivity implements Consumer<String> 
                  
                                 tokenListener.accept(stream.decode(token));
                             }
-
-                            generator.close();
-                            encodedPrompt.close();
-                            stream.close();
-                            generatorParams.close();
-
                         }
                         catch (GenAIException e) {
                             Log.e(TAG, "Exception occurred during model query: " + e.getMessage());
+                        }
+                        finally {
                             if (generator != null) generator.close();
                             if (encodedPrompt != null) encodedPrompt.close();
                             if (stream != null) stream.close();
                             if (generatorParams != null) generatorParams.close();
-                            throw new RuntimeException(e);
                         }
 
                         runOnUiThread(() -> {
@@ -184,9 +179,9 @@ public class MainActivity extends AppCompatActivity implements Consumer<String> 
 
         List<Pair<String, String>> urlFilePairs = new ArrayList<>();
         for (String file : files) {
-            if (/*file.endsWith(".data") ||*/ !fileExists(context, file)) {
+            if (!fileExists(context, file)) {
                 urlFilePairs.add(new Pair<>(
-                        baseUrl + file,// + "?download=true",
+                        baseUrl + file,
                         file));
             }
         }
