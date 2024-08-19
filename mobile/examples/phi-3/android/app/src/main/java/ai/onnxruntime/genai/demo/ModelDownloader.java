@@ -15,6 +15,8 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+import ai.onnxruntime.genai.GenAIException;
+
 public class ModelDownloader {
   interface DownloadCallback {
     void onDownloadComplete() throws GenAIException;
@@ -59,7 +61,7 @@ public class ModelDownloader {
       e.printStackTrace();
       Log.e(TAG, "Exception occurred during model download: " + e.getMessage());
     } catch (GenAIException e) {
-        throw new RuntimeException(e);
+      throw new RuntimeException(e);
     }
   }
 }
