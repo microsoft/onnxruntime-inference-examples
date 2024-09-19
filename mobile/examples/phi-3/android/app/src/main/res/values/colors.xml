@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="blue_200">#CC03A9F4</color>
-    <color name="blue_500">#CC03A9F4</color>
-    <color name="blue_700">#CC03A9F4</color>
-    <color name="teal_200">#FF03DAC5</color>
-    <color name="teal_700">#FF018786</color>
+    <color name="brat_200">#89CC04</color>
+    <color name="brat_500">#71a508</color>
+    <color name="brat_700">#5b8408</color>
+    <color name="grey_200">#828380</color>
+    <color name="grey_700">#646564</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
 </resources>
