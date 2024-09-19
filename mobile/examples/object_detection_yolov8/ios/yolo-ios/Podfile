@@ -1,0 +1,22 @@
+# Uncomment the next line to define a global platform for your project
+# platform :ios, '9.0'
+
+target 'yolo-ios' do
+  # Comment the next line if you don't want to use dynamic frameworks
+  use_frameworks!
+
+  # Pods for yolo-ios
+
+  target 'yolo-iosTests' do
+    inherit! :search_paths
+    # Pods for testing
+  end
+
+  target 'yolo-iosUITests' do
+    # Pods for testing
+  end
+  
+  # Pods for ORTObjectDetection
+ pod 'onnxruntime-objc'
+
+end
