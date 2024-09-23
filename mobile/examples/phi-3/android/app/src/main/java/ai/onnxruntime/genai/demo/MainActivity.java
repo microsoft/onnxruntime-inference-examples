@@ -55,6 +55,12 @@ public class MainActivity extends AppCompatActivity implements Consumer<String> 
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+        sendMsgIB = findViewById(R.id.idIBSend);
+        userMsgEdt = findViewById(R.id.idEdtMessage);
+        generatedTV = findViewById(R.id.sample_text);
+        promptTV = findViewById(R.id.user_text);
+        progressText = findViewById(R.id.progress_text);
+
         // Trigger the download operation when the application is created
         try {
             downloadModels(
@@ -63,10 +69,6 @@ public class MainActivity extends AppCompatActivity implements Consumer<String> 
             throw new RuntimeException(e);
         }
 
-        sendMsgIB = findViewById(R.id.idIBSend);
-        userMsgEdt = findViewById(R.id.idEdtMessage);
-        generatedTV = findViewById(R.id.sample_text);
-        promptTV = findViewById(R.id.user_text);
 
         Consumer<String> tokenListener = this;
 
@@ -99,6 +101,7 @@ public class MainActivity extends AppCompatActivity implements Consumer<String> 
 
                 // Disable send button while responding to prompt.
                 sendMsgIB.setEnabled(false);
+                sendMsgIB.setAlpha(0.5f);
 
                 promptTV.setText(promptQuestion);
                 // Clear Edit Text or prompt question.
@@ -125,6 +128,9 @@ public class MainActivity extends AppCompatActivity implements Consumer<String> 
 
                             generator = new Generator(model, generatorParams);
 
+                            // try to measure average time taken to generate each token.
+                            long startTime = System.currentTimeMillis();
+                            int numTokens = 0;
                             while (!generator.isDone()) {
                                 generator.computeLogits();
                                 generator.generateNextToken();
@@ -132,7 +138,12 @@ public class MainActivity extends AppCompatActivity implements Consumer<String> 
                                 int token = generator.getLastTokenInSequence(0);
                  
                                 tokenListener.accept(stream.decode(token));
+                                Log.i(TAG, "Generated token: " + token + ": " +  stream.decode(token));
+                                numTokens++;
                             }
+                            long totalTime = System.currentTimeMillis() - startTime;
+                            Log.i(TAG, "Total time taken to generate + " + numTokens + "tokens: " + totalTime);
+                            Log.i(TAG, "Average time taken to generate each token: " + totalTime / numTokens);
                         }
                         catch (GenAIException e) {
                             Log.e(TAG, "Exception occurred during model query: " + e.getMessage());
@@ -146,6 +157,7 @@ public class MainActivity extends AppCompatActivity implements Consumer<String> 
 
                         runOnUiThread(() -> {
                             sendMsgIB.setEnabled(true);
+                            sendMsgIB.setAlpha(1.0f);
                         });
                     }
                 }).start();
