@@ -80,8 +80,8 @@ public class MainActivity extends AppCompatActivity implements Consumer<String> 
                 public void onSettingsApplied(int maxLength, int lengthPenalty) {
                     MainActivity.this.maxLength = maxLength;
                     MainActivity.this.lengthPenalty = lengthPenalty;
-                    Log.i(TAG, "Max Response length: " + maxLength);
-                    Log.i(TAG, "Length penalty: " + lengthPenalty);
+                    Log.i(TAG, "Setting max response length to: " + maxLength);
+                    Log.i(TAG, "Setting length penalty to: " + lengthPenalty);
                 }
             });
             bottomSheet.show(getSupportFragmentManager(), "BottomSheet");
@@ -141,10 +141,6 @@ public class MainActivity extends AppCompatActivity implements Consumer<String> 
                             generatorParams.setSearchOption("length_penalty", lengthPenalty);
                             generatorParams.setSearchOption("max_length", maxLength);
 
-                            Log.i(TAG, "Length penalty: " + lengthPenalty);
-                            Log.i(TAG, "Max Response length: " + maxLength);
-
-
                             encodedPrompt = tokenizer.encode(promptQuestion_formatted);
                             generatorParams.setInput(encodedPrompt);
 
@@ -152,6 +148,7 @@ public class MainActivity extends AppCompatActivity implements Consumer<String> 
 
                             // try to measure average time taken to generate each token.
                             long startTime = System.currentTimeMillis();
+                            long currentTime = startTime;
                             int numTokens = 0;
                             while (!generator.isDone()) {
                                 generator.computeLogits();
@@ -160,7 +157,10 @@ public class MainActivity extends AppCompatActivity implements Consumer<String> 
                                 int token = generator.getLastTokenInSequence(0);
                  
                                 tokenListener.accept(stream.decode(token));
+
                                 Log.i(TAG, "Generated token: " + token + ": " +  stream.decode(token));
+                                Log.i(TAG, "Time taken to generate token: " + (System.currentTimeMillis() - currentTime)/ 1000.0 + " seconds");
+                                currentTime = System.currentTimeMillis();
                                 numTokens++;
                             }
                             long totalTime = System.currentTimeMillis() - startTime;
