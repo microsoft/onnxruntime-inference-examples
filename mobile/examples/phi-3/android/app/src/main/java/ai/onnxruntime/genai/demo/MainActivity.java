@@ -41,7 +41,10 @@ public class MainActivity extends AppCompatActivity implements Consumer<String> 
     private TextView generatedTV;
     private TextView promptTV;
     private TextView progressText;
+    private ImageButton settingsButton;
     private static final String TAG = "genai.demo.MainActivity";
+    private int maxLength = 100;
+    private int lengthPenalty = 1000;
 
     private static boolean fileExists(Context context, String fileName) {
         File file = new File(context.getFilesDir(), fileName);
@@ -60,6 +63,7 @@ public class MainActivity extends AppCompatActivity implements Consumer<String> 
         generatedTV = findViewById(R.id.sample_text);
         promptTV = findViewById(R.id.user_text);
         progressText = findViewById(R.id.progress_text);
+        settingsButton = findViewById(R.id.idIBSettings);
 
         // Trigger the download operation when the application is created
         try {
@@ -68,6 +72,20 @@ public class MainActivity extends AppCompatActivity implements Consumer<String> 
         } catch (GenAIException e) {
             throw new RuntimeException(e);
         }
+
+        settingsButton.setOnClickListener(v -> {
+            BottomSheet bottomSheet = new BottomSheet();
+            bottomSheet.setSettingsListener(new BottomSheet.SettingsListener() {
+                @Override
+                public void onSettingsApplied(int maxLength, int lengthPenalty) {
+                    MainActivity.this.maxLength = maxLength;
+                    MainActivity.this.lengthPenalty = lengthPenalty;
+                    Log.i(TAG, "Max Response length: " + maxLength);
+                    Log.i(TAG, "Length penalty: " + lengthPenalty);
+                }
+            });
+            bottomSheet.show(getSupportFragmentManager(), "BottomSheet");
+        });
 
 
         Consumer<String> tokenListener = this;
@@ -120,8 +138,12 @@ public class MainActivity extends AppCompatActivity implements Consumer<String> 
 
                             generatorParams = model.createGeneratorParams();
                             //examples for optional parameters to format AI response
-                            //generatorParams.setSearchOption("length_penalty", 1000);
-                            //generatorParams.setSearchOption("max_length", 500);
+                            generatorParams.setSearchOption("length_penalty", lengthPenalty);
+                            generatorParams.setSearchOption("max_length", maxLength);
+
+                            Log.i(TAG, "Length penalty: " + lengthPenalty);
+                            Log.i(TAG, "Max Response length: " + maxLength);
+
 
                             encodedPrompt = tokenizer.encode(promptQuestion_formatted);
                             generatorParams.setInput(encodedPrompt);
@@ -143,7 +165,7 @@ public class MainActivity extends AppCompatActivity implements Consumer<String> 
                             }
                             long totalTime = System.currentTimeMillis() - startTime;
                             Log.i(TAG, "Total time taken to generate + " + numTokens + "tokens: " + totalTime);
-                            Log.i(TAG, "Average time taken to generate each token: " + totalTime / numTokens);
+                            Log.i(TAG, "Tokens generated per second: " + 1000 * (numTokens / totalTime));
                         }
                         catch (GenAIException e) {
                             Log.e(TAG, "Exception occurred during model query: " + e.getMessage());
