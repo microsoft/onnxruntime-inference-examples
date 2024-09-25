@@ -148,6 +148,7 @@ public class MainActivity extends AppCompatActivity implements Consumer<String> 
 
                             // try to measure average time taken to generate each token.
                             long startTime = System.currentTimeMillis();
+                            long firstTokenTime = startTime;
                             long currentTime = startTime;
                             int numTokens = 0;
                             while (!generator.isDone()) {
@@ -158,14 +159,18 @@ public class MainActivity extends AppCompatActivity implements Consumer<String> 
                  
                                 tokenListener.accept(stream.decode(token));
 
+                                if (numTokens == 0) { //first token
+                                    firstTokenTime = System.currentTimeMillis();
+                                }
                                 Log.i(TAG, "Generated token: " + token + ": " +  stream.decode(token));
                                 Log.i(TAG, "Time taken to generate token: " + (System.currentTimeMillis() - currentTime)/ 1000.0 + " seconds");
                                 currentTime = System.currentTimeMillis();
                                 numTokens++;
                             }
-                            long totalTime = System.currentTimeMillis() - startTime;
-                            Log.i(TAG, "Total time taken to generate + " + numTokens + "tokens: " + totalTime);
-                            Log.i(TAG, "Tokens generated per second: " + 1000 * (numTokens / totalTime));
+                            long totalTime = System.currentTimeMillis() - firstTokenTime;
+
+                            Log.i(TAG, "Prompt processing time (first token): " + (firstTokenTime - startTime)/ 1000.0 + " seconds");
+                            Log.i(TAG, "Tokens generated per second (excluding prompt processing): " + 1000 * ((numTokens -1) / totalTime));
                         }
                         catch (GenAIException e) {
                             Log.e(TAG, "Exception occurred during model query: " + e.getMessage());
