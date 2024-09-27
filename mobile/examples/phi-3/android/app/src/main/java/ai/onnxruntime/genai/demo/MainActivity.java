@@ -140,6 +140,7 @@ public class MainActivity extends AppCompatActivity implements Consumer<String> 
 
                             generatorParams = model.createGeneratorParams();
                             //examples for optional parameters to format AI response
+                            // https://onnxruntime.ai/docs/genai/reference/config.html
                             generatorParams.setSearchOption("length_penalty", lengthPenalty);
                             generatorParams.setSearchOption("max_length", maxLength);
 
