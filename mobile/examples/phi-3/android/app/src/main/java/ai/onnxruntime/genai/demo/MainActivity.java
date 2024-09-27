@@ -2,6 +2,7 @@ package ai.onnxruntime.genai.demo;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
 import android.text.method.ScrollingMovementMethod;
@@ -9,6 +10,7 @@ import android.util.Log;
 import android.util.Pair;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
@@ -44,7 +46,7 @@ public class MainActivity extends AppCompatActivity implements Consumer<String> 
     private ImageButton settingsButton;
     private static final String TAG = "genai.demo.MainActivity";
     private int maxLength = 100;
-    private int lengthPenalty = 1000;
+    private float lengthPenalty = 1.0f;
 
     private static boolean fileExists(Context context, String fileName) {
         File file = new File(context.getFilesDir(), fileName);
@@ -77,7 +79,7 @@ public class MainActivity extends AppCompatActivity implements Consumer<String> 
             BottomSheet bottomSheet = new BottomSheet();
             bottomSheet.setSettingsListener(new BottomSheet.SettingsListener() {
                 @Override
-                public void onSettingsApplied(int maxLength, int lengthPenalty) {
+                public void onSettingsApplied(int maxLength, float lengthPenalty) {
                     MainActivity.this.maxLength = maxLength;
                     MainActivity.this.lengthPenalty = lengthPenalty;
                     Log.i(TAG, "Setting max response length to: " + maxLength);
@@ -156,12 +158,14 @@ public class MainActivity extends AppCompatActivity implements Consumer<String> 
                                 generator.generateNextToken();
                  
                                 int token = generator.getLastTokenInSequence(0);
-                 
-                                tokenListener.accept(stream.decode(token));
 
                                 if (numTokens == 0) { //first token
                                     firstTokenTime = System.currentTimeMillis();
                                 }
+
+                                tokenListener.accept(stream.decode(token));
+
+
                                 Log.i(TAG, "Generated token: " + token + ": " +  stream.decode(token));
                                 Log.i(TAG, "Time taken to generate token: " + (System.currentTimeMillis() - currentTime)/ 1000.0 + " seconds");
                                 currentTime = System.currentTimeMillis();
@@ -169,8 +173,19 @@ public class MainActivity extends AppCompatActivity implements Consumer<String> 
                             }
                             long totalTime = System.currentTimeMillis() - firstTokenTime;
 
-                            Log.i(TAG, "Prompt processing time (first token): " + (firstTokenTime - startTime)/ 1000.0 + " seconds");
-                            Log.i(TAG, "Tokens generated per second (excluding prompt processing): " + 1000 * ((numTokens -1) / totalTime));
+                            float promptProcessingTime = (firstTokenTime - startTime)/ 1000.0f;
+                            float tokensPerSecond = (1000 * (numTokens -1)) / totalTime;
+
+                            runOnUiThread(() -> {
+                                sendMsgIB.setEnabled(true);
+                                sendMsgIB.setAlpha(1.0f);
+
+                                // Display the token generation rate in a dialog popup
+                                showTokenPopup(promptProcessingTime, tokensPerSecond);
+                            });
+
+                            Log.i(TAG, "Prompt processing time (first token): " + promptProcessingTime + " seconds");
+                            Log.i(TAG, "Tokens generated per second (excluding prompt processing): " + tokensPerSecond);
                         }
                         catch (GenAIException e) {
                             Log.e(TAG, "Exception occurred during model query: " + e.getMessage());
@@ -295,4 +310,23 @@ public class MainActivity extends AppCompatActivity implements Consumer<String> 
         TextView botView = (TextView) findViewById(R.id.sample_text);
         botView.setVisibility(View.VISIBLE);
     }
+
+    private void showTokenPopup(float promptProcessingTime, float tokenRate) {
+
+        final Dialog dialog = new Dialog(MainActivity.this);
+        dialog.setContentView(R.layout.info_popup);
+
+        TextView promptProcessingTimeTv = dialog.findViewById(R.id.prompt_processing_time_tv);
+        TextView tokensPerSecondTv = dialog.findViewById(R.id.tokens_per_second_tv);
+        Button closeBtn = dialog.findViewById(R.id.close_btn);
+
+        promptProcessingTimeTv.setText(String.format("Prompt processing time: %.2f seconds", promptProcessingTime));
+        tokensPerSecondTv.setText(String.format("Tokens per second: %.2f", tokenRate));
+
+        closeBtn.setOnClickListener(v -> dialog.dismiss());
+
+        dialog.show();
+    }
+
+
 }

@@ -38,10 +38,10 @@
         android:id="@+id/idEdtLengthPenalty"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:inputType="number"
         android:hint="Enter length penalty"
-        android:text="1000"
-        android:padding="8dp"/>
+        android:inputType="number|numberDecimal"
+        android:padding="8dp"
+        android:text="1.0" />
 
     <!-- Save Button -->
     <Button

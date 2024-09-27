@@ -16,7 +16,7 @@ public class BottomSheet extends BottomSheetDialogFragment {
     private SettingsListener settingsListener;
 
     public interface SettingsListener {
-        void onSettingsApplied(int maxLength, int lengthPenalty);
+        void onSettingsApplied(int maxLength, float lengthPenalty);
     }
 
     public void setSettingsListener(SettingsListener listener) {
@@ -36,7 +36,7 @@ public class BottomSheet extends BottomSheetDialogFragment {
         applyButton.setOnClickListener(v -> {
             if (settingsListener != null) {
                 int maxLength = Integer.parseInt(maxLengthEditText.getText().toString());
-                int lengthPenalty = Integer.parseInt(lengthPenaltyEditText.getText().toString());
+                float lengthPenalty = Float.parseFloat(lengthPenaltyEditText.getText().toString());
                 settingsListener.onSettingsApplied(maxLength, lengthPenalty);
                 dismiss();
             }
