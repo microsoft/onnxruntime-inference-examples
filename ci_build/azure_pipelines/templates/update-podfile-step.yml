@@ -1,0 +1,24 @@
+parameters:
+- name: podfilePath
+  type: string
+- name: ortPodVersionSpecifier
+  type: string
+  default: ""
+- name: ortPodName
+  type: string
+  default: "onnxruntime-objc"
+
+steps:
+- bash: |
+    set -e
+
+    if [[ -z "${{ parameters.OrtPodVersionSpecifier }}" ]]; then
+      echo "Using original Podfile"
+      exit 0
+    fi
+
+    PODFILE="${{ parameters.PodfilePath }}"
+    ORT_POD_NAME="${{ parameters.OrtPodName }}"
+    sed -i "" -e "s/pod '${ORT_POD_NAME}'/pod '${ORT_POD_NAME}'$(OrtPodVersionSpecifier)/" "${PODFILE}"
+    cat "${PODFILE}"
+  displayName: "Update Podfile at ${{ parameters.PodfilePath }}"

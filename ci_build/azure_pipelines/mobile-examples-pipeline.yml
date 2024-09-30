@@ -4,367 +4,347 @@ parameters:
   type: string
   default: "default"
 
-jobs:
+variables:
+  - name: AndroidTestAgentPool
+    value: "onnxruntime-Ubuntu2204-AMD-CPU"
+  - name: IosTestAgentVmImage
+    value: "macOS-12"
 
-- job: ProcessParameters
-  pool:
-    vmImage: "ubuntu-20.04"
+stages:
+- stage: ProcessParameters
+  dependsOn: []
+  jobs:
+  - job: j
+    pool: "onnxruntime-Ubuntu2204-AMD-CPU"
 
-  steps:
-  - checkout: none
+    steps:
+    - checkout: none
 
-  - template: templates/use-python-step.yml
+    - template: templates/use-python-step.yml
 
-  - task: PythonScript@0
-    inputs:
-      scriptSource: "inline"
-      script: |
-        import sys
-        import re
+    - task: PythonScript@0
+      inputs:
+        scriptSource: "inline"
+        script: |
+          import sys
+          import re
 
-        version_str = sys.argv[1]
-        if re.fullmatch(r"[\w\.\-\+]+", version_str) is None:
-            raise ValueError(f"Invalid version: '{version_str}'")
+          version_str = sys.argv[1]
+          if re.fullmatch(r"[\w\.\-\+]+", version_str) is None:
+              raise ValueError(f"Invalid version: '{version_str}'")
 
-        if version_str == "default":
-            pod_version_specifier = ""
-        else:
-            pod_version_specifier = f", '{version_str}'"
+          if version_str == "default":
+              pod_version_specifier = ""
+          else:
+              pod_version_specifier = f", '{version_str}'"
 
-        print(f"##vso[task.setvariable variable=OrtPodVersionSpecifier;isoutput=true]{pod_version_specifier}")
-      arguments: "${{ parameters.OrtPodVersion }}"
-    name: SetVariables
-    displayName: "Set variables"
+          print(f"##vso[task.setvariable variable=OrtPodVersionSpecifier;isoutput=true]{pod_version_specifier}")
+        arguments: "${{ parameters.OrtPodVersion }}"
+      name: SetVariables
+      displayName: "Set variables"
 
 # mobile/examples/basic_usage/ios
-- job: BasicUsageIos
-  pool:
-    vmImage: "macOS-12"
-
+- stage: BasicUsageIos
   dependsOn: ProcessParameters
+  jobs:
+  - job: j
+    pool:
+      vmImage: ${{ variables.IosTestAgentVmImage }}
 
-  variables:
-    OrtPodVersionSpecifier: $[ dependencies.ProcessParameters.outputs['SetVariables.OrtPodVersionSpecifier'] ]
+    variables:
+      OrtPodVersionSpecifier: $[ stageDependencies.ProcessParameters.j.outputs['SetVariables.OrtPodVersionSpecifier'] ]
 
-  strategy:
-    matrix:
-      full:
-        OrtPodNamePrefix: onnxruntime
-        XcodeArgs: 'GCC_PREPROCESSOR_DEFINITIONS="$GCC_PREPROCESSOR_DEFINITIONS ORT_BASIC_USAGE_USE_ONNX_FORMAT_MODEL"'
-      mobile:
-        OrtPodNamePrefix: onnxruntime-mobile
-        XcodeArgs: ''
+    strategy:
+      matrix:
+        onnx_model:
+          XcodeArgs: 'GCC_PREPROCESSOR_DEFINITIONS="$GCC_PREPROCESSOR_DEFINITIONS ORT_BASIC_USAGE_USE_ONNX_FORMAT_MODEL"'
+        ort_format_model:
+          XcodeArgs: ''
 
-  steps:
-  - template: templates/use-python-step.yml
+    steps:
+    - template: templates/use-python-step.yml
 
-  - bash: |
-      set -e
-      pip install -r ../model/requirements.txt
-      ../model/gen_model.sh ./OrtBasicUsage/model
-    workingDirectory: mobile/examples/basic_usage/ios
-    displayName: "Generate model"
+    - bash: |
+        set -e
+        pip install -r ../model/requirements.txt
+        ../model/gen_model.sh ./OrtBasicUsage/model
+      workingDirectory: mobile/examples/basic_usage/ios
+      displayName: "Generate model"
 
-  - bash: |
-      set -e
-      PODFILE=mobile/examples/basic_usage/ios/Podfile
-      sed -i "" -e "s/pod 'onnxruntime-objc'/pod '$(OrtPodNamePrefix)-objc'$(OrtPodVersionSpecifier)/" ${PODFILE}
-      cat ${PODFILE}
-    displayName: "Update Podfile"
+    - template: templates/update-podfile-step.yml
+      parameters:
+        podfilePath: 'mobile/examples/basic_usage/ios/Podfile'
+        ortPodVersionSpecifier: $(OrtPodVersionSpecifier)
 
-  - script: pod install
-    workingDirectory: 'mobile/examples/basic_usage/ios'
-    displayName: "Install CocoaPods pods"
+    - script: pod install
+      workingDirectory: 'mobile/examples/basic_usage/ios'
+      displayName: "Install CocoaPods pods"
 
-  - template: templates/xcode-build-and-test-step.yml
-    parameters:
-      xcWorkspacePath: 'mobile/examples/basic_usage/ios/OrtBasicUsage.xcworkspace'
-      scheme: 'OrtBasicUsage'
-      args: $(XcodeArgs)
+    - template: templates/xcode-build-and-test-step.yml
+      parameters:
+        xcWorkspacePath: 'mobile/examples/basic_usage/ios/OrtBasicUsage.xcworkspace'
+        scheme: 'OrtBasicUsage'
+        args: $(XcodeArgs)
 
 # mobile/examples/whisper/local/android
-- job: WhisperLocalAndroid
-  pool:
-    vmImage: "macOS-12"
+- stage: WhisperLocalAndroid
+  dependsOn: ProcessParameters
+  jobs:
+  - job: j
+    pool: ${{ variables.AndroidTestAgentPool }}
 
-  steps:
-  - template: templates/use-python-step.yml
+    steps:
+    - template: templates/use-python-step.yml
 
-  - template: templates/use-jdk-step.yml
-    parameters:
-      jdkVersion: "17"
+    - template: templates/use-jdk-step.yml
 
-  - template: templates/run-with-android-emulator-steps.yml
-    parameters:
-      steps:
-      - bash: |
-          set -e
-          ./gradlew connectedDebugAndroidTest --no-daemon
-        workingDirectory: mobile/examples/whisper/local/android
-        displayName: "Build and run tests"
+    - template: templates/run-with-android-emulator-steps.yml
+      parameters:
+        steps:
+        - bash: |
+            set -e
+            ./gradlew connectedDebugAndroidTest --no-daemon
+          workingDirectory: mobile/examples/whisper/local/android
+          displayName: "Build and run tests"
 
 # mobile/examples/whisper/azure/android
-- job: WhisperAzureAndroid
-  pool:
-    vmImage: "macOS-12"
+- stage: WhisperAzureAndroid
+  dependsOn: ProcessParameters
+  jobs:
+  - job: j
+    pool: ${{ variables.AndroidTestAgentPool }}
 
-  steps:
-  - template: templates/use-python-step.yml
+    steps:
+    - template: templates/use-python-step.yml
 
-  - template: templates/use-jdk-step.yml
-    parameters:
-      jdkVersion: "17"
+    - template: templates/use-jdk-step.yml
 
-  - template: templates/run-with-android-emulator-steps.yml
-    parameters:
-      steps:
-      - bash: |
-          set -e
-          ./gradlew connectedDebugAndroidTest --no-daemon
-        workingDirectory: mobile/examples/whisper/azure/android
-        displayName: "Build and run tests"
+    - template: templates/run-with-android-emulator-steps.yml
+      parameters:
+        steps:
+        - bash: |
+            set -e
+            ./gradlew connectedDebugAndroidTest --no-daemon
+          workingDirectory: mobile/examples/whisper/azure/android
+          displayName: "Build and run tests"
 
 # mobile/examples/speech_recognition/ios
-- job: SpeechRecognitionIos
-  pool:
-    vmImage: "macOS-12"
-
+- stage: SpeechRecognitionIos
   dependsOn: ProcessParameters
+  jobs:
+  - job: j
+    pool:
+      vmImage: ${{ variables.IosTestAgentVmImage }}
 
-  variables:
-    OrtPodVersionSpecifier: $[ dependencies.ProcessParameters.outputs['SetVariables.OrtPodVersionSpecifier'] ]
+    variables:
+      OrtPodVersionSpecifier: $[ stageDependencies.ProcessParameters.j.outputs['SetVariables.OrtPodVersionSpecifier'] ]
 
-  strategy:
-    matrix:
-      full:
-        OrtPodNamePrefix: onnxruntime
-      mobile:
-        OrtPodNamePrefix: onnxruntime-mobile
+    steps:
+    - template: templates/use-python-step.yml
 
-  steps:
-  - template: templates/use-python-step.yml
+    - bash: |
+        set -e
+        pip install -r ../model/requirements.txt
+        ../model/gen_model.sh ./SpeechRecognition/model
+      workingDirectory: mobile/examples/speech_recognition/ios
+      displayName: "Generate model"
 
-  - bash: |
-      set -e
-      pip install -r ../model/requirements.txt
-      ../model/gen_model.sh ./SpeechRecognition/model
-    workingDirectory: mobile/examples/speech_recognition/ios
-    displayName: "Generate model"
+    - template: templates/update-podfile-step.yml
+      parameters:
+        podfilePath: 'mobile/examples/speech_recognition/ios/Podfile'
+        ortPodVersionSpecifier: $(OrtPodVersionSpecifier)
 
-  - bash: |
-      set -e
-      PODFILE=mobile/examples/speech_recognition/ios/Podfile
-      sed -i "" -e "s/pod 'onnxruntime-objc'/pod '$(OrtPodNamePrefix)-objc'$(OrtPodVersionSpecifier)/" ${PODFILE}
-      cat ${PODFILE}
-    displayName: "Update Podfile"
+    - script: pod install
+      workingDirectory: 'mobile/examples/speech_recognition/ios'
+      displayName: "Install CocoaPods pods"
 
-  - script: pod install
-    workingDirectory: 'mobile/examples/speech_recognition/ios'
-    displayName: "Install CocoaPods pods"
-
-  - template: templates/xcode-build-and-test-step.yml
-    parameters:
-      xcWorkspacePath: 'mobile/examples/speech_recognition/ios/SpeechRecognition.xcworkspace'
-      scheme: 'SpeechRecognition'
+    - template: templates/xcode-build-and-test-step.yml
+      parameters:
+        xcWorkspacePath: 'mobile/examples/speech_recognition/ios/SpeechRecognition.xcworkspace'
+        scheme: 'SpeechRecognition'
 
 # mobile/examples/object_detection/ios
-- job: ObjectDetectionIos
-  pool:
-    vmImage: "macOS-12"
-
+- stage: ObjectDetectionIos
   dependsOn: ProcessParameters
+  jobs:
+  - job: j
+    pool:
+      vmImage: ${{ variables.IosTestAgentVmImage }}
 
-  variables:
-    OrtPodVersionSpecifier: $[ dependencies.ProcessParameters.outputs['SetVariables.OrtPodVersionSpecifier'] ]
+    variables:
+      OrtPodVersionSpecifier: $[ stageDependencies.ProcessParameters.j.outputs['SetVariables.OrtPodVersionSpecifier'] ]
 
-  strategy:
-    matrix:
-      full:
-        OrtPodNamePrefix: onnxruntime
-      mobile:
-        OrtPodNamePrefix: onnxruntime-mobile
+    steps:
+    - template: templates/use-python-step.yml
 
-  steps:
-  - template: templates/use-python-step.yml
+    - bash: |
+        set -e
+        pip install -r ./prepare_model.requirements.txt
+        ./prepare_model.sh
+      workingDirectory: mobile/examples/object_detection/ios/ORTObjectDetection
+      displayName: "Generate model"
 
-  - bash: |
-      set -e
-      pip install -r ./prepare_model.requirements.txt
-      ./prepare_model.sh
-    workingDirectory: mobile/examples/object_detection/ios/ORTObjectDetection
-    displayName: "Generate model"
+    - template: templates/update-podfile-step.yml
+      parameters:
+        podfilePath: 'mobile/examples/object_detection/ios/Podfile'
+        ortPodVersionSpecifier: $(OrtPodVersionSpecifier)
 
-  - bash: |
-      set -e
-      PODFILE=mobile/examples/object_detection/ios/Podfile
-      sed -i "" -e "s/pod 'onnxruntime-objc'/pod '$(OrtPodNamePrefix)-objc'$(OrtPodVersionSpecifier)/" ${PODFILE}
-      cat ${PODFILE}
-    displayName: "Update Podfile"
+    - script: pod install
+      workingDirectory: 'mobile/examples/object_detection/ios'
+      displayName: "Install CocoaPods pods"
 
-  - script: pod install
-    workingDirectory: 'mobile/examples/object_detection/ios'
-    displayName: "Install CocoaPods pods"
-
-  - template: templates/xcode-build-and-test-step.yml
-    parameters:
-      xcWorkspacePath: 'mobile/examples/object_detection/ios/ORTObjectDetection.xcworkspace'
-      scheme: 'ORTObjectDetection'
+    - template: templates/xcode-build-and-test-step.yml
+      parameters:
+        xcWorkspacePath: 'mobile/examples/object_detection/ios/ORTObjectDetection.xcworkspace'
+        scheme: 'ORTObjectDetection'
 
 # mobile/examples/object_detection/android
-- job: ObjectDetectionAndroid
-  pool:
-    vmImage: "macOS-12"
+- stage: ObjectDetectionAndroid
+  dependsOn: ProcessParameters
+  jobs:
+  - job: j
+    pool: ${{ variables.AndroidTestAgentPool }}
 
-  steps:
-  - template: templates/use-python-step.yml
+    steps:
+    - template: templates/use-python-step.yml
     
-  - script: |
-      python3 ./ci_build/python/run_android_emulator.py \
-        --android-sdk-root ${ANDROID_SDK_ROOT} \
-        --create-avd --system-image "system-images;android-30;default;x86_64" \
-        --start --emulator-extra-args="-partition-size 4096" \
-        --emulator-pid-file $(Build.BinariesDirectory)/emulator.pid
-    displayName: "Start Android emulator"
-  
-  - task: JavaToolInstaller@0
-    displayName: Use jdk 11
-    inputs:
-      versionSpec: "11"
-      jdkArchitectureOption: "x64"
-      jdkSourceOption: "PreInstalled"
+    - task: JavaToolInstaller@0
+      displayName: Use jdk 11
+      inputs:
+        versionSpec: "11"
+        jdkArchitectureOption: "x64"
+        jdkSourceOption: "PreInstalled"
 
-  - bash: |
-      set -e
-      ./gradlew connectedDebugAndroidTest --no-daemon
-    workingDirectory: mobile/examples/object_detection/android
-    displayName: "Build and run tests"
-
-  - script: |
-      python ./ci_build/python/run_android_emulator.py \
-        --android-sdk-root ${ANDROID_SDK_ROOT} \
-        --stop \
-        --emulator-pid-file $(Build.BinariesDirectory)/emulator.pid
-    displayName: "Stop Android emulator"
-    condition: always()
+    - template: templates/run-with-android-emulator-steps.yml
+      parameters:
+        steps:
+        - bash: |
+            set -e
+            ./gradlew connectedDebugAndroidTest --no-daemon
+          workingDirectory: mobile/examples/object_detection/android
+          displayName: "Build and run tests"
 
 # mobile/examples/image_classification/android
-- job: ImageClassificationAndroid
-  pool:
-    vmImage: "macOS-12"
+- stage: ImageClassificationAndroid
+  dependsOn: ProcessParameters
+  jobs:
+  - job: j
+    pool: ${{ variables.AndroidTestAgentPool }}
 
-  strategy:
-    matrix:
-      full:
-        OrtPackageName: onnxruntime-android
-        ModelFormat: onnx
-      mobile:
-        OrtPackageName: onnxruntime-mobile
-        ModelFormat: ort
+    strategy:
+      matrix:
+        onnx_model:
+          ModelFormat: onnx
+        ort_format_model:
+          ModelFormat: ort
 
-  steps:
-  - template: templates/use-python-step.yml
+    steps:
+    - template: templates/use-python-step.yml
 
-  - template: templates/use-jdk-step.yml
+    - template: templates/use-jdk-step.yml
 
-  - bash: |
-      set -e
-      pip install -r ./prepare_models.requirements.txt
-      ./prepare_models.py --output_dir ./app/src/main/res/raw --format $(ModelFormat)
-    workingDirectory: mobile/examples/image_classification/android
-    displayName: "Generate models"
+    - bash: |
+        set -e
+        pip install -r ./prepare_models.requirements.txt
+        ./prepare_models.py --output_dir ./app/src/main/res/raw --format $(ModelFormat)
+      workingDirectory: mobile/examples/image_classification/android
+      displayName: "Generate models"
 
-  - bash: |
-      set -e
-      GRADLE_FILE=mobile/examples/image_classification/android/app/build.gradle
-      sed -i "" \
-        -e "s/implementation 'com.microsoft.onnxruntime:onnxruntime-android:latest.release'/implementation 'com.microsoft.onnxruntime:$(OrtPackageName):latest.release'/" \
-        ${GRADLE_FILE}
-      cat ${GRADLE_FILE}
-    displayName: "Update build.gradle"
-
-  - template: templates/run-with-android-emulator-steps.yml
-    parameters:
-      steps:
-      - bash: ./gradlew connectedDebugAndroidTest --no-daemon
-        workingDirectory: mobile/examples/image_classification/android
-        displayName: "Build and run tests"
+    - template: templates/run-with-android-emulator-steps.yml
+      parameters:
+        steps:
+        - bash: |
+            set -e
+            ./gradlew connectedDebugAndroidTest --no-daemon
+          workingDirectory: mobile/examples/image_classification/android
+          displayName: "Build and run tests"
 
 # Note: start with testing with the included aar package, 
 # can update with testing with Full/Mobile packages as the other samples later.
 
 # mobile/examples/super_resolution/android 
-- job: SuperResolutionAndroid
-  pool:
-    vmImage: "macOS-12"
+- stage: SuperResolutionAndroid
+  dependsOn: ProcessParameters
+  jobs:
+  - job: j
+    pool: ${{ variables.AndroidTestAgentPool }}
 
-  steps:
-  - template: templates/use-python-step.yml
-  
-  - template: templates/use-jdk-step.yml
+    steps:
+    - template: templates/use-python-step.yml
+    
+    - template: templates/use-jdk-step.yml
 
-  - template: templates/run-with-android-emulator-steps.yml
-    parameters:
-      steps:
-      - bash: |
-          set -e
-          ./gradlew connectedDebugAndroidTest --no-daemon
-        workingDirectory: mobile/examples/super_resolution/android
-        displayName: "Build and run tests"
+    - template: templates/run-with-android-emulator-steps.yml
+      parameters:
+        steps:
+        - bash: |
+            set -e
+            ./gradlew connectedDebugAndroidTest --no-daemon
+          workingDirectory: mobile/examples/super_resolution/android
+          displayName: "Build and run tests"
 
 # Note: start with testing with the pre-release version pods.
 # can update with testing with Full/Mobile pods as the other samples later.
 
 # mobile/examples/super_resolution/ios
-- job: SuperResolutionIos
-  pool:
-    vmImage: "macOS-12"
+- stage: SuperResolutionIos
+  dependsOn: ProcessParameters
+  jobs:
+  - job: j
+    pool:
+      vmImage: ${{ variables.IosTestAgentVmImage }}
 
-  steps:
-  
-  - script: pod install
-    workingDirectory: 'mobile/examples/super_resolution/ios/ORTSuperResolution'
-    displayName: "Install CocoaPods pods"
+    steps:
+    
+    - script: pod install
+      workingDirectory: 'mobile/examples/super_resolution/ios/ORTSuperResolution'
+      displayName: "Install CocoaPods pods"
 
-  - template: templates/xcode-build-and-test-step.yml
-    parameters:
-      xcWorkspacePath: 'mobile/examples/super_resolution/ios/ORTSuperResolution/ORTSuperResolution.xcworkspace'
-      scheme: 'ORTSuperResolution'
+    - template: templates/xcode-build-and-test-step.yml
+      parameters:
+        xcWorkspacePath: 'mobile/examples/super_resolution/ios/ORTSuperResolution/ORTSuperResolution.xcworkspace'
+        scheme: 'ORTSuperResolution'
 
 # mobile/examples/question_answering/android
-- job: QuestionAnsweringAndroid
-  pool:
-    vmImage: "macOS-12"
+- stage: QuestionAnsweringAndroid
+  dependsOn: ProcessParameters
+  jobs:
+  - job: j
+    pool: ${{ variables.AndroidTestAgentPool }}
 
-  steps:
-  - template: templates/use-python-step.yml
-  - bash: |
-      set -e
-      bash ./prepare_model.sh
-    workingDirectory: 'mobile/examples/question_answering/android'
-    displayName: "Generate model"
-  
-  - template: templates/use-jdk-step.yml
+    steps:
+    - template: templates/use-python-step.yml
+    - bash: |
+        set -e
+        bash ./prepare_model.sh
+      workingDirectory: 'mobile/examples/question_answering/android'
+      displayName: "Generate model"
+    
+    - template: templates/use-jdk-step.yml
 
-  - template: templates/run-with-android-emulator-steps.yml
-    parameters:
-      steps:
-      - bash: |
-          set -e
-          ./gradlew connectedDebugAndroidTest --no-daemon
-        workingDirectory: mobile/examples/question_answering/android
-        displayName: "Build and run tests"
+    - template: templates/run-with-android-emulator-steps.yml
+      parameters:
+        steps:
+        - bash: |
+            set -e
+            ./gradlew connectedDebugAndroidTest --no-daemon
+          workingDirectory: mobile/examples/question_answering/android
+          displayName: "Build and run tests"
 
 # mobile/examples/question_answering/ios
-- job: QuestionAnsweringIos
-  pool:
-    vmImage: "macOS-12"
+- stage: QuestionAnsweringIos
+  dependsOn: ProcessParameters
+  jobs:
+  - job: j
+    pool:
+      vmImage: ${{ variables.IosTestAgentVmImage }}
 
-  steps:
-  - script: pod install
-    workingDirectory: 'mobile/examples/question_answering/ios/ORTQuestionAnswering'
-    displayName: "Install CocoaPods pods"
+    steps:
+    - script: pod install
+      workingDirectory: 'mobile/examples/question_answering/ios/ORTQuestionAnswering'
+      displayName: "Install CocoaPods pods"
 
-  - template: templates/xcode-build-and-test-step.yml
-    parameters:
-      xcWorkspacePath: 'mobile/examples/question_answering/ios/ORTQuestionAnswering/ORTQuestionAnswering.xcworkspace'
-      scheme: 'ORTQuestionAnswering'
+    - template: templates/xcode-build-and-test-step.yml
+      parameters:
+        xcWorkspacePath: 'mobile/examples/question_answering/ios/ORTQuestionAnswering/ORTQuestionAnswering.xcworkspace'
+        scheme: 'ORTQuestionAnswering'

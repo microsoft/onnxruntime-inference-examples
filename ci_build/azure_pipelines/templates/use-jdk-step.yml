@@ -1,7 +1,7 @@
 parameters:
 - name: jdkVersion
   type: string
-  default: "11"
+  default: "17"
 
 steps:
 - task: JavaToolInstaller@0
