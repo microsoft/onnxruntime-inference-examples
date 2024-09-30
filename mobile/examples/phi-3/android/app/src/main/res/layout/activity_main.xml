@@ -9,8 +9,8 @@
 
     <!--recycler view to display our chats-->
 
+
     <TextView
-        android:visibility="invisible"
         android:id="@+id/user_text"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -22,39 +22,42 @@
         android:textAlignment="textEnd"
         android:textAppearance="@style/TextAppearance.AppCompat.Body1"
         android:textSize="16sp"
+        android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.855"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.0" />
+        app:layout_constraintVertical_bias="0.0"
+        tools:visibility="visible" />
 
     <TextView
-        android:visibility="invisible"
         android:id="@+id/sample_text"
-
-        android:background="@drawable/rounded_corner2"
         android:layout_width="0dp"
-        android:layout_height="0dp"
+
+        android:layout_height="wrap_content"
         android:layout_marginStart="32dp"
         android:layout_marginTop="16dp"
         android:layout_marginEnd="64dp"
         android:layout_marginBottom="16dp"
+        android:background="@drawable/rounded_corner2"
         android:padding="8dp"
         android:scrollbars="vertical"
         android:textAppearance="@style/TextAppearance.AppCompat.Body1"
         android:textSize="16sp"
+        android:visibility="invisible"
         app:layout_constraintBottom_toTopOf="@+id/idEdtMessage"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.144"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/user_text"
-        app:layout_constraintVertical_bias="0.0" />
+        app:layout_constraintVertical_bias="0.0"
+        tools:visibility="visible" />
 
     <EditText
         android:id="@+id/idEdtMessage"
-        android:layout_width="300dp"
-        android:layout_height="60dp"
+        android:layout_width="249dp"
+        android:layout_height="63dp"
         android:layout_marginStart="16dp"
         android:layout_marginBottom="16dp"
         android:layout_weight="4"
@@ -70,8 +73,8 @@
         android:layout_width="66dp"
         android:layout_height="60dp"
         android:layout_gravity="center_vertical"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="16dp"
+        android:layout_marginEnd="68dp"
+        android:layout_marginBottom="12dp"
         android:layout_weight="1"
         android:adjustViewBounds="false"
         android:background="#89CC04"
@@ -82,5 +85,32 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         tools:ignore="UseAppTint" />
+
+    <ImageButton
+        android:id="@+id/idIBSettings"
+        android:layout_width="50dp"
+        android:layout_height="60dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="12dp"
+        android:src="@android:drawable/ic_menu_preferences"
+        android:background="#00BCD4"
+        android:backgroundTint="#009688"
+        android:tint="@color/white"
+        android:hapticFeedbackEnabled="true"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        tools:ignore="UseAppTint" />
+
+    <TextView
+        android:id="@+id/progress_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="TextView"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:visibility="invisible" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

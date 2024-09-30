@@ -2,6 +2,7 @@ package ai.onnxruntime.genai.demo;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
 import android.text.method.ScrollingMovementMethod;
@@ -9,6 +10,7 @@ import android.util.Log;
 import android.util.Pair;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
@@ -41,7 +43,10 @@ public class MainActivity extends AppCompatActivity implements Consumer<String> 
     private TextView generatedTV;
     private TextView promptTV;
     private TextView progressText;
+    private ImageButton settingsButton;
     private static final String TAG = "genai.demo.MainActivity";
+    private int maxLength = 100;
+    private float lengthPenalty = 1.0f;
 
     private static boolean fileExists(Context context, String fileName) {
         File file = new File(context.getFilesDir(), fileName);
@@ -55,6 +60,13 @@ public class MainActivity extends AppCompatActivity implements Consumer<String> 
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+        sendMsgIB = findViewById(R.id.idIBSend);
+        userMsgEdt = findViewById(R.id.idEdtMessage);
+        generatedTV = findViewById(R.id.sample_text);
+        promptTV = findViewById(R.id.user_text);
+        progressText = findViewById(R.id.progress_text);
+        settingsButton = findViewById(R.id.idIBSettings);
+
         // Trigger the download operation when the application is created
         try {
             downloadModels(
@@ -63,10 +75,20 @@ public class MainActivity extends AppCompatActivity implements Consumer<String> 
             throw new RuntimeException(e);
         }
 
-        sendMsgIB = findViewById(R.id.idIBSend);
-        userMsgEdt = findViewById(R.id.idEdtMessage);
-        generatedTV = findViewById(R.id.sample_text);
-        promptTV = findViewById(R.id.user_text);
+        settingsButton.setOnClickListener(v -> {
+            BottomSheet bottomSheet = new BottomSheet();
+            bottomSheet.setSettingsListener(new BottomSheet.SettingsListener() {
+                @Override
+                public void onSettingsApplied(int maxLength, float lengthPenalty) {
+                    MainActivity.this.maxLength = maxLength;
+                    MainActivity.this.lengthPenalty = lengthPenalty;
+                    Log.i(TAG, "Setting max response length to: " + maxLength);
+                    Log.i(TAG, "Setting length penalty to: " + lengthPenalty);
+                }
+            });
+            bottomSheet.show(getSupportFragmentManager(), "BottomSheet");
+        });
+
 
         Consumer<String> tokenListener = this;
 
@@ -99,6 +121,7 @@ public class MainActivity extends AppCompatActivity implements Consumer<String> 
 
                 // Disable send button while responding to prompt.
                 sendMsgIB.setEnabled(false);
+                sendMsgIB.setAlpha(0.5f);
 
                 promptTV.setText(promptQuestion);
                 // Clear Edit Text or prompt question.
@@ -117,22 +140,53 @@ public class MainActivity extends AppCompatActivity implements Consumer<String> 
 
                             generatorParams = model.createGeneratorParams();
                             //examples for optional parameters to format AI response
-                            //generatorParams.setSearchOption("length_penalty", 1000);
-                            //generatorParams.setSearchOption("max_length", 500);
+                            // https://onnxruntime.ai/docs/genai/reference/config.html
+                            generatorParams.setSearchOption("length_penalty", lengthPenalty);
+                            generatorParams.setSearchOption("max_length", maxLength);
 
                             encodedPrompt = tokenizer.encode(promptQuestion_formatted);
                             generatorParams.setInput(encodedPrompt);
 
                             generator = new Generator(model, generatorParams);
 
+                            // try to measure average time taken to generate each token.
+                            long startTime = System.currentTimeMillis();
+                            long firstTokenTime = startTime;
+                            long currentTime = startTime;
+                            int numTokens = 0;
                             while (!generator.isDone()) {
                                 generator.computeLogits();
                                 generator.generateNextToken();
                  
                                 int token = generator.getLastTokenInSequence(0);
-                 
+
+                                if (numTokens == 0) { //first token
+                                    firstTokenTime = System.currentTimeMillis();
+                                }
+
                                 tokenListener.accept(stream.decode(token));
+
+
+                                Log.i(TAG, "Generated token: " + token + ": " +  stream.decode(token));
+                                Log.i(TAG, "Time taken to generate token: " + (System.currentTimeMillis() - currentTime)/ 1000.0 + " seconds");
+                                currentTime = System.currentTimeMillis();
+                                numTokens++;
                             }
+                            long totalTime = System.currentTimeMillis() - firstTokenTime;
+
+                            float promptProcessingTime = (firstTokenTime - startTime)/ 1000.0f;
+                            float tokensPerSecond = (1000 * (numTokens -1)) / totalTime;
+
+                            runOnUiThread(() -> {
+                                sendMsgIB.setEnabled(true);
+                                sendMsgIB.setAlpha(1.0f);
+
+                                // Display the token generation rate in a dialog popup
+                                showTokenPopup(promptProcessingTime, tokensPerSecond);
+                            });
+
+                            Log.i(TAG, "Prompt processing time (first token): " + promptProcessingTime + " seconds");
+                            Log.i(TAG, "Tokens generated per second (excluding prompt processing): " + tokensPerSecond);
                         }
                         catch (GenAIException e) {
                             Log.e(TAG, "Exception occurred during model query: " + e.getMessage());
@@ -146,6 +200,7 @@ public class MainActivity extends AppCompatActivity implements Consumer<String> 
 
                         runOnUiThread(() -> {
                             sendMsgIB.setEnabled(true);
+                            sendMsgIB.setAlpha(1.0f);
                         });
                     }
                 }).start();
@@ -256,4 +311,23 @@ public class MainActivity extends AppCompatActivity implements Consumer<String> 
         TextView botView = (TextView) findViewById(R.id.sample_text);
         botView.setVisibility(View.VISIBLE);
     }
+
+    private void showTokenPopup(float promptProcessingTime, float tokenRate) {
+
+        final Dialog dialog = new Dialog(MainActivity.this);
+        dialog.setContentView(R.layout.info_popup);
+
+        TextView promptProcessingTimeTv = dialog.findViewById(R.id.prompt_processing_time_tv);
+        TextView tokensPerSecondTv = dialog.findViewById(R.id.tokens_per_second_tv);
+        Button closeBtn = dialog.findViewById(R.id.close_btn);
+
+        promptProcessingTimeTv.setText(String.format("Prompt processing time: %.2f seconds", promptProcessingTime));
+        tokensPerSecondTv.setText(String.format("Tokens per second: %.2f", tokenRate));
+
+        closeBtn.setOnClickListener(v -> dialog.dismiss());
+
+        dialog.show();
+    }
+
+
 }

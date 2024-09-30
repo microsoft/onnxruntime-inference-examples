@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <!-- Max Response Length -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Max Response Length"
+        android:textSize="16sp"
+        android:textColor="@color/black"
+        android:layout_marginBottom="8dp"/>
+
+    <EditText
+        android:id="@+id/idEdtMaxLength"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="number"
+        android:hint="Enter max response length"
+        android:text="100"
+        android:padding="8dp" />
+
+    <!-- Length Penalty -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Length Penalty"
+        android:textSize="16sp"
+        android:textColor="@color/black"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="8dp"/>
+
+    <EditText
+        android:id="@+id/idEdtLengthPenalty"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Enter length penalty"
+        android:inputType="number|numberDecimal"
+        android:padding="8dp"
+        android:text="1.0" />
+
+    <!-- Save Button -->
+    <Button
+        android:id="@+id/applySettingsButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="24dp"
+        android:background="#89CC04"
+        android:backgroundTint="#89CC04"
+        android:tint="@color/white"
+        android:padding="8dp"
+        android:text="Apply"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+        android:visibility="visible"
+        tools:visibility="visible" />
+</LinearLayout>

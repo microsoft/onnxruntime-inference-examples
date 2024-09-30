@@ -58,3 +58,4 @@ Here are some sample example screenshots of the app.
 
 <img width=20% src="images/Local_LLM_3.jpg" alt="App Screenshot 3" />
 
+<img width=20% src="images/Local_LLM_4.png" alt="App Screenshot 3" />
