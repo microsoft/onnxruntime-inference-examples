@@ -18,6 +18,9 @@ const size_t kMaxTokens = 200;
 
 @implementation GenAIGenerator
 
+typedef std::chrono::high_resolution_clock Clock;
+typedef std::chrono::time_point<Clock> TimePoint;
+
 typedef std::chrono::steady_clock Clock;
 typedef std::chrono::time_point<Clock> TimePoint;
 
