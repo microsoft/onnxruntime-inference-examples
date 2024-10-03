@@ -107,3 +107,5 @@ Upon app launching, Xcode will automatically copy and install the model files fr
 **Note**: The current app only sets up with a simple initial prompt question, you can adjust/try your own or refine the UI based on requirements.
 
 ***Notice:*** The current Xcode project runs on iOS 16.6, feel free to adjust latest iOS/build for lates iOS versions accordingly.
+
+![alt text](<Simulator Screenshot - iPhone 16.png>)

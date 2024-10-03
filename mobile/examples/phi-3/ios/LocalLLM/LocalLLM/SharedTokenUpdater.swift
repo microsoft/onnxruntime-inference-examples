@@ -14,4 +14,10 @@ import Foundation
             self.decodedTokens.append(token)
         }
     }
+
+    @objc func clearTokens() {
+        DispatchQueue.main.async {
+            self.decodedTokens.removeAll()
+        }
+    }
 }
