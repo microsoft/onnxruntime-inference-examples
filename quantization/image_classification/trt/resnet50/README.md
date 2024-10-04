@@ -16,8 +16,41 @@ wget https://image-net.org/data/ILSVRC/2012/ILSVRC2012_devkit_t12.tar.gz --no-ch
 ```
 Untar the tarballs to `val` and `ILSVRC2012_devkit_t12` folder separately.
 
-The dataset layout should look like this:
+The dataset layout should look like this: Following sample code expects this dataset layout.
 
+```
+|-- ILSVRC2012_devkit_t12
+|   |-- COPYING
+|   |-- data
+|   |   |-- ILSVRC2012_validation_ground_truth.txt
+|   |   `-- meta.mat
+|   |-- evaluation
+|   |   |-- VOCreadrecxml.m
+|   |   |-- VOCreadxml.m
+|   |   |-- VOCxml2struct.m
+|   |   |-- compute_overlap.m
+|   |   |-- demo.val.pred.det.txt
+|   |   |-- demo.val.pred.txt
+|   |   |-- demo_eval.m
+|   |   |-- eval_flat.m
+|   |   |-- eval_localization_flat.m
+|   |   |-- get_class2node.m
+|   |   `-- make_hash.m
+|   `-- readme.txt
+|-- meta.bin
+|-- synset_words.txt
+`-- val
+    |-- ILSVRC2012_val_00000001.JPEG
+    |-- ILSVRC2012_val_00000002.JPEG
+    |-- ILSVRC2012_val_00000003.JPEG
+...
+```
+
+However, if you are using ImageNet, then please run following command to reconstruct the layout to be grouped by class.
+```shell
+cd val/
+wget -qO- https://raw.githubusercontent.com/soumith/imagenetloader.torch/master/valprep.sh | bash
+```
 ```
 |-- ILSVRC2012_devkit_t12
 |   |-- COPYING
@@ -45,8 +78,4 @@ The dataset layout should look like this:
     |   |-- ILSVRC2012_val_00003014.JPEG
 ...
 ```
-Note: If the data in `val` folder is not grouped by class, please run following command to reconstruct the layout
-```shell
-cd val/
-wget -qO- https://raw.githubusercontent.com/soumith/imagenetloader.torch/master/valprep.sh | bash
-```
+
