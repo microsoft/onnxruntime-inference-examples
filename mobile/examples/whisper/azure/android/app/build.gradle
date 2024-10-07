@@ -42,7 +42,9 @@ dependencies {
     implementation ("org.jetbrains.kotlinx:kotlinx-serialization-json:1.2.2")
 
     implementation 'com.microsoft.onnxruntime:onnxruntime-android:latest.release'
-    implementation 'com.microsoft.onnxruntime:onnxruntime-extensions-android:latest.release'
+    // Later onnxruntime-extensions versions don't have com.microsoft.extensions:OpenAIAudioToText which is required
+    // for this example, so pin the version to 0.11.0.
+    implementation 'com.microsoft.onnxruntime:onnxruntime-extensions-android:0.11.0'
 
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
