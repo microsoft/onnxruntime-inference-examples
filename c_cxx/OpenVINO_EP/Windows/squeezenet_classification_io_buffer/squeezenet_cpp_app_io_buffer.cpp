@@ -248,7 +248,7 @@ int main(int argc, char* argv[])
     //Appending OpenVINO Execution Provider API
     // Using OPENVINO backend
     OrtOpenVINOProviderOptions options;
-    options.device_type = "GPU_FP32"; //Another options are: GPU_FP16, GPU.1_FP32, GPU.1_FP16, GPU.0_FP32, GPU.0_FP16
+    options.device_type = "GPU";
     options.context = (void *) ocl_instance->_context.get() ; 
     std::cout << "OpenVINO device type is set to: " << options.device_type << std::endl;
     sessionOptions.AppendExecutionProvider_OpenVINO(options);
