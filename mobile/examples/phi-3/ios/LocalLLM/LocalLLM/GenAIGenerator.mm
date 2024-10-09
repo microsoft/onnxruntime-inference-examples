@@ -18,8 +18,10 @@ const size_t kMaxTokens = 200;
 
 @implementation GenAIGenerator
 
-typedef std::chrono::high_resolution_clock Clock;
+typedef std::chrono::steady_clock Clock;
 typedef std::chrono::time_point<Clock> TimePoint;
+static std::unique_ptr<OgaModel> model = nullptr;
+static std::unique_ptr<OgaTokenizer> tokenizer = nullptr;
 
 typedef std::chrono::steady_clock Clock;
 typedef std::chrono::time_point<Clock> TimePoint;
