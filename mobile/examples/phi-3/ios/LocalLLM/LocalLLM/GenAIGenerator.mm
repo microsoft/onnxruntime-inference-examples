@@ -1,49 +1,143 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
-
 #import "GenAIGenerator.h"
 #include "LocalLLM-Swift.h"
 #include "ort_genai.h"
 #include "ort_genai_c.h"
-
+#include <chrono>
+#include <vector>
 
 @implementation GenAIGenerator
 
+typedef std::chrono::steady_clock Clock;
+typedef std::chrono::time_point<Clock> TimePoint;
+static std::unique_ptr<OgaModel> model = nullptr;
+static std::unique_ptr<OgaTokenizer> tokenizer = nullptr;
+
 + (void)generate:(nonnull NSString*)input_user_question {
-  NSString* llmPath = [[NSBundle mainBundle] resourcePath];
-  const char* modelPath = llmPath.cString;
+    std::vector<long long> tokenTimes; // per-token generation times
+    TimePoint startTime, firstTokenTime, tokenStartTime;
 
-  auto model = OgaModel::Create(modelPath);
-  auto tokenizer = OgaTokenizer::Create(*model);
+    @try {
+        NSLog(@"Starting token generation...");
 
-  NSString* promptString = [NSString stringWithFormat:@"<|user|>\n%@<|end|>\n<|assistant|>", input_user_question];
-  const char* prompt = [promptString UTF8String];
+        if (!model) {
+            NSLog(@"Creating model...");
+            NSString* llmPath = [[NSBundle mainBundle] resourcePath];
+            const char* modelPath = llmPath.cString;
+            model = OgaModel::Create(modelPath); // throws exception
 
-  auto sequences = OgaSequences::Create();
-  tokenizer->Encode(prompt, *sequences);
+            if (!model) {
+                @throw [NSException exceptionWithName:@"ModelCreationError" reason:@"Failed to create model." userInfo:nil];
+            }
+        }
 
-  auto params = OgaGeneratorParams::Create(*model);
-  params->SetSearchOption("max_length", 200);
-  params->SetInputSequences(*sequences);
+        if (!tokenizer) {
+            NSLog(@"Creating tokenizer...");
+            tokenizer = OgaTokenizer::Create(*model);  // throws exception
+            if (!tokenizer) {
+                @throw [NSException exceptionWithName:@"TokenizerCreationError" reason:@"Failed to create tokenizer." userInfo:nil];
+            }
+        }
 
-  // Streaming Output to generate token by token
-  auto tokenizer_stream = OgaTokenizerStream::Create(*tokenizer);
+        auto tokenizer_stream = OgaTokenizerStream::Create(*tokenizer);
 
-  auto generator = OgaGenerator::Create(*model, *params);
+        // Construct the prompt
+        NSString* promptString = [NSString stringWithFormat:@"<|user|>\n%@<|end|>\n<|assistant|>", input_user_question];
+        const char* prompt = [promptString UTF8String];
 
-  while (!generator->IsDone()) {
-    generator->ComputeLogits();
-    generator->GenerateNextToken();
+        // Encode the prompt
+        auto sequences = OgaSequences::Create();
+        tokenizer->Encode(prompt, *sequences);
 
-    const int32_t* seq = generator->GetSequenceData(0);
-    size_t seq_len = generator->GetSequenceCount(0);
-    const char* decode_tokens = tokenizer_stream->Decode(seq[seq_len - 1]);
+        size_t promptTokensCount = sequences->SequenceCount(0); 
 
-    NSLog(@"Decoded tokens: %s", decode_tokens);
+        NSLog(@"Setting generator parameters...");
+        auto params = OgaGeneratorParams::Create(*model);
+        params->SetSearchOption("max_length", 200);
+        params->SetInputSequences(*sequences);
 
-    // Add decoded token to SharedTokenUpdater
-    NSString* decodedTokenString = [NSString stringWithUTF8String:decode_tokens];
-    [SharedTokenUpdater.shared addDecodedToken:decodedTokenString];
-  }
+        auto generator = OgaGenerator::Create(*model, *params);
+
+        bool isFirstToken = true;
+        NSLog(@"Starting token generation loop...");
+        
+        startTime = Clock::now();
+        while (!generator->IsDone()) {
+            tokenStartTime = Clock::now();
+
+            generator->ComputeLogits();
+            generator->GenerateNextToken();
+
+            if (isFirstToken) {
+                firstTokenTime = Clock::now();
+                isFirstToken = false;
+            }
+
+            // Get the sequence data and decode the token
+            const int32_t* seq = generator->GetSequenceData(0);
+            size_t seq_len = generator->GetSequenceCount(0);
+            const char* decode_tokens = tokenizer_stream->Decode(seq[seq_len - 1]);
+
+            if (!decode_tokens) {
+                @throw [NSException exceptionWithName:@"TokenDecodeError" reason:@"Token decoding failed." userInfo:nil];
+            }
+
+            // Measure token generation time excluding logging
+            TimePoint tokenEndTime = Clock::now();
+            auto tokenDuration = std::chrono::duration_cast<std::chrono::milliseconds>(tokenEndTime - tokenStartTime).count();
+            tokenTimes.push_back(tokenDuration);
+            NSString* decodedTokenString = [NSString stringWithUTF8String:decode_tokens];
+            [SharedTokenUpdater.shared addDecodedToken:decodedTokenString];
+        }
+
+        TimePoint endTime = Clock::now();
+        // Log token times
+        NSLog(@"Per-token generation times: %@", [self formatTokenTimes:tokenTimes]);
+
+        // Calculate metrics
+        auto totalDuration = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime).count();
+        auto firstTokenDuration = std::chrono::duration_cast<std::chrono::milliseconds>(firstTokenTime - startTime).count();
+
+        double promtProcTime =  (double)promptTokensCount / firstTokenDuration;
+        double tokenGenRate = (double)(tokenTimes.size() - 1) * 1000.0 / (totalDuration - firstTokenDuration);
+
+        NSLog(@"Token generation completed. Total time: %lld ms, First token time: %lld ms, Total tokens: %zu", totalDuration, firstTokenDuration, tokenTimes.size());
+        NSLog(@"Prompt tokens: %zu, Prompt Processing Time: %f tokens/s", promptTokensCount, promtProcTime);
+        NSLog(@"Generated tokens: %zu, Token Generation Rate: %f tokens/s", tokenTimes.size(), tokenGenRate);
+
+        
+        NSDictionary *stats = @{
+            @"tokenGenRate" : @(tokenGenRate),
+            @"promptProcRate": @(promtProcTime)
+        };
+        // notify main thread that token generation is complete 
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [[NSNotificationCenter defaultCenter] postNotificationName:@"TokenGenerationStats" object:nil userInfo:stats];
+            [[NSNotificationCenter defaultCenter] postNotificationName:@"TokenGenerationCompleted" object:nil];
+        });
+
+        NSLog(@"Token generation completed.");
+
+    } @catch (NSException* e) {
+        NSString* errorMessage = e.reason;
+        NSLog(@"Error during generation: %@", errorMessage);
+
+        // Send error to the UI
+        NSDictionary *errorInfo = @{@"error": errorMessage};
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [[NSNotificationCenter defaultCenter] postNotificationName:@"TokenGenerationError" object:nil userInfo:errorInfo];
+        });
+    }
 }
+
+// Utility function to format token times for logging
++ (NSString*)formatTokenTimes:(const std::vector<long long>&)tokenTimes {
+    NSMutableString *formattedTimes = [NSMutableString string];
+    for (size_t i = 0; i < tokenTimes.size(); i++) {
+        [formattedTimes appendFormat:@"%lld ms, ", tokenTimes[i]];
+    }
+    return [formattedTimes copy];
+}
+
 @end

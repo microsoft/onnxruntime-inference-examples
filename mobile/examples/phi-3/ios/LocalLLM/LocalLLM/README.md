@@ -65,7 +65,7 @@ git clone https://github.com/microsoft/onnxruntime-genai
 
 cd onnxruntime-genai
 
-python3 build.py --parallel --build_dir ./build_iphoneos --ios --ios_sysroot iphoneos --ios_arch arm64 --ios_deployment_target 16.6 --cmake_generator Xcode
+python3 build.py --parallel --build_dir ./build_iphoneos --ios --apple_sysroot iphoneos --osx_arch arm64 --apple_deploy_target 16.6 --cmake_generator Xcode
 
 ```
 
@@ -98,7 +98,7 @@ The app uses Objective-C/C++ since using Generative AI with ONNX Runtime C++ API
 
 Download from hf repo: <https://huggingface.co/microsoft/Phi-3-mini-128k-instruct-onnx/tree/main/cpu_and_mobile/cpu-int4-rtn-block-32-acc-level-4>
 
-After downloading completes, you need to copy files over to the `Resources` directory in the `Destination` column of `Target-LocalLLM`->`Build Phases`-> `New Copy File Phases` -> `Copy Files`.
+After downloading the files, Click on `LocalLLM` project from sidebar, go to `Targets > LocalLLM > Build Phases`. Find the Copy Files section, set the Destination to Resources, and add the downloaded files.
 
 Upon app launching, Xcode will automatically copy and install the model files from Resources folder and directly download to the iOS device.
 
@@ -107,3 +107,5 @@ Upon app launching, Xcode will automatically copy and install the model files fr
 **Note**: The current app only sets up with a simple initial prompt question, you can adjust/try your own or refine the UI based on requirements.
 
 ***Notice:*** The current Xcode project runs on iOS 16.6, feel free to adjust latest iOS/build for lates iOS versions accordingly.
+
+![alt text](<Simulator Screenshot - iPhone 16.png>)
