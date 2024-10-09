@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+
 import SwiftUI
 
 
@@ -12,6 +15,8 @@ struct ContentView: View {
     @State private var messages: [Message] = []  // Store chat messages locally
     @State private var isGenerating: Bool = false  // Track token generation state
     @State private var stats: String = ""  // token genetation stats
+    @State private var showAlert: Bool = false
+    @State private var errorMessage: String = ""
     
     var body: some View {
         VStack {
@@ -88,12 +93,25 @@ struct ContentView: View {
         }
         .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("TokenGenerationStats"))) { notification in
             if let userInfo = notification.userInfo,
-               let totalTime = userInfo["totalTime"] as? Int,
-               let firstTokenTime = userInfo["firstTokenTime"] as? Int,
-               let tokenCount = userInfo["tokenCount"] as? Int {
-                stats = "Generated \(tokenCount) tokens in \(totalTime) ms. First token in \(firstTokenTime) ms."
+               let promptProcRate = userInfo["promptProcRate"] as? Double,
+               let tokenGenRate = userInfo["tokenGenRate"] as? Double {
+                stats = String(format: "Token generation rate: %.2f tokens/s. Prompt processing rate: %.2f tokens/s", tokenGenRate, promptProcRate)
             }
         }
+        .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("TokenGenerationError"))) { notification in
+            if let userInfo = notification.userInfo, let error = userInfo["error"] as? String {
+                    errorMessage = error
+                    showAlert = true
+            }
+        }
+        .alert(isPresented: $showAlert) {
+            Alert(
+                title: Text("Error"),
+                message: Text(errorMessage),
+                dismissButton: .default(Text("OK"))
+            )
+        }
+        
     }
 }
 
@@ -117,7 +135,7 @@ struct ChatBubble: View {
                     .background(Color(.systemGray5))
                     .foregroundColor(.black)
                     .cornerRadius(25)
-                    .padding(.horizontal, 20)
+                    .padding(.horizontal, 10)
                 Spacer()
             }
         }
