@@ -3,4 +3,4 @@ onnxruntime==1.13.1
 protobuf==3.20.2
 torch==1.13.1
 torchaudio==0.13.1
-transformers==4.36.0
+transformers==4.38.0
