@@ -17,6 +17,8 @@ struct ContentView: View {
     @State private var stats: String = ""  // token genetation stats
     @State private var showAlert: Bool = false
     @State private var errorMessage: String = ""
+
+    private let generator = GenAIGenerator()
     
     var body: some View {
         VStack {
@@ -65,7 +67,7 @@ struct ContentView: View {
                 
         
                     DispatchQueue.global(qos: .background).async {
-                        GenAIGenerator.generate(prompt)
+                        generator.generate(prompt)
                     }
                 }) {
                     Image(systemName: "paperplane.fill")
@@ -101,6 +103,7 @@ struct ContentView: View {
         .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("TokenGenerationError"))) { notification in
             if let userInfo = notification.userInfo, let error = userInfo["error"] as? String {
                     errorMessage = error
+                    isGenerating = false
                     showAlert = true
             }
         }
