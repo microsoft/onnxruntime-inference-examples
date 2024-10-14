@@ -1,8 +1,9 @@
-# ONNX PTQ for using TensorRT EP
-Following is the end-to-end example using ORT quantization tool to quantize ONNX model and run/evaluate the quantized model with TRT EP.  
+# ONNX PTQ overview
+Following is the end-to-end example using ORT quantization tool to quantize ONNX model, specifially image classification model, and run/evaluate the quantized model with TRT EP.  
 
 ## Environment setup
 ### dataset
+First, prepare dataset for calibration as well as evaluation.
 We suggest to use ImageNet 2012 classification dataset to do the model calibration and evaluation. In addition to the sample code we provide below, TensorRT model optimizer which leverages torchvision.datasets already provides
 the ability to work with ImageNet dataset.
 
@@ -16,7 +17,7 @@ wget https://image-net.org/data/ILSVRC/2012/ILSVRC2012_devkit_t12.tar.gz --no-ch
 ```
 Untar the tarballs to `val` and `ILSVRC2012_devkit_t12` folder separately.
 
-The dataset layout should look like this: Following sample code expects this dataset layout.
+The dataset layout should look like below and the sample code expects this dataset layout
 
 ```
 |-- ILSVRC2012_devkit_t12
@@ -78,4 +79,6 @@ wget -qO- https://raw.githubusercontent.com/soumith/imagenetloader.torch/master/
     |   |-- ILSVRC2012_val_00003014.JPEG
 ...
 ```
+
+## Quantize an ONNX model
 
