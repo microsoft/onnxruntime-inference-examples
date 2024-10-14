@@ -19,4 +19,4 @@ torch.onnx.export(model, input, "wav2vec2-base-960h.onnx",
                   input_names=["input"],
                   output_names=["output"],
                   dynamic_axes={"input": [1], "output": [1]},
-                  opset_version=13)
+                  opset_version=14)
