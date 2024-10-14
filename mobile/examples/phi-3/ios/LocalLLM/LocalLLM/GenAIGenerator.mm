@@ -7,6 +7,9 @@
 #include "ort_genai.h"
 #include "ort_genai_c.h"
 
+
+const size_t kMaxTokens = 200;
+
 @interface GenAIGenerator () {
   std::unique_ptr<OgaModel> model;
   std::unique_ptr<OgaTokenizer> tokenizer;
@@ -29,6 +32,8 @@ typedef std::chrono::time_point<Clock> TimePoint;
 
 - (void)generate:(nonnull NSString*)input_user_question {
   std::vector<long long> tokenTimes;  // per-token generation times
+  tokenTimes.reserve(kMaxTokens);
+
   TimePoint startTime, firstTokenTime, tokenStartTime;
 
   try {
@@ -60,7 +65,7 @@ typedef std::chrono::time_point<Clock> TimePoint;
 
     NSLog(@"Setting generator parameters...");
     auto params = OgaGeneratorParams::Create(*self->model);
-    params->SetSearchOption("max_length", 200);
+    params->SetSearchOption("max_length", kMaxTokens);
     params->SetInputSequences(*sequences);
 
     auto generator = OgaGenerator::Create(*self->model, *params);
@@ -86,7 +91,7 @@ typedef std::chrono::time_point<Clock> TimePoint;
       const char* decode_tokens = tokenizer_stream->Decode(seq[seq_len - 1]);
 
       if (!decode_tokens) {
-        @throw [NSException exceptionWithName:@"TokenDecodeError" reason:@"Token decoding failed." userInfo:nil];
+        throw std::runtime_error("Token decoding failed.");
       }
 
       // Measure token generation time excluding logging
