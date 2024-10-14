@@ -8,7 +8,7 @@ variables:
   - name: AndroidTestAgentPool
     value: "onnxruntime-Ubuntu2204-AMD-CPU"
   - name: IosTestAgentVmImage
-    value: "macOS-12"
+    value: "macOS-14"
 
 stages:
 - stage: ProcessParameters
