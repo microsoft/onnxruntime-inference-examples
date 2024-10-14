@@ -11,7 +11,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface GenAIGenerator : NSObject
 
-+ (void)generate:(NSString *)input_user_question;
+- (void)generate:(NSString *)input_user_question;
 
 @end
 
