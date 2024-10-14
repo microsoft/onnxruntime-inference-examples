@@ -1,6 +1,5 @@
-onnx==1.13.0
-onnxruntime==1.13.1
-protobuf==3.20.2
-torch==1.13.1
-torchaudio==0.13.1
+onnx==1.16.1
+onnxruntime==1.19.2
+torch==2.2.2
+torchaudio==2.2.2
 transformers==4.38.0
