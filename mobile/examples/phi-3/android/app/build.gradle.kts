@@ -17,7 +17,8 @@ android {
 
         ndk {
             //noinspection ChromeOsAbiSupport
-            abiFilters += listOf("arm64-v8a", "x86_64")
+            //abiFilters += listOf("arm64-v8a", "x86_64")
+            abiFilters += listOf("arm64-v8a")
         }
     }
 
@@ -39,6 +40,9 @@ android {
     buildFeatures {
         viewBinding = true
     }
+
+    // set this so QNN libs will show up in nativeLibraryDir
+    packaging.jniLibs.useLegacyPackaging = true
 }
 
 dependencies {
@@ -51,7 +55,9 @@ dependencies {
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
 
     // ONNX Runtime with GenAI
-    implementation("com.microsoft.onnxruntime:onnxruntime-android:latest.release")
-    implementation(files("libs/onnxruntime-genai-android-0.4.0-dev.aar"))
+    //implementation("com.microsoft.onnxruntime:onnxruntime-android:latest.release")
+    implementation(files("libs/onnxruntime-android-qnn-1.20.0.aar"))
+    implementation(files("libs/onnxruntime-genai-android-0.5.0-dev.aar"))
+    implementation("com.qualcomm.qti:qnn-runtime:2.27.0")
 
 }

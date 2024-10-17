@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
+import android.system.ErrnoException;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.util.Pair;
@@ -17,6 +18,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.File;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.FloatBuffer;
+import java.nio.LongBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -28,6 +33,7 @@ import ai.onnxruntime.genai.GenAIException;
 import ai.onnxruntime.genai.Generator;
 import ai.onnxruntime.genai.GeneratorParams;
 import ai.onnxruntime.genai.Sequences;
+import ai.onnxruntime.genai.Tensor;
 import ai.onnxruntime.genai.TokenizerStream;
 import ai.onnxruntime.genai.demo.databinding.ActivityMainBinding;
 import ai.onnxruntime.genai.Model;
@@ -45,7 +51,7 @@ public class MainActivity extends AppCompatActivity implements Consumer<String> 
     private TextView progressText;
     private ImageButton settingsButton;
     private static final String TAG = "genai.demo.MainActivity";
-    private int maxLength = 100;
+    private int maxLength = 256;
     private float lengthPenalty = 1.0f;
 
     private static boolean fileExists(Context context, String fileName) {
@@ -55,6 +61,14 @@ public class MainActivity extends AppCompatActivity implements Consumer<String> 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        try {
+            // set ADSP_LIBRARY_PATH, QNN-specific
+            String adspLibraryPath = getApplicationContext().getApplicationInfo().nativeLibraryDir;
+            android.system.Os.setenv("ADSP_LIBRARY_PATH", adspLibraryPath, true);
+        } catch (ErrnoException e) {
+            throw new RuntimeException(e);
+        }
+
         super.onCreate(savedInstanceState);
 
         binding = ActivityMainBinding.inflate(getLayoutInflater());
@@ -69,8 +83,8 @@ public class MainActivity extends AppCompatActivity implements Consumer<String> 
 
         // Trigger the download operation when the application is created
         try {
-            downloadModels(
-                    getApplicationContext());
+            createModelFromPath("/data/local/tmp/phi3.5_qnn_qc/phi3.5-split-qnn-qc");
+            //downloadModels(getApplicationContext());
         } catch (GenAIException e) {
             throw new RuntimeException(e);
         }
@@ -135,17 +149,63 @@ public class MainActivity extends AppCompatActivity implements Consumer<String> 
                         GeneratorParams generatorParams = null;
                         Generator generator = null;
                         Sequences encodedPrompt = null;
+                        Tensor attentionMask = null, positionIds = null;
                         try {
+                            encodedPrompt = tokenizer.encode(promptQuestion_formatted);
+
                             stream = tokenizer.createStream();
+
+                            int maxSequenceLength = 128;
+                            int contextLength = 4096;
+
+                            int[] promptTokens = encodedPrompt.getSequence(0);
+                            int numPromptTokens = promptTokens.length;
+
+                            if (numPromptTokens > maxSequenceLength) {
+                                throw new RuntimeException("numPromptTokens is greater than maxSequenceLength");
+                            }
+                            if (numPromptTokens > contextLength) {
+                                throw new RuntimeException("numPromptTokens is greater than contextLength");
+                            }
+
+                            int paddingSize = maxSequenceLength - numPromptTokens;
+
+                            // paddedInputIds
+                            int[] paddedInputIds = new int[maxSequenceLength];
+                            for (int i = 0; i < maxSequenceLength; ++i) {
+                                paddedInputIds[i] = i < paddingSize ? 0 : promptTokens[i - paddingSize];
+                            }
+
+                            ByteOrder nativeOrder = ByteOrder.nativeOrder();
+
+                            // attentionMask
+                            int attentionMaskPaddingSize = contextLength - numPromptTokens;
+                            ByteBuffer attentionMaskBuffer = ByteBuffer.allocateDirect(contextLength * 4);
+                            attentionMaskBuffer.order(nativeOrder);
+                            FloatBuffer attentionMaskFloatBuffer = attentionMaskBuffer.asFloatBuffer();
+                            for (int i = 0; i < contextLength; i++) {
+                                attentionMaskFloatBuffer.put(i < attentionMaskPaddingSize ? 0.0f : 1.0f);
+                            }
+                            attentionMask = new Tensor(attentionMaskBuffer, new long[]{1, contextLength}, Tensor.ElementType.float32);
+
+                            // positionIds
+                            ByteBuffer positionIdsBuffer = ByteBuffer.allocateDirect(maxSequenceLength * 8);
+                            positionIdsBuffer.order(nativeOrder);
+                            LongBuffer positionIdsLongBuffer = positionIdsBuffer.asLongBuffer();
+                            for (int i = 0; i < maxSequenceLength; ++i) {
+                                positionIdsLongBuffer.put(i < paddingSize ? 0 : i - paddingSize);
+                            }
+                            positionIds = new Tensor(positionIdsBuffer, new long[]{1, maxSequenceLength}, Tensor.ElementType.int64);
 
                             generatorParams = model.createGeneratorParams();
                             //examples for optional parameters to format AI response
                             // https://onnxruntime.ai/docs/genai/reference/config.html
                             generatorParams.setSearchOption("length_penalty", lengthPenalty);
                             generatorParams.setSearchOption("max_length", maxLength);
+                            generatorParams.setInput("attention_mask_before_processor", attentionMask);
+                            generatorParams.setInput("position_ids", positionIds);
 
-                            encodedPrompt = tokenizer.encode(promptQuestion_formatted);
-                            generatorParams.setInput(encodedPrompt);
+                            generatorParams.setInput(paddedInputIds, maxSequenceLength, 1);
 
                             generator = new Generator(model, generatorParams);
 
@@ -175,7 +235,7 @@ public class MainActivity extends AppCompatActivity implements Consumer<String> 
                             long totalTime = System.currentTimeMillis() - firstTokenTime;
 
                             float promptProcessingTime = (firstTokenTime - startTime)/ 1000.0f;
-                            float tokensPerSecond = (1000 * (numTokens -1)) / totalTime;
+                            float tokensPerSecond = (1000.0f * (numTokens - 1)) / totalTime;
 
                             runOnUiThread(() -> {
                                 sendMsgIB.setEnabled(true);
@@ -192,6 +252,8 @@ public class MainActivity extends AppCompatActivity implements Consumer<String> 
                             Log.e(TAG, "Exception occurred during model query: " + e.getMessage());
                         }
                         finally {
+                            if (positionIds != null) positionIds.close();
+                            if (attentionMask != null) attentionMask.close();
                             if (generator != null) generator.close();
                             if (encodedPrompt != null) encodedPrompt.close();
                             if (stream != null) stream.close();
@@ -217,8 +279,12 @@ public class MainActivity extends AppCompatActivity implements Consumer<String> 
         super.onDestroy();
     }
 
-    private void downloadModels(Context context) throws GenAIException {
+    private void createModelFromPath(String path) throws GenAIException {
+        model = new Model(path);
+        tokenizer = model.createTokenizer();
+    }
 
+    private void downloadModels(Context context) throws GenAIException {
         final String baseUrl = "https://huggingface.co/microsoft/Phi-3-mini-4k-instruct-onnx/resolve/main/cpu_and_mobile/cpu-int4-rtn-block-32-acc-level-4/";
         List<String> files = Arrays.asList(
                 "added_tokens.json",
