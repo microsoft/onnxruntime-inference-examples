@@ -20,6 +20,10 @@ steps:
     packageApp: false
     destinationPlatformOption: 'iOS'
     destinationTypeOption: 'simulators'
+    # Note: The simulator version (after "OS=" in destinationSimulators) should be compatible with the Xcode version
+    # (in xcodeDeveloperDir).
+    # Refer to the table here: https://developer.apple.com/support/xcode/
+    # Pick a simulator version that is supported by the Xcode version.
     destinationSimulators: 'iPhone 15,OS=17.5'
     ${{ if ne(parameters.args, '') }}:
       args: ${{ parameters.args }}
