@@ -85,4 +85,10 @@ wget -qO- https://raw.githubusercontent.com/soumith/imagenetloader.torch/master/
 Lastly, download `synset_words.txt` from https://github.com/HoldenCaulfieldRye/caffe/blob/master/data/ilsvrc12/synset_words.txt into `ILSVRC2012` (top-level folder)
 
 ## Quantize an ONNX model
-
+```shell
+python e2e_tensorrt_resnet_example.py
+````
+The e2e script will do
+* Preprocess the image in the dataset
+* Run calibration and generate calibration table (deprecated)
+* Launch ORT session with TRT EP and run the evaluation (top 1 and top 5)
