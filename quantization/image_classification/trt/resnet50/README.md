@@ -1,10 +1,12 @@
-# ONNX PTQ for using TensorRT EP
-Following is the end-to-end example using ORT quantization tool to quantize ONNX model and run/evaluate the quantized model with TRT EP.  
+# ONNX PTQ overview
+Following is the end-to-end example using ORT quantization tool to quantize ONNX model, specifially image classification model, and run/evaluate the quantized model with TRT EP.  
 
 ## Environment setup
 ### dataset
-We suggest to use ImageNet 2012 classification dataset to do the model calibration and evaluation. In addition to the sample code we provide below, TensorRT model optimizer which leverages torchvision.datasets already provides
-the ability to work with ImageNet dataset.
+First, prepare the dataset for calibration. TensorRT recommends calibration data size to be at least 500 for CNN and ViT models.
+Generally, the dataset used for calibration should differ from the one used for evaluation. However, to simplify the sample code, we will use the same dataset for both calibration and evaluation. We recommend utilizing the ImageNet 2012 classification dataset for this purpose.
+
+In addition to the sample code we provide below, TensorRT model optimizer which leverages torchvision.datasets already provides the ability to work with ImageNet dataset.
 
 #### Prepare ImageNet dataset
 You can either download from [Kaggle](https://www.kaggle.com/c/imagenet-object-localization-challenge/data) or origianl image-net website: val [tarball](https://image-net.org/data/ILSVRC/2012/ILSVRC2012_img_val.tar) and devkit [tarball](https://image-net.org/data/ILSVRC/2012/ILSVRC2012_devkit_t12.tar.gz)
@@ -16,7 +18,7 @@ wget https://image-net.org/data/ILSVRC/2012/ILSVRC2012_devkit_t12.tar.gz --no-ch
 ```
 Untar the tarballs to `val` and `ILSVRC2012_devkit_t12` folder separately.
 
-The dataset layout should look like this: Following sample code expects this dataset layout.
+The dataset layout should look like below and the sample code expects this dataset layout
 
 ```
 |-- ILSVRC2012_devkit_t12
@@ -78,4 +80,7 @@ wget -qO- https://raw.githubusercontent.com/soumith/imagenetloader.torch/master/
     |   |-- ILSVRC2012_val_00003014.JPEG
 ...
 ```
+Lastly, download `synset_words.txt` from https://github.com/HoldenCaulfieldRye/caffe/blob/master/data/ilsvrc12/synset_words.txt into `ILSVRC2012` (top-level folder)
+
+## Quantize an ONNX model
 
