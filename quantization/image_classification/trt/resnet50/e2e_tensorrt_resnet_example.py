@@ -310,6 +310,11 @@ if __name__ == '__main__':
     Untar the model into the workspace
     '''
 
+    ###################################################################################################################
+    # Note: Implicit quantization is deprecated in TRT 10.1 (using calibration table in TRT EP to set setDynamicRange),
+    #       we suggest to use explicit quantization aka QDQ format.
+    ###################################################################################################################
+
     # Dataset settings
     model_path = "./resnet50-v2-7.onnx"
     ilsvrc2012_dataset_path = "./ILSVRC2012"
