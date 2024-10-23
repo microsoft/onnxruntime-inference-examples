@@ -1,6 +1,8 @@
 # ONNX PTQ overview
 Following is the end-to-end example using ORT quantization tool to quantize ONNX model, specifially image classification model, and run/evaluate the quantized model with TRT EP.  
 
+## Note
+Implicit quantization is deprecated in TRT 10.1 (using calibration table in TRT EP to set `setDynamicRange`), we suggest to use explicit quantization aka QDQ format.
 ## Environment setup
 ### dataset
 First, prepare the dataset for calibration. TensorRT recommends calibration data size to be at least 500 for CNN and ViT models.
