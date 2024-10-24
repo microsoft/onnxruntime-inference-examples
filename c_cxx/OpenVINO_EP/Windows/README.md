@@ -32,7 +32,7 @@ set OPENCL_INCS=\path\to\openvino\folder\thirdparty\ocl\clhpp_headers\include
 ```
 
 ```
-build.bat --config RelWithDebInfo --use_openvino CPU_FP32 --build_shared_lib --parallel --cmake_extra_defines CMAKE_INSTALL_PREFIX=c:\dev\ort_install --skip_tests
+build.bat --config RelWithDebInfo --use_openvino CPU --build_shared_lib --parallel --cmake_extra_defines CMAKE_INSTALL_PREFIX=c:\dev\ort_install --skip_tests
 ```
 
 By default products of the build on Windows go to build\Windows\config folder. In the case above it would be build\Windows\RelWithDebInfo.
@@ -79,7 +79,7 @@ msbuild onnxruntime_samples.sln /p:Configuration=Debug
 
 To run the samples make sure you source openvino variables using setupvars.bat. 
 
-To run the samples download and install(extract) OpenCV from: [download OpenCV](https://github.com/opencv/opencv/releases/download/4.7.0/opencv-4.7.0-windows.exe). Also copy OpenCV dll (opencv_world470.dll which is located at: "path\to\opencv\build\x64\vc16\bin") to the location of the application exe file(Release dll for Release build and debug dll for debug build). 
+To run the samples download and install(extract) OpenCV from: [download OpenCV](https://github.com/opencv/opencv/releases/download/4.7.0/opencv-4.7.0-windows.exe). Also copy OpenCV dll (opencv_world470.dll which is located at: "path\to\opencv\build\x64\vc16\bin") to the location of the application exe file(Release dll for release build) and (opencv_world470d.dll which is located at:"path\to\opencv\build\x64\vc16\bin") to the location of the application exe file (debug dll for debug build).
 
 #### Run the sample
 

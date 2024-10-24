@@ -17,7 +17,7 @@ option(OPENCL_INCLUDE "OpenCL header dir")
 if(NOT ONNXRUNTIME_ROOTDIR)
   set(ONNXRUNTIME_ROOTDIR "C:/Program Files/onnxruntime")
 endif()
-include_directories("${ONNXRUNTIME_ROOTDIR}/include" "${ONNXRUNTIME_ROOTDIR}/include/onnxruntime/core/session")
+include_directories("${ONNXRUNTIME_ROOTDIR}/include" "${ONNXRUNTIME_ROOTDIR}/include/onnxruntime/")
 link_directories("${ONNXRUNTIME_ROOTDIR}/lib")
 
 if(OPENCV_ROOTDIR)
