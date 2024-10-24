@@ -1,4 +1,4 @@
-onnx==1.16.1
+onnx==1.17.0
 onnxruntime==1.19.2
 torch==2.2.2
 torchaudio==2.2.2
