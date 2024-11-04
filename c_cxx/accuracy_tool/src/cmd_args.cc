@@ -13,6 +13,7 @@
 #include <thread>
 #include <unordered_set>
 
+#include "ep_cmd_args/plugin_cmd_args.h"
 #include "ep_cmd_args/qnn_cmd_args.h"
 
 void PrintUsage(std::ostream& stream, std::string_view prog_name) {
@@ -26,7 +27,8 @@ void PrintUsage(std::ostream& stream, std::string_view prog_name) {
   stream << "                                  Defaults to false." << std::endl;
   stream << " -s/--save_expected_outputs       Save outputs from baseline model on CPU EP to disk as " << std::endl;
   stream << "                                  output_<index>.raw files. Defaults to false." << std::endl;
-  stream << " -e/--execution_provider ep [EP_ARGS]  The execution provider to test (e.g., qnn or cpu)" << std::endl;
+  stream << " -e/--execution_provider ep [EP_ARGS]  The execution provider to test (e.g., qnn, cpu, or plugin)"
+         << std::endl;
   stream << "                                       Defaults to CPU execution provider running QDQ model." << std::endl;
   stream << " -c/--session_configs \"<key1>|<val1> <key2>|<val2>\"  Session configuration options for EP under test."
          << std::endl;
@@ -34,26 +36,36 @@ void PrintUsage(std::ostream& stream, std::string_view prog_name) {
          << std::endl;
   stream << " -o/--output_file path                 The output file into which to save accuracy results" << std::endl;
   stream << " -a/--expected_accuracy_file path      The file containing expected accuracy results" << std::endl;
+  stream << " --ep_model_name onnx_model_name       The name of the ONNX model to test for EP." << std::endl;
+  stream << "                                       Defaults to 'model.onnx'." << std::endl;
+  stream << " --ground_truth_model_name onnx_model_name       The name of the ONNX model used to get" << std::endl;
+  stream << "                                                 expected output with CPU EP." << std::endl;
+  stream << "                                                 Not used if expected outputs are" << std::endl;
+  stream << "                                                 loaded from file. Defaults to 'model.onnx'." << std::endl;
   stream << " --model model_name                    Model to test. Option can be specified multiple times."
          << std::endl;
   stream << "                                       By default, all found models are tested." << std::endl;
   stream << std::endl;
-  stream << "[EP_ARGS]: Specify EP-specific runtime options as key value pairs." << std::endl;
-  stream << "  Example: -e <provider_name> \"<key1>|<val1> <key2>|<val2>\"" << std::endl;
-  stream << "  [QNN only] [backend_path]: QNN backend path (e.g., 'C:\\Path\\QnnHtp.dll')" << std::endl;
-  stream << "  [QNN only] [profiling_level]: QNN profiling level, options: 'basic', 'detailed'," << std::endl;
+  stream << "[EP_ARGS]: Specify EP-specific options." << std::endl;
+  stream << "  CPU EP: -e qnn" << std::endl;
+  stream << "  QNN EP: -e qnn \"<key1>|<val1> <key2>|<val2>\"" << std::endl;
+  stream << "      Valid QNN key/val pairs:" << std::endl;
+  stream << "        [backend_path]: QNN backend path (e.g., 'C:\\Path\\QnnHtp.dll')" << std::endl;
+  stream << "        [profiling_level]: QNN profiling level, options: 'basic', 'detailed'," << std::endl;
   stream << "                                default 'off'." << std::endl;
-  stream << "  [QNN only] [rpc_control_latency]: QNN rpc control latency. default to 10." << std::endl;
-  stream << "  [QNN only] [vtcm_mb]: QNN VTCM size in MB. default to 0 (not set)." << std::endl;
-  stream << "  [QNN only] [htp_performance_mode]: QNN performance mode, options: 'burst', 'balanced', " << std::endl;
+  stream << "        [rpc_control_latency]: QNN rpc control latency. default to 10." << std::endl;
+  stream << "        [vtcm_mb]: QNN VTCM size in MB. default to 0 (not set)." << std::endl;
+  stream << "        [htp_performance_mode]: QNN performance mode, options: 'burst', 'balanced', " << std::endl;
   stream << "             'default', 'high_performance', 'high_power_saver'," << std::endl;
   stream << "             'low_balanced', 'low_power_saver', 'power_saver'," << std::endl;
   stream << "             'sustained_high_performance'. Defaults to 'default'." << std::endl;
-  stream << "  [QNN only] [qnn_context_priority]: QNN context priority, options: 'low', 'normal'," << std::endl;
+  stream << "        [qnn_context_priority]: QNN context priority, options: 'low', 'normal'," << std::endl;
   stream << "             'normal_high', 'high'. Defaults to 'normal'." << std::endl;
-  stream << "  [QNN only] [qnn_saver_path]: QNN Saver backend path. e.g 'C:\\Path\\QnnSaver.dll'." << std::endl;
-  stream << "  [QNN only] [htp_graph_finalization_optimization_mode]: QNN graph finalization" << std::endl;
+  stream << "        [qnn_saver_path]: QNN Saver backend path. e.g 'C:\\Path\\QnnSaver.dll'." << std::endl;
+  stream << "        [htp_graph_finalization_optimization_mode]: QNN graph finalization" << std::endl;
   stream << "             optimization mode, options: '0', '1', '2', '3'. Default is '0'." << std::endl;
+  stream << "  Plugin EP: -e plugin <ep_name> <plugin_library_path> \"<key1>|<val1> <key2>|<val2>\"" << std::endl;
+  stream << "      All key/value pairs are considered session options." << std::endl;
 }
 
 static bool ParseSessionConfigs(const std::string& configs_string,
@@ -90,7 +102,6 @@ static bool ParseSessionConfigs(const std::string& configs_string,
 }
 
 static void SetDefaultCpuEpArgs(AppArgs& app_args) {
-  app_args.uses_qdq_model = true;  // TODO: Make configurable?
   app_args.supports_multithread_inference = true;
   app_args.execution_provider = "cpu";
 }
@@ -129,7 +140,7 @@ bool GetValidPath(std::string_view prog_name, std::string_view provided_path, bo
   return true;
 }
 
-bool ParseCmdLineArgs(AppArgs& app_args, int argc, char** argv) {
+bool ParseCmdLineArgs(AppArgs& app_args, int argc, char** argv, Ort::Env& env) {
   CmdArgParser cmd_args(argc, argv);
   std::string_view prog_name = cmd_args.GetNext();
 
@@ -150,6 +161,22 @@ bool ParseCmdLineArgs(AppArgs& app_args, int argc, char** argv) {
       }
 
       app_args.output_file = cmd_args.GetNext();
+    } else if (arg == "--ep_model_name") {
+      if (!cmd_args.HasNext()) {
+        std::cerr << "[ERROR]: Must provide an argument after the " << arg << " option" << std::endl;
+        PrintUsage(std::cerr, prog_name);
+        return false;
+      }
+
+      app_args.ep_model_name = cmd_args.GetNext();
+    } else if (arg == "--ground_truth_model_name") {
+      if (!cmd_args.HasNext()) {
+        std::cerr << "[ERROR]: Must provide an argument after the " << arg << " option" << std::endl;
+        PrintUsage(std::cerr, prog_name);
+        return false;
+      }
+
+      app_args.ground_truth_model_name = cmd_args.GetNext();
     } else if (arg == "-j" || arg == "--num_threads") {
       if (!cmd_args.HasNext()) {
         std::cerr << "[ERROR]: Must provide an argument after the " << arg << " option" << std::endl;
@@ -199,6 +226,10 @@ bool ParseCmdLineArgs(AppArgs& app_args, int argc, char** argv) {
         }
       } else if (arg == "cpu") {
         SetDefaultCpuEpArgs(app_args);
+      } else if (arg == "plugin") {
+        if (!ParseEpPluginArgs(app_args, cmd_args, prog_name, env)) {
+          return false;
+        }
       } else {
         std::cerr << "[ERROR]: Unsupported execution provider: " << arg << std::endl;
         PrintUsage(std::cerr, prog_name);
@@ -244,6 +275,14 @@ bool ParseCmdLineArgs(AppArgs& app_args, int argc, char** argv) {
     std::cerr << "[ERROR]: Must provide a models directory." << std::endl << std::endl;
     PrintUsage(std::cerr, prog_name);
     return false;
+  }
+
+  if (app_args.ep_model_name.empty()) {
+    app_args.ep_model_name = "model.onnx";
+  }
+
+  if (app_args.ground_truth_model_name.empty()) {
+    app_args.ground_truth_model_name = "model.onnx";
   }
 
   if (app_args.execution_provider.empty()) {

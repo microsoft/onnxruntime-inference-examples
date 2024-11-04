@@ -10,12 +10,11 @@
 int main(int argc, char** argv) {
   try {
     AppArgs args;
+    Ort::Env env;
 
-    if (!ParseCmdLineArgs(args, argc, argv)) {
+    if (!ParseCmdLineArgs(args, argc, argv, env)) {
       return 1;
     }
-
-    Ort::Env env;
 
     if (!RunAccuracyTest(env, args)) {
       return 1;

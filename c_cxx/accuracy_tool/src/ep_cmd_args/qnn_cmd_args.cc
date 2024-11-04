@@ -116,8 +116,7 @@ bool ParseQnnEpArgs(AppArgs& app_args, CmdArgParser& cmd_args) {
   }
 
   app_args.session_options.AppendExecutionProvider("QNN", qnn_options);
-  app_args.uses_qdq_model = backend_iter->second.rfind("QnnHtp") != std::string::npos;
-  app_args.supports_multithread_inference = false;  // TODO: Work on enabling multi-threaded inference.
+  app_args.supports_multithread_inference = true;
   app_args.execution_provider = "qnn";
   return true;
 }

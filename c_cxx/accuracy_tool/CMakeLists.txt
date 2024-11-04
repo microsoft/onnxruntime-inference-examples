@@ -66,6 +66,8 @@ add_executable(accuracy_test src/main.cc
                              src/cmd_args.cc
                              src/ep_cmd_args/qnn_cmd_args.h
                              src/ep_cmd_args/qnn_cmd_args.cc
+                             src/ep_cmd_args/plugin_cmd_args.h
+                             src/ep_cmd_args/plugin_cmd_args.cc
                              src/basic_utils.h
                              src/basic_utils.cc
                              src/model_io_utils.h

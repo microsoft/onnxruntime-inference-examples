@@ -112,8 +112,7 @@ models/
  |
  +--> resnet/
  |      |
- |      +--> model.onnx
- |      +--> model.qdq.onnx (quantized model only required for certains EPs like QNN)
+ |      +--> model.onnx (see options --ground_truth_model_name and --ep_model_name)
  |      |
  |      +--> test_data_set_0/
  |      |        |
@@ -127,17 +126,16 @@ models/
  |
  +--> mobilenet/
         |
-        +--> model.onnx
-        +--> model.qdq.onnx
+        +--> model.onnx (Note: same model name)
         |
         +--> test_data_set_0/
         +--> test_data_set_1/
 ```
 
-- All ONNX models must be named either `model.onnx` or `model.qdq.onnx`.
-  - The `model.qdq.onnx` file is only necessary for execution providers that run quantized models (e.g., QNN).
+- By default, tool expects all ONNX models to be named `model.onnx`.
+  - Use the option `--ground_truth_model_name` to set the name of the model used to get the expected (ground-truth) output with CPU EP. Defaults to `model.onnx`.
+  - Use the option `--ep_model_name` to set the name of the model loaded by the EP under test. Defaults to `model.onnx`.
   - If the expected output files are not provided, the expected outputs will be obtained by running `model.onnx` on the CPU execution provider.
-  - Both `model.qdq.onnx` and `model.onnx` must have the same input and output signature (i.e., same names, shapes, types, and ordering).
 - The dataset directories must be named `test_data_set_<index>/`, where `<index>` ranges from 0 to the number of dataset directories.
 - The raw input files must be named `input_<index>.raw`, where `<index>` corresponds to the input's index in the ONNX model.
 - The raw output files are not required if `model.onnx` is provided.
@@ -158,40 +156,52 @@ Usage: accuracy_test.exe [OPTIONS...] test_models_path
                                   Defaults to false.
  -s/--save_expected_outputs       Save outputs from baseline model on CPU EP to disk as
                                   output_<index>.raw files. Defaults to false.
- -e/--execution_provider ep [EP_ARGS]  The execution provider to test (e.g., qnn or cpu)
+ -e/--execution_provider ep [EP_ARGS]  The execution provider to test (e.g., qnn, cpu, or plugin)
                                        Defaults to CPU execution provider running QDQ model.
  -c/--session_configs "<key1>|<val1> <key2>|<val2>"  Session configuration options for EP under test.
                                                      Refer to onnxruntime_session_options_config_keys.h
  -o/--output_file path                 The output file into which to save accuracy results
  -a/--expected_accuracy_file path      The file containing expected accuracy results
+ --ep_model_name onnx_model_name       The name of the ONNX model to test for EP.
+                                       Defaults to 'model.onnx'.
+ --ground_truth_model_name onnx_model_name       The name of the ONNX model used to get
+                                                 expected output with CPU EP.
+                                                 Not used if expected outputs are
+                                                 loaded from file. Defaults to 'model.onnx'.
  --model model_name                    Model to test. Option can be specified multiple times.
                                        By default, all found models are tested.
 
-[EP_ARGS]: Specify EP-specific runtime options as key value pairs.
-  Example: -e <provider_name> "<key1>|<val1> <key2>|<val2>"
-  [QNN only] [backend_path]: QNN backend path (e.g., 'C:\Path\QnnHtp.dll')
-  [QNN only] [profiling_level]: QNN profiling level, options: 'basic', 'detailed',
+[EP_ARGS]: Specify EP-specific options.
+  CPU EP: -e qnn
+  QNN EP: -e qnn "<key1>|<val1> <key2>|<val2>"
+      Valid QNN key/val pairs:
+        [backend_path]: QNN backend path (e.g., 'C:\Path\QnnHtp.dll')
+        [profiling_level]: QNN profiling level, options: 'basic', 'detailed',
                                 default 'off'.
-  [QNN only] [rpc_control_latency]: QNN rpc control latency. default to 10.
-  [QNN only] [vtcm_mb]: QNN VTCM size in MB. default to 0 (not set).
-  [QNN only] [htp_performance_mode]: QNN performance mode, options: 'burst', 'balanced',
+        [rpc_control_latency]: QNN rpc control latency. default to 10.
+        [vtcm_mb]: QNN VTCM size in MB. default to 0 (not set).
+        [htp_performance_mode]: QNN performance mode, options: 'burst', 'balanced',
              'default', 'high_performance', 'high_power_saver',
              'low_balanced', 'low_power_saver', 'power_saver',
              'sustained_high_performance'. Defaults to 'default'.
-  [QNN only] [qnn_context_priority]: QNN context priority, options: 'low', 'normal',
+        [qnn_context_priority]: QNN context priority, options: 'low', 'normal',
              'normal_high', 'high'. Defaults to 'normal'.
-  [QNN only] [qnn_saver_path]: QNN Saver backend path. e.g 'C:\Path\QnnSaver.dll'.
-  [QNN only] [htp_graph_finalization_optimization_mode]: QNN graph finalization
+        [qnn_saver_path]: QNN Saver backend path. e.g 'C:\Path\QnnSaver.dll'.
+        [htp_graph_finalization_optimization_mode]: QNN graph finalization
              optimization mode, options: '0', '1', '2', '3'. Default is '0'.
+  Plugin EP: -e plugin <ep_name> <plugin_library_path> "<key1>|<val1> <key2>|<val2>"
+      All key/value pairs are considered session options.
 ```
 
 ## Usage examples
 ### Measure accuracy of QDQ model on CPU EP
+- Assumes each model directory has both a `model.onnx` and a `model.qdq.onnx`.
 - The expected outputs are generated by running the float32 `model.onnx` on CPU EP.
+- The actual outputs are generated by running the QDQ `model.qdq.onnx` on CPU EP.
 - Accuracy results (SNR) are dumped to stdout
 
 ```shell
-$ .\accuracy_test -e cpu models
+$ .\accuracy_test -e cpu --ep_model_name model.qdq.onnx models
 
 [INFO]: Accuracy Results (CSV format):
 
@@ -203,7 +213,7 @@ model_a/test_data_set_2,16.712691432087745
 
 Use the `-o` command-line option to write the accuracy results to file.
 ```shell
-$ .\accuracy_test -o results.csv -e cpu models
+$ .\accuracy_test -o results.csv -e cpu --ep_model_name model.qdq.onnx models
 
 [INFO]: Saved accuracy results to results.csv
 ```
@@ -211,7 +221,7 @@ $ .\accuracy_test -o results.csv -e cpu models
 ### Dump (and load) the expected outputs to disk
 Use the `-s` command-line option to dump the expected outputs to disk (e.g., output_0.raw). The expected outputs are obtained by running `model.onnx` on the CPU EP regardless of the EP passed to the `-e` command-line option.
 ```shell
-$ .\accuracy_test -s -e cpu models
+$ .\accuracy_test -s -e cpu --ep_model_name model.qdq.onnx models
 
 [INFO]: Accuracy Results (CSV format):
 
@@ -221,7 +231,7 @@ model_a/test_data_set_0,17.640392603599537
 
 Use the `-l` command-line option to load the expected outputs directly from `output_<index>.raw` files.
 ```shell
-$ .\accuracy_test -l -e cpu models
+$ .\accuracy_test -l -e cpu --ep_model_name model.qdq.onnx models
 
 [INFO]: Accuracy Results (CSV format):
 
@@ -230,13 +240,15 @@ model_a/test_data_set_0,17.640392603599537
 ```
 
 ### Measure accuracy of QDQ model on QNN EP and detect regressions
+- Assumes each model directory has both a `model.onnx` and a `model.qdq.onnx`.
 - The expected outputs are generated by running the float32 `model.onnx` on CPU EP.
+- The actual outputs are generated by running the QDQ `model.qdq.onnx` on QNN EP.
 - Accuracy results (SNR) are dumped to results_0.csv
 - Uses the `-c` command-line option to disable fallback to CPU EP (i.e., entire graph runs on QNN EP).
 - Note: can also use the `-s` or `-l` command-line options to save or load the expected outputs as demonstrated above.
 
 ```shell
-$ .\accuracy_test -e qnn "backend_path|QnnHtp.dll" -c "session.disable_cpu_ep_fallback|1" -o results_0.csv models
+$ .\accuracy_test -e qnn "backend_path|QnnHtp.dll" -c "session.disable_cpu_ep_fallback|1" -o results_0.csv --ep_model_name model.qdq.onnx models
 
 [INFO]: Accuracy Results (CSV format):
 
@@ -249,7 +261,7 @@ model_a/test_data_set_2,16.812691432087745
 Use the `-a` command-line option to compare subsequent runs with previous accuracy results (e.g., results_0.csv). This can help detect accuracy regressions.
 
 ```shell
-.\accuracy_test -a results_o.csv -e qnn "backend_path|QnnHtp.dll" -c "session.disable_cpu_ep_fallback|1" models
+.\accuracy_test -a results_o.csv -e qnn "backend_path|QnnHtp.dll" -c "session.disable_cpu_ep_fallback|1" --ep_model_name model.qdq.onnx models
 
 [INFO]: Accuracy Results (CSV format):
 
@@ -270,3 +282,22 @@ model_a/test_data_set_0,16.640392603599537
 [INFO]: 10/11 tests passed.
 [INFO]: 1/11 tests failed.
 ```
+
+### Measure accuracy of model with "plugin" EP
+- Assumes the models/ directory contains all models to test.
+- Assumes each individual model directory has a `model.onnx` file.
+- The expected outputs are generated by running the float32 `model.onnx` on CPU EP.
+- The actual outputs are generated by running the same `model.onnx` on the plugin EP.
+- Accuracy results (SNR) are dumped to stdout
+
+```shell
+$ .\accuracy_test -e plugin outTreeEP outTreeEP.dll "key1|val1 key2|val2" --ep_model_name model.qdq.onnx models
+
+[INFO]: Accuracy Results (CSV format):
+
+model_a/test_data_set_0,17.640392603599537
+model_a/test_data_set_1,21.326599488217347
+model_a/test_data_set_2,16.712691432087745
+...
+```
+

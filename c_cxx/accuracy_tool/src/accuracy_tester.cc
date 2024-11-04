@@ -83,22 +83,10 @@ bool RunAccuracyTest(Ort::Env& env, const AppArgs& app_args) {
     std::cout << "[INFO]: Testing model " << model_name << " (" << dataset_paths.size() << " datasets) ... "
               << std::endl;
 
-    std::filesystem::path base_model_path = model_dir_path / "model.onnx";
-    std::filesystem::path ep_model_path;
-
-    // Determine which model will be used by the EP under test.
-    // Some EPs will need to use a QDQ model instead of the the original model.
-    if (app_args.uses_qdq_model) {
-      std::filesystem::path qdq_model_path = model_dir_path / "model.qdq.onnx";
-
-      if (!std::filesystem::is_regular_file(qdq_model_path)) {
-        std::cerr << "[ERROR]: Execution provider '" << app_args.execution_provider << "' requires a QDQ model."
-                  << std::endl;
-        return false;
-      }
-      ep_model_path = std::move(qdq_model_path);
-    } else {
-      ep_model_path = base_model_path;
+    std::filesystem::path ep_model_path = model_dir_path / app_args.ep_model_name;
+    if (!std::filesystem::is_regular_file(ep_model_path)) {
+      std::cerr << "[ERROR]: Cannot find ONNX model " << ep_model_path << " with which to test the EP." << std::endl;
+      return false;
     }
 
     std::vector<std::unique_ptr<char[]>> all_inputs;
@@ -106,6 +94,7 @@ bool RunAccuracyTest(Ort::Env& env, const AppArgs& app_args) {
 
     // Load expected outputs from base model running on CPU EP (unless user wants to use outputs from disk).
     if (!app_args.load_expected_outputs_from_disk) {
+      std::filesystem::path base_model_path = model_dir_path / app_args.ground_truth_model_name;
       if (!std::filesystem::is_regular_file(base_model_path)) {
         std::cerr << "[ERROR]: Cannot find ONNX model " << base_model_path << " from which to get expected outputs."
                   << std::endl;

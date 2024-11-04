@@ -57,7 +57,8 @@ struct AppArgs {
   std::filesystem::path expected_accuracy_file;
   std::unordered_set<std::string> only_models;  // Only run these models.
   std::string execution_provider;
-  bool uses_qdq_model = false;
+  std::string ep_model_name;
+  std::string ground_truth_model_name;
   bool supports_multithread_inference = true;
   bool save_expected_outputs_to_disk = false;
   bool load_expected_outputs_from_disk = false;
@@ -71,8 +72,9 @@ struct AppArgs {
 /// <param name="app_args">The output args data structure to initialize</param>
 /// <param name="argc">The number of command-line arguments given to main()</param>
 /// <param name="argv">The array of command-line arguments given to main()</param>
+/// <param name="env">The ONNX Runtime environment object</param>
 /// <returns>True if successfully parsed command-line arguments</returns>
-bool ParseCmdLineArgs(AppArgs& app_args, int argc, char** argv);
+bool ParseCmdLineArgs(AppArgs& app_args, int argc, char** argv, Ort::Env& env);
 
 /// <summary>
 /// Prints how to call the program (i.e., the "help" message).
