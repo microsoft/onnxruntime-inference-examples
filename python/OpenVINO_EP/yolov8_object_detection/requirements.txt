@@ -1,4 +1,0 @@
-ultralytics==8.0.100
-onnxruntime-openvino
-onnx
-setuptools==65.5.1 
