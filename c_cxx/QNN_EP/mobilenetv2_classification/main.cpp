@@ -253,6 +253,7 @@ int main(int argc, char* argv[]) {
   std::string model_path(argv[2]);
   std::string input_path(argv[3]);
 
+  std::locale::global(std::locale("en_US.UTF-8"));
   try {
       run_ort_qnn_ep(backend, model_path, input_path, generate_ctx, float32_model);
   } catch (const std::exception& e) {
