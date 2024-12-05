@@ -219,7 +219,7 @@ int main(int argc, char* argv[])
     if (useOPENVINO) {
         // Using OPENVINO backend
         OrtOpenVINOProviderOptions options;
-        options.device_type = "CPU_FP32"; //Other options are: GPU_FP32, GPU_FP16, MYRIAD_FP16
+        options.device_type = "CPU";
         std::cout << "OpenVINO device type is set to: " << options.device_type << std::endl;
         sessionOptions.AppendExecutionProvider_OpenVINO(options);
     }
