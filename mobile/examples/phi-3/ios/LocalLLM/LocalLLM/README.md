@@ -109,3 +109,4 @@ Upon app launching, Xcode will automatically copy and install the model files fr
 ***Notice:*** The current Xcode project runs on iOS 16.6, feel free to adjust latest iOS/build for lates iOS versions accordingly.
 
 ![alt text](<Simulator Screenshot - iPhone 16.png>)
+![alt text](<Screenshot2.jpg>)
