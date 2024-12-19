@@ -10,12 +10,12 @@ struct Message: Identifiable {
 }
 
 struct ContentView: View {
-    @State private var userInput: String = ""
-    @State private var messages: [Message] = []  // Store chat messages locally
-    @State private var isGenerating: Bool = false  // Track token generation state
-    @State private var stats: String = ""  // token generation stats
-    @State private var showAlert: Bool = false
-    @State private var errorMessage: String = ""
+  @State private var userInput: String = ""
+  @State private var messages: [Message] = []  // Store chat messages locally
+  @State private var isGenerating: Bool = false  // Track token generation state
+  @State private var stats: String = ""  // token generation stats
+  @State private var showAlert: Bool = false
+  @State private var errorMessage: String = ""
 
   private let generator = GenAIGenerator()
 

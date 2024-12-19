@@ -20,11 +20,6 @@ const size_t kMaxTokens = 64;
 
 typedef std::chrono::steady_clock Clock;
 typedef std::chrono::time_point<Clock> TimePoint;
-static std::unique_ptr<OgaModel> model = nullptr;
-static std::unique_ptr<OgaTokenizer> tokenizer = nullptr;
-
-typedef std::chrono::steady_clock Clock;
-typedef std::chrono::time_point<Clock> TimePoint;
 
 - (instancetype)init {
   self = [super init];
