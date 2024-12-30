@@ -25,9 +25,10 @@ In this example, we load onnxruntime, create an inference session with a simple 
    ```
    this generates the bundle file `./dist/bundle.min.js`
 
-3. use NPM package `light-server` to serve the current folder at http://localhost:8080/
+3. use NPM package `lite-server` to serve the current folder
    ```sh
-   npx light-server -s . -p 8080
+   npm install lite-server --save-dev
+   npx lite-server
    ```
 
-4. open your browser and navigate to the URL.
+4. open your browser and navigate to the URL in case it does not open automatically.
