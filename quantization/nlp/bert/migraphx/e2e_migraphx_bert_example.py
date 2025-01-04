@@ -298,6 +298,14 @@ def parse_input_args():
     )
 
     parser.add_argument(
+        "--fp8",
+        action="store_true",
+        required=False,
+        default=False,
+        help='Perform fp8 quantization on the model before running inference',
+    )
+
+    parser.add_argument(
         "--ep",
         action="store",
         required=False,
@@ -434,7 +442,7 @@ def output_run_config(flags, samples):
     print ("filename:" + flags.model)
     print ("Samples: " + str(samples) + " Batch size: " + str(flags.batch))
     print ("Sequence length: " + str(flags.seq_len))
-    print ("Model Quantization: fp16:" + str(flags.fp16) + " int8:" + str(flags.int8))
+    print ("Model Quantization: fp16:" + str(flags.fp16) + " int8:" + str(flags.int8) + "fp8:" + str(flags.fp8))
     if flags.int8:
         if flags.ort_quant:
             print ("Quantizer: Onnxruntime")
@@ -525,7 +533,7 @@ if __name__ == '__main__':
 
     model_quants = "" 
 
-    if flags.int8:
+    if flags.int8 or flags.fp8:
         model = onnx.load_model(model_path)
 
         # Generate INT8 calibration cache
@@ -585,12 +593,16 @@ if __name__ == '__main__':
             qdq_model_path = model_path
             print("Int8 Quantization Done with " + cal_ep)
             #Quantize with MIGraphX's INT8 quantizer instead 
-            os.environ["ORT_MIGRAPHX_INT8_ENABLE"] = "1"  # Enable MIGRAPHX INT8 precision
+            if flags.int8:
+                os.environ["ORT_MIGRAPHX_INT8_ENABLE"] = "1"  # Enable MIGRAPHX INT8 precision
+            else:
+                os.environ["ORT_MIGRAPHX_FP8_ENABLE"] = "1"  # Enable MIGRAPHX INT8 precision
             os.environ["ORT_MIGRAPHX_INT8_CALIBRATION_TABLE_NAME"] = "calibration.flatbuffers"  # Calibration table name
             os.environ["ORT_MIGRAPHX_INT8_NATIVE_CALIBRATION_TABLE"] = "0"  # Calibration table name
     else:
         qdq_model_path = model_path
         os.environ["ORT_MIGRAPHX_INT8_ENABLE"] = "0"  # Disable MIGRAPHX INT8 precision
+        os.environ["ORT_MIGRAPHX_FP8_ENABLE"] = "0"  # Disable MIGRAPHX INT8 precision
 
     # No fp16 cal needed, MIGraphX will handle that through Onnxruntime & MIGraphX Execution Provider during compile
     if flags.fp16:
