@@ -1,14 +1,14 @@
 import os
 import onnx
-import glob
 import scipy.io
 import numpy as np
 import logging
 from PIL import Image
 import onnx
 import onnxruntime
-from onnxruntime.quantization import CalibrationDataReader, create_calibrator, write_calibration_table
+import time
 
+from onnxruntime.quantization import CalibrationDataReader, create_calibrator, write_calibration_table
 
 class ImageNetDataReader(CalibrationDataReader):
     def __init__(self,
@@ -126,10 +126,10 @@ class ImageNetDataReader(CalibrationDataReader):
         return: list of matrices characterizing multiple images
         '''
         def preprocess_images(input, channels=3, height=224, width=224):
-            image = input.resize((width, height), Image.ANTIALIAS)
+            image = input.resize((width, height), Image.Resampling.LANCZOS)
             input_data = np.asarray(image).astype(np.float32)
             if len(input_data.shape) != 2:
-                input_data = input_data.transpose([2, 0, 1])
+                input_data = input_data.transpose([2, 0, 1])[:3]
             else:
                 input_data = np.stack([input_data] * 3)
             mean = np.array([0.079, 0.05, 0]) + 0.406
@@ -217,6 +217,7 @@ class ImageClassificationEvaluator:
         self.data_reader = data_reader
         self.providers = providers
         self.prediction_result_list = []
+        self.inference_latency_list = []
         self.synset_id = synset_id
 
     def get_result(self):
@@ -233,7 +234,12 @@ class ImageClassificationEvaluator:
             inputs = self.data_reader.get_next()
             if not inputs:
                 break
+            
+            start_ns = time.perf_counter_ns()
             output = session.run(None, inputs)
+            end_ns = time.perf_counter_ns()
+            self.inference_latency_list.append(end_ns - start_ns)
+            
             inference_outputs_list.append(output)
         self.prediction_result_list = inference_outputs_list
 
@@ -254,6 +260,9 @@ class ImageClassificationEvaluator:
             i = i + batch_size
         print("top 1: ", self.top_k_accuracy(self.synset_id, y_prediction, k=1))
         print("top 5: ", self.top_k_accuracy(self.synset_id, y_prediction, k=5))
+        if self.inference_latency_list:
+            print("average latency:", sum(self.inference_latency_list) / len(self.inference_latency_list) / 1e6, " ms")
+        
 
 
 def convert_model_batch_to_dynamic(model_path):
@@ -303,7 +312,7 @@ if __name__ == '__main__':
     4. Extract development kit to 'ILSVRC2012/devkit'. Two files in the development kit are used, 'ILSVRC2012_validation_ground_truth.txt' and 'meta.mat'.
     5. Download 'synset_words.txt' from https://github.com/HoldenCaulfieldRye/caffe/blob/master/data/ilsvrc12/synset_words.txt into 'ILSVRC2012/'.
     
-    Please download Resnet50 model from ONNX model zoo https://github.com/onnx/models/blob/master/vision/classification/resnet/model/resnet50-v2-7.tar.gz
+    Please download Resnet50 model from ONNX model zoo https://github.com/onnx/models/raw/refs/heads/main/validated/vision/classification/resnet/model/resnet50-v2-7.onnx
     Untar the model into the workspace
     '''
 
@@ -316,13 +325,6 @@ if __name__ == '__main__':
 
     # INT8 calibration setting
     calibration_table_generation_enable = True  # Enable/Disable INT8 calibration
-
-    # TensorRT EP INT8 settings
-    os.environ["ORT_TENSORRT_FP16_ENABLE"] = "1"  # Enable FP16 precision
-    os.environ["ORT_TENSORRT_INT8_ENABLE"] = "1"  # Enable INT8 precision
-    os.environ["ORT_TENSORRT_INT8_CALIBRATION_TABLE_NAME"] = "calibration.flatbuffers"  # Calibration table name
-    os.environ["ORT_TENSORRT_ENGINE_CACHE_ENABLE"] = "1"  # Enable engine caching
-    execution_provider = ["TensorrtExecutionProvider"]
 
     # Convert static batch to dynamic batch
     [new_model_path, input_name] = convert_model_batch_to_dynamic(model_path)
@@ -343,7 +345,7 @@ if __name__ == '__main__':
                                          model_path=augmented_model_path,
                                          input_name=input_name)
         calibrator.collect_data(data_reader)
-        write_calibration_table(calibrator.compute_range())
+        write_calibration_table(calibrator.compute_data())
 
     # Run prediction in Tensorrt EP
     data_reader = ImageNetDataReader(ilsvrc2012_dataset_path,
@@ -355,7 +357,30 @@ if __name__ == '__main__':
                                      input_name=input_name)
     synset_id = data_reader.get_synset_id(ilsvrc2012_dataset_path, calibration_dataset_size,
                                           prediction_dataset_size)  # Generate synset id
-    evaluator = ImageClassificationEvaluator(new_model_path, synset_id, data_reader, providers=execution_provider)
+
+    # providers = ["CUDAExecutionProvider"]
+    # -----H100-----
+    #   top 1:  0.7419183673469387
+    #   top 5:  0.9174897959183673
+    #   average latency: 5.676715467755102  ms
+    
+    # providers = [('TensorrtExecutionProvider', {"trt_fp16_enable": True})]
+    # -----H100-----
+    # top 1:  0.7421020408163266
+    # top 5:  0.917530612244898
+    # average latency: 27.816876598367347  ms
+    
+    providers = [('TensorrtExecutionProvider', {
+                  "trt_fp16_enable": True,
+                  "trt_int8_enable": True,
+                  "trt_int8_calibration_table_name": "calibration.flatbuffers",
+                  "trt_engine_cache_enable": True})]
+    # -----H100-----
+    #   top 1:  0.7101020408163266
+    #   top 5:  0.898061224489796
+    #   average latency: 2.2716067718367348  ms
+    
+    evaluator = ImageClassificationEvaluator(new_model_path, synset_id, data_reader, providers=providers)
     evaluator.predict()
     result = evaluator.get_result()
     evaluator.evaluate(result)
