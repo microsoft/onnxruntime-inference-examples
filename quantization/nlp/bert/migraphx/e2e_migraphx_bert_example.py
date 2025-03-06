@@ -324,6 +324,15 @@ def parse_input_args():
     )
 
     parser.add_argument(
+        "--calibration_table",
+        action="store",
+        required=False,
+        default="bert_calibration_table_100_int8.flatbuffers",
+        type=str,
+        help='use a previously created calibration table" default is bert_calibration_table_100_int8.flatbuffers',
+    )
+
+    parser.add_argument(
         "--model",
         action="store",
         required=False,
@@ -533,42 +542,58 @@ if __name__ == '__main__':
 
     model_quants = "" 
 
+    if flags.int8 and flags.fp8:
+        print("INT8 and FP8 quantization is mutually exclusive for calibration")
+        exit()
+
+    precision=""
+    if flags.int8:
+        precision = precision + "_int8"
+
+    if flags.fp8 :
+        precision = precision + "_fp8"
+
     if flags.int8 or flags.fp8:
         model = onnx.load_model(model_path)
+        native_calibration_table = "False"
 
-        # Generate INT8 calibration cache
-        print("Calibration data compute starts with " + str(cal_ep))
-        calibrator = create_calibrator(model_path, op_types_to_quantize, augmented_model_path=augmented_model_path, calibrate_method=CalibrationMethod.Percentile)
-        calibrator.set_execution_providers([cal_ep]) 
+           calibration_table = "bert_calibration_table_"+ str(flags.cal_num) + precision + ".flatbuffers"
 
-        '''
-        We can use one data reader to do data pre-processing, however,
-        some machines don't have sufficient memory to hold all dataset and all intermediate output,
-        especially using 'Entropy' or 'Percentile' calibrator which collects histogram for tensors.
-        So let multiple data readers to handle different stride of dataset to avoid OOM.
-        '''
-        stride = 10
-        #for i in range(0, calib_num, stride):
-        data_reader = BertDataReader(model_path, input_dataset, input_tokens, batch_size, sequence_lengths[-1], flags.query_len, doc_stride[-1], start_index=0, end_index=calib_num)
-        calibrator.collect_data(data_reader)
+        if os.path.isfile("./" + calibration_table):
+            print("Found previous calibration: " + flags.calibration_table + "Skipping generating table")
+        else:
+            # Generate INT8 calibration cache
+            print("Calibration data compute starts with " + str(cal_ep))
+            calibrator = create_calibrator(model_path, op_types_to_quantize, augmented_model_path=augmented_model_path, calibrate_method=CalibrationMethod.Percentile)
+            calibrator.set_execution_providers([cal_ep]) 
 
-        compute_range = calibrator.compute_data()
+            '''
+            We can use one data reader to do data pre-processing, however,
+            some machines don't have sufficient memory to hold all dataset and all intermediate output,
+            especially using 'Entropy' or 'Percentile' calibrator which collects histogram for tensors.
+            So let multiple data readers to handle different stride of dataset to avoid OOM.
+            '''
+            stride = 10
+            #for i in range(0, calib_num, stride):
+            data_reader = BertDataReader(model_path, input_dataset, input_tokens, batch_size, sequence_lengths[-1], flags.query_len, doc_stride[-1], start_index=0, end_index=calib_num)
+            calibrator.collect_data(data_reader)
 
-        #  ORT returns data as return TensorsData(cal, self.collector.compute_collection_result())
-        #  Need to fix this for serialization but also convert values to float from float32 in order for JSON to correctly
-        #  write out calibration table
-        json_compute_range = {}
-        for k, v in compute_range.data.items():
-            json_compute_range[k] = (float(v.range_value[0]), float(v.range_value[1]))
+            compute_range = calibrator.compute_data()
 
+            #  ORT returns data as return TensorsData(cal, self.collector.compute_collection_result())
+            #  Need to fix this for serialization but also convert values to float from float32 in order for JSON to correctly
+            #  write out calibration table
+            json_compute_range = {}
+            for k, v in compute_range.data.items():
+                json_compute_range[k] = [float(x[0]) for x in values.range_value]
 
-        write_calibration_table(json_compute_range)
-        print("Calibration is done. Calibration cache is saved to calibration.json")
+            write_calibration_table(json_compute_range)
+            print("Calibration is done. Calibration cache is saved to calibration.json")
 
-        model_quants = model_quants + "_int8"
+            model_quants = model_quants + precision
 
         if flags.ort_quant:
-            print("Int8 Quantization Done with Onnxruntime Quantizer")
+            print(precision + " Quantization Done with Onnxruntime Quantizer")
             mode = QuantizationMode.QLinearOps
             # In TRT, it recommended to add QDQ pair to inputs of Add node followed by ReduceMean node.
             # Mirroring here what TRT does in MIGraphX Quantization to be able to perform an apples to apples comparison
@@ -591,44 +616,40 @@ if __name__ == '__main__':
             print("QDQ model is saved to ", qdq_model_path)
         else:
             qdq_model_path = model_path
-            print("Int8 Quantization Done with " + cal_ep)
-            #Quantize with MIGraphX's INT8 quantizer instead 
-            if flags.int8:
-                os.environ["ORT_MIGRAPHX_INT8_ENABLE"] = "1"  # Enable MIGRAPHX INT8 precision
-            else:
-                os.environ["ORT_MIGRAPHX_FP8_ENABLE"] = "1"  # Enable MIGRAPHX INT8 precision
-            os.environ["ORT_MIGRAPHX_INT8_CALIBRATION_TABLE_NAME"] = "calibration.flatbuffers"  # Calibration table name
-            os.environ["ORT_MIGRAPHX_INT8_NATIVE_CALIBRATION_TABLE"] = "0"  # Calibration table name
+            print(precision + " Quantization Done with " + cal_ep)
+            #Quantize with MIGraphX's INT8/FP8 quantizer instead 
     else:
         qdq_model_path = model_path
-        os.environ["ORT_MIGRAPHX_INT8_ENABLE"] = "0"  # Disable MIGRAPHX INT8 precision
-        os.environ["ORT_MIGRAPHX_FP8_ENABLE"] = "0"  # Disable MIGRAPHX INT8 precision
 
     # No fp16 cal needed, MIGraphX will handle that through Onnxruntime & MIGraphX Execution Provider during compile
     if flags.fp16:
-        os.environ["ORT_MIGRAPHX_FP16_ENABLE"] = "1"  # Enable MIGRAPHX FP16 precision
         model_quants = model_quants + "_fp16"
-    else:   
-        os.environ["ORT_MIGRAPHX_FP16_ENABLE"] = "0"  # Disable MIGRAPHX FP16 precision
 
     if flags.save_load:
         model_name = str(qdq_model_path) + "_s" + str(flags.seq_len) + "_b" + str(flags.batch) + str(model_quants) + ".mxr"
         print("save load model from " + str(model_name))
-        os.environ["ORT_MIGRAPHX_SAVE_COMPILED_MODEL"] = "1"
-        os.environ["ORT_MIGRAPHX_LOAD_COMPILED_MODEL"] = "1"
-        os.environ["ORT_MIGRAPHX_SAVE_COMPILE_PATH"] = model_name
-        os.environ["ORT_MIGRAPHX_LOAD_COMPILE_PATH"] = model_name
 
-   # QDQ model inference and get SQUAD prediction 
-    batch_size = flags.batch 
-    data_reader = BertDataReader(qdq_model_path, input_dataset, input_tokens, batch_size, sequence_lengths[-1], flags.query_len, doc_stride[-1], end_index=samples)
-    sess_options = onnxruntime.SessionOptions()
-    if flags.ort_verbose:
+    # QDQ model inference and get SQUAD prediction 
+        batch_size = flags.batch 
+        data_reader = BertDataReader(qdq_model_path, input_dataset, input_tokens, batch_size, sequence_lengths[-1], flags.query_len, doc_stride[-1], end_index=samples)
+        sess_options = onnxruntime.SessionOptions()
+        if flags.ort_verbose:
         sess_options.log_severity_level = 0
         sess_options.log_verbosity_level = 0
 
     sess_options.graph_optimization_level = onnxruntime.GraphOptimizationLevel.ORT_DISABLE_ALL
-    ort_session = onnxruntime.InferenceSession(qdq_model_path, sess_options=sess_options, providers=[ep])
+    ort_session = onnxruntime.InferenceSession(qdq_model_path, sess_options=sess_options, 
+                                                providers=[("MIGraphXExecutionProvider", 
+                                                           {"migraphx_fp8_enable": flags.fp8 and not flags.fp32,
+                                                            "migraphx_int8_enable": not (flags.fp8 or flags.fp32),
+                                                            "migraphx_fp16_enable": flags.fp16 and not flags.fp32,
+                                                            "migraphx_int8_calibration_table_name": calibration_table,
+                                                            "migraphx_use_native_calibration_table": native_calibration_table,
+                                                            "migraphx_save_compiled_model": flags.save_load,
+                                                            "migraphx_save_model_path": model_name,
+                                                            "migraphx_load_compiled_model": flags.save_load,
+                                                            "migraphx_load_model_path": model_name,
+                                                            "migraphx_exhaustive_tune": flags.exhaustive_tune})])
     
     print("Running Inferences")
     latency = [] #Used for timing information
