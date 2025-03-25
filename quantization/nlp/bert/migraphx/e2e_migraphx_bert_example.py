@@ -580,17 +580,21 @@ if __name__ == '__main__':
 
             compute_range = calibrator.compute_data()
 
-            #  ORT returns data as return TensorsData(cal, self.collector.compute_collection_result())
-            #  Need to fix this for serialization but also convert values to float from float32 in order for JSON to correctly
-            #  write out calibration table
-            json_compute_range = {}
-            for k, v in compute_range.data.items():
-                json_compute_range[k] = [float(x[0]) for x in values.range_value]
-
+        print("Writing calibration table")
+        try:
             write_calibration_table(json_compute_range)
-            print("Calibration is done. Calibration cache is saved to calibration.json")
+        except AttributeError as e:
+            calibration_table = {}
+            for k, v in compute_range.data.items():
+                min_val = float(v.range_value[0]) if hasattr(v.range_value[0], 'item') else float(v.range_value[0])
+                max_val = float(v.range_value[1]) if hasattr(v.range_value[1], 'item') else float(v.range_value[1])
+                calibration_table[k] = [min_val, max_val]
 
-            model_quants = model_quants + precision
+            with open("calibration.flatbuffers", "w") as f:
+                json.dump(calibration_table, f)
+        print("Calibration is done. Calibration cache is saved to calibration.json")
+
+        model_quants = model_quants + precision
 
         if flags.ort_quant:
             print(precision + " Quantization Done with Onnxruntime Quantizer")
@@ -634,8 +638,8 @@ if __name__ == '__main__':
         data_reader = BertDataReader(qdq_model_path, input_dataset, input_tokens, batch_size, sequence_lengths[-1], flags.query_len, doc_stride[-1], end_index=samples)
         sess_options = onnxruntime.SessionOptions()
         if flags.ort_verbose:
-        sess_options.log_severity_level = 0
-        sess_options.log_verbosity_level = 0
+            sess_options.log_severity_level = 0
+            sess_options.log_verbosity_level = 0
 
     sess_options.graph_optimization_level = onnxruntime.GraphOptimizationLevel.ORT_DISABLE_ALL
     ort_session = onnxruntime.InferenceSession(qdq_model_path, sess_options=sess_options, 
