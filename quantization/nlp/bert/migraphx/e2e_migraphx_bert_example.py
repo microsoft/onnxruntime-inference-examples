@@ -327,9 +327,9 @@ def parse_input_args():
         "--calibration_table",
         action="store",
         required=False,
-        default="bert_calibration_table_100_int8.flatbuffers",
+        default="./bert_calibration_table_100_int8.flatbuffers",
         type=str,
-        help='use a previously created calibration table" default is bert_calibration_table_100_int8.flatbuffers',
+        help='use a previously created calibration table" default is ./bert_calibration_table_100_int8.flatbuffers',
     )
 
     parser.add_argument(
@@ -451,7 +451,7 @@ def output_run_config(flags, samples):
     print ("filename:" + flags.model)
     print ("Samples: " + str(samples) + " Batch size: " + str(flags.batch))
     print ("Sequence length: " + str(flags.seq_len))
-    print ("Model Quantization: fp16:" + str(flags.fp16) + " int8:" + str(flags.int8) + "fp8:" + str(flags.fp8))
+    print ("Model Quantization: fp16:" + str(flags.fp16) + " int8:" + str(flags.int8) + " fp8:" + str(flags.fp8))
     if flags.int8:
         if flags.ort_quant:
             print ("Quantizer: Onnxruntime")
@@ -541,6 +541,7 @@ if __name__ == '__main__':
         samples = flags.batch
 
     model_quants = "" 
+    provider_args = {}
 
     if flags.int8 and flags.fp8:
         print("INT8 and FP8 quantization is mutually exclusive for calibration")
@@ -549,19 +550,23 @@ if __name__ == '__main__':
     precision=""
     if flags.int8:
         precision = precision + "_int8"
+        provider_args["migraphx_int8_enable"] = str(True)
 
     if flags.fp8 :
         precision = precision + "_fp8"
+        provider_args["migraphx_fp8_enable"] = str(True)
 
     if flags.int8 or flags.fp8:
         model = onnx.load_model(model_path)
-        native_calibration_table = "False"
 
-           calibration_table = "bert_calibration_table_"+ str(flags.cal_num) + precision + ".flatbuffers"
-
-        if os.path.isfile("./" + calibration_table):
+        if os.path.isfile("./" + flags.calibration_table):
             print("Found previous calibration: " + flags.calibration_table + "Skipping generating table")
+            provider_args["migraphx_int8_calibration_table_name"] = str(flags.calibration_table)
         else:
+            calibration_table_name = "bert_calibration_table_"+ str(flags.cal_num) + precision + ".flatbuffers"
+            print("Unable to find " + flags.calibration_table + " Generating Table: " + calibration_table_name)
+            provider_args["migraphx_int8_calibration_table_name"] = calibration_table_name
+
             # Generate INT8 calibration cache
             print("Calibration data compute starts with " + str(cal_ep))
             calibrator = create_calibrator(model_path, op_types_to_quantize, augmented_model_path=augmented_model_path, calibrate_method=CalibrationMethod.Percentile)
@@ -575,24 +580,26 @@ if __name__ == '__main__':
             '''
             stride = 10
             #for i in range(0, calib_num, stride):
-            data_reader = BertDataReader(model_path, input_dataset, input_tokens, batch_size, sequence_lengths[-1], flags.query_len, doc_stride[-1], start_index=0, end_index=calib_num)
+            data_reader = BertDataReader(model_path, input_dataset, input_tokens, 1, sequence_lengths[-1], flags.query_len, doc_stride[-1], start_index=0, end_index=calib_num)
             calibrator.collect_data(data_reader)
 
             compute_range = calibrator.compute_data()
 
-        print("Writing calibration table")
-        try:
-            write_calibration_table(json_compute_range)
-        except AttributeError as e:
             calibration_table = {}
-            for k, v in compute_range.data.items():
-                min_val = float(v.range_value[0]) if hasattr(v.range_value[0], 'item') else float(v.range_value[0])
-                max_val = float(v.range_value[1]) if hasattr(v.range_value[1], 'item') else float(v.range_value[1])
-                calibration_table[k] = [min_val, max_val]
+            print("Writing calibration table")
+            try:
+                write_calibration_table(calibration_table)
+            except AttributeError as e:
+                calibration_table = {}
+                for k, v in compute_range.data.items():
+                    min_val = float(v.range_value[0]) if hasattr(v.range_value[0], 'item') else float(v.range_value[0])
+                    max_val = float(v.range_value[1]) if hasattr(v.range_value[1], 'item') else float(v.range_value[1])
+                    calibration_table[k] = [min_val, max_val]
 
-            with open("calibration.flatbuffers", "w") as f:
+            with open(flags.calibration_table, "w") as f:
                 json.dump(calibration_table, f)
-        print("Calibration is done. Calibration cache is saved to calibration.json")
+            print("Calibration is done. Calibration cache is saved to " + calibration_table_name)
+            provider_args["migraphx_int8_calibration_table_name"] = calibration_table_name
 
         model_quants = model_quants + precision
 
@@ -628,32 +635,28 @@ if __name__ == '__main__':
     # No fp16 cal needed, MIGraphX will handle that through Onnxruntime & MIGraphX Execution Provider during compile
     if flags.fp16:
         model_quants = model_quants + "_fp16"
+        provider_args["migraphx_fp16_enable"] = str(True)
 
+    model_name = ""
     if flags.save_load:
         model_name = str(qdq_model_path) + "_s" + str(flags.seq_len) + "_b" + str(flags.batch) + str(model_quants) + ".mxr"
         print("save load model from " + str(model_name))
+        provider_args["migraphx_save_compiled_model"] = flags.save_load
+        provider_args["migraphx_load_compiled_model"] = flags.save_load
+        provider_args["migraphx_save_model_path"] = model_name
+        provider_args["migraphx_load_model_path"] = model_name
 
     # QDQ model inference and get SQUAD prediction 
-        batch_size = flags.batch 
-        data_reader = BertDataReader(qdq_model_path, input_dataset, input_tokens, batch_size, sequence_lengths[-1], flags.query_len, doc_stride[-1], end_index=samples)
-        sess_options = onnxruntime.SessionOptions()
-        if flags.ort_verbose:
-            sess_options.log_severity_level = 0
-            sess_options.log_verbosity_level = 0
+    batch_size = flags.batch 
+    data_reader = BertDataReader(qdq_model_path, input_dataset, input_tokens, batch_size, sequence_lengths[-1], flags.query_len, doc_stride[-1], end_index=samples)
+    sess_options = onnxruntime.SessionOptions()
+    if flags.ort_verbose:
+        sess_options.log_severity_level = 0
+        sess_options.log_verbosity_level = 0
 
     sess_options.graph_optimization_level = onnxruntime.GraphOptimizationLevel.ORT_DISABLE_ALL
     ort_session = onnxruntime.InferenceSession(qdq_model_path, sess_options=sess_options, 
-                                                providers=[("MIGraphXExecutionProvider", 
-                                                           {"migraphx_fp8_enable": flags.fp8 and not flags.fp32,
-                                                            "migraphx_int8_enable": not (flags.fp8 or flags.fp32),
-                                                            "migraphx_fp16_enable": flags.fp16 and not flags.fp32,
-                                                            "migraphx_int8_calibration_table_name": calibration_table,
-                                                            "migraphx_use_native_calibration_table": native_calibration_table,
-                                                            "migraphx_save_compiled_model": flags.save_load,
-                                                            "migraphx_save_model_path": model_name,
-                                                            "migraphx_load_compiled_model": flags.save_load,
-                                                            "migraphx_load_model_path": model_name,
-                                                            "migraphx_exhaustive_tune": flags.exhaustive_tune})])
+                                                providers=[("MIGraphXExecutionProvider", provider_args)])
     
     print("Running Inferences")
     latency = [] #Used for timing information
