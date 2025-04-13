@@ -277,7 +277,7 @@ def get_op_nodes_not_followed_by_specific_op(model, op1, op2):
 
     return not_selected_op1_nodes
 
-def custom_write_calibration_table(calibration_cache, dir="."):
+def custom_write_calibration_table(calibration_cache, filename):
     """
     Helper function to write calibration table to files.
     """
@@ -307,7 +307,7 @@ def custom_write_calibration_table(calibration_cache, dir="."):
 
     json_data = json.dumps(calibration_cache, cls=MyEncoder)
 
-    with open(os.path.join(dir, "calibration.json"), "w") as file:
+    with open(filename, "w") as file:
         file.write(json_data)  # use `json.loads` to do the reverse
 
     # Serialize data using FlatBuffers
@@ -352,7 +352,7 @@ def custom_write_calibration_table(calibration_cache, dir="."):
     builder.Finish(cal_table)
     buf = builder.Output()
 
-    with open(os.path.join(dir, "calibration.flatbuffers"), "wb") as file:
+    with open(filename, "wb") as file:
         file.write(buf)
 
     # Deserialize data (for validation)
@@ -365,7 +365,7 @@ def custom_write_calibration_table(calibration_cache, dir="."):
             logging.info(key_value.Value())
 
     # write plain text
-    with open(os.path.join(dir, "calibration.cache"), "w") as file:
+    with open(filename + ".cache", "w") as file:
         for key in sorted(calibration_cache.keys()):
             values = calibration_cache[key]
             d_values = values.to_dict()
@@ -430,9 +430,9 @@ def parse_input_args():
         "--calibration_table",
         action="store",
         required=False,
-        default="./bert_calibration_table_100_int8.flatbuffers",
+        default="bert_calibration_table_100_int8.flatbuffers",
         type=str,
-        help='use a previously created calibration table" default is ./bert_calibration_table_100_int8.flatbuffers',
+        help='use a previously created calibration table" default is bert_calibration_table_100_int8.flatbuffers',
     )
 
     parser.add_argument(
@@ -661,7 +661,7 @@ if __name__ == '__main__':
 
     if flags.int8 or flags.fp8:
         model = onnx.load_model(model_path)
-
+        provider_args["migraphx_int8_calibration_table_name"] = str(flags.calibration_table)
         if os.path.isfile("./" + flags.calibration_table):
             print("Found previous calibration: " + flags.calibration_table + "Skipping generating table")
             provider_args["migraphx_int8_calibration_table_name"] = str(flags.calibration_table)
@@ -691,45 +691,40 @@ if __name__ == '__main__':
 
             calibration_table = {}
             print("Writing calibration table")
-            try:
-                write_calibration_table(calibration_table)
-            except AttributeError as e:
-                class TensorDataWrapper:
-                    def __init__(self, data_dict):
-                        self.data_dict = data_dict
+            class TensorDataWrapper:
+                def __init__(self, data_dict):
+                    self.data_dict = data_dict
 
-                    def to_dict(self):
-                        return self.data_dict
+                def to_dict(self):
+                    return self.data_dict
 
-                    def __repr__(self):
-                        return repr(self.data_dict)
+                def __repr__(self):
+                    return repr(self.data_dict)
 
-                    def __serializable__(self):
-                        return self.data_dict
+                def __serializable__(self):
+                    return self.data_dict
 
-                calibration_data = {}
-                for k, v in compute_range.data.items():
-                    if hasattr(v, 'to_dict'):
-                        tensor_dict = v.to_dict()
-                        processed_dict = {}
-                        for dk, dv in tensor_dict.items():
-                            if isinstance(dv, np.ndarray):
-                                processed_dict[dk] = dv.item() if dv.size == 1 else dv.tolist()
-                            elif isinstance(dv, np.number):
-                                processed_dict[dk] = dv.item()
-                            else:
-                                processed_dict[dk] = dv
-                        calibration_data[k] = TensorDataWrapper(processed_dict)
-                    else:
-                        calibration_data[k] = v
+            calibration_data = {}
+            for k, v in compute_range.data.items():
+                if hasattr(v, 'to_dict'):
+                    tensor_dict = v.to_dict()
+                    processed_dict = {}
+                    for dk, dv in tensor_dict.items():
+                        if isinstance(dv, np.ndarray):
+                            processed_dict[dk] = dv.item() if dv.size == 1 else dv.tolist()
+                        elif isinstance(dv, np.number):
+                            processed_dict[dk] = dv.item()
+                        else:
+                            processed_dict[dk] = dv
+                    calibration_data[k] = TensorDataWrapper(processed_dict)
+                else:
+                    calibration_data[k] = v
 
-                print("Using custom calibration table function")
-                custom_write_calibration_table(calibration_data)
+            print("Using custom calibration table function")
+            custom_write_calibration_table(calibration_data, calibration_table_name)
 
             print("Calibration is done. Calibration cache is saved to calibration.json")
 
-            with open(flags.calibration_table, "w") as f:
-                json.dump(calibration_table, f)
             print("Calibration is done. Calibration cache is saved to " + calibration_table_name)
             provider_args["migraphx_int8_calibration_table_name"] = calibration_table_name
 
@@ -774,10 +769,7 @@ if __name__ == '__main__':
     if flags.save_load:
         model_name = str(qdq_model_path) + "_s" + str(flags.seq_len) + "_b" + str(flags.batch) + str(model_quants) + ".mxr"
         print("save load model from " + str(model_name))
-        provider_args["migraphx_save_compiled_model"] = flags.save_load
-        provider_args["migraphx_load_compiled_model"] = flags.save_load
-        provider_args["migraphx_save_model_path"] = model_name
-        provider_args["migraphx_load_model_path"] = model_name
+        provider_args["migraphx_model_cache_dir"] = model_name
 
     # QDQ model inference and get SQUAD prediction 
     batch_size = flags.batch 
