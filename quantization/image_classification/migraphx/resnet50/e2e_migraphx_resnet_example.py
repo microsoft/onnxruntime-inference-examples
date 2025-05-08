@@ -568,7 +568,7 @@ if __name__ == '__main__':
         cal_tensors = calibrator.compute_data()
 
         calibration_data = {}
-        for k, v in compute_range.data.items():
+        for k, v in cal_tensors.data.items():
             if hasattr(v, 'to_dict'):
                 tensor_dict = v.to_dict()
                 processed_dict = {}
