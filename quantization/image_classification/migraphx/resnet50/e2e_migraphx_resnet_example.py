@@ -567,6 +567,19 @@ if __name__ == '__main__':
         calibrator.collect_data(data_reader)
         cal_tensors = calibrator.compute_data()
 
+        class TensorDataWrapper:
+            def __init__(self, data_dict):
+                self.data_dict = data_dict
+
+            def to_dict(self):
+                return self.data_dict
+
+            def __repr__(self):
+                return repr(self.data_dict)
+
+            def __serializable__(self):
+                return self.data_dict
+
         calibration_data = {}
         for k, v in cal_tensors.data.items():
             if hasattr(v, 'to_dict'):
