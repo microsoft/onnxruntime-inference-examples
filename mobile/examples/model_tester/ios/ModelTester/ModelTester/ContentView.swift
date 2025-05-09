@@ -15,7 +15,7 @@ struct ContentView: View {
     DispatchQueue.global().async {
       var output: String
       do {
-        guard let modelPath = Bundle.main.path(forResource: "mobilenetv2-12", ofType: "onnx") else {
+        guard let modelPath = Bundle.main.path(forResource: "model", ofType: "onnx") else {
           throw ModelTesterError.runtimeError(msg: "Failed to find model file path.")
         }
 

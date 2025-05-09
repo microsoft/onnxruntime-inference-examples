@@ -9,8 +9,7 @@
 /* Begin PBXBuildFile section */
 		2E163DAB2DCBE38900B4ED4A /* model_runner.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2E163DAA2DCBE38900B4ED4A /* model_runner.cpp */; };
 		2E163DD22DCBEC9F00B4ED4A /* model_runner_objc_wrapper.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2E163DD12DCBEC9200B4ED4A /* model_runner_objc_wrapper.mm */; };
-		2E163DD82DCC23E500B4ED4A /* ssd_mobilenet_v1.onnx in Resources */ = {isa = PBXBuildFile; fileRef = 2E163DD62DCC23E500B4ED4A /* ssd_mobilenet_v1.onnx */; };
-		2E163DDA2DCC3DC600B4ED4A /* mobilenetv2-12.onnx in Resources */ = {isa = PBXBuildFile; fileRef = 2E163DD92DCC3DC600B4ED4A /* mobilenetv2-12.onnx */; };
+		2E5D16F52DCD83DE0097F05B /* model.onnx in Resources */ = {isa = PBXBuildFile; fileRef = 2E5D16F42DCD83DE0097F05B /* model.onnx */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -39,8 +38,7 @@
 		2E163DCF2DCBE98F00B4ED4A /* ModelTester-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "ModelTester-Bridging-Header.h"; sourceTree = "<group>"; };
 		2E163DD02DCBEB0900B4ED4A /* model_runner_objc_wrapper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = model_runner_objc_wrapper.h; sourceTree = "<group>"; };
 		2E163DD12DCBEC9200B4ED4A /* model_runner_objc_wrapper.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = model_runner_objc_wrapper.mm; sourceTree = "<group>"; };
-		2E163DD62DCC23E500B4ED4A /* ssd_mobilenet_v1.onnx */ = {isa = PBXFileReference; lastKnownFileType = file; path = ssd_mobilenet_v1.onnx; sourceTree = "<group>"; };
-		2E163DD92DCC3DC600B4ED4A /* mobilenetv2-12.onnx */ = {isa = PBXFileReference; lastKnownFileType = file; path = "mobilenetv2-12.onnx"; sourceTree = "<group>"; };
+		2E5D16F42DCD83DE0097F05B /* model.onnx */ = {isa = PBXFileReference; lastKnownFileType = file; path = model.onnx; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -130,8 +128,7 @@
 		2E163DD72DCC23E500B4ED4A /* model */ = {
 			isa = PBXGroup;
 			children = (
-				2E163DD92DCC3DC600B4ED4A /* mobilenetv2-12.onnx */,
-				2E163DD62DCC23E500B4ED4A /* ssd_mobilenet_v1.onnx */,
+				2E5D16F42DCD83DE0097F05B /* model.onnx */,
 			);
 			path = model;
 			sourceTree = "<group>";
@@ -258,8 +255,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				2E163DD82DCC23E500B4ED4A /* ssd_mobilenet_v1.onnx in Resources */,
-				2E163DDA2DCC3DC600B4ED4A /* mobilenetv2-12.onnx in Resources */,
+				2E5D16F52DCD83DE0097F05B /* model.onnx in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

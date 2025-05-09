@@ -211,19 +211,16 @@ RunResult Run(const RunConfig& run_config) {
   return run_result;
 }
 
-std::string GetRunSummary(const RunConfig& run_config, const RunResult& run_result) {
+std::string GetRunSummary(const RunConfig& /*run_config*/, const RunResult& run_result) {
   auto to_display_duration = []<typename Rep, typename Period>(std::chrono::duration<Rep, Period> d) {
     using DisplayPeriod = std::chrono::microseconds::period;
     using DisplayDuration = std::chrono::duration<Rep, DisplayPeriod>;
     return std::chrono::duration_cast<DisplayDuration>(d);
   };
 
-  const auto model_path = std::filesystem::path{run_config.model_path};
-
   const auto stats = ComputeRunResultStats(run_result);
 
   const auto summary = std::format(
-      "Model: {}\n"
       "Load time: {}\n"
       "N (number of runs): {}\n"
       "Latency\n"
@@ -233,7 +230,6 @@ std::string GetRunSummary(const RunConfig& run_config, const RunResult& run_resu
       "  p99: {}\n"
       "  min: {}\n"
       "  max: {}\n",
-      model_path.filename().string(),
       to_display_duration(run_result.load_duration),
       stats.n,
       to_display_duration(stats.average),
