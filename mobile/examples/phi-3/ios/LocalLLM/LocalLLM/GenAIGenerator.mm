@@ -7,7 +7,7 @@
 #include "ort_genai.h"
 #include "ort_genai_c.h"
 
-const size_t kMaxTokens = 64;
+const size_t kMaxTokens = 200;
 
 @interface GenAIGenerator () {
   std::unique_ptr<OgaModel> model;
@@ -34,7 +34,19 @@ typedef std::chrono::time_point<Clock> TimePoint;
   @synchronized(self) {
     self->modelPath = [modelPath copy];
     NSLog(@"Model folder path set to: %@", modelPath);
-    [self loadModelFromPath];
+    
+    try {
+      [self loadModelFromPath];
+    } catch (const std::exception& e) {
+      NSString* errorMessage = [NSString stringWithUTF8String:e.what()];
+      NSLog(@"Error loading model: %@", errorMessage);
+      
+      // Notify the UI about the error
+      NSDictionary* errorInfo = @{@"error" : errorMessage};
+      dispatch_async(dispatch_get_main_queue(), ^{
+        [[NSNotificationCenter defaultCenter] postNotificationName:@"GenAIError" object:nil userInfo:errorInfo];
+      });
+    }
   }
 }
 
@@ -82,7 +94,6 @@ typedef std::chrono::time_point<Clock> TimePoint;
     NSLog(@"Starting token generation loop...");
 
     startTime = Clock::now();
-    firstTokenTime = Clock::now();
     generator->AppendTokenSequences(*sequences);
     while (!generator->IsDone()) {
       tokenStartTime = Clock::now();
@@ -142,7 +153,7 @@ typedef std::chrono::time_point<Clock> TimePoint;
     // Send error to the UI
     NSDictionary* errorInfo = @{@"error" : errorMessage};
     dispatch_async(dispatch_get_main_queue(), ^{
-      [[NSNotificationCenter defaultCenter] postNotificationName:@"TokenGenerationError" object:nil userInfo:errorInfo];
+      [[NSNotificationCenter defaultCenter] postNotificationName:@"GenAIError" object:nil userInfo:errorInfo];
     });
   }
 }

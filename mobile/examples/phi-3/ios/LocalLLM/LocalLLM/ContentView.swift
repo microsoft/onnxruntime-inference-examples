@@ -124,7 +124,7 @@ struct ContentView: View {
           promptProcRate)
       }
     }
-    .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("TokenGenerationError"))) { notification in
+    .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("GenAIError"))) { notification in
       if let userInfo = notification.userInfo, let error = userInfo["error"] as? String {
         errorMessage = error
         isGenerating = false
