@@ -79,7 +79,6 @@ For example:
 - If you want to run on an iPhone, you must build both onnxruntime and onnxruntime-genai for arm64 and copy the appropriate files to the app's `lib` directory.
 
 The header files to copy are:
-`<ORT_MAIN_SOURCE_REPO>/onnxruntime/core/session/onnxruntime_c_api.h`,
 `<ORT_GENAI_MAIN_SOURCE_REPO>/src/ort_genai.h`,
 `<ORT_GENAI_MAIN_SOURCE_REPO>/src/ort_genai_c.h`.
 

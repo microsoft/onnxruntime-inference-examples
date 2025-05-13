@@ -16,6 +16,7 @@ struct ContentView: View {
   @State private var stats: String = ""  // token generation stats
   @State private var showAlert: Bool = false
   @State private var errorMessage: String = ""
+  @State private var showFolderPicker: Bool = false  // State for folder picker sheet
 
   private let generator = GenAIGenerator()
 
