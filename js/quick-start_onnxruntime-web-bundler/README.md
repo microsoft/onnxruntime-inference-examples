@@ -2,7 +2,7 @@
 
 This example is a demonstration of basic usage of ONNX Runtime Web, using a bundler.
 
-A bundler is a tool that puts your code and all its dependencies together in one JavaScript file. In this example, we use [webpack](https://webpack.js.org) to pack our code, and comsume the generated bundle.js in our HTML. See also [Quick Start - Web (using script tag)](../quick-start_onnxruntime-web-script-tag) for an example of using script tag.
+A bundler is a tool that puts your code and all its dependencies together in one JavaScript file. In this example, we use [webpack](https://webpack.js.org) to pack our code, and consume the generated bundle.js in our HTML. See also [Quick Start - Web (using script tag)](../quick-start_onnxruntime-web-script-tag) for an example of using script tag.
 
 Modern browser based applications are usually built by frameworks like [Angular](https://angularjs.org/), [React](https://reactjs.org/), [Vue.js](https://vuejs.org) and so on. Those frameworks usually utilize bundler plugins to build the whole application. To keep our example simple and small, we will not use those frameworks, but the usage of bundler should be similar.
 
