@@ -4,10 +4,18 @@ enum ModelTesterError: Error {
   case runtimeError(msg: String)
 }
 
+enum ExecutionProviderType: String, CaseIterable, Identifiable {
+  case cpu = "CPU"
+  case coreml = "CoreML"
+
+  var id: Self { self }
+}
+
 struct ContentView: View {
   @State private var runResultMessage: String = ""
   @State private var isRunning: Bool = false
-  @State private var numIterations: UInt32 = 10
+  @State private var numIterations: UInt = 10
+  @State private var executionProviderType: ExecutionProviderType = .cpu
 
   private func Run() {
     isRunning = true
@@ -19,9 +27,15 @@ struct ContentView: View {
           throw ModelTesterError.runtimeError(msg: "Failed to find model file path.")
         }
 
-        output = try ModelRunner.run(
-          withModelPath: modelPath,
-          numIterations: numIterations)
+        let config = ModelRunnerRunConfig()
+        config.setModelPath(modelPath)
+        config.setNumIterations(numIterations)
+
+        if executionProviderType != .cpu {
+          config.setExecutionProvider(executionProviderType.rawValue)
+        }
+
+        output = try ModelRunner.run(config: config)
       } catch {
         output = "Error: \(error)"
       }
@@ -33,14 +47,17 @@ struct ContentView: View {
   }
 
   var body: some View {
-    VStack {
-      HStack {
-        Text("Iterations:")
-        TextField(
-          "", value: $numIterations,
-          format: IntegerFormatStyle<UInt32>.number
-        )
-        .keyboardType(.numberPad)
+    Form {
+      Text("Iterations:")
+      TextField(
+        "", value: $numIterations,
+        format: IntegerFormatStyle<UInt>.number
+      ).keyboardType(.numberPad)
+
+      Picker("Execution provider type", selection: $executionProviderType) {
+        ForEach(ExecutionProviderType.allCases) { epType in
+          Text(epType.rawValue).tag(epType)
+        }
       }
 
       Button(action: Run) { Text("Run") }
@@ -49,7 +66,6 @@ struct ContentView: View {
       Text(runResultMessage)
         .font(.body.monospaced())
     }
-    .padding()
   }
 }
 

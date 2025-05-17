@@ -177,6 +177,10 @@ RunResult Run(const RunConfig& run_config) {
 
   auto session_options = Ort::SessionOptions{};
 
+  if (const auto& ep_config = run_config.ep; ep_config.has_value()) {
+    session_options.AppendExecutionProvider(ep_config->provider_name, ep_config->provider_options);
+  }
+
   Timer timer{};
   auto session = Ort::Session{env, run_config.model_path.c_str(), session_options};
   run_result.load_duration = timer.Elapsed();
@@ -191,15 +195,16 @@ RunResult Run(const RunConfig& run_config) {
 
   auto run_options = Ort::RunOptions{};
 
+  run_result.run_durations.reserve(run_config.num_iterations);
+
   // warmup
-  for (size_t i = 0; i < run_config.num_warmup_iterations; ++i) {
+  if (run_config.run_warmup_iteration) {
     auto outputs = session.Run(run_options,
                                input_name_cstrs.data(), input_values.data(), input_values.size(),
                                output_name_cstrs.data(), output_name_cstrs.size());
   }
 
   // measure runs
-  run_result.run_durations.reserve(run_config.num_iterations);
   for (size_t i = 0; i < run_config.num_iterations; ++i) {
     timer.Reset();
     auto outputs = session.Run(run_options,
