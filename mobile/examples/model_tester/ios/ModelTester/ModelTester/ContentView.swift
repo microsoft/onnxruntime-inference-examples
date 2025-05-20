@@ -12,14 +12,42 @@ enum ExecutionProviderType: String, CaseIterable, Identifiable {
 }
 
 struct ContentView: View {
+  enum Field: Hashable {
+    case numIterations
+    case executionProviderType
+    case executionProviderOptionsText
+  }
+
   @State private var runResultMessage: String = ""
   @State private var isRunning: Bool = false
   @State private var numIterations: UInt = 10
   @State private var executionProviderType: ExecutionProviderType = .cpu
   @State private var executionProviderOptionsText: String = ""
+  @FocusState private var focusedField: Field?
 
-  private func Run() {
+  private func parseExecutionProviderOptionsText() throws -> [String: String] {
+    let executionProviderOptions =
+      try executionProviderOptionsText
+      .components(separatedBy: "\n")
+      .reduce(
+        into: [String: String](),
+        { options, line in
+          guard !line.isEmpty else {
+            return
+          }
+          let nameAndValue = line.split(separator: ":", maxSplits: 2)
+          guard nameAndValue.count == 2 else {
+            throw ModelTesterError.runtimeError(msg: "Failed to parse provider option: '\(line)'")
+          }
+          options[String(nameAndValue[0])] = String(nameAndValue[1])
+        })
+
+    return executionProviderOptions
+  }
+
+  private func run() {
     isRunning = true
+    focusedField = nil
 
     DispatchQueue.global().async {
       var output: String
@@ -33,23 +61,10 @@ struct ContentView: View {
         config.setNumIterations(numIterations)
 
         if executionProviderType != .cpu {
-          let executionProviderOptions =
-            try executionProviderOptionsText
-            .components(separatedBy: "\n")
-            .reduce(
-              into: [String: String](),
-              { options, line in
-                let nameAndValue = line.split(separator: ":", maxSplits: 2)
-                guard nameAndValue.count == 2 else {
-                  throw ModelTesterError.runtimeError(msg: "Failed to parse provider option: '\(line)'")
-                }
-
-                options[String(nameAndValue[0])] = String(nameAndValue[1])
-              })
+          let executionProviderOptions = try parseExecutionProviderOptionsText()
 
           print("Execution provider type: \(executionProviderType)")
           print("Execution provider options: \(executionProviderOptions)")
-
           config.setExecutionProvider(executionProviderType.rawValue, options: executionProviderOptions)
         }
 
@@ -73,21 +88,23 @@ struct ContentView: View {
         "", value: $numIterations,
         format: IntegerFormatStyle<UInt>.number
       ).keyboardType(.numberPad)
+        .focused($focusedField, equals: .numIterations)
 
       Picker("Execution provider type", selection: $executionProviderType) {
         ForEach(ExecutionProviderType.allCases) { epType in
           Text(epType.rawValue).tag(epType)
         }
-      }
+      }.focused($focusedField, equals: .executionProviderType)
 
       if executionProviderType != .cpu {
         Text("Execution provider options")
         Text("The expected format is 'name:value', one per line")
           .font(.caption)
         TextEditor(text: $executionProviderOptionsText)
+          .focused($focusedField, equals: .executionProviderOptionsText)
       }
 
-      Button(action: Run) { Text("Run") }
+      Button(action: run) { Text("Run") }
         .disabled(isRunning)
 
       Text(runResultMessage)
