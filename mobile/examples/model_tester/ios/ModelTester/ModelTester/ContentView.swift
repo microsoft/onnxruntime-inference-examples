@@ -16,6 +16,7 @@ struct ContentView: View {
   @State private var isRunning: Bool = false
   @State private var numIterations: UInt = 10
   @State private var executionProviderType: ExecutionProviderType = .cpu
+  @State private var executionProviderOptionsText: String = ""
 
   private func Run() {
     isRunning = true
@@ -32,10 +33,29 @@ struct ContentView: View {
         config.setNumIterations(numIterations)
 
         if executionProviderType != .cpu {
-          config.setExecutionProvider(executionProviderType.rawValue)
+          let executionProviderOptions =
+            try executionProviderOptionsText
+            .components(separatedBy: "\n")
+            .reduce(
+              into: [String: String](),
+              { options, line in
+                let nameAndValue = line.split(separator: ":", maxSplits: 2)
+                guard nameAndValue.count == 2 else {
+                  throw ModelTesterError.runtimeError(msg: "Failed to parse provider option: '\(line)'")
+                }
+
+                options[String(nameAndValue[0])] = String(nameAndValue[1])
+              })
+
+          print("Execution provider type: \(executionProviderType)")
+          print("Execution provider options: \(executionProviderOptions)")
+
+          config.setExecutionProvider(executionProviderType.rawValue, options: executionProviderOptions)
         }
 
         output = try ModelRunner.run(config: config)
+      } catch ModelTesterError.runtimeError(let msg) {
+        output = "Error: \(msg)"
       } catch {
         output = "Error: \(error)"
       }
@@ -48,7 +68,7 @@ struct ContentView: View {
 
   var body: some View {
     Form {
-      Text("Iterations:")
+      Text("Iterations")
       TextField(
         "", value: $numIterations,
         format: IntegerFormatStyle<UInt>.number
@@ -58,6 +78,13 @@ struct ContentView: View {
         ForEach(ExecutionProviderType.allCases) { epType in
           Text(epType.rawValue).tag(epType)
         }
+      }
+
+      if executionProviderType != .cpu {
+        Text("Execution provider options")
+        Text("The expected format is 'name:value', one per line")
+          .font(.caption)
+        TextEditor(text: $executionProviderOptionsText)
       }
 
       Button(action: Run) { Text("Run") }
