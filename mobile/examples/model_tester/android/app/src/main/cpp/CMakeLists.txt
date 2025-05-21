@@ -11,6 +11,8 @@ cmake_minimum_required(VERSION 3.22.1)
 # build script scope).
 project("modeltester")
 
+set(CMAKE_CXX_STANDARD 20)
+
 # Creates and names a library, sets it as either STATIC
 # or SHARED, and provides the relative paths to its source code.
 # You can define multiple libraries, and CMake builds them for you.
@@ -24,9 +26,20 @@ project("modeltester")
 # System.loadLibrary() and pass the name of the library defined here;
 # for GameActivity/NativeActivity derived applications, the same library name must be
 # used in the AndroidManifest.xml file.
+add_library(onnxruntime SHARED IMPORTED)
+set_target_properties(onnxruntime PROPERTIES
+        IMPORTED_LOCATION
+            ${CMAKE_SOURCE_DIR}/lib/${ANDROID_ABI}/libonnxruntime.so
+        INTERFACE_INCLUDE_DIRECTORIES
+            ${CMAKE_SOURCE_DIR}/include)
+
 add_library(${CMAKE_PROJECT_NAME} SHARED
-        # List C/C++ source files with relative paths to this CMakeLists.txt.
-        native-lib.cpp)
+        ${CMAKE_CURRENT_SOURCE_DIR}/native-lib.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/../../../../../common/include/model_runner.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/../../../../../common/model_runner.cpp)
+
+target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/../../../../../common/include)
 
 # Specifies libraries CMake should link to your target library. You
 # can link libraries from various origins, such as libraries defined in this
@@ -34,4 +47,5 @@ add_library(${CMAKE_PROJECT_NAME} SHARED
 target_link_libraries(${CMAKE_PROJECT_NAME}
         # List libraries link to the target library
         android
-        log)
+        log
+        onnxruntime)
