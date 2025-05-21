@@ -1,11 +1,14 @@
 #pragma once
 
+#include <cstddef>
 #include <cstdint>
 
 #include <chrono>
 #include <optional>
+#include <span>
 #include <string>
 #include <unordered_map>
+#include <variant>
 #include <vector>
 
 namespace model_runner {
@@ -14,8 +17,10 @@ using Clock = std::chrono::steady_clock;
 using Duration = Clock::duration;
 
 struct RunConfig {
-  // Path to the model to run.
-  std::string model_path{};
+  using ModelPathOrBytes = std::variant<std::string, std::span<const std::byte>>;
+
+  // Path or bytes of the model to run.
+  ModelPathOrBytes model_path_or_bytes{};
 
   // Whether to run a warmup iteration before running the measured (timed) iterations.
   bool run_warmup_iteration{true};

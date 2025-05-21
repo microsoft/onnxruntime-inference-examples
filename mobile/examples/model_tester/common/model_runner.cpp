@@ -182,8 +182,19 @@ RunResult Run(const RunConfig& run_config) {
   }
 
   Timer timer{};
-  auto session = Ort::Session{env, run_config.model_path.c_str(), session_options};
-  run_result.load_duration = timer.Elapsed();
+
+  auto session = Ort::Session{nullptr};
+  if (std::holds_alternative<std::string>(run_config.model_path_or_bytes)) {
+    const auto& model_path = std::get<std::string>(run_config.model_path_or_bytes);
+    timer.Reset();
+    session = Ort::Session{env, model_path.c_str(), session_options};
+    run_result.load_duration = timer.Elapsed();
+  } else {
+    const auto& model_bytes = std::get<std::span<const std::byte>>(run_config.model_path_or_bytes);
+    timer.Reset();
+    session = Ort::Session{env, model_bytes.data(), model_bytes.size(), session_options};
+    run_result.load_duration = timer.Elapsed();
+  }
 
   auto input_names = GetModelInputNames(session);
   auto input_name_cstrs = GetCstrs(input_names);

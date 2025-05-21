@@ -15,7 +15,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)setModelPath:(nonnull NSString*)modelPath {
-  _runConfig.model_path = modelPath.UTF8String;
+  _runConfig.model_path_or_bytes = std::string{modelPath.UTF8String};
 }
 
 - (void)setNumIterations:(NSUInteger)numIterations {
