@@ -1,3 +1,39 @@
 <resources>
     <string name="app_name">ModelTester</string>
+    <string-array name="ep_array">
+        <item>CPU</item>
+        <item>WebGPU</item>
+        <item>XNNPACK</item>
+    </string-array>
+    <string-array name="log_level_array">
+        <item>Default</item>
+        <item>Verbose</item>
+        <item>Info</item>
+        <item>Warning</item>
+        <item>Error</item>
+        <item>Fatal</item>
+    </string-array>
+
+    <string name="model_path_hint">Model Path (leave blank for default)</string>
+    <string name="browse_button_text">Browse</string>
+    <string name="warmup_switch_text">Run Warmup Iteration</string>
+    <string name="iterations_hint">Number of Iterations</string>
+    <string name="ep_spinner_label">Execution Provider:</string>
+    <string name="log_level_spinner_label">Log Level:</string>
+    <string name="run_model_button_text">Run Model</string>
+    <string name="summary_title_text">Run Summary</string>
+    <string name="load_time_label">Load time: %1$s</string>
+    <string name="num_runs_label">N (runs): %1$s</string>
+    <string name="latency_title_label">Latency:</string>
+    <string name="avg_latency_label">avg: %1$s</string>
+    <string name="p50_latency_label">p50: %1$s</string>
+    <string name="p90_latency_label">p90: %1$s</string>
+    <string name="p99_latency_label">p99: %1$s</string>
+    <string name="min_latency_label">min: %1$s</string>
+    <string name="max_latency_label">max: %1$s</string>
+    <string name="error_prefix">Error: %1$s</string>
+    <string name="exception_prefix">Exception: %1$s</string>
+    <string name="initial_run_failed_prefix">Initial run failed: %1$s</string>
+    <string name="na">N/A</string>
+
 </resources>

@@ -7,4 +7,18 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+
+    <!-- Muted Modern Pastel Theme Colors -->
+    <color name="muted_primary">#B0C4DE</color> <!-- Light Steel Blue -->
+    <color name="muted_primary_dark">#A2B5CD</color> <!-- Slightly Darker Steel Blue -->
+    <color name="muted_accent">#D8BFD8</color> <!-- Thistle -->
+    <color name="muted_background">#FAF0E6</color> <!-- Linen -->
+    <color name="muted_text_primary">#4A4A4A</color> <!-- Dark Gray -->
+    <color name="muted_text_secondary">#778899</color> <!-- Light Slate Gray -->
+    <color name="muted_card_background">#FFFFFF</color>
+    <color name="muted_button_background">@color/muted_primary</color>
+    <color name="muted_button_text">@color/white</color>
+    <color name="muted_input_border">#C0C0C0</color> <!-- Silver -->
+    <color name="muted_icon_tint">@color/muted_text_primary</color>
+
 </resources>

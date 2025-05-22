@@ -6,6 +6,7 @@
 #include <string>
 #include <stdexcept>
 #include <vector>
+#include <optional>
 
 #include "model_runner.h"
 
@@ -67,20 +68,29 @@ auto MakeUniqueJbyteArrayElementsPtr(JNIEnv& env, jbyteArray array) {
 
 extern "C" JNIEXPORT jstring JNICALL
 Java_com_onnxruntime_example_modeltester_MainActivity_run(JNIEnv* env, jobject thiz,
-                                                          jbyteArray java_model_bytes,
+                                                          jobject model_path_or_bytes,
                                                           jint num_iterations,
+                                                          jboolean run_warmup_iteration,
                                                           jstring java_execution_provider_type,
                                                           jobjectArray java_execution_provider_option_names,
-                                                          jobjectArray java_execution_provider_option_values) {
+                                                          jobjectArray java_execution_provider_option_values,
+                                                          jint log_level) {
   try {
-    auto model_bytes = util::MakeUniqueJbyteArrayElementsPtr(*env, java_model_bytes);
-    const size_t model_bytes_length = env->GetArrayLength(java_model_bytes);
-    auto model_bytes_span = std::span{reinterpret_cast<const std::byte*>(model_bytes.get()),
-                                      model_bytes_length};
-
     auto config = model_runner::RunConfig{};
-    config.model_path_or_bytes = model_bytes_span;
     config.num_iterations = num_iterations;
+    config.run_warmup_iteration = run_warmup_iteration;
+
+    // Handle model_path_or_bytes
+    jclass byte_array_class = env->FindClass("[B");
+    if (env->IsInstanceOf(model_path_or_bytes, byte_array_class)) {
+        jbyteArray java_model_bytes = static_cast<jbyteArray>(model_path_or_bytes);
+        auto model_bytes = util::MakeUniqueJbyteArrayElementsPtr(*env, java_model_bytes);
+        const size_t model_bytes_length = env->GetArrayLength(java_model_bytes);
+        config.model_path_or_bytes = std::span{reinterpret_cast<const std::byte*>(model_bytes.get()), model_bytes_length};
+    } else {
+        jstring java_model_path = static_cast<jstring>(model_path_or_bytes);
+        config.model_path_or_bytes = util::JstringToStdString(*env, java_model_path);
+    }
 
     if (java_execution_provider_type != nullptr) {
       config.ep.emplace();
@@ -97,6 +107,13 @@ Java_com_onnxruntime_example_modeltester_MainActivity_run(JNIEnv* env, jobject t
           config.ep->provider_options.emplace(option_names[i], option_values[i]);
         }
       }
+    }
+
+    // If log_level is -1 (sentinel from Java), config.log_level will remain std::nullopt,
+    // and ONNX Runtime will use its default log level.
+    // Otherwise, set the log level specified from Java.
+    if (log_level != -1) {
+        config.log_level = log_level;
     }
 
     auto result = model_runner::Run(config);

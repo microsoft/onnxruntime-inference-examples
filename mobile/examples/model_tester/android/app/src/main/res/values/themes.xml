@@ -1,16 +1,122 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
-    <style name="Theme.ModelTester" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
+    <style name="Theme.ModelTester" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <!-- Primary brand color. -->
-        <item name="colorPrimary">@color/purple_500</item>
-        <item name="colorPrimaryVariant">@color/purple_700</item>
-        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorPrimary">@color/muted_primary</item>
+        <item name="colorPrimaryVariant">@color/muted_primary_dark</item>
+        <item name="colorOnPrimary">@color/muted_button_text</item> <!-- Text on primary color buttons -->
         <!-- Secondary brand color. -->
-        <item name="colorSecondary">@color/teal_200</item>
-        <item name="colorSecondaryVariant">@color/teal_700</item>
-        <item name="colorOnSecondary">@color/black</item>
+        <item name="colorSecondary">@color/muted_accent</item>
+        <item name="colorSecondaryVariant">@color/muted_accent</item> 
+        <item name="colorOnSecondary">@color/muted_text_primary</item>
         <!-- Status bar color. -->
         <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
-        <!-- Customize your theme here. -->
+        <!-- Window background -->
+        <item name="android:windowBackground">@color/muted_background</item>
+        <!-- Text colors -->
+        <item name="android:textColorPrimary">@color/muted_text_primary</item>
+        <item name="android:textColorSecondary">@color/muted_text_secondary</item>
+        <!-- Surface colors -->
+        <item name="colorSurface">@color/muted_card_background</item>
+        <item name="colorOnSurface">@color/muted_text_primary</item>
+        <!-- Error colors -->
+        <item name="colorError">#D32F2F</item> <!-- A more muted red -->
+        <item name="colorOnError">@color/white</item>
+
+        <!-- MaterialComponents specific attributes -->
+        <item name="textAppearanceHeadline6">@style/TextAppearance.App.Headline6</item>
+        <item name="textAppearanceSubtitle1">@style/TextAppearance.App.Subtitle1</item>
+        <item name="textAppearanceBody1">@style/TextAppearance.App.Body1</item>
+        <item name="textAppearanceBody2">@style/TextAppearance.App.Body2</item>
+        <item name="textAppearanceButton">@style/TextAppearance.App.Button</item>
+
+        <!-- Component Styles -->
+        <item name="materialCardViewStyle">@style/Widget.App.CardView</item>
+        <item name="textInputStyle">@style/Widget.App.TextInputLayout</item>
+        <item name="materialButtonStyle">@style/Widget.App.Button</item>
+        <item name="switchStyle">@style/Widget.App.Switch</item>
+        <item name="android:spinnerStyle">@style/Widget.App.Spinner</item>
+        <item name="android:spinnerDropDownItemStyle">@style/Widget.App.SpinnerDropDownItem</item>
+
     </style>
+
+    <!-- Text Appearances -->
+    <style name="TextAppearance.App.Headline6" parent="TextAppearance.MaterialComponents.Headline6">
+        <item name="android:textColor">@color/muted_text_primary</item>
+    </style>
+    <style name="TextAppearance.App.Subtitle1" parent="TextAppearance.MaterialComponents.Subtitle1">
+        <item name="android:textColor">@color/muted_text_primary</item>
+    </style>
+    <style name="TextAppearance.App.Body1" parent="TextAppearance.MaterialComponents.Body1">
+        <item name="android:textColor">@color/muted_text_primary</item>
+    </style>
+    <style name="TextAppearance.App.Body2" parent="TextAppearance.MaterialComponents.Body2">
+        <item name="android:textColor">@color/muted_text_secondary</item>
+    </style>
+    <style name="TextAppearance.App.Button" parent="TextAppearance.MaterialComponents.Button">
+        <item name="android:textColor">@color/muted_button_text</item>
+        <item name="android:textAllCaps">false</item>
+    </style>
+
+    <!-- Widget Styles -->
+    <style name="Widget.App.CardView" parent="Widget.MaterialComponents.CardView">
+        <item name="cardBackgroundColor">@color/muted_card_background</item>
+        <item name="cardCornerRadius">16dp</item> <!-- Softer corners -->
+        <item name="cardElevation">2dp</item> <!-- Subtle elevation -->
+        <item name="strokeWidth">1dp</item>
+        <item name="strokeColor">@color/muted_input_border</item>
+    </style>
+
+    <style name="Widget.App.TextInputLayout" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+        <item name="boxStrokeColor">@color/muted_input_border</item>
+        <item name="hintTextColor">@color/muted_text_secondary</item>
+        <item name="boxCornerRadiusTopStart">12dp</item>
+        <item name="boxCornerRadiusTopEnd">12dp</item>
+        <item name="boxCornerRadiusBottomStart">12dp</item>
+        <item name="boxCornerRadiusBottomEnd">12dp</item>
+        <item name="android:textColorHint">@color/muted_text_secondary</item>
+    </style>
+
+    <style name="Widget.App.Button" parent="Widget.MaterialComponents.Button">
+        <item name="backgroundTint">@color/muted_button_background</item>
+        <item name="android:textColor">@color/muted_button_text</item>
+        <item name="cornerRadius">24dp</item> <!-- Softer, more rounded corners -->
+        <item name="android:paddingTop">14dp</item>
+        <item name="android:paddingBottom">14dp</item>
+        <item name="android:elevation">2dp</item>
+    </style>
+    
+    <style name="Widget.App.Button.IconOnly" parent="Widget.MaterialComponents.Button.TextButton.Icon">
+        <item name="iconTint">@color/muted_icon_tint</item>
+        <item name="iconPadding">0dp</item>
+        <item name="android:insetTop">0dp</item>
+        <item name="android:insetBottom">0dp</item>
+        <item name="android:paddingLeft">12dp</item>
+        <item name="android:paddingRight">12dp</item>
+        <item name="android:minWidth">48dp</item>
+        <item name="android:minHeight">48dp</item>
+        <item name="cornerRadius">24dp</item>
+    </style>
+
+    <style name="Widget.App.Switch" parent="Widget.MaterialComponents.CompoundButton.Switch">
+        <item name="thumbTint">@color/muted_accent</item>
+        <item name="trackTint">@color/muted_primary_dark</item>
+        <item name="android:textColor">@color/muted_text_primary</item>
+    </style>
+
+    <style name="Widget.App.Spinner" parent="Widget.AppCompat.Spinner.Underlined">
+        <item name="android:background">@drawable/spinner_background_muted</item>
+        <item name="android:paddingStart">12dp</item>
+        <item name="android:paddingEnd">12dp</item>
+        <item name="android:paddingTop">16dp</item>
+        <item name="android:paddingBottom">16dp</item>
+        <item name="android:textColor">@color/muted_text_primary</item>
+    </style>
+
+    <style name="Widget.App.SpinnerDropDownItem" parent="Widget.AppCompat.DropDownItem.Spinner">
+        <item name="android:textColor">@color/muted_text_primary</item>
+        <item name="android:background">@color/muted_background</item> 
+        <item name="android:padding">16dp</item>
+    </style>
+
 </resources>
