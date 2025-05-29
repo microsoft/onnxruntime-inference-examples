@@ -36,7 +36,7 @@ public partial class MainPage : ContentPage
             ExecutionProviderOptions.Items.Add(nameof(ExecutionProviders.NNAPI));
         }
 
-        if (DeviceInfo.Platform == DevicePlatform.iOS)
+        if (DeviceInfo.Platform == DevicePlatform.iOS || DeviceInfo.Platform == DevicePlatform.MacCatalyst)
         {
             ExecutionProviderOptions.Items.Add(nameof(ExecutionProviders.CoreML));
         }
