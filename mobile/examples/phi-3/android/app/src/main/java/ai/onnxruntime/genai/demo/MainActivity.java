@@ -22,23 +22,16 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
 
-import ai.onnxruntime.genai.GenAIException;
-import ai.onnxruntime.genai.Generator;
-import ai.onnxruntime.genai.GeneratorParams;
-import ai.onnxruntime.genai.Sequences;
-import ai.onnxruntime.genai.TokenizerStream;
-import ai.onnxruntime.genai.demo.databinding.ActivityMainBinding;
-import ai.onnxruntime.genai.Model;
-import ai.onnxruntime.genai.Tokenizer;
+import ai.onnxruntime.genai.*;
 
 public class MainActivity extends AppCompatActivity implements Consumer<String> {
 
-    private ActivityMainBinding binding;
     private EditText userMsgEdt;
-    private Model model;
-    private Tokenizer tokenizer;
+    private SimpleGenAI genAI;
     private ImageButton sendMsgIB;
     private TextView generatedTV;
     private TextView promptTV;
@@ -56,9 +49,7 @@ public class MainActivity extends AppCompatActivity implements Consumer<String> 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        binding = ActivityMainBinding.inflate(getLayoutInflater());
-        setContentView(binding.getRoot());
+        setContentView(R.layout.activity_main);
 
         sendMsgIB = findViewById(R.id.idIBSend);
         userMsgEdt = findViewById(R.id.idEdtMessage);
@@ -90,8 +81,6 @@ public class MainActivity extends AppCompatActivity implements Consumer<String> 
         });
 
 
-        Consumer<String> tokenListener = this;
-
         //enable scrolling and resizing of text boxes
         generatedTV.setMovementMethod(new ScrollingMovementMethod());
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
@@ -100,7 +89,7 @@ public class MainActivity extends AppCompatActivity implements Consumer<String> 
         sendMsgIB.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (tokenizer == null) {
+                if (genAI == null) {
                     // if user tries to submit prompt while model is still downloading, display a toast message.
                     Toast.makeText(MainActivity.this, "Model not loaded yet, please wait...", Toast.LENGTH_SHORT).show();
                     return;
@@ -131,77 +120,57 @@ public class MainActivity extends AppCompatActivity implements Consumer<String> 
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
-                        TokenizerStream stream = null;
-                        GeneratorParams generatorParams = null;
-                        Generator generator = null;
-                        Sequences encodedPrompt = null;
                         try {
-                            stream = tokenizer.createStream();
-
-                            generatorParams = model.createGeneratorParams();
-                            //examples for optional parameters to format AI response
+                            // Create generator parameters
+                            GeneratorParams generatorParams = genAI.createGeneratorParams();
+                            
+                            // Set optional parameters to format AI response
                             // https://onnxruntime.ai/docs/genai/reference/config.html
-                            generatorParams.setSearchOption("length_penalty", lengthPenalty);
-                            generatorParams.setSearchOption("max_length", maxLength);
-
-                            encodedPrompt = tokenizer.encode(promptQuestion_formatted);
-                            generatorParams.setInput(encodedPrompt);
-
-                            generator = new Generator(model, generatorParams);
-
-                            // try to measure average time taken to generate each token.
+                            generatorParams.setSearchOption("length_penalty", (double)lengthPenalty);
+                            generatorParams.setSearchOption("max_length", (double)maxLength);
                             long startTime = System.currentTimeMillis();
-                            long firstTokenTime = startTime;
-                            long currentTime = startTime;
-                            int numTokens = 0;
-                            while (!generator.isDone()) {
-                                generator.computeLogits();
-                                generator.generateNextToken();
-                 
-                                int token = generator.getLastTokenInSequence(0);
-
-                                if (numTokens == 0) { //first token
-                                    firstTokenTime = System.currentTimeMillis();
+                            AtomicLong firstTokenTime = new AtomicLong(startTime);
+                            AtomicInteger numTokens = new AtomicInteger(0);
+                            
+                            // Token listener for streaming tokens
+                            Consumer<String> tokenListener = token -> {
+                                if (numTokens.get() == 0) { // first token
+                                    firstTokenTime.set(System.currentTimeMillis());
                                 }
+                                
+                                // Update UI with new token
+                                MainActivity.this.accept(token);
+                                
+                                Log.i(TAG, "Generated token: " + token);
+                                numTokens.incrementAndGet();
+                            };
 
-                                tokenListener.accept(stream.decode(token));
-
-
-                                Log.i(TAG, "Generated token: " + token + ": " +  stream.decode(token));
-                                Log.i(TAG, "Time taken to generate token: " + (System.currentTimeMillis() - currentTime)/ 1000.0 + " seconds");
-                                currentTime = System.currentTimeMillis();
-                                numTokens++;
-                            }
-                            long totalTime = System.currentTimeMillis() - firstTokenTime;
-
-                            float promptProcessingTime = (firstTokenTime - startTime)/ 1000.0f;
-                            float tokensPerSecond = (1000 * (numTokens -1)) / totalTime;
+                            String fullResponse = genAI.generate(generatorParams, promptQuestion_formatted, tokenListener);
+                            
+                            long totalTime = System.currentTimeMillis() - firstTokenTime.get();
+                            float promptProcessingTime = (firstTokenTime.get() - startTime) / 1000.0f;
+                            float tokensPerSecond = numTokens.get() > 1 ? (1000.0f * (numTokens.get() - 1)) / totalTime : 0;
 
                             runOnUiThread(() -> {
-                                sendMsgIB.setEnabled(true);
-                                sendMsgIB.setAlpha(1.0f);
-
-                                // Display the token generation rate in a dialog popup
                                 showTokenPopup(promptProcessingTime, tokensPerSecond);
                             });
 
+                            Log.i(TAG, "Full response: " + fullResponse);
                             Log.i(TAG, "Prompt processing time (first token): " + promptProcessingTime + " seconds");
                             Log.i(TAG, "Tokens generated per second (excluding prompt processing): " + tokensPerSecond);
                         }
                         catch (GenAIException e) {
                             Log.e(TAG, "Exception occurred during model query: " + e.getMessage());
+                            runOnUiThread(() -> {
+                                Toast.makeText(MainActivity.this, "Error generating response: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                            });
                         }
                         finally {
-                            if (generator != null) generator.close();
-                            if (encodedPrompt != null) encodedPrompt.close();
-                            if (stream != null) stream.close();
-                            if (generatorParams != null) generatorParams.close();
+                            runOnUiThread(() -> {
+                                sendMsgIB.setEnabled(true);
+                                sendMsgIB.setAlpha(1.0f);
+                            });
                         }
-
-                        runOnUiThread(() -> {
-                            sendMsgIB.setEnabled(true);
-                            sendMsgIB.setAlpha(1.0f);
-                        });
                     }
                 }).start();
             }
@@ -210,10 +179,10 @@ public class MainActivity extends AppCompatActivity implements Consumer<String> 
 
     @Override
     protected void onDestroy() {
-        tokenizer.close();
-        tokenizer = null;
-        model.close();
-        model = null;
+        if (genAI != null) {
+            genAI.close();
+            genAI = null;
+        }
         super.onDestroy();
     }
 
@@ -244,8 +213,7 @@ public class MainActivity extends AppCompatActivity implements Consumer<String> 
             // Display a message using Toast
             Toast.makeText(this, "All files already exist. Skipping download.", Toast.LENGTH_SHORT).show();
             Log.d(TAG, "All files already exist. Skipping download.");
-            model = new Model(getFilesDir().getPath());
-            tokenizer = model.createTokenizer();
+            genAI = new SimpleGenAI(getFilesDir().getPath());
             return;
         }
 
@@ -276,15 +244,18 @@ public class MainActivity extends AppCompatActivity implements Consumer<String> 
 
                     // Last download completed, create SimpleGenAI
                     try {
-                        model = new Model(getFilesDir().getPath());
-                        tokenizer = model.createTokenizer();
+                        genAI = new SimpleGenAI(getFilesDir().getPath());
                         runOnUiThread(() -> {
                             Toast.makeText(context, "All downloads completed", Toast.LENGTH_SHORT).show();
                             progressText.setVisibility(View.INVISIBLE);
                         });
                     } catch (GenAIException e) {
                         e.printStackTrace();
-                        throw new RuntimeException(e);
+                        Log.e(TAG, "Failed to initialize SimpleGenAI: " + e.getMessage());
+                        runOnUiThread(() -> {
+                            Toast.makeText(context, "Failed to load model: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                            progressText.setText("Failed to load model");
+                        });
                     }
 
                 }
