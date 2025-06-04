@@ -26,7 +26,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
 
-import ai.onnxruntime.genai.*;
+import ai.onnxruntime.genai.SimpleGenAI;
+import ai.onnxruntime.genai.GenAIException;
+import ai.onnxruntime.genai.GeneratorParams;
 
 public class MainActivity extends AppCompatActivity implements Consumer<String> {
 
