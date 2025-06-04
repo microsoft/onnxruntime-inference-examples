@@ -30,6 +30,25 @@ import ai.onnxruntime.genai.*;
 
 public class MainActivity extends AppCompatActivity implements Consumer<String> {
 
+    // ===== MODEL CONFIGURATION - MODIFY THESE FOR DIFFERENT MODELS =====
+    // Base URL for downloading model files (ensure it ends with '/')
+    private static final String MODEL_BASE_URL = "https://huggingface.co/microsoft/Phi-3-mini-4k-instruct-onnx/resolve/main/cpu_and_mobile/cpu-int4-rtn-block-32-acc-level-4/";
+    
+    // List of required model files to download
+    private static final List<String> MODEL_FILES = Arrays.asList(
+            "added_tokens.json",
+            "config.json",
+            "configuration_phi3.py", 
+            "genai_config.json",
+            "phi3-mini-4k-instruct-cpu-int4-rtn-block-32-acc-level-4.onnx",
+            "phi3-mini-4k-instruct-cpu-int4-rtn-block-32-acc-level-4.onnx.data",
+            "special_tokens_map.json",
+            "tokenizer.json",
+            "tokenizer.model",
+            "tokenizer_config.json"
+    );
+    // ===== END MODEL CONFIGURATION =====
+
     private EditText userMsgEdt;
     private SimpleGenAI genAI;
     private ImageButton sendMsgIB;
@@ -188,24 +207,11 @@ public class MainActivity extends AppCompatActivity implements Consumer<String> 
 
     private void downloadModels(Context context) throws GenAIException {
 
-        final String baseUrl = "https://huggingface.co/microsoft/Phi-3-mini-4k-instruct-onnx/resolve/main/cpu_and_mobile/cpu-int4-rtn-block-32-acc-level-4/";
-        List<String> files = Arrays.asList(
-                "added_tokens.json",
-                "config.json",
-                "configuration_phi3.py",
-                "genai_config.json",
-                "phi3-mini-4k-instruct-cpu-int4-rtn-block-32-acc-level-4.onnx",
-                "phi3-mini-4k-instruct-cpu-int4-rtn-block-32-acc-level-4.onnx.data",
-                "special_tokens_map.json",
-                "tokenizer.json",
-                "tokenizer.model",
-                "tokenizer_config.json");
-
         List<Pair<String, String>> urlFilePairs = new ArrayList<>();
-        for (String file : files) {
+        for (String file : MODEL_FILES) {
             if (!fileExists(context, file)) {
                 urlFilePairs.add(new Pair<>(
-                        baseUrl + file,
+                        MODEL_BASE_URL + file,
                         file));
             }
         }
