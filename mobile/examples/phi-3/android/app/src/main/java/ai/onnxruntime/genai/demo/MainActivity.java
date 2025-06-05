@@ -155,8 +155,7 @@ public class MainActivity extends AppCompatActivity implements Consumer<String> 
                             
                             // Token listener for streaming tokens
                             Consumer<String> tokenListener = token -> {
-                                if (numTokens.get() == 0) { // first token
-                                    firstTokenTime.set(System.currentTimeMillis());
+                                firstTokenTime.compareAndSet(startTime, System.currentTimeMillis());
                                 }
                                 
                                 // Update UI with new token
