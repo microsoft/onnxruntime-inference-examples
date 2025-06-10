@@ -52,6 +52,6 @@ dependencies {
 
     // ONNX Runtime with GenAI
     implementation("com.microsoft.onnxruntime:onnxruntime-android:latest.release")
-    implementation(files("libs/onnxruntime-genai-android-0.4.0-dev.aar"))
+    implementation(files("libs/onnxruntime-genai-android-0.8.1.aar"))
 
 }
