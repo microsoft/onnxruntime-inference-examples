@@ -22,8 +22,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
 
 import ai.onnxruntime.genai.SimpleGenAI;
@@ -150,26 +148,28 @@ public class MainActivity extends AppCompatActivity implements Consumer<String> 
                             generatorParams.setSearchOption("length_penalty", (double)lengthPenalty);
                             generatorParams.setSearchOption("max_length", (double)maxLength);
                             long startTime = System.currentTimeMillis();
-                            AtomicLong firstTokenTime = new AtomicLong(startTime);
-                            AtomicInteger numTokens = new AtomicInteger(0);
+                            final long[] firstTokenTime = {startTime};
+                            final long[] numTokens = {0};
                             
                             // Token listener for streaming tokens
                             Consumer<String> tokenListener = token -> {
-                                firstTokenTime.compareAndSet(startTime, System.currentTimeMillis());
+                                if (numTokens[0] == 0) {
+                                    firstTokenTime[0] = System.currentTimeMillis();
                                 }
+
                                 
                                 // Update UI with new token
                                 MainActivity.this.accept(token);
                                 
                                 Log.i(TAG, "Generated token: " + token);
-                                numTokens.incrementAndGet();
+                                numTokens[0] += 1;
                             };
 
                             String fullResponse = genAI.generate(generatorParams, promptQuestion_formatted, tokenListener);
                             
-                            long totalTime = System.currentTimeMillis() - firstTokenTime.get();
-                            float promptProcessingTime = (firstTokenTime.get() - startTime) / 1000.0f;
-                            float tokensPerSecond = numTokens.get() > 1 ? (1000.0f * (numTokens.get() - 1)) / totalTime : 0;
+                            long totalTime = System.currentTimeMillis() - firstTokenTime[0];
+                            float promptProcessingTime = (firstTokenTime[0] - startTime) / 1000.0f;
+                            float tokensPerSecond = numTokens[0] > 1 ? (1000.0f * (numTokens[0] - 1)) / totalTime : 0;
 
                             runOnUiThread(() -> {
                                 showTokenPopup(promptProcessingTime, tokensPerSecond);
