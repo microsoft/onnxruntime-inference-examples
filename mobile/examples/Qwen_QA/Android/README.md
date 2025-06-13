@@ -93,8 +93,11 @@ val config = modelconfigqwen25      // ← change to modelconfigqwen3 for Qwen 3
 6. To install:
    - Press Run ▶️ in Android Studio, **or**
    - Go to **Build → Generate Signed Bundle / APK** to export the `.apk` file.
-   
-Note: All Kotlin files are declared in the package com.example.local_llm, and the Gradle script sets applicationId "com.example.local_llm".
+7. Once installed, look for the **Pocket LLM** icon&nbsp;
+   <img src="demo/pocket_llm_icon.png" alt="Pocket LLM icon" width="28" tyle="vertical-align:middle;border-radius:100%"/>
+   on your home screen.
+
+**Note**: All Kotlin files are declared in the package com.example.local_llm, and the Gradle script sets applicationId "com.example.local_llm".
 If you name the app (or change the package) to anything other than local_llm, you must refactor:
 - The directory structure in app/src/main/java/...,
 - Every package com.example.local_llm line, and
