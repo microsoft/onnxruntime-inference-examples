@@ -89,7 +89,21 @@ class MainActivity : AppCompatActivity() {
             dtype = "float16",
             IsThinkingModeAvailable = true
         )
-        val config = modelconfigqwen3
+
+        // ---------------------------------------------------------------------
+        // ✨ SELECT WHICH MODEL TO RUN
+        //
+        // Two ModelConfig objects are defined above:
+        //
+        //     val modelconfigqwen25 = …   // Qwen2.5-0.5B
+        //     val modelconfigqwen3  = …   // Qwen3-0.6B
+        //
+        // Point the `config` reference at the model you want.  All downstream
+        // logic (tokenizer style, KV-cache shape, Thinking-Mode toggle, etc.)
+        // uses this single variable, so no other code changes are required.
+        // ---------------------------------------------------------------------
+        val config = modelconfigqwen25      // ← switch to modelconfigqwen3 for Qwen 3
+
         val skipTokenIdsQwen3 = setOf(151667, 151668)  // e.g., <think>, </think>
         if (config.IsThinkingModeAvailable) {
             thinkingToggle.visibility = View.VISIBLE
