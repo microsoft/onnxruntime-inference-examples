@@ -25,5 +25,5 @@ data class ModelConfig(
     val roleTokenIds: RoleTokenIds,
     val scalarPosId: Boolean = false,
     val dtype: String = "float32",
-    val IsThinkingModeAvailable: Boolean = true
+    val IsThinkingModeAvailable: Boolean = false
 )

@@ -23,8 +23,8 @@ class OnnxModel(private val context: Context, private val config: ModelConfig) {
     }
 
     private fun initializeModel(): OrtSession {
-        val modelFile = loadModelFile("model.onnx")
-        Log.d("ONNX", "Loading model from: ${modelFile.absolutePath}")
+        val modelFile = loadModelFile(config.modelPath)
+        Log.d("ONNX", "Loading model from: ${config.modelPath}")
         val opts = OrtSession.SessionOptions()
         Log.d("ONNX", "Model loaded")
         return env.createSession(modelFile.absolutePath, opts)
