@@ -64,6 +64,7 @@ class MainActivity : AppCompatActivity() {
         )
         val modelconfigqwen25 = ModelConfig(
             modelName = "Qwen2_5",
+            modelPath = "model.onnx"
             promptStyle = PromptStyle.QWEN2_5,
             eosTokenIds = setOf(151643, 151645),
             numLayers = 24,
@@ -77,6 +78,7 @@ class MainActivity : AppCompatActivity() {
 
         val modelconfigqwen3 = ModelConfig(
             modelName = "Qwen3",
+            modelPath = "model.onnx"
             promptStyle = PromptStyle.QWEN3,
             eosTokenIds = setOf(151643, 151645),
             numLayers = 28,
