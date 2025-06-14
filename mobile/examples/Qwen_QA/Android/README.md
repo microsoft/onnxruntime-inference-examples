@@ -1,7 +1,8 @@
 # Local Qwen LLM on Android
 
 This example shows how to run Qwen2.5-0.5B-Instruct and Qwen3-0.6B entirely on an Android device using ONNX Runtime.
-All tokens are generated offline on the phone—no network calls, no telemetry
+All tokens are generated offline on the phone no network calls, no telemetry.
+
 ---
 
 ## Key features
@@ -114,5 +115,5 @@ If you name the app (or change the package) to anything other than local_llm, yo
 - Use REPETITION_PENALTY to avoid repetitive answers and improve fluency ([OnnxModel.kt](app/src/main/java/com/example/local_llm/OnnxModel.kt)).
 - Change MAX_TOKENS to limit or expand the length of generated replies ([OnnxModel.kt](app/src/main/java/com/example/local_llm/OnnxModel.kt)).
 
-## License Notice
-- Note: These ONNX models are based on Qwen, which is licensed under the [Apache License 2.0](https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct/blob/main/LICENSE).
+### 📄 License Notice
+Note: These ONNX models are based on Qwen, which is licensed under the [Apache License 2.0](https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct/blob/main/LICENSE).
