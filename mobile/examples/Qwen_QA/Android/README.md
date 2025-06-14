@@ -8,8 +8,9 @@ All tokens are generated offline on the phone—no network calls, no telemetry
 
 - On-device inference with the official onnxruntime-android.
 - Tokenizer compatibility – reads the Hugging Face-standard tokenizer.json shipped with Qwen.
-- Prompt formatting for Qwen 2.5 and Qwen 3, including the Thinking Mode toggle supported by Qwen3.
+- Prompt formatting for Qwen 2.5 and Qwen 3, including the **Thinking Mode** toggle supported by Qwen3.
 - Streaming generation with past-KV caching for smooth, low-latency text output (see OnnxModel.runInferenceStreamingWithPastKV).
+- Output supports Markdown — copy and reuse formatted answers anywhere.
 
 
 ---
@@ -38,6 +39,8 @@ Download the `model.onnx` and `tokenizer.json` from Hugging Face:
 
 - 🔹 [Qwen2.5](https://huggingface.co/onnx-community/Qwen2.5-0.5B-Instruct)  
 - 🔹 [Qwen3](https://huggingface.co/onnx-community/Qwen3-0.6B-ONNX)  
+
+- You can also use quantized models (e.g., `model_q4fp16.onnx`) for faster, lighter inference with minimal accuracy loss.
 
 ### ⚙️ Option 2: Convert Model Yourself
 
@@ -68,7 +71,7 @@ optimum-cli export onnx --model Qwen/Qwen2.5-0.5B-Instruct qwen2.5-0.5B-onnx/
 ---
 #### Choose which Qwen model to run
 
-In `MainActivity.kt`[MainActivity.kt](app/src/main/java/com/example/local_llm/MainActivity.kt) you will find two pre-defined `ModelConfig` objects:
+In[MainActivity.kt](app/src/main/java/com/example/local_llm/MainActivity.kt) you will find two pre-defined `ModelConfig` objects:
 
 ```kotlin
 val modelconfigqwen25 = …   // Qwen 2.5-0.5B
