@@ -9,7 +9,7 @@ All tokens are generated offline on the phone—no network calls, no telemetry
 - On-device inference with the official onnxruntime-android.
 - Tokenizer compatibility – reads the Hugging Face-standard tokenizer.json shipped with Qwen.
 - Prompt formatting for Qwen 2.5 and Qwen 3, including the **Thinking Mode** toggle supported by Qwen3.
-- Streaming generation with past-KV caching for smooth, low-latency text output (see OnnxModel.runInferenceStreamingWithPastKV).
+- Streaming generation with past-KV caching for smooth, low-latency text output (see [OnnxModel.kt](app/src/main/java/com/example/local_llm/OnnxModel.kt)).
 - Output supports Markdown — copy and reuse formatted answers anywhere.
 
 
@@ -87,7 +87,7 @@ val config = modelconfigqwen25      // ← change to modelconfigqwen3 for Qwen 3
 
 1. Open Android Studio and create a new project (Empty Activity).
 2. Name your app `local_llm`.
-3. Copy all the project files from this repo into the appropriate folders.
+3. Copy all the project files from `Qwen_QA/Android` into the appropriate folders.
 4. Place your `model.onnx` and `tokenizer.json` in:
    ```
    app/src/main/assets/
@@ -97,7 +97,7 @@ val config = modelconfigqwen25      // ← change to modelconfigqwen3 for Qwen 3
    - Press Run ▶️ in Android Studio, **or**
    - Go to **Build → Generate Signed Bundle / APK** to export the `.apk` file.
 7. Once installed, look for the **Pocket LLM** icon&nbsp;
-   <img src="demo/pocket_llm_icon.png" alt="Pocket LLM icon" width="28" tyle="vertical-align:middle;border-radius:100%"/>
+   <img src="demo/pocket_llm_icon.png" alt="Pocket LLM icon" width="28" style="vertical-align:middle;border-radius:100%"/>
    on your home screen.
 
 **Note**: All Kotlin files are declared in the package com.example.local_llm, and the Gradle script sets applicationId "com.example.local_llm".
@@ -113,3 +113,6 @@ If you name the app (or change the package) to anything other than local_llm, yo
 - Adjust TEMPERATURE to control response randomness — lower for accuracy, higher for creativity ([OnnxModel.kt](app/src/main/java/com/example/local_llm/OnnxModel.kt)).
 - Use REPETITION_PENALTY to avoid repetitive answers and improve fluency ([OnnxModel.kt](app/src/main/java/com/example/local_llm/OnnxModel.kt)).
 - Change MAX_TOKENS to limit or expand the length of generated replies ([OnnxModel.kt](app/src/main/java/com/example/local_llm/OnnxModel.kt)).
+
+## License Notice
+- Note: These ONNX models are based on Qwen, which is licensed under the [Apache License 2.0](https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct/blob/main/LICENSE).
