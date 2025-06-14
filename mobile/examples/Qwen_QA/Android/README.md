@@ -99,8 +99,14 @@ val config = modelconfigqwen25      // ← change to modelconfigqwen3 for Qwen 3
 
 **Note**: All Kotlin files are declared in the package com.example.local_llm, and the Gradle script sets applicationId "com.example.local_llm".
 If you name the app (or change the package) to anything other than local_llm, you must refactor:
-- The directory structure in app/src/main/java/...,
+- The directory structure in app/src/main/java/...,                     
 - Every package com.example.local_llm line, and
 - The applicationId in app/build.gradle.
 - Otherwise, Android Studio will raise “package … does not exist” errors and the project will fail to compile.
 ----
+
+## Customize Your App Experience with These
+- Define the assistant’s tone and role by setting defaultSystemPrompt (in your model config).
+- Adjust TEMPERATURE to control response randomness — lower for accuracy, higher for creativity ([OnnxModel.kt](app/src/main/java/com/example/local_llm/OnnxModel.kt)).
+- Use REPETITION_PENALTY to avoid repetitive answers and improve fluency ([OnnxModel.kt](app/src/main/java/com/example/local_llm/OnnxModel.kt)).
+- Change MAX_TOKENS to limit or expand the length of generated replies ([OnnxModel.kt](app/src/main/java/com/example/local_llm/OnnxModel.kt)).
