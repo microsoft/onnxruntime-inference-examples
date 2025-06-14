@@ -17,6 +17,7 @@ class OnnxModel(private val context: Context, private val config: ModelConfig) {
 
     companion object {
         const val MAX_TOKENS = 1024
+        const val MAX_INPUT_TOKENS = 512
         const val TEMPERATURE = 0.8f
         const val REPETITION_PENALTY = 1.5f
         private const val TAG = "OnnxModel"
@@ -153,11 +154,19 @@ class OnnxModel(private val context: Context, private val config: ModelConfig) {
     fun runInferenceStreamingWithPastKV(
         inputIds: IntArray,
         maxTokens: Int = MAX_TOKENS,
+        maxInputTokens: Int = MAX_INPUT_TOKENS,
         endTokenIds: Set<Int> = config.eosTokenIds,
         shouldStop: () -> Boolean = { false },
         onTokenGenerated: (Int) -> Unit
     ) {
-        val generated = inputIds.toMutableList()
+
+        val generated: MutableList<Int> = if (inputIds.size > maxInputTokens) {
+            Log.w(TAG, "Prompt had ${inputIds.size} tokens; truncated to last $maxInputTokens tokens.")
+            inputIds.takeLast(maxInputTokens).toMutableList()
+        } else {
+            inputIds.toMutableList()
+        }
+
         val isQwen3 = config.modelName.contains("qwen3", ignoreCase = true)
 
         // Initialize empty past key/value cache for all layers
@@ -226,7 +235,7 @@ class OnnxModel(private val context: Context, private val config: ModelConfig) {
 
             // Select highest-probability token (greedy decoding)
             val nextTokenId = rawLogits.indices.maxByOrNull { rawLogits[it] } ?: break
-            Log.d(TAG, "Step $i - Token $nextTokenId")
+            // Log.d(TAG, "Step $i - Token $nextTokenId")
 
             // Stop if generated token is in end-of-sequence set
             if (nextTokenId in endTokenIds) break
