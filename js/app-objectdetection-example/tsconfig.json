@@ -1,0 +1,9 @@
+{
+  "extends": "expo/tsconfig.base",
+  "compilerOptions": {
+    //Below were causing erros so I commented them out, using tsx not jsx
+    // "jsx": "react",
+    // "jsx": "react",
+    "strict": true
+  }
+}
