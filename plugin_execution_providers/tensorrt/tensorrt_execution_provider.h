@@ -243,6 +243,8 @@ struct TensorrtExecutionProvider : OrtEp, ApiPtrs {
   const OrtSessionOptions& session_options_;
   const OrtLogger& logger_;
 
+  SubGraphCollection_t GetSupportedList(SubGraphCollection_t supported_nodes_list, int iterations, const int max_iterations,
+                                        const OrtGraph* graph, bool* early_termination) const;
 
   /*
   bool IsGraphCaptured(int graph_annotation_id) const { return false; }
@@ -283,7 +285,7 @@ struct TensorrtExecutionProvider : OrtEp, ApiPtrs {
   std::unordered_map<std::string, std::unordered_map<std::string, float>> dynamic_range_map_;
   std::unordered_map<std::string, std::string> cache_suffix_;
 
- //private:
+ private:
   mutable TensorrtExecutionProviderInfo info_;
   bool external_stream_ = false;
   cudaStream_t stream_ = nullptr;
@@ -346,7 +348,6 @@ struct TensorrtExecutionProvider : OrtEp, ApiPtrs {
 
   //  std::unique_ptr<ONNX_NAMESPACE::ModelProto> model_proto_ = ONNX_NAMESPACE::ModelProto::Create();
 
-  std::unordered_set<std::string> control_flow_op_set_ = {"If", "Loop", "Scan"};
   //  mutable std::unordered_map<std::string, std::unique_ptr<SubGraphContext>> subgraph_context_map_;
 
   mutable std::unique_ptr<nvinfer1::IBuilder> builder_;
