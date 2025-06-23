@@ -246,6 +246,17 @@ struct TensorrtExecutionProvider : OrtEp, ApiPtrs {
   SubGraphCollection_t GetSupportedList(SubGraphCollection_t supported_nodes_list, int iterations, const int max_iterations,
                                         const OrtGraph* graph, bool* early_termination) const;
 
+  OrtStatus* CreateNodeComputeInfoFromPrecompiledEngine(OrtEp* this_ptr, const OrtGraph* graphs,
+                                                        const OrtNode* fused_nodes,
+                                                        std::unordered_map<std::string, size_t>& input_map,
+                                                        std::unordered_map<std::string, size_t>& output_map,
+                                                        OrtNodeComputeInfo* node_compute_infos);
+
+  OrtStatus* CreateNodeComputeInfoFromGraph(OrtEp* this_ptr, const OrtGraph* graphs, const OrtNode* fused_nodes,
+                                            std::unordered_map<std::string, size_t>& input_map,
+                                            std::unordered_map<std::string, size_t>& output_map,
+                                            OrtNodeComputeInfo* node_compute_infos);
+
   /*
   bool IsGraphCaptured(int graph_annotation_id) const { return false; }
 
@@ -385,20 +396,6 @@ struct TensorrtExecutionProvider : OrtEp, ApiPtrs {
   // Since no GPU memory allocation is allowed during graph capturing, we need at least two regular runs
   // to allocate enough memory in Arena before graph capturing.
   const int min_num_runs_before_cuda_graph_capture_ = 1;  // required min regular runs before graph capture for the necessary memory allocations.
-
-  OrtStatus* CreateNodeComputeInfoFromPrecompiledEngine(OrtEp* this_ptr,
-                                                          const OrtGraph** graphs,
-                                                          const OrtNode** fused_nodes,
-                                                          std::unordered_map<std::string, size_t>& input_map,
-                                                          std::unordered_map<std::string, size_t>& output_map,
-                                                          OrtNodeComputeInfo** node_compute_infos);
-
-  OrtStatus* CreateNodeComputeInfoFromGraph(OrtEp* this_ptr,
-                                              const OrtGraph** graphs,
-                                              const OrtNode** fused_nodes,
-                                              std::unordered_map<std::string, size_t>& input_map,
-                                              std::unordered_map<std::string, size_t>& output_map,
-                                              OrtNodeComputeInfo** node_compute_infos);
 
   bool IsGraphCaptureAllowed() const { return false; };
 

@@ -1642,52 +1642,46 @@ static OrtStatus* ORT_API_CALL CompileImpl(OrtEp* this_ptr, const OrtGraph** gra
     gsl::span<const OrtValueInfo* const> node_inputs{};
     gsl::span<const OrtValueInfo* const> node_outputs{};
 
-    RETURN_IF_ERROR(GetSpanFromConstPointerArray<OrtValueInfo>(inputs_array, node_inputs));
-    RETURN_IF_ERROR(GetSpanFromConstPointerArray<OrtValueInfo>(outputs_array, node_outputs));
+    GetSpanFromArrayOfConstObjects<OrtValueInfo>(inputs_array, node_inputs);
+    GetSpanFromArrayOfConstObjects<OrtValueInfo>(outputs_array, node_outputs);
 
     // Gets number of node's inputs and outputs
     size_t num_node_inputs = 0;
     size_t num_node_outputs = 0;
-    RETURN_IF_ERROR(ep->ort_api.ConstPointerArray_GetSize(inputs_array, &num_node_inputs));
-    RETURN_IF_ERROR(ep->ort_api.ConstPointerArray_GetSize(outputs_array, &num_node_outputs));
+    RETURN_IF_ERROR(ep->ort_api.ArrayOfConstObjects_GetSize(inputs_array, &num_node_inputs));
+    RETURN_IF_ERROR(ep->ort_api.ArrayOfConstObjects_GetSize(outputs_array, &num_node_outputs));
     
     // Builds map from input name to its index in input list
     std::unordered_map<std::string, size_t> input_map;
     input_map.reserve(num_node_inputs);
-    for (size_t i = 0, i < num_node_inputs; i++) {
-      std::string& name = node_inputs[i]->GetName();
-      input_map[name] = i;
+    for (size_t i = 0; i < num_node_inputs; i++) {
+      // TODO: Add ValueInfo_GetName() c api
+      //std::string& name = node_inputs[i]->GetName();
+      //input_map[name] = i;
     }
 
     // Builds map from output name to its index in output list
-    std::unordered_map<std::string, size_t> out_map;
+    std::unordered_map<std::string, size_t> output_map;
     input_map.reserve(num_node_outputs);
-    for (size_t i = 0, i < num_node_outputs; i++) {
-      std::string& name = node_outputs[i]->GetName();
-      out_map[name] = i;
+    for (size_t i = 0; i < num_node_outputs; i++) {
+      // TODO: Add ValueInfo_GetName() c api
+      //std::string& name = node_outputs[i]->GetName();
+      //output_map[name] = i;
     }
 
-    Status status;
-    if (GraphHasCtxNode(graph_body_viewer)) {
-      status = ep->CreateNodeComputeInfoFromPrecompiledEngine(graph_body_viewer,
-                                                          fused_node,
-                                                          input_map,
-                                                          output_map,
-                                                          node_compute_funcs);
+    OrtStatus* status;
+    //if (GraphHasCtxNode(graph_body_viewer)) {
+    if (false) {
+      status = ep->CreateNodeComputeInfoFromPrecompiledEngine(this_ptr, graphs[graph_idx], fused_node,
+                                                              input_map,
+                                                              output_map, node_compute_infos[graph_idx]);
     } else {
-      status = ep->CreateNodeComputeInfoFromGraph(graph_body_viewer, fused_node, input_map, output_map, node_compute_funcs);
+      status = ep->CreateNodeComputeInfoFromGraph(this_ptr, graphs[graph_idx], fused_node, input_map,
+                                                  output_map, node_compute_infos[graph_idx]);
     }
-    if (status != Status::OK()) {
-      return ORT_MAKE_STATUS(ONNXRUNTIME, FAIL, status.ErrorMessage());
-    }
-
-    /*
-    OrtArrayOfConstObjects* nodes_array = nullptr;
-    DeferOrtRelease<OrtArrayOfConstObjects> release_nodes(&nodes_array, ep->ort_api.ReleaseArrayOfConstObjects);
-    size_t num_nodes = 0;
-    RETURN_IF_ERROR(ep->ort_api.Graph_GetNodes(graphs[graph_idx], &nodes_array));
-    RETURN_IF_ERROR(ep->ort_api.ArrayOfConstObjects_GetSize(nodes_array, &num_nodes));
-    */
+    //if (status != Status::OK()) {
+    //  return ORT_MAKE_STATUS(ONNXRUNTIME, FAIL, status.ErrorMessage());
+    //}
   }
   
   return nullptr;
@@ -1724,6 +1718,7 @@ struct TensorrtExecutionProvider : TensorrtExecutionProvider(ApiPtrs apis, const
   // The implementation of the SessionOptionsAppendExecutionProvider C API function automatically adds EP options to
   // the session option configurations with the key prefix "ep.<lowercase_ep_name>.".
   const std::string key_prefix = OrtSessionOptions::GetProviderOptionPrefix(name_.c_str());
+  const ConfigOptions& config_options = session_options.GetConfigOptions();
   const std::unordered_map<std::string, std::string>& config_options_map = config_options.GetConfigOptionsMap();
 
   // Get provider options as key-value pair strings
