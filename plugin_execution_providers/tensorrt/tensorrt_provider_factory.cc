@@ -88,17 +88,17 @@ static OrtStatus* ORT_API_CALL CreateEpImpl(OrtEpFactory* this_ptr,
   *ep = nullptr;
 
   if (num_devices != 1) {
-    // we only registered for CPU and only expected to be selected for one CPU
+    // we only registered for GPU and only expected to be selected for one GPU
     // if you register for multiple devices (e.g. CPU, GPU and maybe NPU) you will get an entry for each device
     // the EP has been selected for.
     return factory->ort_api.CreateStatus(ORT_INVALID_ARGUMENT,
-                                         "Example EP only supports selection for one device.");
+                                         "TensorRT EP only supports selection for one device.");
   }
 
   // Create the execution provider
   RETURN_IF_ERROR(factory->ort_api.Logger_LogMessage(logger,
                                                      OrtLoggingLevel::ORT_LOGGING_LEVEL_INFO,
-                                                     "Creating Example EP", ORT_FILE, __LINE__, __FUNCTION__));
+                                                     "Creating TensorRT EP", ORT_FILE, __LINE__, __FUNCTION__));
 
   // use properties from the device and ep_metadata if needed
   // const OrtHardwareDevice* device = devices[0];
