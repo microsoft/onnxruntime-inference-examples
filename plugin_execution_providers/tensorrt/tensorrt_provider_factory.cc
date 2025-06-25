@@ -104,14 +104,14 @@ static OrtStatus* ORT_API_CALL CreateEpImpl(OrtEpFactory* this_ptr,
   // const OrtHardwareDevice* device = devices[0];
   // const OrtKeyValuePairs* ep_metadata = ep_metadata[0];
 
-  auto trt_ep = std::make_unique<onnxruntime::TensorrtExecutionProvider>(*factory, factory->ep_name_, *session_options, *logger);
+  auto trt_ep = std::make_unique<TensorrtExecutionProvider>(*factory, factory->ep_name_, *session_options, *logger);
 
   *ep = trt_ep.release();
   return nullptr;
 }
 
 static void ORT_API_CALL ReleaseEpImpl(OrtEpFactory* /*this_ptr*/, OrtEp* ep) {
-  onnxruntime::TensorrtExecutionProvider* trt_ep = static_cast<onnxruntime::TensorrtExecutionProvider*>(ep);
+  TensorrtExecutionProvider* trt_ep = static_cast<TensorrtExecutionProvider*>(ep);
   delete trt_ep;
 }
 
