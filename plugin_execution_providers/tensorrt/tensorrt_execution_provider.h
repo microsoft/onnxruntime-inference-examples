@@ -19,8 +19,6 @@
 #define EXPORT_API
 #endif
 
-//namespace onnxruntime {
-
 namespace tensorrt_env_vars {
 static const std::string kMaxPartitionIterations = "ORT_TENSORRT_MAX_PARTITION_ITERATIONS";
 static const std::string kMinSubgraphSize = "ORT_TENSORRT_MIN_SUBGRAPH_SIZE";
@@ -399,4 +397,3 @@ struct TensorrtExecutionProvider : OrtEp, ApiPtrs {
 
   nvinfer1::IBuilder* GetBuilder(TensorrtLogger& trt_logger) const;
 };
-//}  // namespace onnxruntime

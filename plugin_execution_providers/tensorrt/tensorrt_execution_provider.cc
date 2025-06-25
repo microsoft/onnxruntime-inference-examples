@@ -33,8 +33,6 @@ void CUDA_RETURN_IF_ERROR(cudaError_t res) {
   if (res != cudaSuccess) abort();
 }
 
-//namespace onnxruntime {
-
 static const std::string tensorrtEp = "tensorrtEp";
 const OrtApi& ort_api = Ort::GetApi();
 
@@ -1692,5 +1690,3 @@ SubGraphCollection_t TensorrtExecutionProvider::GetSupportedList(SubGraphCollect
   }
   return nodes_list_output;
 }
-
-//}  // namespace onnxruntime
