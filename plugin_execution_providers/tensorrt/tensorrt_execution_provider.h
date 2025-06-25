@@ -228,11 +228,9 @@ struct ApiPtrs {
   const OrtEpApi& ep_api;
 };
 
-/// <summary>
 /// 
 /// Plugin TensorRT EP that implements OrtEp
 /// 
-/// </summary>
 struct TensorrtExecutionProvider : OrtEp, ApiPtrs {
   TensorrtExecutionProvider(ApiPtrs apis, const std::string& name, const OrtHardwareDevice& device,
                             const OrtSessionOptions& session_options, const OrtLogger& logger);

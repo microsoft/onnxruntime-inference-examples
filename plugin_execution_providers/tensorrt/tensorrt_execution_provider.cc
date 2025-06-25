@@ -5,11 +5,15 @@
 #include <iostream>
 #include <cuda_runtime.h>
 
+#define ORT_API_MANUAL_INIT
+#include "onnxruntime_cxx_api.h"
+#undef ORT_API_MANUAL_INIT
+
 #include "ep_abi_utils.h"
 #include "tensorrt_execution_provider.h"
 #include "tensorrt_execution_provider_utils.h"
 #include "tensorrt_cuda_allocator.h"
-//#include "onnx_ctx_model_helper.h"
+#include "onnx_ctx_model_helper.h"
 #include "onnx/onnx_pb.h"
 #include "cuda/unary_elementwise_ops_impl.h"
 
@@ -1697,9 +1701,10 @@ static const char* ORT_API_CALL GetNameImpl(const OrtEp* this_ptr) {
 /// Constructor of Plugin TensorRT EP
 /// 
 /// </summary>
-struct TensorrtExecutionProvider : TensorrtExecutionProvider(ApiPtrs apis, const std::string& name, const OrtHardwareDevice& device,
-                                                             const OrtSessionOptions& session_options, const OrtLogger& logger)
-    : ApiPtrs(apis), name_{name}, hardware_device_{device}, session_options_{session_options}, logger_{logger} {
+TensorrtExecutionProvider::TensorrtExecutionProvider(ApiPtrs apis, const std::string& name,
+                                                            const OrtHardwareDevice& device,
+                                                            const OrtSessionOptions& session_options, const OrtLogger& logger)
+  : ApiPtrs(apis), name_{name}, hardware_device_{device}, session_options_{session_options}, logger_{logger} {
   // Initialize the execution provider.
   auto status = ort_api.Logger_LogMessage(&logger_,
                                           OrtLoggingLevel::ORT_LOGGING_LEVEL_INFO,
@@ -1731,9 +1736,9 @@ struct TensorrtExecutionProvider : TensorrtExecutionProvider(ApiPtrs apis, const
 
   // Provider options to TensorrtExecutionProviderInfo
   info_ = TensorrtExecutionProviderInfo::FromProviderOptions(provider_options);
-  if (ep_info.size() > 0) info_.has_trt_options = true;
+  info_.has_trt_options = true;
   device_id_ = info_.device_id;
-  api_->CreateDevice(OrtMemoryInfoDeviceType::OrtMemoryInfoDeviceType_GPU, OrtMemoryType::OrtMemoryType_Default, device_id_, &default_device);
+  //api_->CreateDevice(OrtMemoryInfoDeviceType::OrtMemoryInfoDeviceType_GPU, OrtMemoryType::OrtMemoryType_Default, device_id_, &default_device);
 
   std::string profile_min_shapes, profile_max_shapes, profile_opt_shapes;
 
@@ -2165,15 +2170,6 @@ struct TensorrtExecutionProvider : TensorrtExecutionProvider(ApiPtrs apis, const
     }
     extra_attr_values_.push_back(model_path_);
   }
-}
-
-TensorrtExecutionProviderFactory::TensorrtExecutionProviderFactory() {
-  OrtExecutionProviderFactory::CreateExecutionProvider = [](OrtExecutionProviderFactory* this_, const char* const* ep_option_keys, const char* const* ep_option_values, size_t option_size) -> OrtExecutionProvider* {
-    ProviderOptions options;
-    for (size_t i = 0; i < option_size; i++) options[ep_option_keys[i]] = ep_option_values[i];
-    std::unique_ptr<TensorrtExecutionProvider> ret = std::make_unique<TensorrtExecutionProvider>(tensorrtEp.c_str(), std::move(options));
-    return ret.release();
-  };
 }
 
 nvinfer1::IBuilder* TensorrtExecutionProvider::GetBuilder(TensorrtLogger& trt_logger) const {
