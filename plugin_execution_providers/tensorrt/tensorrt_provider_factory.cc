@@ -104,15 +104,15 @@ static OrtStatus* ORT_API_CALL CreateEpImpl(OrtEpFactory* this_ptr,
   // const OrtHardwareDevice* device = devices[0];
   // const OrtKeyValuePairs* ep_metadata = ep_metadata[0];
 
-  auto dummy_ep = std::make_unique<onnxruntime::TensorrtExecutionProvider>(*factory, factory->ep_name_, *session_options, *logger);
+  auto trt_ep = std::make_unique<onnxruntime::TensorrtExecutionProvider>(*factory, factory->ep_name_, *session_options, *logger);
 
-  *ep = dummy_ep.release();
+  *ep = trt_ep.release();
   return nullptr;
 }
 
 static void ORT_API_CALL ReleaseEpImpl(OrtEpFactory* /*this_ptr*/, OrtEp* ep) {
-  onnxruntime::TensorrtExecutionProvider* dummy_ep = static_cast<onnxruntime::TensorrtExecutionProvider*>(ep);
-  delete dummy_ep;
+  onnxruntime::TensorrtExecutionProvider* trt_ep = static_cast<onnxruntime::TensorrtExecutionProvider*>(ep);
+  delete trt_ep;
 }
 
 // To make symbols visible on macOS/iOS
