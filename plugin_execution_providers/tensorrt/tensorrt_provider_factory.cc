@@ -1,7 +1,8 @@
 #define ORT_API_MANUAL_INIT
 #include "onnxruntime_cxx_api.h"
 #undef ORT_API_MANUAL_INIT
-#include <tensorrt_provider_factory.h>
+#include "tensorrt_provider_factory.h"
+#include "tensorrt_execution_provider.h"
 
 #include <gsl/gsl>
 #include <cassert>
@@ -11,7 +12,7 @@
 #include <unordered_map>
 #include <vector>
 
-struct TensorrtExecutionProvider;
+//struct TensorrtExecutionProvider;
 
 static const char* ORT_API_CALL GetNameImpl(const OrtEpFactory* this_ptr) {
   const auto* factory = static_cast<const TensorrtExecutionProviderFactory*>(this_ptr);
@@ -30,21 +31,22 @@ static OrtStatus* ORT_API_CALL GetSupportedDevicesImpl(OrtEpFactory* this_ptr,
                                                        size_t max_ep_devices,
                                                        size_t* p_num_ep_devices) {
   size_t& num_ep_devices = *p_num_ep_devices;
-  auto* factory = static_cast<ExampleEpFactory*>(this_ptr);
+  auto* factory = static_cast<TensorrtExecutionProviderFactory*>(this_ptr);
 
   for (size_t i = 0; i < num_devices && num_ep_devices < max_ep_devices; ++i) {
     // C API
     const OrtHardwareDevice& device = *devices[i];
-    if (factory->ort_api.HardwareDevice_Type(&device) == OrtHardwareDeviceType::OrtHardwareDeviceType_CPU) {
-      // these can be returned as nullptr if you have nothing to add.
+    if (factory->ort_api.HardwareDevice_Type(&device) == OrtHardwareDeviceType::OrtHardwareDeviceType_GPU) {
+      // These can be returned as nullptr if you have nothing to add.
       OrtKeyValuePairs* ep_metadata = nullptr;
       OrtKeyValuePairs* ep_options = nullptr;
       factory->ort_api.CreateKeyValuePairs(&ep_metadata);
       factory->ort_api.CreateKeyValuePairs(&ep_options);
 
-      // random example using made up values
-      factory->ort_api.AddKeyValuePair(ep_metadata, "version", "0.1");
-      factory->ort_api.AddKeyValuePair(ep_options, "run_really_fast", "true");
+      // The ep options can be provided here as default values.
+      // Users can also call SessionOptionsAppendExecutionProvider_V2 C API with provided ep options to override.
+      factory->ort_api.AddKeyValuePair(ep_metadata, "version", "0.1"); // random example using made up values
+      factory->ort_api.AddKeyValuePair(ep_options, "trt_builder_optimization_level", "3");
 
       // OrtEpDevice copies ep_metadata and ep_options.
       auto* status = factory->ort_api.GetEpApi()->CreateEpDevice(factory, &device, ep_metadata, ep_options,
@@ -61,11 +63,11 @@ static OrtStatus* ORT_API_CALL GetSupportedDevicesImpl(OrtEpFactory* this_ptr,
     // C++ API equivalent. Throws on error.
     //{
     //  Ort::ConstHardwareDevice device(devices[i]);
-    //  if (device.Type() == OrtHardwareDeviceType::OrtHardwareDeviceType_CPU) {
+    //  if (device.Type() == OrtHardwareDeviceType::OrtHardwareDeviceType_GPU) {
     //    Ort::KeyValuePairs ep_metadata;
     //    Ort::KeyValuePairs ep_options;
     //    ep_metadata.Add("version", "0.1");
-    //    ep_options.Add("run_really_fast", "true");
+    //    ep_options.Add("trt_builder_optimization_level", "3");
     //    Ort::EpDevice ep_device{*this_ptr, device, ep_metadata.GetConst(), ep_options.GetConst()};
     //    ep_devices[num_ep_devices++] = ep_device.release();
     //  }
@@ -102,14 +104,14 @@ static OrtStatus* ORT_API_CALL CreateEpImpl(OrtEpFactory* this_ptr,
   // const OrtHardwareDevice* device = devices[0];
   // const OrtKeyValuePairs* ep_metadata = ep_metadata[0];
 
-  auto dummy_ep = std::make_unique<TensorrtExecutionProvider>(*factory, factory->ep_name_, *session_options, *logger);
+  auto dummy_ep = std::make_unique<onnxruntime::TensorrtExecutionProvider>(*factory, factory->ep_name_, *session_options, *logger);
 
   *ep = dummy_ep.release();
   return nullptr;
 }
 
 static void ORT_API_CALL ReleaseEpImpl(OrtEpFactory* /*this_ptr*/, OrtEp* ep) {
-  ExampleEp* dummy_ep = static_cast<TensorrtExecutionProvider*>(ep);
+  onnxruntime::TensorrtExecutionProvider* dummy_ep = static_cast<onnxruntime::TensorrtExecutionProvider*>(ep);
   delete dummy_ep;
 }
 

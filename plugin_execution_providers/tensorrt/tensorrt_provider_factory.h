@@ -39,11 +39,9 @@ struct ApiPtrs {
   const OrtEpApi& ep_api;
 };
 
-/// <summary>
 ///
 /// Plugin TensorRT EP factory that can create an OrtEp and return information about the supported hardware devices.
 ///
-/// </summary>
 struct TensorrtExecutionProviderFactory : OrtEpFactory, ApiPtrs {
   TensorrtExecutionProviderFactory(const char* ep_name, ApiPtrs apis) : ApiPtrs(apis), ep_name_{ep_name} {
     ort_version_supported = ORT_API_VERSION;  // set to the ORT version we were compiled with.
@@ -53,6 +51,6 @@ struct TensorrtExecutionProviderFactory : OrtEpFactory, ApiPtrs {
     CreateEp = CreateEpImpl;
     ReleaseEp = ReleaseEpImpl;
   }
-  const std::string ep_name_;            // EP name
+  const std::string ep_name_;           // EP name
   const std::string vendor_{"Nvidia"};  // EP vendor name
 };
