@@ -152,10 +152,7 @@ class OutputAllocator : public nvinfer1::IOutputAllocator {
 
 using ShapeRangesMap = std::unordered_map<std::string, std::unordered_map<size_t, std::vector<std::vector<int64_t>>>>;
 
-struct TensorrtFuncState {
-  AllocateFunc test_allocate_func = nullptr;
-  DestroyFunc test_release_func = nullptr;
-  void* allocator = nullptr;
+struct TensorrtComputeState {
   std::string fused_node_name;
   nvinfer1::IBuilder* builder;
   tensorrt_ptr::unique_pointer<nvonnxparser::IParser>* parser = nullptr;
@@ -200,10 +197,7 @@ struct TensorrtFuncState {
 };
 
 // Minimum information to construct kernel function state for direct engine load code path
-struct TensorrtShortFuncState {
-  AllocateFunc test_allocate_func = nullptr;
-  DestroyFunc test_release_func = nullptr;
-  void* allocator = nullptr;
+struct TensorrtComputeStateForEPContext {
   std::string fused_node_name;
   std::unique_ptr<nvinfer1::ICudaEngine>* engine = nullptr;
   std::unique_ptr<nvinfer1::IExecutionContext>* context = nullptr;
@@ -226,9 +220,28 @@ struct ApiPtrs {
   const OrtEpApi& ep_api;
 };
 
+/// <summary>
+/// 
+/// Plugin TensorRT EP OrtNodeComputeInfo that represents the computation function for a compiled OrtGraph.
+/// 
+/// </summary>
+struct TRTEpNodeComputeInfo : OrtNodeComputeInfo {
+  explicit TRTEpNodeComputeInfo(TensorrtExecutionProvider& ep);
+
+  static OrtStatus* ORT_API_CALL CreateStateImpl(OrtNodeComputeInfo* this_ptr, OrtNodeComputeContext* compute_context,
+                                                 void** compute_state);
+  static OrtStatus* ORT_API_CALL ComputeImpl(OrtNodeComputeInfo* this_ptr, void* compute_state,
+                                             OrtKernelContext* kernel_context);
+  static void ORT_API_CALL ReleaseStateImpl(OrtNodeComputeInfo* this_ptr, void* compute_state);
+
+  TensorrtExecutionProvider& ep;
+};
+
+/// <summary>
 /// 
 /// Plugin TensorRT EP that implements OrtEp
-/// 
+///
+/// </summary>
 struct TensorrtExecutionProvider : OrtEp, ApiPtrs {
   TensorrtExecutionProvider(ApiPtrs apis, const std::string& name, const OrtHardwareDevice& device,
                             const OrtSessionOptions& session_options, const OrtLogger& logger);
@@ -242,16 +255,24 @@ struct TensorrtExecutionProvider : OrtEp, ApiPtrs {
   SubGraphCollection_t GetSupportedList(SubGraphCollection_t supported_nodes_list, int iterations, const int max_iterations,
                                         const OrtGraph* graph, bool* early_termination) const;
 
-  OrtStatus* CreateNodeComputeInfoFromPrecompiledEngine(OrtEp* this_ptr, const OrtGraph* graphs,
-                                                        const OrtNode* fused_nodes,
+  OrtStatus* CreateNodeComputeInfoFromPrecompiledEngine(OrtEp* this_ptr, const OrtGraph* graph,
+                                                        const OrtNode* fused_node,
                                                         std::unordered_map<std::string, size_t>& input_map,
                                                         std::unordered_map<std::string, size_t>& output_map,
-                                                        OrtNodeComputeInfo* node_compute_infos);
+                                                        OrtNodeComputeInfo* node_compute_info);
 
-  OrtStatus* CreateNodeComputeInfoFromGraph(OrtEp* this_ptr, const OrtGraph* graphs, const OrtNode* fused_nodes,
+  OrtStatus* CreateNodeComputeInfoFromGraph(OrtEp* this_ptr, const OrtGraph* graph, const OrtNode* fused_node,
                                             std::unordered_map<std::string, size_t>& input_map,
                                             std::unordered_map<std::string, size_t>& output_map,
-                                            OrtNodeComputeInfo* node_compute_infos);
+                                            OrtNodeComputeInfo* node_compute_info);
+
+  std::unordered_map<std::string, std::unique_ptr<TensorrtComputeState>>& GetComputeStates() { return compute_states_; }
+
+  std::unordered_map<std::string, std::unique_ptr<TensorrtComputeState>>& GetComputeStatesForEPContext() { return compute_states_; }
+
+  std::unordered_map<std::string, DDSOutputAllocatorMap>& GetDDSOutputAllocators() {
+    return dds_output_allocator_maps_;
+  }
 
   /*
   bool IsGraphCaptured(int graph_annotation_id) const { return false; }
@@ -376,6 +397,9 @@ struct TensorrtExecutionProvider : OrtEp, ApiPtrs {
   std::unordered_map<std::string, ShapeRangesMap> input_shape_ranges_;  // The profile shape ranges that the engine is built with
   std::unordered_map<std::string, std::vector<nvinfer1::IOptimizationProfile*>> profiles_;
   std::unordered_map<std::string, DDSOutputAllocatorMap> dds_output_allocator_maps_;
+
+  std::unordered_map<std::string, std::unique_ptr<TensorrtComputeState>> compute_states_;
+  std::unordered_map<std::string, std::unique_ptr<TensorrtComputeStateForEPContext>> compute_states_for_ep_context;
 
   // for external stream, we need to create its cudnn/cublass handle before cuda EP enable cuda graph capture
   //  cudnnHandle_t external_cudnn_handle_ = nullptr;
