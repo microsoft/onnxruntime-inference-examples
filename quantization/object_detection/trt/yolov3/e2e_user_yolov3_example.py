@@ -43,7 +43,7 @@ def get_calibration_table(model_path, augmented_model_path, calibration_dataset)
     # data_reader = YoloV3DataReader(calibration_dataset, stride=1000, batch_size=20, model_path=augmented_model_path)
     # calibrator.collect_data(data_reader)
 
-    write_calibration_table(calibrator.compute_range())
+    write_calibration_table(calibrator.compute_data())
     print('calibration table generated and saved.')
 
 
