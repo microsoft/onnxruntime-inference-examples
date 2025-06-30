@@ -20,7 +20,7 @@
 3. Use opencl for IO buffer sample (squeezenet_cpp_app_io.cpp).
 4. Use any sample image as input to the sample.
 5. Download the latest Squeezenet model from the ONNX Model Zoo.
-   This example was adapted from [ONNX Model Zoo](https://github.com/onnx/models).Download the latest version of the [Squeezenet](https://github.com/onnx/models/tree/master/vision/classification/squeezenet) model from here.
+   This example was adapted from [ONNX Model Zoo](https://github.com/onnx/models).Download the latest version of the [Squeezenet](https://github.com/onnx/models/tree/master/validated/vision/classification/squeezenet) model from here.
 
 #### Build ONNX Runtime
 Open x64 Native Tools Command Prompt for VS 2019.
