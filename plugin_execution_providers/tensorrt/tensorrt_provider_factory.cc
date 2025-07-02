@@ -206,6 +206,10 @@ OrtStatus* ORT_API_CALL TensorrtExecutionProviderFactory::CreateDataTransferImpl
   return nullptr;
 }
 
+OrtMemoryInfo* TensorrtExecutionProviderFactory::GetDefaultMemInfo() const {
+  return default_gpu_memory_info_.get();
+}
+
 // To make symbols visible on macOS/iOS
 #ifdef __APPLE__
 #define EXPORT_SYMBOL __attribute__((visibility("default")))
@@ -221,10 +225,10 @@ EXPORT_SYMBOL OrtStatus* CreateEpFactories(const char* registration_name, const 
                                            OrtEpFactory** factories, size_t max_factories, size_t* num_factories) {
   const OrtApi* ort_api = ort_api_base->GetApi(ORT_API_VERSION);
   const OrtEpApi* ort_ep_api = ort_api->GetEpApi();
+  const OrtModelEditorApi* model_editor_api = ort_api->GetModelEditorApi();
 
   // Factory could use registration_name or define its own EP name.
-  std::unique_ptr<OrtEpFactory> factory = std::make_unique<TensorrtExecutionProviderFactory>(registration_name,
-                                                                             ApiPtrs{*ort_api, *ort_ep_api});
+  std::unique_ptr<OrtEpFactory> factory = std::make_unique<TensorrtExecutionProviderFactory>(registration_name, ApiPtrs{*ort_api, *ort_ep_api, *model_editor_api});
 
   if (max_factories < 1) {
     return ort_api->CreateStatus(ORT_INVALID_ARGUMENT,

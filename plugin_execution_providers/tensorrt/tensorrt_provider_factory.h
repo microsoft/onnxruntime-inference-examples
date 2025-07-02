@@ -4,9 +4,10 @@
 ///
 /// Plugin TensorRT EP factory that can create an OrtEp and return information about the supported hardware devices.
 ///
-struct TensorrtExecutionProviderFactory : OrtEpFactory, ApiPtrs {
+struct TensorrtExecutionProviderFactory : public OrtEpFactory, public ApiPtrs {
  public:
   TensorrtExecutionProviderFactory(const char* ep_name, ApiPtrs apis);
+  OrtMemoryInfo* GetDefaultMemInfo() const;
 
  private:
   static const char* ORT_API_CALL GetNameImpl(const OrtEpFactory* this_ptr) noexcept;

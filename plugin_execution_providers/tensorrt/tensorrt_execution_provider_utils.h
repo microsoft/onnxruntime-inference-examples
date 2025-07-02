@@ -1,3 +1,5 @@
+#pragma once
+
 #define ORT_API_MANUAL_INIT
 #include "onnxruntime_cxx_api.h"
 #undef ORT_API_MANUAL_INIT
@@ -9,6 +11,7 @@
 // #include "core/framework/murmurhash3.h"
 
 #include"nv_includes.h"
+#include "gsl/narrow"
 
 #include <fstream>
 #include <unordered_map>
@@ -40,6 +43,42 @@ struct ApiPtrs {
 };
 
 namespace fs = std::filesystem;
+
+template <typename T>
+using AllocatorUniquePtr = std::unique_ptr<T, std::function<void(T*)>>;
+
+bool CalcMemSizeForArrayWithAlignment(size_t nmemb, size_t size, size_t alignment, size_t* out) noexcept {
+  size_t alloc_size = size;
+  if (alignment == 0) {
+    *out = alloc_size * nmemb;
+  } else {
+    size_t alignment_mask = alignment - 1;
+    *out = (alloc_size * nmemb + alignment_mask) & ~static_cast<size_t>(alignment_mask);
+  }
+  return true;
+}
+
+template <typename T>
+AllocatorUniquePtr<T> MakeUniquePtrFromOrtAllocator(OrtAllocator* ort_allocator, size_t count_or_bytes,
+                                                     bool use_reserve = false) {
+  size_t alloc_size = count_or_bytes;
+  // if T is not void, 'count_or_bytes' == number of items so allow for that
+  if constexpr (!std::is_void<T>::value) {
+    // sizeof(void) isn't valid, but the compiler isn't smart enough to ignore that this line isn't
+    // reachable if T is void. use std::conditional to 'use' void* in the sizeof call
+    constexpr auto size = sizeof(typename std::conditional<std::is_void<T>::value, void*, T>::type);
+    CalcMemSizeForArrayWithAlignment(count_or_bytes, size, 0, &alloc_size);
+  }
+
+  T* p = nullptr;
+  if (use_reserve) {
+    p = static_cast<T*>(ort_allocator->Reserve(ort_allocator, alloc_size));
+  } else {
+    p = static_cast<T*>(ort_allocator->Alloc(ort_allocator, alloc_size));
+  }
+
+  return AllocatorUniquePtr<T>{p, [ort_allocator](T* p) { ort_allocator->Free(ort_allocator, p); }};
+}
 
 // Check if cycle exists in the graph after partitioning
 /*
@@ -168,7 +207,6 @@ std::vector<std::string> SplitToStringVec(std::string const& s, char separator) 
   return splitted;
 }
 
-/*
 nvinfer1::TacticSources GetTacticSourceFromString(std::string& tactic_string) {
   nvinfer1::TacticSources disabledTactics = 0;
   nvinfer1::TacticSources enabledTactics = 0;
@@ -184,7 +222,7 @@ nvinfer1::TacticSources GetTacticSourceFromString(std::string& tactic_string) {
 
     const auto toUpper = [](std::string& sourceName) {
       std::transform(sourceName.begin(), sourceName.end(), sourceName.begin(),
-                     [](char c) { return onnxruntime::narrow<char>(std::toupper(c)); });
+                     [](char c) { return gsl::narrow<char>(std::toupper(c)); });
       return sourceName;
     };
 
@@ -223,7 +261,6 @@ nvinfer1::TacticSources GetTacticSourceFromString(std::string& tactic_string) {
   }
   return enabledTactics & ~disabledTactics;
 }
-*/
 
 inline std::vector<char> loadTimingCacheFile(const std::string inFileName) {
   std::ifstream iFile(inFileName, std::ios::in | std::ios::binary);

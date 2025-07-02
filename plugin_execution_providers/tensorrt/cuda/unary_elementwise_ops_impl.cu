@@ -9,7 +9,6 @@
 #endif
 #include <cuda_fp16.h>
 
-namespace onnxruntime {
 
 namespace cuda {
 
@@ -90,4 +89,3 @@ IMPL_CAST_IMPL_FROM(bool)
 //IMPL_CAST_IMPL_FROM(BFloat16)
 
 }  // namespace cuda
-}  // namespace onnxruntime

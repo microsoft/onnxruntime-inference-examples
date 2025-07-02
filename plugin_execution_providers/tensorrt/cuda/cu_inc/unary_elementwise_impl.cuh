@@ -4,7 +4,6 @@
 #pragma once
 #include <stdint.h>
 
-namespace onnxruntime {
 namespace cuda {
 
 // We would like to use 64-bit integer to support large matrices. However, CUDA seems to support only 32-bit integer
@@ -75,4 +74,3 @@ void UnaryElementWiseImpl(
 }
 
 }  // namespace cuda
-}  // namespace onnxruntime

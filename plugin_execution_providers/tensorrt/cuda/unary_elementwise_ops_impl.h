@@ -7,7 +7,6 @@
 #include <cuda_fp16.h>
 #include <cuda_runtime.h>
 
-namespace onnxruntime {
 namespace cuda {
 
 // Cast
@@ -50,5 +49,3 @@ void Impl_Cast(cudaStream_t stream, const InT* input_data, OutT* output_data, si
 }
 
 }  // namespace cuda
-
-}  // namespace onnxruntime

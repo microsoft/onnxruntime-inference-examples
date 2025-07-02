@@ -4,6 +4,7 @@
 #include "onnxruntime_cxx_api.h"
 #undef ORT_API_MANUAL_INIT
 
+#include "tensorrt_provider_factory.h"
 #include "utils/provider_options.h"
 #include "tensorrt_execution_provider_info.h"
 #include "nv_includes.h"
@@ -150,11 +151,6 @@ class OutputAllocator : public nvinfer1::IOutputAllocator {
   std::vector<int64_t> output_shapes;
 };
 
-using ShapeRangesMap = std::unordered_map<std::string, std::unordered_map<size_t, std::vector<std::vector<int64_t>>>>;
-
-template <typename T>
-using IAllocatorUniquePtr = std::unique_ptr<T, std::function<void(T*)>>;
-
 struct TensorrtComputeState {
   std::string fused_node_name;
   nvinfer1::IBuilder* builder;
@@ -166,6 +162,8 @@ struct TensorrtComputeState {
   std::vector<std::unordered_map<std::string, size_t>> output_info;
   std::unordered_map<std::string, std::unordered_map<size_t, std::vector<std::vector<int64_t>>>> input_shape_ranges;
   std::mutex* tensorrt_mu_ptr = nullptr;
+  std::string compute_capability;
+  size_t max_workspace_size = 1 << 30;  // 1GB;
   bool fp16_enable = false;
   bool int8_enable = false;
   bool int8_calibration_cache_available = false;
@@ -178,7 +176,7 @@ struct TensorrtComputeState {
   std::vector<nvinfer1::IOptimizationProfile*> profiles;
   bool context_memory_sharing_enable = false;
   size_t* max_context_mem_size_ptr = nullptr;
-  IAllocatorUniquePtr<void>* context_memory = nullptr;
+  AllocatorUniquePtr<void>* context_memory = nullptr;
   std::unordered_map<std::string, float> dynamic_range_map;
   bool engine_decryption_enable = false;
   int (*engine_decryption)(const char*, char*, size_t*) = nullptr;
@@ -193,10 +191,17 @@ struct TensorrtComputeState {
   int auxiliary_streams = -1;
   bool filter_tactic_sources = false;
   nvinfer1::TacticSources tactic_sources;
-  bool cuda_graph_enable = 0;
+  bool cuda_graph_enable = false;
+  bool weight_stripped_engine_enable = false;
+  bool weight_stripped_engine_refit = false;
+  char* model_path;
+  std::string onnx_model_folder_path;
+  const void* onnx_model_bytestream;
+  size_t onnx_model_bytestream_size;
   std::string cache_prefix;
   std::string cache_suffix;
   bool engine_hw_compatible = false;
+  bool sync_stream_after_enqueue = true;
 };
 
 // Minimum information to construct kernel function state for direct engine load code path
@@ -211,6 +216,7 @@ struct TensorrtComputeStateForEPContext {
   std::mutex* tensorrt_mu_ptr = nullptr;
 };
 
+using ShapeRangesMap = std::unordered_map<std::string, std::unordered_map<size_t, std::vector<std::vector<int64_t>>>>;
 using DDSOutputAllocatorMap = std::unordered_map<std::string, std::unique_ptr<OutputAllocator>>;
 std::string GetWeightRefittedEnginePath(std::string engine_cache_path);
 
@@ -220,54 +226,51 @@ static const std::string k_ep_ctx_onnx_model_filename = "onnx_model_filename";
 
 /// <summary>
 /// 
-/// Plugin TensorRT EP OrtNodeComputeInfo that represents the computation function for a compiled OrtGraph.
-/// 
-/// </summary>
-struct TRTEpNodeComputeInfo : OrtNodeComputeInfo {
-  explicit TRTEpNodeComputeInfo(TensorrtExecutionProvider& ep);
-
-  static OrtStatus* ORT_API_CALL CreateStateImpl(OrtNodeComputeInfo* this_ptr, OrtNodeComputeContext* compute_context,
-                                                 void** compute_state);
-  static OrtStatus* ORT_API_CALL ComputeImpl(OrtNodeComputeInfo* this_ptr, void* compute_state,
-                                             OrtKernelContext* kernel_context);
-  static void ORT_API_CALL ReleaseStateImpl(OrtNodeComputeInfo* this_ptr, void* compute_state);
-
-  TensorrtExecutionProvider& ep;
-};
-
-/// <summary>
-/// 
-/// Plugin TensorRT EP that implements OrtEp
+/// Plugin TensorRT EP
 ///
 /// </summary>
-struct TensorrtExecutionProvider : OrtEp, ApiPtrs {
-  TensorrtExecutionProvider(ApiPtrs apis, const std::string& name, const OrtHardwareDevice& device,
-                            const OrtSessionOptions& session_options, const OrtLogger& logger);
+struct TensorrtExecutionProvider : public OrtEp, public ApiPtrs {
+  TensorrtExecutionProvider(TensorrtExecutionProviderFactory& factory, const std::string& name,
+                            const OrtHardwareDevice& device, const OrtSessionOptions& session_options,
+                            const OrtLogger& logger);
   ~TensorrtExecutionProvider();
 
+  TensorrtExecutionProviderFactory& factory_;
   std::string name_;
   const OrtHardwareDevice& hardware_device_;
   const OrtSessionOptions& session_options_;
   const OrtLogger& logger_;
 
-  SubGraphCollection_t GetSupportedList(SubGraphCollection_t supported_nodes_list, int iterations, const int max_iterations,
-                                        const OrtGraph* graph, bool* early_termination) const;
+  SubGraphCollection_t GetSupportedList(SubGraphCollection_t supported_nodes_list, int iterations,
+                                        const int max_iterations, const OrtGraph* graph, bool* early_termination) const;
 
   OrtStatus* CreateNodeComputeInfoFromPrecompiledEngine(OrtEp* this_ptr, const OrtGraph* graph,
                                                         const OrtNode* fused_node,
                                                         std::unordered_map<std::string, size_t>& input_map,
                                                         std::unordered_map<std::string, size_t>& output_map,
-                                                        OrtNodeComputeInfo* node_compute_info);
+                                                        OrtNodeComputeInfo** node_compute_info);
 
   OrtStatus* CreateNodeComputeInfoFromGraph(OrtEp* this_ptr, const OrtGraph* graph, const OrtNode* fused_node,
                                             std::unordered_map<std::string, size_t>& input_map,
                                             std::unordered_map<std::string, size_t>& output_map,
-                                            OrtNodeComputeInfo* node_compute_info);
+                                            OrtNodeComputeInfo** node_compute_info);
+
+  OrtStatus* RefitEngine(std::string onnx_model_filename, std::string& onnx_model_folder_path,
+                                    std::string& weight_stripped_engine_cath_path, bool path_check,
+                                    const void* onnx_model_bytestream, size_t onnx_model_bytestream_size,
+                                    nvinfer1::ICudaEngine* trt_engine, bool serialize_refitted_engine,
+                                    bool detailed_build_log);
 
   std::unordered_map<std::string, std::unique_ptr<TensorrtComputeState>>& GetComputeStates() { return compute_states_; }
 
-  std::unordered_map<std::string, std::unique_ptr<TensorrtComputeState>>& GetComputeStatesForEPContext() { return compute_states_; }
+  std::unordered_map<std::string, std::unique_ptr<TensorrtComputeState>>& GetComputeStatesForEPContext() {
+    return compute_states_;
+  }
 
+  void GetAllocator(OrtAllocator** alloc) const { *alloc = alloc_; }
+
+  void SetAllocator(OrtAllocator* alloc) { alloc_ = alloc; }
+ 
   std::unordered_map<std::string, DDSOutputAllocatorMap>& GetDDSOutputAllocators() {
     return dds_output_allocator_maps_;
   }
@@ -312,6 +315,19 @@ struct TensorrtExecutionProvider : OrtEp, ApiPtrs {
   std::unordered_map<std::string, std::string> cache_suffix_;
 
  private:
+  static const char* ORT_API_CALL GetNameImpl(const OrtEp* this_ptr) noexcept;
+  static OrtStatus* ORT_API_CALL GetCapabilityImpl(OrtEp* this_ptr, const OrtGraph* graph,
+                                                              OrtEpGraphSupportInfo* graph_support_info);
+  static OrtStatus* ORT_API_CALL CompileImpl(_In_ OrtEp* this_ptr, _In_ const OrtGraph** graphs,
+                                             _In_ const OrtNode** fused_nodes, _In_ size_t count,
+                                             _Out_writes_all_(count) OrtNodeComputeInfo** node_compute_infos,
+                                             _Out_writes_(count) OrtNode** ep_context_nodes);
+  static void ORT_API_CALL ReleaseNodeComputeInfosImpl(OrtEp* this_ptr, OrtNodeComputeInfo** node_compute_infos,
+                                                       size_t num_node_compute_infos);
+
+  OrtStatus* CreateEpContextNodes(gsl::span<const OrtNode*> fused_nodes,
+                                  /*out*/ gsl::span<OrtNode*> ep_context_nodes);
+
   mutable TensorrtExecutionProviderInfo info_;
   bool external_stream_ = false;
   cudaStream_t stream_ = nullptr;
@@ -331,6 +347,8 @@ struct TensorrtExecutionProvider : OrtEp, ApiPtrs {
   bool weight_stripped_engine_enable_ = false;
   bool weight_stripped_engine_refit_ = false;
   std::string onnx_model_folder_path_;
+  const void* onnx_model_bytestream_;
+  size_t onnx_model_bytestream_size_;
   bool build_heuristics_enable_ = false;
   bool sparsity_enable_ = false;
   int builder_optimization_level_ = 3;
@@ -344,7 +362,7 @@ struct TensorrtExecutionProvider : OrtEp, ApiPtrs {
   bool context_memory_sharing_enable_ = false;
   bool layer_norm_fp32_fallback_ = false;
   size_t max_ctx_mem_size_ = 0;
-  IAllocatorUniquePtr<void> context_memory_ = nullptr;
+  AllocatorUniquePtr<void> context_memory_ = nullptr;
   mutable char model_path_[4096] = {};  // Reserved for max path length
   bool engine_decryption_enable_ = false;
   int (*engine_decryption_)(const char*, char*, size_t*) = nullptr;
@@ -418,4 +436,21 @@ struct TensorrtExecutionProvider : OrtEp, ApiPtrs {
   bool IsGraphCaptureAllowed() const { return false; };
 
   nvinfer1::IBuilder* GetBuilder(TensorrtLogger& trt_logger) const;
+};
+
+/// <summary>
+///
+/// Plugin TensorRT EP OrtNodeComputeInfo that represents the computation function for a compiled OrtGraph.
+///
+/// </summary>
+struct TRTEpNodeComputeInfo : OrtNodeComputeInfo {
+  explicit TRTEpNodeComputeInfo(TensorrtExecutionProvider& ep);
+
+  static OrtStatus* ORT_API_CALL CreateStateImpl(OrtNodeComputeInfo* this_ptr, OrtNodeComputeContext* compute_context,
+                                                 void** compute_state);
+  static OrtStatus* ORT_API_CALL ComputeImpl(OrtNodeComputeInfo* this_ptr, void* compute_state,
+                                             OrtKernelContext* kernel_context);
+  static void ORT_API_CALL ReleaseStateImpl(OrtNodeComputeInfo* this_ptr, void* compute_state);
+
+  TensorrtExecutionProvider& ep;
 };
