@@ -92,8 +92,9 @@ OrtStatus* ORT_API_CALL TensorrtExecutionProviderFactory::GetSupportedDevicesImp
       factory->ort_api.AddKeyValuePair(ep_options, "trt_builder_optimization_level", "3");
 
       // OrtEpDevice copies ep_metadata and ep_options.
+      OrtEpDevice* ep_device = nullptr;
       auto* status = factory->ort_api.GetEpApi()->CreateEpDevice(factory, &device, ep_metadata, ep_options,
-                                                                 &ep_devices[num_ep_devices++]);
+                                                                 &ep_device);
 
       factory->ort_api.ReleaseKeyValuePairs(ep_metadata);
       factory->ort_api.ReleaseKeyValuePairs(ep_options);
@@ -101,6 +102,12 @@ OrtStatus* ORT_API_CALL TensorrtExecutionProviderFactory::GetSupportedDevicesImp
       if (status != nullptr) {
         return status;
       }
+
+      // register the allocator info required by the EP.
+      RETURN_IF_ERROR(factory->ep_api.EpDevice_AddAllocatorInfo(ep_device, factory->default_gpu_memory_info_.get()));
+      RETURN_IF_ERROR(factory->ep_api.EpDevice_AddAllocatorInfo(ep_device, factory->host_accessible_gpu_memory_info_.get()));
+
+      ep_devices[num_ep_devices++] = ep_device;
     }
 
     // C++ API equivalent. Throws on error.
