@@ -7,16 +7,13 @@
 #define ORT_API_MANUAL_INIT
 #include "onnxruntime_cxx_api.h"
 
-namespace onnxruntime {
-
-// Following names are originally defined in allocator.h
 constexpr const char* CUDA_ALLOCATOR = "Cuda";
 constexpr const char* CUDA_PINNED_ALLOCATOR = "CudaPinned";
 
 using DeviceId = int16_t;
 
 struct CUDAAllocator : OrtAllocator {
-  CUDAAllocator(DeviceId device_id, const char* name = onnxruntime::CUDA_ALLOCATOR) {
+  CUDAAllocator(DeviceId device_id, const char* name = CUDA_ALLOCATOR) {
     OrtAllocator::version = ORT_API_VERSION;
     OrtAllocator::Alloc = [](OrtAllocator* this_, size_t size) { return static_cast<CUDAAllocator*>(this_)->Alloc(size); };
     OrtAllocator::Free = [](OrtAllocator* this_, void* p) { static_cast<CUDAAllocator*>(this_)->Free(p); };
@@ -31,6 +28,7 @@ struct CUDAAllocator : OrtAllocator {
                           OrtMemType::OrtMemTypeDefault,
                           &mem_info_);
   }
+  // TODO: Handle destructor
   //~CUDAAllocator();
 
   void* Alloc(size_t size);
@@ -50,7 +48,7 @@ struct CUDAAllocator : OrtAllocator {
 };
 
 struct CUDAPinnedAllocator : OrtAllocator {
-  CUDAPinnedAllocator(const char* name = onnxruntime::CUDA_PINNED_ALLOCATOR) {
+  CUDAPinnedAllocator(const char* name = CUDA_PINNED_ALLOCATOR) {
     OrtAllocator::version = ORT_API_VERSION;
     OrtAllocator::Alloc = [](OrtAllocator* this_, size_t size) { return static_cast<CUDAPinnedAllocator*>(this_)->Alloc(size); };
     OrtAllocator::Free = [](OrtAllocator* this_, void* p) { static_cast<CUDAPinnedAllocator*>(this_)->Free(p); };
@@ -62,6 +60,7 @@ struct CUDAPinnedAllocator : OrtAllocator {
                           OrtMemType::OrtMemTypeDefault,
                           &mem_info_);
   }
+  // TODO: Handle destructor
   //~CUDAPinnedAllocator();
 
   void* Alloc(size_t size);
@@ -77,6 +76,3 @@ struct CUDAPinnedAllocator : OrtAllocator {
   DeviceId device_id_ = 0;
   OrtMemoryInfo* mem_info_ = nullptr;
 };
-
-
-}  // namespace onnxruntime

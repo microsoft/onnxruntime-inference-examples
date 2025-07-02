@@ -7,7 +7,6 @@
 #include "provider_options_utils.h"
 #include "cuda/cuda_common.h"
 
-namespace onnxruntime {
 namespace tensorrt {
 namespace provider_option_names {
 constexpr const char* kDeviceId = "device_id";
@@ -336,4 +335,3 @@ TensorrtExecutionProviderInfo TensorrtExecutionProviderInfo::FromProviderOptions
 //  trt_provider_options_v2.trt_ep_context_file_path = copy_string_if_needed(internal_options.ep_context_file_path);
 //  trt_provider_options_v2.trt_engine_hw_compatible = internal_options.engine_hw_compatible;
 //}
-}  // namespace onnxruntime

@@ -1,3 +1,15 @@
+#define ORT_API_MANUAL_INIT
+#include "onnxruntime_cxx_api.h"
+#undef ORT_API_MANUAL_INIT
+
+#include "flatbuffers/idl.h"
+#include "ort_trt_int8_cal_table.fbs.h"
+// #include "core/providers/cuda/cuda_pch.h"
+// #include "core/common/path_string.h"
+// #include "core/framework/murmurhash3.h"
+
+#include"nv_includes.h"
+
 #include <fstream>
 #include <unordered_map>
 #include <string>
@@ -5,16 +17,29 @@
 #include <sstream>
 #include <iostream>
 #include <filesystem>
-#include "flatbuffers/idl.h"
-#include "ort_trt_int8_cal_table.fbs.h"
-#include <NvInferVersion.h>
-//#include "core/providers/cuda/cuda_pch.h"
-//#include "core/common/path_string.h"
-//#include "core/framework/murmurhash3.h"
+
+#define RETURN_IF_ERROR(fn)    \
+  do {                         \
+    OrtStatus* _status = (fn); \
+    if (_status != nullptr) {  \
+      return _status;          \
+    }                          \
+  } while (0)
+
+#define RETURN_IF(cond, ort_api, msg)                    \
+  do {                                                   \
+    if ((cond)) {                                        \
+      return (ort_api).CreateStatus(ORT_EP_FAIL, (msg)); \
+    }                                                    \
+  } while (0)
+
+struct ApiPtrs {
+  const OrtApi& ort_api;
+  const OrtEpApi& ep_api;
+  const OrtModelEditorApi& model_editor_api;
+};
 
 namespace fs = std::filesystem;
-
-//namespace onnxruntime {
 
 // Check if cycle exists in the graph after partitioning
 /*
@@ -143,6 +168,7 @@ std::vector<std::string> SplitToStringVec(std::string const& s, char separator) 
   return splitted;
 }
 
+/*
 nvinfer1::TacticSources GetTacticSourceFromString(std::string& tactic_string) {
   nvinfer1::TacticSources disabledTactics = 0;
   nvinfer1::TacticSources enabledTactics = 0;
@@ -197,6 +223,7 @@ nvinfer1::TacticSources GetTacticSourceFromString(std::string& tactic_string) {
   }
   return enabledTactics & ~disabledTactics;
 }
+*/
 
 inline std::vector<char> loadTimingCacheFile(const std::string inFileName) {
   std::ifstream iFile(inFileName, std::ios::in | std::ios::binary);
@@ -968,4 +995,3 @@ std::string GetCacheSuffix(const std::string& fused_node_name, const std::string
   }
   return "";
 }
-//}  // namespace onnxruntime

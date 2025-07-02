@@ -152,6 +152,9 @@ class OutputAllocator : public nvinfer1::IOutputAllocator {
 
 using ShapeRangesMap = std::unordered_map<std::string, std::unordered_map<size_t, std::vector<std::vector<int64_t>>>>;
 
+template <typename T>
+using IAllocatorUniquePtr = std::unique_ptr<T, std::function<void(T*)>>;
+
 struct TensorrtComputeState {
   std::string fused_node_name;
   nvinfer1::IBuilder* builder;
@@ -168,7 +171,6 @@ struct TensorrtComputeState {
   bool int8_calibration_cache_available = false;
   bool dla_enable = false;
   int dla_core = 0;
-  size_t* max_workspace_size_ptr = nullptr;
   std::string trt_node_name_with_precision;
   bool engine_cache_enable = false;
   std::string engine_cache_path;
@@ -176,6 +178,7 @@ struct TensorrtComputeState {
   std::vector<nvinfer1::IOptimizationProfile*> profiles;
   bool context_memory_sharing_enable = false;
   size_t* max_context_mem_size_ptr = nullptr;
+  IAllocatorUniquePtr<void>* context_memory = nullptr;
   std::unordered_map<std::string, float> dynamic_range_map;
   bool engine_decryption_enable = false;
   int (*engine_decryption)(const char*, char*, size_t*) = nullptr;
@@ -214,11 +217,6 @@ std::string GetWeightRefittedEnginePath(std::string engine_cache_path);
 static const std::string k_cc_hw_compatible = "80+";
 static const std::string k_ep_ctx_hardware_architecture = "hardware_architecture";
 static const std::string k_ep_ctx_onnx_model_filename = "onnx_model_filename";
-
-struct ApiPtrs {
-  const OrtApi& ort_api;
-  const OrtEpApi& ep_api;
-};
 
 /// <summary>
 /// 
@@ -346,7 +344,7 @@ struct TensorrtExecutionProvider : OrtEp, ApiPtrs {
   bool context_memory_sharing_enable_ = false;
   bool layer_norm_fp32_fallback_ = false;
   size_t max_ctx_mem_size_ = 0;
-  //  IAllocatorUniquePtr<void> context_memory_ = nullptr;
+  IAllocatorUniquePtr<void> context_memory_ = nullptr;
   mutable char model_path_[4096] = {};  // Reserved for max path length
   bool engine_decryption_enable_ = false;
   int (*engine_decryption_)(const char*, char*, size_t*) = nullptr;

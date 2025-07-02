@@ -3,11 +3,10 @@
 
 #include <cassert>
 #include <cuda_runtime_api.h>
-#include "tensorrt_cuda_allocator.h"
+#include "cuda_allocator.h"
 
 void CUDA_RETURN_IF_ERROR(cudaError_t res);
 
-namespace onnxruntime {
 void CUDAAllocator::CheckDevice(bool throw_when_fail) const {
 #ifndef NDEBUG
   // check device to match at debug build
@@ -75,5 +74,3 @@ void CUDAPinnedAllocator::Free(void* p) {
 const OrtMemoryInfo* CUDAPinnedAllocator::Info() const {
   return mem_info_;
 }
-
-}  // namespace onnxruntime

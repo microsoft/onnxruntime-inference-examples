@@ -9,7 +9,6 @@
 
 #define TRT_DEFAULT_OPTIMIZER_LEVEL 3
 
-namespace onnxruntime {
 // Information needed to construct trt execution providers.
 struct TensorrtExecutionProviderInfo {
   int device_id{0};
@@ -55,11 +54,10 @@ struct TensorrtExecutionProviderInfo {
   std::string engine_cache_prefix{""};
   bool engine_hw_compatible{false};
 
-  static TensorrtExecutionProviderInfo FromProviderOptions(const ProviderOptions& options);
+  static TensorrtExecutionProviderInfo FromProviderOptions(const onnxruntime::ProviderOptions& options);
 //  static ProviderOptions ToProviderOptions(const TensorrtExecutionProviderInfo& info);
 //  static ProviderOptions ToProviderOptions(const OrtTensorRTProviderOptionsV2& info);
 //  static void UpdateProviderOptions(void* provider_options, const ProviderOptions& options, bool string_copy);
 //
 //  std::vector<OrtCustomOpDomain*> custom_op_domain_list;
 };
-}  // namespace onnxruntime
