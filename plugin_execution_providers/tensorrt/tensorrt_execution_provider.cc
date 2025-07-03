@@ -1980,16 +1980,35 @@ TensorrtExecutionProvider::TensorrtExecutionProvider(TensorrtExecutionProviderFa
 
   // The implementation of the SessionOptionsAppendExecutionProvider C API function automatically adds EP options to
   // the session option configurations with the key prefix "ep.<lowercase_ep_name>.".
-  const std::string key_prefix = OrtSessionOptions::GetProviderOptionPrefix(name_.c_str());
-  const ConfigOptions& config_options = session_options.GetConfigOptions();
-  const std::unordered_map<std::string, std::string>& config_options_map = config_options.GetConfigOptionsMap();
+  // We extract those EP options to create a new "provider options" key/value map.
+  std::string lowercase_ep_name = name_.c_str();
+  std::transform(lowercase_ep_name.begin(), lowercase_ep_name.end(), lowercase_ep_name.begin(),
+                 [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
 
+  // The implementation of the SessionOptionsAppendExecutionProvider C API function automatically adds EP options to
+  // the session option configurations with the key prefix "ep.<lowercase_ep_name>.".
+  std::string key_prefix = "ep." + lowercase_ep_name + ".";
+
+  /*
   // Get provider options as key-value pair strings
   ProviderOptions provider_options;
   for (const auto& [key, value] : config_options_map) {
     if (key.rfind(key_prefix, 0) == 0) {
       provider_options[key.substr(key_prefix.size())] = value;
     }
+  }
+  */
+
+  // Get all the provider options as session config from sesson
+  ProviderOptions provider_options;
+  int has_session_config_entry = 0;
+  std::string provider_option = key_prefix + "trt_engine_cache_enable";
+  auto status = ort_api.HasSessionConfigEntry(&session_options, provider_option.c_str(), & has_session_config_entry);
+  if (has_session_config_entry) {
+    char* value = nullptr;
+    size_t size = 0;
+    status = ort_api.GetSessionConfigEntry(&session_options, provider_option.c_str(), value, &size);
+    provider_options[provider_option.substr(key_prefix.size())] = value;
   }
 
   // Provider options to TensorrtExecutionProviderInfo
