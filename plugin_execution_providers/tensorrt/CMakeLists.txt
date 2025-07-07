@@ -1,6 +1,6 @@
 # usage:
 # cd build/
-# cmake -S ../ -B ./ -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CUDA_ARCHITECTURES=80 -DCMAKE_CUDA_COMPILER=/usr/local/cuda/bin/nvcc -DORT_HOME=/home/lochi/repos/ort -DTENSORRT_HOME=/home/lochi/tensorrt/TensorRT-10.3.0.26 (see the result of "nvidia-smi --query-gpu=compute_cap --format=csv,noheader,nounits")
+# cmake -S ../ -B ./ -DCMAKE_BUILD_TYPE=Debug -DORT_HOME=/home/lochi/onnxruntime-win-x64-gpu-1.22.0 -DCMAKE_CUDA_ARCHITECTURES=80 -DCMAKE_CUDA_COMPILER=/usr/local/cuda/bin/nvcc -DTENSORRT_HOME=/home/lochi/tensorrt/TensorRT-10.3.0.26 (see the result of "nvidia-smi --query-gpu=compute_cap --format=csv,noheader,nounits")
 # cmake --build ./ --config Debug
 cmake_minimum_required(VERSION 3.26)
 project(TensorRTEp VERSION 1.0)
@@ -13,7 +13,7 @@ add_definitions(-DONNX_NAMESPACE=onnx)
 add_definitions(-DONNX_ML)
 add_definitions(-DNV_TENSORRT_MAJOR=10)
 add_definitions(-DNOMINMAX)
-file(GLOB tensorrt_src "./*.cc" "./utils/*.cc" "./cuda/unary_elementwise_ops_impl.cu")
+file(GLOB tensorrt_src "./*.cc" "./utils/*.cc" "./cuda/unary_elementwise_ops_impl.cu" "./*.h")
 add_library(TensorRTEp SHARED ${tensorrt_src})
 
 if (NOT ORT_HOME)
@@ -31,6 +31,24 @@ endif()
 
 # Add dependencies
 include(FetchContent)
+
+# Add protobuf
+FetchContent_Declare(
+  protobuf
+  GIT_REPOSITORY https://github.com/protocolbuffers/protobuf.git
+  GIT_TAG        v21.12  # Use a specific tag or commit
+)
+
+FetchContent_MakeAvailable(protobuf)
+
+# Add ONNX
+FetchContent_Declare(
+  onnx
+  GIT_REPOSITORY https://github.com/onnx/onnx.git
+  GIT_TAG        v1.18.0  # Use a specific tag or commit
+)
+
+FetchContent_MakeAvailable(onnx)
 
 # Add GSL
 FetchContent_Declare(
@@ -50,17 +68,18 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(flatbuffers)
 
-if (WIN32)
-  set(PLATFORM "Windows")
-  set(ORT_LIB "${ORT_HOME}/build/${PLATFORM}/${CMAKE_BUILD_TYPE}/${CMAKE_BUILD_TYPE}/onnxruntime.lib")
-  set(DEPS_PATH "${ORT_HOME}/build/${PLATFORM}/${CMAKE_BUILD_TYPE}/_deps")
+set(DEPS_PATH "${CMAKE_BINARY_DIR}/_deps")
+
+if (WIN32) # Windows
+  set(ORT_LIB "${ORT_HOME}/lib/onnxruntime.lib")
+  #set(ORT_LIB "${ORT_HOME}/lib/onnxruntime.dll")
   set(TRT_LIBS "${TENSORRT_HOME}/lib/nvinfer_10.lib" 
                "${TENSORRT_HOME}/lib/nvinfer_plugin_10.lib"
                "${TENSORRT_HOME}/lib/nvonnxparser_10.lib")
   set(DEPS_LIBS "${DEPS_PATH}/flatbuffers-build/${CMAKE_BUILD_TYPE}/flatbuffers.lib"
-               "${DEPS_PATH}/onnx-build/${CMAKE_BUILD_TYPE}/onnx.lib"
-               "${DEPS_PATH}/onnx-build/${CMAKE_BUILD_TYPE}/onnx_proto.lib")
-  
+                "${DEPS_PATH}/onnx-build/${CMAKE_BUILD_TYPE}/onnx.lib"
+                "${DEPS_PATH}/onnx-build/${CMAKE_BUILD_TYPE}/onnx_proto.lib")
+
   if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     set(DEPS_LIBS ${DEPS_LIBS}
                  "${DEPS_PATH}/protobuf-build/${CMAKE_BUILD_TYPE}/libprotobufd.lib"
@@ -70,17 +89,15 @@ if (WIN32)
                  "${DEPS_PATH}/protobuf-build/${CMAKE_BUILD_TYPE}/libprotobuf.lib"
                  "${DEPS_PATH}/protobuf-build/${CMAKE_BUILD_TYPE}/libprotoc.lib")
   endif()
-else()
-  set(PLATFORM "Linux")
-  set(ORT_LIB "${ORT_HOME}/build/${PLATFORM}/${CMAKE_BUILD_TYPE}/libonnxruntime.so")
-  set(DEPS_PATH "${ORT_HOME}/build/${PLATFORM}/${CMAKE_BUILD_TYPE}/_deps")
+else() # Linux
+  set(ORT_LIB "${ORT_HOME}/lib/libonnxruntime.so")
   set(TRT_LIBS "${TENSORRT_HOME}/lib/libnvinfer.so"
                "${TENSORRT_HOME}/lib/libnvinfer_plugin.so"
                "${TENSORRT_HOME}/lib/libnvonnxparser.so")
   set(DEPS_LIBS "${DEPS_PATH}/flatbuffers-build/libflatbuffers.a"
                "${DEPS_PATH}/onnx-build/libonnx.a"
                "${DEPS_PATH}/onnx-build/libonnx_proto.a")
-  
+
   if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     set(DEPS_LIBS ${DEPS_LIBS}
                  "${DEPS_PATH}/protobuf-build/libprotobufd.a"
@@ -93,17 +110,14 @@ else()
 endif()
 
 MESSAGE(STATUS "Looking for following dependencies ...")
-MESSAGE(STATUS "Platform : ${PLATFORM}")
-MESSAGE(STATUS "ORT home : ${ORT_HOME}")
 MESSAGE(STATUS "ORT lib  : ${ORT_LIB}")
-MESSAGE(STATUS "Deps path: ${DEPS_PATH}")
-MESSAGE(STATUS "Deps libs: ${DEPS_LIBS}")
 MESSAGE(STATUS "TRT libs : ${TRT_LIBS}")
+MESSAGE(STATUS "Deps libs: ${DEPS_LIBS}")
 
-target_include_directories(TensorRTEp PUBLIC "${ORT_HOME}/include/onnxruntime/core/session/"
+target_include_directories(TensorRTEp PUBLIC "${ORT_HOME}/include"
                                              "./utils"
                                              "/usr/local/cuda/include"
-                                             ${TENSORRT_HOME}/include
+                                             "${TENSORRT_HOME}/include"
                                              "${DEPS_PATH}/flatbuffers-src/include"
                                              "${DEPS_PATH}/gsl-src/include"
                                              "${DEPS_PATH}/onnx-src"
@@ -114,6 +128,8 @@ target_include_directories(TensorRTEp PUBLIC "${ORT_HOME}/include/onnxruntime/co
 target_link_libraries(TensorRTEp PUBLIC ${ORT_LIB}
                                         ${TRT_LIBS}
                                         CUDA::cudart
-                                        ${DEPS_LIBS}
-                                        GSL
-                                        flatbuffers)
+                                        protobuf
+                                        onnx
+                                        gsl
+                                        flatbuffers
+)
