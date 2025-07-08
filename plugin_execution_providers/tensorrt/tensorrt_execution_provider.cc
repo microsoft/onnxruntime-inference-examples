@@ -9,6 +9,9 @@
 #include "onnxruntime_cxx_api.h"
 #undef ORT_API_MANUAL_INIT
 
+#define ORT_EP_UTILS_ORT_GRAPH_TO_PROTO_IMPL
+#include "ort_graph_to_proto.h"
+
 #include "ep_abi_utils.h"
 //#include "tensorrt_execution_provider_utils.h"
 #include "tensorrt_execution_provider.h"
@@ -716,6 +719,267 @@ SubGraphCollection_t TensorrtExecutionProvider::GetSupportedList(SubGraphCollect
                                                                  const OrtGraph* graph, bool* early_termination) const {
   // Return if iterations are exceeding predefined number
   SubGraphCollection_t nodes_list_output;
+  if (iterations > max_iterations) {
+    *early_termination = true;
+    return nodes_list_output;
+  }
+
+  // Get parent graph output names
+  std::unordered_set<std::string> graph_output_names;
+  for (const auto* output_arg : graph.GetOutputs()) {
+    graph_output_names.insert(output_arg->Name());
+  }
+
+  iterations++;
+  const std::vector<NodeIndex>& node_index = graph.GetNodesInTopologicalOrder(1 /*priority-based topological sort*/);
+  for (const auto& group : nodes_vector_input) {
+    // Construct subgraph
+    if (!group.first.empty()) {
+      if (group.second) {
+        nodes_list_output.push_back(group);
+      } else {
+        auto model_build = graph.CreateModel(*GetLogger());
+        auto& graph_build = model_build->MainGraph();
+        bool has_control_flow_op = false;
+
+        // Add node and node args
+        // If node output is also parent graph output, the output will be added to the
+        // subgraph's output list
+        std::vector<std::string> subgraph_output_names;
+        for (const auto& index : group.first) {
+          // Initializers that refer to a memory location in OrtValue
+          // can not be handled by TRT (unlike those that are on disk).
+          // This prevents us from sharing the data and we have to make a copy here.
+          constexpr const bool load_initializers_inline_true = true;
+          const auto& node = graph.GetNode(node_index[index]);
+          std::vector<onnxruntime::NodeArg*> inputs, outputs;
+          for (auto input : node->InputDefs()) {
+            auto& n_input = graph_build.GetOrCreateNodeArg(input->Name(), input->TypeAsProto());
+            inputs.push_back(&n_input);
+            graph_utils::MakeInitializerCopyIfNotExist(graph.GetGraph(), graph_build, input->Name(),
+                                                       load_initializers_inline_true);
+          }
+
+          for (auto input : node->ImplicitInputDefs()) {
+            graph_utils::MakeInitializerCopyIfNotExist(graph.GetGraph(), graph_build, input->Name(),
+                                                       load_initializers_inline_true);
+          }
+          for (auto output : node->OutputDefs()) {
+            auto& n_output = graph_build.GetOrCreateNodeArg(output->Name(), output->TypeAsProto());
+            outputs.push_back(&n_output);
+            const auto name = output->Name();
+            if (graph_output_names.find(name) != graph_output_names.end()) {
+              subgraph_output_names.push_back(name);
+            }
+          }
+
+          if (control_flow_op_set_.find(node->OpType()) != control_flow_op_set_.end()) {
+            has_control_flow_op = true;
+          }
+
+          // If the node has subgraph, it's possible that the ORT graph of that subgraph and the GraphProto in the node
+          // attributes are not in sync because of graph optimization. Therefore, we need to force GraphProto attributes
+          // to be updated in order to get the valid GraphProto.
+          if (node->GetAttributes().size() > 0) {
+            auto node_proto = ONNX_NAMESPACE::NodeProto::Create();
+            // we need to update any GraphProto attributes for subgraphs so that any changes made by things
+            // such as the optimizers are captured. otherwise we can end up saving an invalid graph.
+            node->ToProto(*node_proto, /* update_subgraphs */ true);
+            const int num_attributes = node_proto->attribute_size();
+            auto node_attributes = ONNX_NAMESPACE::NodeAttributes::Create();
+            node_attributes->reserve(num_attributes);
+
+            for (int i = 0; i < num_attributes; ++i) {
+              auto& attr = node_proto->attribute(i);
+              node_attributes->emplace(attr.name(), attr);
+            }
+
+            // The GraphProto attributes are the updated ones.
+            graph_build.AddNode(node->Name(), node->OpType(), node->Description(), inputs, outputs,
+                                node_attributes.get(), node->Domain());
+          } else {
+            // The GraphProto attributes are the original ones.
+            graph_build.AddNode(node->Name(), node->OpType(), node->Description(), inputs, outputs,
+                                &node->GetAttributes(), node->Domain());
+          }
+        }
+
+        // Only if the newly built graph has control flow op as well as it has parent node,
+        // it needs to handle outer scope values before calling graph.Resolve().
+        if (has_control_flow_op && graph.ParentNode()) {
+          LOGS_DEFAULT(VERBOSE) << "[TensorRT EP] Handle outer scope values for the subgraph " << graph_build.Name();
+          BuildSubGraphContext(graph_build);
+          SetGraphOuterScopeValuesAndInputs(graph_build, graph.GetGraph());
+          SetAllGraphInputs(graph_build);
+        }
+
+        ORT_ENFORCE(graph_build.Resolve().IsOK());
+
+        // Add parent graph output to the subgraph
+        int i = 0;
+        std::vector<const NodeArg*> subgraph_outputs;
+        subgraph_outputs.resize(subgraph_output_names.size());
+        for (auto& name : subgraph_output_names) {
+          auto output_arg = graph.GetNodeArg(name);
+          auto& subgraph_output_arg = graph_build.GetOrCreateNodeArg(output_arg->Name(), output_arg->TypeAsProto());
+          subgraph_outputs[i] = &subgraph_output_arg;
+          ++i;
+        }
+        auto& graph_build_outputs = graph_build.GetOutputs();
+        subgraph_outputs.insert(subgraph_outputs.begin(), graph_build_outputs.begin(), graph_build_outputs.end());
+        graph_build.SetOutputs(graph_build_outputs);
+        ORT_ENFORCE(graph_build.Resolve().IsOK());
+
+        // Check if input tensors have shapes
+        if (iterations > 1) {
+          auto graph_inputs = graph_build.GetInputs();
+          for (auto input_arg : graph_inputs) {
+            bool has_dim_value_or_param = true;
+            auto input_shape = input_arg->Shape();
+            if (input_shape != nullptr) {
+              auto dim_size = input_shape->dim_size();
+              for (int i = 0; i < dim_size; ++i) {
+                auto& dim = input_shape->dim(i);
+                if (!dim.has_dim_value() && !dim.has_dim_param()) {
+                  has_dim_value_or_param = false;
+                  break;
+                }
+              }
+            }
+
+            if (input_shape == nullptr || !has_dim_value_or_param) {
+              ORT_THROW_IF_ERROR(
+                  ORT_MAKE_STATUS(ONNXRUNTIME, FAIL,
+                                  "TensorRT input: " + input_arg->Name() + " has no shape specified. " +
+                                      "Please run shape inference on the onnx model first. Details can be found in " +
+                                      "https://onnxruntime.ai/docs/execution-providers/"
+                                      "TensorRT-ExecutionProvider.html#shape-inference-for-tensorrt-subgraphs"));
+            }
+          }
+        }
+
+
+        /*
+        //Save initializers to external file
+        std::string ext_ini_file_path = "model_serialized.bin";
+        std::filesystem::remove(ext_ini_file_path);
+        std::ofstream ext_ini_ofs(ext_ini_file_path, std::ios::binary);
+        auto handle_initializer_data = [&ext_ini_ofs, &ext_ini_file_path](
+                               const OrtValueInfo* value_info, const void* data, size_t bytes, bool& is_external,
+                               std::string& location, int64_t& offset) -> Ort::Status {
+          // OrtValueInfo* could be used to query initializer's name, type, shape,
+          // node consumers, etc.
+          (void)value_info;
+
+          if (bytes <= 127) {
+            is_external = false;  // Keep small initializers stored inside the TensorProto.
+            return Ort::Status{nullptr};
+          }
+
+          offset = ext_ini_ofs.tellp();
+          location = ext_ini_file_path;
+          ext_ini_ofs.write(static_cast<const char*>(data), bytes);
+          ext_ini_ofs.flush();
+          is_external = true;  // True if is external initializer.
+
+          return Ort::Status{nullptr};
+        };
+        */
+
+        // Construct ModelProto from OrtGraph
+        ONNX_NAMESPACE::ModelProto model_proto;
+
+        // add back handle_initializer_data to save initializer to external file
+        OrtEpUtils::OrtGraphToProto(*graph, model_proto /*, handle_initializer_data */);
+
+        std::string string_buf;
+        model_proto.SerializeToString(&string_buf);
+
+        if (dump_subgraphs_) {
+          // Dump TensorRT subgraph for debugging
+          std::fstream dump("TensorrtExecutionProvider_TRT_Subgraph.onnx",
+                            std::ios::out | std::ios::trunc | std::ios::binary);
+          model_proto.SerializeToOstream(&dump);
+        }
+
+        // Get supported node list recursively
+        SubGraphCollection_t parser_nodes_list;
+        TensorrtLogger& trt_logger = GetTensorrtLogger(detailed_build_log_);
+        auto trt_builder = GetBuilder(trt_logger);
+        auto network_flags = 0;
+#if NV_TENSORRT_MAJOR > 8
+        network_flags |= (fp16_enable_ || int8_enable_ || bf16_enable_)
+                             ? 0
+                             : 1U << static_cast<uint32_t>(nvinfer1::NetworkDefinitionCreationFlag::kSTRONGLY_TYPED);
+#else
+        network_flags |= 1U << static_cast<uint32_t>(nvinfer1::NetworkDefinitionCreationFlag::kEXPLICIT_BATCH);
+#endif
+
+        auto trt_network = std::unique_ptr<nvinfer1::INetworkDefinition>(trt_builder->createNetworkV2(network_flags));
+        auto trt_parser =
+            tensorrt_ptr::unique_pointer<nvonnxparser::IParser>(nvonnxparser::createParser(*trt_network, trt_logger));
+
+#if (NV_TENSORRT_MAJOR == 10 && NV_TENSORRT_MINOR > 1) || NV_TENSORRT_MAJOR > 10
+        auto is_model_supported = trt_parser->supportsModelV2(string_buf.data(), string_buf.size(), model_path_);
+
+        // Note: Calling getNbSubgraphs or getSubgraphNodes before calling supportsModelV2 results in undefined
+        // behavior.
+        auto num_subgraphs = trt_parser->getNbSubgraphs();
+        parser_nodes_list.reserve(num_subgraphs);
+
+        for (int64_t i = 0; i < num_subgraphs; ++i) {
+          int64_t subgraph_len = 0;
+          int64_t* nodes = trt_parser->getSubgraphNodes(i, subgraph_len);
+          parser_nodes_list.emplace_back();
+          parser_nodes_list.back().first.reserve(subgraph_len);
+          for (int64_t j = 0; j < subgraph_len; ++j) {
+            parser_nodes_list.back().first.push_back(nodes[j]);
+          }
+          parser_nodes_list.back().second = is_model_supported ? true : false;
+        }
+#else
+        trt_parser->supportsModel(string_buf.data(), string_buf.size(), parser_nodes_list, model_path_);
+#endif
+
+        SubGraphCollection_t next_nodes_list;
+        const std::vector<NodeIndex>& subgraph_node_index =
+            graph_viewer->GetNodesInTopologicalOrder(1 /*priority-based topological sort*/);
+        next_nodes_list =
+            GetSupportedList(parser_nodes_list, iterations, max_iterations, *graph_viewer, early_termination);
+        for (size_t i = 0, end = next_nodes_list.size(); i < end; ++i) {
+          for (size_t j = 0, end = next_nodes_list[i].first.size(); j < end; ++j) {
+            /*
+             * Convert the supported node list returning from onnx-tensorrt parser to the node list recognized by ORT
+             * TRT.
+             *
+             * TRT EP reconstructs the graph based on the nodes in group.first and feeds this graph (converts to model
+             * proto and to string buffer) to onnx-tensorrt parser. The node index in the list returning from
+             * onnx-tensorrt parser might not be the same as the node index in group.first. Therefore, TRT EP needs a
+             * node index mapping table here.
+             *
+             * The order of iterating the nodes in group.first and calling graph_build.AddNode() determines the node
+             * order in the newly constructed graph (see Graph::AllocateNode() in graph.cc), however, once the graph is
+             * converted to model proto, the node proto order in model proto (ex: onnx-tensorrt calls
+             * model.graph().node() to iterate NodeProto in ModelProto) is decided by topo sort.
+             *
+             * The topo sort list (i.e. subgraph_node_index) acts as the node index mapping table:
+             * subgraph_node_index[node index from onnx-tensorrt parser] = index in group.first
+             *
+             * In the past, TRT EP uses ORT's default reversed DFS topo sort which might end up with the sorting result
+             * not sequence of 0, 1, ... n-1, ex: the subgraph_node_index = [0,2,1,3,4]. With the change of using ORT's
+             * priority-based topo sort (node with lower node index outputs first) the sorting result is the sequence of
+             * 0, 1, ... n-1 for most of the cases, therefore subgraph_node_index as a mapping table is not needed
+             * anymore.
+             *
+             * TODO: Remove the subgraph_node_index
+             */
+            next_nodes_list[i].first[j] = group.first[subgraph_node_index[next_nodes_list[i].first[j]]];
+          }
+          nodes_list_output.push_back(next_nodes_list[i]);
+        }
+      }
+    }
+  }
   return nodes_list_output;
 }
 
@@ -728,26 +992,50 @@ OrtStatus* TensorrtExecutionProvider::CreateNodeComputeInfoFromGraph(OrtEp* this
   TensorrtExecutionProvider* ep = static_cast<TensorrtExecutionProvider*>(this_ptr);
 
   /*
-  // Reconstruct graph proto from fused node's function body
-  auto model = graph_body_viewer.CreateModel(*GetLogger());
-  auto model_proto = model->ToProto();
+  //Save initializers to external file
+  std::string ext_ini_file_path = "model_serialized.bin";
+  std::filesystem::remove(ext_ini_file_path);
+  std::ofstream ext_ini_ofs(ext_ini_file_path, std::ios::binary);
+  auto handle_initializer_data = [&ext_ini_ofs, &ext_ini_file_path](
+                                     const OrtValueInfo* value_info, const void* data, size_t bytes, bool& is_external,
+                                     std::string& location, int64_t& offset) -> Ort::Status {
+    // OrtValueInfo* could be used to query initializer's name, type, shape,
+    // node consumers, etc.
+    (void)value_info;
 
-  // ORT's default topological sort is using reversed DFS.
-  // When creating model proto from graph viewer, let ORT use priority-based topological sort based on node index.
-  // The reason is, in some cases, for example ResNet50, using default topological sort will end up with generating
-  // the model proto that has different node ordering compared to original onnx model.
-  graph_body_viewer.ToProto(*model_proto->mutable_graph(), true, true, 1);
-  model_proto->set_ir_version(ONNX_NAMESPACE::Version::IR_VERSION);
+    if (bytes <= 127) {
+      is_external = false;  // Keep small initializers stored inside the TensorProto.
+      return Ort::Status{nullptr};
+    }
+
+    offset = ext_ini_ofs.tellp();
+    location = ext_ini_file_path;
+    ext_ini_ofs.write(static_cast<const char*>(data), bytes);
+    ext_ini_ofs.flush();
+    is_external = true;  // True if is external initializer.
+
+    return Ort::Status{nullptr};
+  };
+  */
+
+  // Construct ModelProto from OrtGraph
+  ONNX_NAMESPACE::ModelProto model_proto;
+
+  // add back handle_initializer_data to save initializer to external file
+  OrtEpUtils::OrtGraphToProto(*graph, model_proto /*, handle_initializer_data */);
+
   std::string string_buf;
-  model_proto->SerializeToString(string_buf);
+  model_proto.SerializeToString(&string_buf);
 
   if (dump_subgraphs_) {
     // Dump TensorRT subgraphs
-    std::fstream dump(fused_node.Name() + ".onnx", std::ios::out | std::ios::trunc | std::ios::binary);
-    model_proto->SerializeToOstream(dump);
+    const char* name = nullptr;
+    RETURN_IF_ERROR(ort_api.Node_GetName(fused_node, &name));
+    std::string subgraph_name = name;
+    subgraph_name += ".onnx";
+    std::fstream dump(subgraph_name, std::ios::out | std::ios::trunc | std::ios::binary);
+    model_proto.SerializeToOstream(&dump);
   }
-  */
-  std::string string_buf;
 
   TensorrtLogger& trt_logger = GetTensorrtLogger(detailed_build_log_);
   auto trt_builder = GetBuilder(trt_logger);
@@ -1356,6 +1644,7 @@ OrtStatus* TensorrtExecutionProvider::CreateNodeComputeInfoFromGraph(OrtEp* this
   }
 
   // Create input to index map
+  // TRT network input -> ORT fused_node input index
   for (int i = 0; i < num_inputs; ++i) {
     auto input = trt_network->getInput(i);
     const std::string& input_name = input->getName();
@@ -1366,6 +1655,7 @@ OrtStatus* TensorrtExecutionProvider::CreateNodeComputeInfoFromGraph(OrtEp* this
   }
 
   // Create output to index and type maps
+  // TRT network output -> ORT fused_node output index
   const auto& graph_output = model_proto->graph().output();
   for (int i = 0; i < num_outputs; ++i) {
     const std::string& output_name = trt_network->getOutput(i)->getName();
@@ -1789,7 +2079,8 @@ OrtStatus* ORT_API_CALL TensorrtExecutionProvider::CompileImpl(_In_ OrtEp* this_
   TensorrtExecutionProvider* ep = static_cast<TensorrtExecutionProvider*>(this_ptr);
   const OrtApi& ort_api = ep->ort_api;
   
-  gsl::span<OrtNodeComputeInfo*> result(node_compute_infos, count);
+  gsl::span<OrtNodeComputeInfo*> node_compute_infos_result(node_compute_infos, count);
+  gsl::span<OrtNode*> ep_context_nodes_result(ep_context_nodes, count);
 
   for (size_t fused_node_idx = 0; fused_node_idx < count; fused_node_idx++) {
     auto fused_node = fused_nodes[fused_node_idx];
@@ -1833,11 +2124,12 @@ OrtStatus* ORT_API_CALL TensorrtExecutionProvider::CompileImpl(_In_ OrtEp* this_
     OrtStatus* status;
     if (GraphHasCtxNode(graphs[fused_node_idx], ort_api)) {
       RETURN_IF_ERROR(ep->CreateNodeComputeInfoFromPrecompiledEngine(this_ptr, graphs[fused_node_idx], fused_node,
-                                                              input_map,
-                                                              output_map, &result[fused_node_idx]));
+                                                                     input_map, output_map,
+                                                                     &node_compute_infos_result[fused_node_idx]));
     } else {
       RETURN_IF_ERROR(ep->CreateNodeComputeInfoFromGraph(this_ptr, graphs[fused_node_idx], fused_node, input_map,
-                                                  output_map, &result[fused_node_idx]));
+                                                         output_map, &node_compute_infos_result[fused_node_idx]),
+                                                         &ep_context_nodes_result[fused_node_idx]);
     }
   }
   
