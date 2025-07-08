@@ -13,7 +13,7 @@
 //#include "tensorrt_execution_provider_utils.h"
 #include "tensorrt_execution_provider.h"
 #include "cuda_allocator.h"
-//#include "onnx_ctx_model_helper.h"
+#include "onnx_ctx_model_helper.h"
 #include "onnx/onnx_pb.h"
 #include "cuda/unary_elementwise_ops_impl.h"
 
@@ -1480,8 +1480,7 @@ OrtStatus* TensorrtExecutionProvider::CreateNodeComputeInfoFromGraph(OrtEp* this
 }
 
 
-OrtStatus* ORT_API_CALL TensorrtExecutionProvider::GetCapabilityImpl(OrtEp* this_ptr, const OrtGraph* graph,
-                                                 OrtEpGraphSupportInfo* graph_support_info) {
+OrtStatus* ORT_API_CALL TensorrtExecutionProvider::GetCapabilityImpl(OrtEp* this_ptr, const OrtGraph* graph, OrtEpGraphSupportInfo* graph_support_info) {
   TensorrtExecutionProvider* ep = static_cast<TensorrtExecutionProvider*>(this_ptr);
   const OrtApi& ort_api = ep->ort_api;
  
@@ -1780,71 +1779,66 @@ OrtStatus* ORT_API_CALL TensorrtExecutionProvider::GetCapabilityImpl(OrtEp* this
   return nullptr;
 }
 
-OrtStatus* ORT_API_CALL TensorrtExecutionProvider::CompileImpl(_In_ OrtEp* this_ptr, _In_ const OrtGraph** graphs,
-                                                               _In_ const OrtNode** fused_nodes, _In_ size_t count,
+OrtStatus* ORT_API_CALL TensorrtExecutionProvider::CompileImpl(_In_ OrtEp* this_ptr,
+                                                               _In_ const OrtGraph** graphs,
+                                                               _In_ const OrtNode** fused_nodes,
+                                                               _In_ size_t count,
                                                                _Out_writes_all_(count) OrtNodeComputeInfo** node_compute_infos,
                                                                _Out_writes_(count) OrtNode** ep_context_nodes) {
 
   TensorrtExecutionProvider* ep = static_cast<TensorrtExecutionProvider*>(this_ptr);
+  const OrtApi& ort_api = ep->ort_api;
   
   gsl::span<OrtNodeComputeInfo*> result(node_compute_infos, count);
 
-  for (size_t graph_idx = 0; graph_idx < count; graph_idx++) {
-    auto fused_node = fused_nodes[graph_idx];
-
-    // Gets node's inputs and outputs as pointer array
-    OrtArrayOfConstObjects* inputs_array = nullptr;
-    OrtArrayOfConstObjects* outputs_array = nullptr;
-    DeferOrtRelease<OrtArrayOfConstObjects> release_inputs(&inputs_array, ep->ort_api.ReleaseArrayOfConstObjects);
-    DeferOrtRelease<OrtArrayOfConstObjects> release_outputs(&outputs_array, ep->ort_api.ReleaseArrayOfConstObjects);
-
-    RETURN_IF_ERROR(ep->ort_api.Node_GetInputs(fused_node, &inputs_array));
-    RETURN_IF_ERROR(ep->ort_api.Node_GetOutputs(fused_node, &outputs_array));
-
-    // Gets node's inputs and outputs as OrtValueInfo in gsl::span
-    gsl::span<const OrtValueInfo* const> node_inputs{};
-    gsl::span<const OrtValueInfo* const> node_outputs{};
-
-    GetSpanFromArrayOfConstObjects<OrtValueInfo>(inputs_array, node_inputs);
-    GetSpanFromArrayOfConstObjects<OrtValueInfo>(outputs_array, node_outputs);
+  for (size_t fused_node_idx = 0; fused_node_idx < count; fused_node_idx++) {
+    auto fused_node = fused_nodes[fused_node_idx];
 
     // Gets number of node's inputs and outputs
     size_t num_node_inputs = 0;
-    size_t num_node_outputs = 0;
-    RETURN_IF_ERROR(ep->ort_api.ArrayOfConstObjects_GetSize(inputs_array, &num_node_inputs));
-    RETURN_IF_ERROR(ep->ort_api.ArrayOfConstObjects_GetSize(outputs_array, &num_node_outputs));
+    RETURN_IF_ERROR(ort_api.Node_GetNumInputs(fused_node, &num_node_inputs));
+
+    std::vector<const OrtValueInfo*> node_inputs(num_node_inputs);
+    RETURN_IF_ERROR(ort_api.Node_GetInputs(fused_node, node_inputs.data(), node_inputs.size()));
     
     // Builds map from input name to its index in input list
     std::unordered_map<std::string, size_t> input_map;
     input_map.reserve(num_node_inputs);
     for (size_t i = 0; i < num_node_inputs; i++) {
-      // TODO: Add ValueInfo_GetName() c api
-      //std::string& name = node_inputs[i]->GetName();
-      //input_map[name] = i;
+      const OrtValueInfo* value_info = node_inputs[i];
+      const char* name = nullptr; 
+      RETURN_IF_ERROR(ort_api.GetValueInfoName(value_info, &name));
+
+      input_map.emplace(name, i);
     }
+
+    // Gets number of node's outputs
+    size_t num_node_outputs = 0;
+    RETURN_IF_ERROR(ort_api.Node_GetNumInputs(fused_node, &num_node_outputs));
+
+    std::vector<const OrtValueInfo*> node_outputs(num_node_outputs);
+    RETURN_IF_ERROR(ort_api.Node_GetOutputs(fused_node, node_outputs.data(), node_outputs.size()));
 
     // Builds map from output name to its index in output list
     std::unordered_map<std::string, size_t> output_map;
-    input_map.reserve(num_node_outputs);
+    output_map.reserve(num_node_outputs);
     for (size_t i = 0; i < num_node_outputs; i++) {
-      // TODO: Add ValueInfo_GetName() c api
-      //std::string& name = node_outputs[i]->GetName();
-      //output_map[name] = i;
-    }
+      const OrtValueInfo* value_info = node_outputs[i];
+      const char* name = nullptr;
+      RETURN_IF_ERROR(ort_api.GetValueInfoName(value_info, &name));
 
-    OrtStatus* status;
-    //if (GraphHasCtxNode(graph_body_viewer)) {
-    if (false) {
-      status = ep->CreateNodeComputeInfoFromPrecompiledEngine(this_ptr, graphs[graph_idx], fused_node,
-                                                              input_map,
-                                                              output_map, &result[graph_idx]);
-    } else {
-      status = ep->CreateNodeComputeInfoFromGraph(this_ptr, graphs[graph_idx], fused_node, input_map,
-                                                  output_map, &result[graph_idx]);
+      output_map.emplace(name, i);
     }
-    //if (status != Status::OK()) {
-    //  return ORT_MAKE_STATUS(ONNXRUNTIME, FAIL, status.ErrorMessage());
-    //}
+    
+    OrtStatus* status;
+    if (GraphHasCtxNode(graphs[fused_node_idx], ort_api)) {
+      RETURN_IF_ERROR(ep->CreateNodeComputeInfoFromPrecompiledEngine(this_ptr, graphs[fused_node_idx], fused_node,
+                                                              input_map,
+                                                              output_map, &result[fused_node_idx]));
+    } else {
+      RETURN_IF_ERROR(ep->CreateNodeComputeInfoFromGraph(this_ptr, graphs[fused_node_idx], fused_node, input_map,
+                                                  output_map, &result[fused_node_idx]));
+    }
   }
   
   return nullptr;
