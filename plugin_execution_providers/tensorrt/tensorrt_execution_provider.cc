@@ -12,7 +12,6 @@
 #define ORT_EP_UTILS_ORT_GRAPH_TO_PROTO_IMPL
 #include "ort_graph_to_proto.h"
 
-#include "ep_abi_utils.h"
 //#include "tensorrt_execution_provider_utils.h"
 #include "tensorrt_execution_provider.h"
 #include "cuda_allocator.h"
@@ -1968,27 +1967,30 @@ TensorrtExecutionProvider::TensorrtExecutionProvider(TensorrtExecutionProviderFa
   // the session option configurations with the key prefix "ep.<lowercase_ep_name>.".
   std::string key_prefix = "ep." + lowercase_ep_name + ".";
 
-  /*
-  // Get provider options as key-value pair strings
-  ProviderOptions provider_options;
-  for (const auto& [key, value] : config_options_map) {
-    if (key.rfind(key_prefix, 0) == 0) {
-      provider_options[key.substr(key_prefix.size())] = value;
-    }
-  }
-  */
-
   // Get all the provider options as session config from sesson
   ProviderOptions provider_options;
-  int has_session_config_entry = 0;
-  std::string provider_option = key_prefix + "trt_engine_cache_enable";
-  auto status = ort_api.HasSessionConfigEntry(&session_options, provider_option.c_str(), & has_session_config_entry);
-  if (has_session_config_entry) {
-    char* value = nullptr;
-    size_t size = 0;
-    status = ort_api.GetSessionConfigEntry(&session_options, provider_option.c_str(), value, &size);
-    provider_options[provider_option.substr(key_prefix.size())] = value;
+
+  // Get the provider options from all the config entries in session option
+  OrtKeyValuePairs* key_value_pairs = nullptr;
+  ort_api.GetSessionOptionsConfigEntries(&session_options, &key_value_pairs);
+
+  const char* const* keys = nullptr;
+  const char* const* values = nullptr;
+  size_t num_entries = 0;
+  ort_api.GetKeyValuePairs(key_value_pairs, &keys, &values, &num_entries);
+
+  for (size_t i = 0; i < num_entries; ++i) {
+    const char* key = keys[i];
+
+    // only gets ep provider options
+    if (strncmp(key, key_prefix.c_str(), key_prefix.size()) == 0) {
+      std::string key_str = key;
+      const char* value = values[i];
+      provider_options[key_str.substr(key_prefix.size())] = value;
+    }
   }
+
+  ort_api.ReleaseKeyValuePairs(key_value_pairs);
 
   // Provider options to TensorrtExecutionProviderInfo
   info_ = TensorrtExecutionProviderInfo::FromProviderOptions(provider_options);
