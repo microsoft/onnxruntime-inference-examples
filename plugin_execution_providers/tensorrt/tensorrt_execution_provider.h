@@ -253,7 +253,8 @@ struct TensorrtExecutionProvider : public OrtEp, public ApiPtrs {
   OrtStatus* CreateNodeComputeInfoFromGraph(OrtEp* this_ptr, const OrtGraph* graph, const OrtNode* fused_node,
                                             std::unordered_map<std::string, size_t>& input_map,
                                             std::unordered_map<std::string, size_t>& output_map,
-                                            OrtNodeComputeInfo** node_compute_info);
+                                            OrtNodeComputeInfo** node_compute_info,
+                                            OrtNode** ep_context_node);
 
   OrtStatus* RefitEngine(std::string onnx_model_filename, std::string& onnx_model_folder_path,
                                     std::string& weight_stripped_engine_cath_path, bool path_check,
