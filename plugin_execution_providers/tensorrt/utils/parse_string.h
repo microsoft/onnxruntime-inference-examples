@@ -8,10 +8,6 @@
 #include <string_view>
 #include <type_traits>
 
-#include "common.h"
-
-namespace onnxruntime {
-
 /**
  * Tries to parse a value from an entire string.
  */
@@ -67,9 +63,9 @@ inline bool TryParseStringWithClassicLocale(std::string_view str, bool& value) {
  * Parses a value from an entire string.
  */
 template <typename T>
-Status ParseStringWithClassicLocale(std::string_view s, T& value) {
-  ORT_RETURN_IF_NOT(TryParseStringWithClassicLocale(s, value), "Failed to parse value: \"", value, "\"");
-  return Status::OK();
+OrtStatus* ParseStringWithClassicLocale(std::string_view s, T& value) {
+  RETURN_IF_NOT(TryParseStringWithClassicLocale(s, value), "Failed to parse value: \"", value, "\"");
+  return nullptr;
 }
 
 /**
@@ -81,5 +77,3 @@ T ParseStringWithClassicLocale(std::string_view s) {
   ORT_THROW_IF_ERROR(ParseStringWithClassicLocale(s, value));
   return value;
 }
-
-}  // namespace onnxruntime

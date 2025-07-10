@@ -3,9 +3,10 @@
 
 #pragma once
 
-#include <string>
+#include "tensorrt_execution_provider_utils.h"
 #include "provider_options.h"
-#include "common.h"
+
+#include <string>
 
 #define TRT_DEFAULT_OPTIMIZER_LEVEL 3
 
@@ -54,7 +55,7 @@ struct TensorrtExecutionProviderInfo {
   std::string engine_cache_prefix{""};
   bool engine_hw_compatible{false};
 
-  static TensorrtExecutionProviderInfo FromProviderOptions(const onnxruntime::ProviderOptions& options);
+  static TensorrtExecutionProviderInfo FromProviderOptions(const ProviderOptions& options);
 //  static ProviderOptions ToProviderOptions(const TensorrtExecutionProviderInfo& info);
 //  static ProviderOptions ToProviderOptions(const OrtTensorRTProviderOptionsV2& info);
 //  static void UpdateProviderOptions(void* provider_options, const ProviderOptions& options, bool string_copy);

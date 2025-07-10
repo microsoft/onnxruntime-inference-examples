@@ -21,8 +21,6 @@
 #include <sstream>
 #include <type_traits>
 
-namespace onnxruntime {
-
 namespace detail {
 
 inline void MakeStringImpl(std::ostringstream& /*ss*/) noexcept {
@@ -122,5 +120,3 @@ inline std::string MakeStringWithClassicLocale(const std::string& str) {
 inline std::string MakeStringWithClassicLocale(const char* cstr) {
   return cstr;
 }
-
-}  // namespace onnxruntime

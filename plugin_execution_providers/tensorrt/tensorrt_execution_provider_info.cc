@@ -59,29 +59,29 @@ TensorrtExecutionProviderInfo TensorrtExecutionProviderInfo::FromProviderOptions
   TensorrtExecutionProviderInfo info{};
 
   void* user_compute_stream = nullptr;
-  ORT_THROW_IF_ERROR(
+  THROW_IF_ERROR(
       ProviderOptionsParser{}
           .AddValueParser(
               tensorrt::provider_option_names::kDeviceId,
-              [&info](const std::string& value_str) -> Status {
-                ORT_RETURN_IF_ERROR(ParseStringWithClassicLocale(value_str, info.device_id));
+              [&info](const std::string& value_str) -> OrtStatus* {
+                RETURN_IF_ERROR(ParseStringWithClassicLocale(value_str, info.device_id));
                 int num_devices{};
                 CUDA_RETURN_IF_ERROR(cudaGetDeviceCount(&num_devices));
-                ORT_RETURN_IF_NOT(
+                RETURN_IF_NOT(
                     0 <= info.device_id && info.device_id < num_devices,
                     "Invalid device ID: ", info.device_id,
                     ", must be between 0 (inclusive) and ", num_devices, " (exclusive).");
-                return Status::OK();
+                return nullptr;
               })
           .AddAssignmentToReference(tensorrt::provider_option_names::kMaxPartitionIterations, info.max_partition_iterations)
           .AddAssignmentToReference(tensorrt::provider_option_names::kHasUserComputeStream, info.has_user_compute_stream)
           .AddValueParser(
               tensorrt::provider_option_names::kUserComputeStream,
-              [&user_compute_stream](const std::string& value_str) -> Status {
+              [&user_compute_stream](const std::string& value_str) -> OrtStatus* {
                 size_t address;
-                ORT_RETURN_IF_ERROR(ParseStringWithClassicLocale(value_str, address));
+                RETURN_IF_ERROR(ParseStringWithClassicLocale(value_str, address));
                 user_compute_stream = reinterpret_cast<void*>(address);
-                return Status::OK();
+                return nullptr;
               })
           .AddAssignmentToReference(tensorrt::provider_option_names::kMinSubgraphSize, info.min_subgraph_size)
           .AddAssignmentToReference(tensorrt::provider_option_names::kMaxWorkspaceSize, info.max_workspace_size)

@@ -2,9 +2,6 @@
 // Licensed under the MIT License.
 
 #pragma once
-#include "../common.h"
-
-namespace onnxruntime {
 
 // -----------------------------------------------------------------------
 // Error handling
@@ -12,11 +9,11 @@ namespace onnxruntime {
 //
 template <typename ERRTYPE>
 const char* CudaErrString(ERRTYPE) {
-  ORT_NOT_IMPLEMENTED();
+  THROW();
 }
 
 template <typename ERRTYPE, bool THRW>
-std::conditional_t<THRW, void, Status> CudaCall(
+std::conditional_t<THRW, void, OrtStatus*> CudaCall(
     ERRTYPE retCode, const char* exprString, const char* libName, ERRTYPE successCode, const char* msg, const char* file, const int line) {
   if (retCode != successCode) {
     try {
@@ -41,22 +38,20 @@ std::conditional_t<THRW, void, Status> CudaCall(
                file, line, exprString, msg);
       if constexpr (THRW) {
         // throw an exception with the error info
-        ORT_THROW(str);
+        THROW(str);
       } else {
-        //LOGS_DEFAULT(ERROR) << str;
-        return ORT_MAKE_STATUS(ONNXRUNTIME, FAIL, str);
+        return MAKE_STATUS(ORT_EP_FAIL, str);
       }
     } catch (const std::exception& e) {  // catch, log, and rethrow since CUDA code sometimes hangs in destruction, so we'd never get to see the error
       if constexpr (THRW) {
-        ORT_THROW(e.what());
+        THROW(e.what());
       } else {
-        //LOGS_DEFAULT(ERROR) << e.what();
-        return ORT_MAKE_STATUS(ONNXRUNTIME, FAIL, e.what());
+        return MAKE_STATUS(ORT_EP_FAIL, e.what());
       }
     }
   }
   if constexpr (!THRW) {
-    return Status::OK();
+    return nullptr;
   }
 }
 
@@ -65,5 +60,3 @@ std::conditional_t<THRW, void, Status> CudaCall(
     //ERRTYPE retCode, const char* exprString, const char* libName, ERRTYPE successCode, const char* msg, const char* file, const int line);
 
 #define CUDA_CALL(expr) (CudaCall<cudaError, false>((expr), #expr, "CUDA", cudaSuccess, "", __FILE__, __LINE__))
-
-}  // namespace onnxruntime
