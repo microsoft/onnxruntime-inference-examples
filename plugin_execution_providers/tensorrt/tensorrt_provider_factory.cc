@@ -31,7 +31,7 @@ TensorrtExecutionProviderFactory::TensorrtExecutionProviderFactory(const char* e
 
   // Default GPU allocator OrtMemoryInfo 
   OrtMemoryInfo* mem_info = nullptr;
-  auto* status = ort_api.CreateMemoryInfo_V2("ExampleEP GPU", OrtMemoryInfoDeviceType_GPU,
+  auto* status = ort_api.CreateMemoryInfo_V2("Cuda", OrtMemoryInfoDeviceType_GPU,
                                        /*vendor*/ 0x10DE, /* device_id */ 0, OrtDeviceMemoryType_DEFAULT,
                                        /*alignment*/ 0, OrtAllocatorType::OrtDeviceAllocator, &mem_info);
   assert(status == nullptr);  // should never fail.
@@ -40,7 +40,7 @@ TensorrtExecutionProviderFactory::TensorrtExecutionProviderFactory(const char* e
   // CUDA PINNED allocator OrtMemoryInfo
   // HOST_ACCESSIBLE memory should use the non-CPU device type
   mem_info = nullptr;
-  status = ort_api.CreateMemoryInfo_V2("ExampleEP GPU pinned", OrtMemoryInfoDeviceType_GPU,
+  status = ort_api.CreateMemoryInfo_V2("CudaPinned", OrtMemoryInfoDeviceType_GPU,
                                        /*vendor*/ 0x10DE, /* device_id */ 0, OrtDeviceMemoryType_HOST_ACCESSIBLE,
                                        /*alignment*/ 0, OrtAllocatorType::OrtDeviceAllocator, &mem_info);
   assert(status == nullptr);  // should never fail.
@@ -56,12 +56,12 @@ TensorrtExecutionProviderFactory::TensorrtExecutionProviderFactory(const char* e
   data_transfer_impl_.reset();  // but we're CPU only so we return nullptr for the IDataTransfer.
 }
 
-const char* ORT_API_CALL TensorrtExecutionProviderFactory::GetNameImpl(const OrtEpFactory* this_ptr) {
+const char* ORT_API_CALL TensorrtExecutionProviderFactory::GetNameImpl(const OrtEpFactory* this_ptr) noexcept {
   const auto* factory = static_cast<const TensorrtExecutionProviderFactory*>(this_ptr);
   return factory->ep_name_.c_str();
 }
 
-const char* ORT_API_CALL TensorrtExecutionProviderFactory::GetVendorImpl(const OrtEpFactory* this_ptr) {
+const char* ORT_API_CALL TensorrtExecutionProviderFactory::GetVendorImpl(const OrtEpFactory* this_ptr) noexcept {
   const auto* factory = static_cast<const TensorrtExecutionProviderFactory*>(this_ptr);
   return factory->vendor_.c_str();
 }
@@ -72,7 +72,7 @@ OrtStatus* ORT_API_CALL TensorrtExecutionProviderFactory::GetSupportedDevicesImp
                                                        size_t num_devices,
                                                        OrtEpDevice** ep_devices,
                                                        size_t max_ep_devices,
-                                                       size_t* p_num_ep_devices) {
+                                                       size_t* p_num_ep_devices) noexcept {
   size_t& num_ep_devices = *p_num_ep_devices;
   auto* factory = static_cast<TensorrtExecutionProviderFactory*>(this_ptr);
 
@@ -133,8 +133,7 @@ OrtStatus* ORT_API_CALL TensorrtExecutionProviderFactory::CreateEpImpl(
                                             _In_reads_(num_devices) const OrtKeyValuePairs* const* /*ep_metadata*/,
                                             _In_ size_t num_devices,
                                             _In_ const OrtSessionOptions* session_options,
-                                            _In_ const OrtLogger* logger,
-                                            _Out_ OrtEp** ep) {
+                                            _In_ const OrtLogger* logger, _Out_ OrtEp** ep) noexcept {
   auto* factory = static_cast<TensorrtExecutionProviderFactory*>(this_ptr);
   *ep = nullptr;
 
@@ -161,7 +160,7 @@ OrtStatus* ORT_API_CALL TensorrtExecutionProviderFactory::CreateEpImpl(
   return nullptr;
 }
 
-void ORT_API_CALL TensorrtExecutionProviderFactory::ReleaseEpImpl(OrtEpFactory* /*this_ptr*/, OrtEp* ep) {
+void ORT_API_CALL TensorrtExecutionProviderFactory::ReleaseEpImpl(OrtEpFactory* /*this_ptr*/, OrtEp* ep) noexcept {
   TensorrtExecutionProvider* trt_ep = static_cast<TensorrtExecutionProvider*>(ep);
   delete trt_ep;
 }

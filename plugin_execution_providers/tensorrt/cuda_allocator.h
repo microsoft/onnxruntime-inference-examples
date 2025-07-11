@@ -13,11 +13,13 @@ constexpr const char* CUDA_PINNED_ALLOCATOR = "CudaPinned";
 using DeviceId = int16_t;
 
 struct CUDAAllocator : OrtAllocator {
-  CUDAAllocator(DeviceId device_id, const char* name = CUDA_ALLOCATOR) {
+  CUDAAllocator(const OrtMemoryInfo* mem_info, const char* name = CUDA_ALLOCATOR) {
     OrtAllocator::version = ORT_API_VERSION;
     OrtAllocator::Alloc = [](OrtAllocator* this_, size_t size) { return static_cast<CUDAAllocator*>(this_)->Alloc(size); };
     OrtAllocator::Free = [](OrtAllocator* this_, void* p) { static_cast<CUDAAllocator*>(this_)->Free(p); };
     OrtAllocator::Info = [](const OrtAllocator* this_) { return static_cast<const CUDAAllocator*>(this_)->Info(); };
+
+    mem_info_ = mem_info;
 
     device_id_ = device_id;
 
@@ -44,7 +46,7 @@ struct CUDAAllocator : OrtAllocator {
   void SetDevice(bool throw_when_fail) const;
 
   DeviceId device_id_;
-  OrtMemoryInfo* mem_info_ = nullptr;
+  const OrtMemoryInfo* mem_info_ = nullptr;
 };
 
 struct CUDAPinnedAllocator : OrtAllocator {

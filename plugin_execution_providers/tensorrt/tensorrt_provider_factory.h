@@ -1,3 +1,5 @@
+#pragma once
+
 #include "tensorrt_execution_provider_utils.h"
 #include "tensorrt_execution_provider_data_transfer.h"
 

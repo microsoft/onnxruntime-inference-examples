@@ -1156,7 +1156,7 @@ OrtStatus* TensorrtExecutionProvider::CreateNodeComputeInfoFromGraph(OrtEp* this
     weight_stripped_engine_refit_ = true;
   }
 
-  std::unique_ptr<nvinfer1::IHostMemory> serialized_engine = nullptr;
+  std::unique_ptr<nvinfer1::IHostMemory> serialized_engine;
 
   if (!has_dynamic_shape) {
     std::string timing_cache_path = "";
@@ -1258,7 +1258,7 @@ OrtStatus* TensorrtExecutionProvider::CreateNodeComputeInfoFromGraph(OrtEp* this
         }
 
         serialized_engine =
-            std::make_unique<nvinfer1::IHostMemory>(trt_builder->buildSerializedNetwork(*trt_network, *trt_config));
+            std::unique_ptr<nvinfer1::IHostMemory>(trt_builder->buildSerializedNetwork(*trt_network, *trt_config));
 
         if (serialized_engine == nullptr) {
           std::string err_msg = "TensorRT EP failed to create engine from network for fused node: " + fused_node_name;
@@ -1390,32 +1390,9 @@ OrtStatus* TensorrtExecutionProvider::CreateNodeComputeInfoFromGraph(OrtEp* this
   input_shape_ranges_[fused_node_name] = input_implicit_shape_ranges;
   profiles_.emplace(fused_node_name, std::move(trt_profiles));
 
-  /*
-  // For dynamic shape input model, firstly TRT EP creates a model proto which includes inputs, outputs and empty
-  // engine. TRT EP will serialize the model at inference time due to engine can be updated and the updated engine
-  // should be included in the model. However, if the embed_mode is 0 (only includes engine path), TRT EP will serialize
-  // it here.
-  if (dump_ep_context_model_ && has_dynamic_shape) {
-    // "ep_cache_context" node attribute should be a relative path to context model directory
-    if (ep_cache_context_attr_.empty()) {
-      auto cache_file_name = std::filesystem::path(engine_cache_path).filename();
-      ep_cache_context_attr_ = std::filesystem::path(engine_cache_relative_path_to_context_model_dir)
-                                   .append(cache_file_name.string())
-                                   .string();
-    }
-    std::string compute_capability_hw_compat = compute_capability_;
-    if (engine_cache_enable_ && engine_hw_compatible_) {
-      compute_capability_hw_compat = "80+";
-    }
-    model_proto_.reset(CreateCtxModel(graph_body_viewer, ep_cache_context_attr_, nullptr, 0, ep_context_embed_mode_,
-                                      compute_capability_hw_compat, model_path_, GetLogger()));
-    if (ep_context_embed_mode_ == 0) {
-      DumpCtxModel(model_proto_.get(), ctx_model_path_);
-    }
-  }
-  */
 
-  std::unique_ptr<EPContextNodeHelper> ep_ctx_node_helper = std::make_unique<EPContextNodeHelper>(graph, fused_node);
+  // Create EP Context nodes
+  std::unique_ptr<EPContextNodeHelper> ep_ctx_node_helper = std::make_unique<EPContextNodeHelper>(*ep, graph, fused_node);
   if (dump_ep_context_model_) {
     std::string compute_capability_hw_compat = compute_capability_;
     if (engine_cache_enable_ && engine_hw_compatible_) {
@@ -1490,6 +1467,8 @@ OrtStatus* TensorrtExecutionProvider::CreateNodeComputeInfoFromGraph(OrtEp* this
                  engine_hw_compatible_,
                  sync_stream_after_enqueue_};
 
+  ep->compute_states_[fused_node_name] = std::move(compute_state);
+
   // Update the OrtNodeComputeInfo associated with the graph.
   auto ep_node_compute_info = std::make_unique<TRTEpNodeComputeInfo>(*ep);
   *node_compute_info = ep_node_compute_info.release();
@@ -1554,10 +1533,10 @@ OrtStatus* ORT_API_CALL TensorrtExecutionProvider::GetCapabilityImpl(OrtEp* this
       auto supported_control_flow_op = [&](const OrtNode* node) {
         OrtStatus* status = nullptr;
         size_t num_subgraphs = 0;
-        RETURN_FALSE_AND_PRINT_IF_ERROR(ort_api.Node_GetNumSubgraphs(node, &num_subgraphs), ort_api);
+        RETURN_FALSE_AND_PRINT_IF_ERROR(ort_api.Node_GetNumSubgraphs(node, &num_subgraphs));
 
         std::vector<const OrtGraph*> node_subgraphs(num_subgraphs);
-        RETURN_FALSE_AND_PRINT_IF_ERROR(ort_api.Node_GetSubgraphs(node, node_subgraphs.data(), node_subgraphs.size(), nullptr), ort_api);
+        RETURN_FALSE_AND_PRINT_IF_ERROR(ort_api.Node_GetSubgraphs(node, node_subgraphs.data(), node_subgraphs.size(), nullptr));
 
         
         // Iterate the node's subgraphs
@@ -1566,7 +1545,7 @@ OrtStatus* ORT_API_CALL TensorrtExecutionProvider::GetCapabilityImpl(OrtEp* this
 
           // Get number of subgraph's nodes
           size_t num_subgraph_nodes = 0;
-          RETURN_FALSE_AND_PRINT_IF_ERROR(ort_api.Graph_GetNumNodes(subgraph, &num_subgraph_nodes), ort_api);
+          RETURN_FALSE_AND_PRINT_IF_ERROR(ort_api.Graph_GetNumNodes(subgraph, &num_subgraph_nodes));
           
           // TRT EP should consider the empty subgraph is fully supported by TRT.
           if (num_subgraph_nodes == 0) {
@@ -1926,13 +1905,11 @@ OrtStatus* TensorrtExecutionProvider::RefitEngine(
 /// </summary>
 TensorrtExecutionProvider::TensorrtExecutionProvider(TensorrtExecutionProviderFactory& factory,
                                                      const std::string& name,
-                                                     const OrtHardwareDevice& device,
                                                      const OrtSessionOptions& session_options,
                                                      const OrtLogger& logger)
     : ApiPtrs{static_cast<const ApiPtrs&>(factory)},
       factory_(factory),
       name_{name},
-      hardware_device_{device},
       session_options_{session_options},
       logger_{logger} {
 
@@ -2176,7 +2153,7 @@ TensorrtExecutionProvider::TensorrtExecutionProvider(TensorrtExecutionProviderFa
    *  Please refer to ParserProfileShapes() for more details)
    *
    */
-  bool status = true;
+  // bool status = true;
   // if (status) {
   //     status = ParseProfileShapes(profile_min_shapes, profile_min_shapes_);
   //     if (!status) {
@@ -2266,14 +2243,14 @@ OrtStatus* TRTEpNodeComputeInfo::CreateStateImpl(OrtNodeComputeInfo* this_ptr, O
   TensorrtExecutionProvider& ep = node_compute_info->ep;
   
   std::string fused_node_name = ep.ep_api.NodeComputeContext_NodeName(compute_context);
-  auto state_it = ep.GetComputeStates().find(fused_node_name);
-  if (state_it == ep.GetComputeStates().end()) {
+  auto state_it = ep.compute_states_.find(fused_node_name);
+  if (state_it == ep.compute_states_.end()) {
     std::string message = "Unable to TensorRT EP's compute state for fused node with name " + fused_node_name;
     return ep.ort_api.CreateStatus(ORT_EP_FAIL, message.c_str());
   }
 
-  TensorrtComputeState& compute_state = *state_it->second;
-  *compute_state = &compute_state;
+  TensorrtComputeState& trt_ep_compute_state = *state_it->second;
+  *compute_state = &trt_ep_compute_state;
   return nullptr;
 }
 
@@ -2335,7 +2312,7 @@ OrtStatus* TRTEpNodeComputeInfo::ComputeImpl(OrtNodeComputeInfo* this_ptr, void*
   bool context_update = false;
   std::unordered_set<std::string> input_names;
 
-  std::unordered_map<std::string, DDSOutputAllocatorMap> dds_output_allocator_maps = ep.GetDDSOutputAllocators();
+  std::unordered_map<std::string, DDSOutputAllocatorMap>& dds_output_allocator_maps = ep.GetDDSOutputAllocators();
   auto& dds_output_allocator_map = dds_output_allocator_maps[fused_node_name];
   
   // Get default OrtMemoryInfo from factory
@@ -2911,7 +2888,7 @@ OrtStatus* TRTEpNodeComputeInfo::ComputeImpl(OrtNodeComputeInfo* this_ptr, void*
 
 void TRTEpNodeComputeInfo::ReleaseStateImpl(OrtNodeComputeInfo* this_ptr, void* compute_state) {
   (void)this_ptr;
-  TensorrtComputeState& compute_state = *reinterpret_cast<TensorrtComputeState*>(compute_state);
-  (void)compute_state;
+  TensorrtComputeState& trt_ep_compute_state = *reinterpret_cast<TensorrtComputeState*>(compute_state);
+  (void)trt_ep_compute_state;
   // Do nothing for here.
 }

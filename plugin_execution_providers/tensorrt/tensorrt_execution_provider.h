@@ -13,6 +13,7 @@
 #include <string>
 #include <unordered_set>
 #include <mutex>
+#include <gsl/span>
 
 #ifdef _WIN32
 #define EXPORT_API __declspec(dllexport)
@@ -231,15 +232,17 @@ static const std::string k_ep_ctx_onnx_model_filename = "onnx_model_filename";
 /// </summary>
 struct TensorrtExecutionProvider : public OrtEp, public ApiPtrs {
   TensorrtExecutionProvider(TensorrtExecutionProviderFactory& factory, const std::string& name,
-                            const OrtHardwareDevice& device, const OrtSessionOptions& session_options,
+                            const OrtSessionOptions& session_options,
                             const OrtLogger& logger);
   ~TensorrtExecutionProvider();
 
   TensorrtExecutionProviderFactory& factory_;
   std::string name_;
-  const OrtHardwareDevice& hardware_device_;
   const OrtSessionOptions& session_options_;
   const OrtLogger& logger_;
+
+  std::unordered_map<std::string, std::unique_ptr<TensorrtComputeState>> compute_states_;
+  std::unordered_map<std::string, std::unique_ptr<TensorrtComputeStateForEPContext>> compute_states_for_ep_context_;
 
   SubGraphCollection_t GetSupportedList(SubGraphCollection_t supported_nodes_list, int iterations,
                                         const int max_iterations, const OrtGraph* graph, bool* early_termination) const;
@@ -261,12 +264,6 @@ struct TensorrtExecutionProvider : public OrtEp, public ApiPtrs {
                                     const void* onnx_model_bytestream, size_t onnx_model_bytestream_size,
                                     nvinfer1::ICudaEngine* trt_engine, bool serialize_refitted_engine,
                                     bool detailed_build_log);
-
-  std::unordered_map<std::string, std::unique_ptr<TensorrtComputeState>>& GetComputeStates() { return compute_states_; }
-
-  std::unordered_map<std::string, std::unique_ptr<TensorrtComputeState>>& GetComputeStatesForEPContext() {
-    return compute_states_;
-  }
 
   void GetAllocator(OrtAllocator** alloc) const { *alloc = alloc_; }
 
@@ -414,9 +411,6 @@ struct TensorrtExecutionProvider : public OrtEp, public ApiPtrs {
   std::unordered_map<std::string, ShapeRangesMap> input_shape_ranges_;  // The profile shape ranges that the engine is built with
   std::unordered_map<std::string, std::vector<nvinfer1::IOptimizationProfile*>> profiles_;
   std::unordered_map<std::string, DDSOutputAllocatorMap> dds_output_allocator_maps_;
-
-  std::unordered_map<std::string, std::unique_ptr<TensorrtComputeState>> compute_states_;
-  std::unordered_map<std::string, std::unique_ptr<TensorrtComputeStateForEPContext>> compute_states_for_ep_context;
 
   // for external stream, we need to create its cudnn/cublass handle before cuda EP enable cuda graph capture
   //  cudnnHandle_t external_cudnn_handle_ = nullptr;

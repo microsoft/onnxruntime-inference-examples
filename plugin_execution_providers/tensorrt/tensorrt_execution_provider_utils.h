@@ -82,6 +82,15 @@ std::string ComposeString(Args&&... args) {
     }                                                \
   } while (0)
 
+#define RETURN_FALSE_AND_PRINT_IF_ERROR(fn)                            \
+  do {                                                                 \
+    OrtStatus* status = (fn);                                          \
+    if (status != nullptr) {                                           \
+      std::cerr << Ort::GetApi().GetErrorMessage(status) << std::endl; \
+      return false;                                                    \
+    }                                                                  \
+  } while (0)  
+
 // Helper to release Ort one or more objects obtained from the public C API at the end of their scope.
 template <typename T>
 struct DeferOrtRelease {
