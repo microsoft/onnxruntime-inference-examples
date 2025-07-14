@@ -7,9 +7,6 @@
 #define ORT_API_MANUAL_INIT
 #include "onnxruntime_cxx_api.h"
 
-constexpr const char* CUDA_ALLOCATOR = "Cuda";
-constexpr const char* CUDA_PINNED_ALLOCATOR = "CudaPinned";
-
 using DeviceId = int16_t;
 
 struct CUDAAllocator : OrtAllocator {
@@ -41,17 +38,11 @@ struct CUDAAllocator : OrtAllocator {
 };
 
 struct CUDAPinnedAllocator : OrtAllocator {
-  CUDAPinnedAllocator(const char* name = CUDA_PINNED_ALLOCATOR) {
+  CUDAPinnedAllocator(const OrtMemoryInfo* mem_info) : mem_info_(mem_info) {
     OrtAllocator::version = ORT_API_VERSION;
     OrtAllocator::Alloc = [](OrtAllocator* this_, size_t size) { return static_cast<CUDAPinnedAllocator*>(this_)->Alloc(size); };
     OrtAllocator::Free = [](OrtAllocator* this_, void* p) { static_cast<CUDAPinnedAllocator*>(this_)->Free(p); };
     OrtAllocator::Info = [](const OrtAllocator* this_) { return static_cast<const CUDAPinnedAllocator*>(this_)->Info(); };
-    const OrtApi* api = OrtGetApiBase()->GetApi(ORT_API_VERSION);
-    api->CreateMemoryInfo(name,
-                          OrtAllocatorType::OrtDeviceAllocator,
-                          0 /* CPU device always with id 0 */,
-                          OrtMemType::OrtMemTypeDefault,
-                          &mem_info_);
   }
   // TODO: Handle destructor
   //~CUDAPinnedAllocator();
@@ -67,5 +58,5 @@ struct CUDAPinnedAllocator : OrtAllocator {
   CUDAPinnedAllocator& operator=(const CUDAPinnedAllocator&) = delete;
 
   DeviceId device_id_ = 0;
-  OrtMemoryInfo* mem_info_ = nullptr;
+  const OrtMemoryInfo* mem_info_ = nullptr;
 };

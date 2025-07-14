@@ -198,7 +198,7 @@ OrtStatus* ORT_API_CALL TensorrtExecutionProviderFactory::CreateAllocatorImpl(
 
   if (factory.GetDeviceIdForDefaultGpuMemInfo(memory_info, &device_id)) {
     // create a CUDA allocator
-    auto cuda_allocator = std::make_unique<CUDAAllocator>(memory_info, static_cast<uint16_t>(device_id));
+    auto cuda_allocator = std::make_unique<CUDAAllocator>(memory_info, static_cast<DeviceId>(device_id));
     *allocator = cuda_allocator.release();
   } else if (factory.GetDeviceIdForHostAccessibleMemInfo(memory_info, &device_id)) {
     // create a CUDA PINNED allocator
