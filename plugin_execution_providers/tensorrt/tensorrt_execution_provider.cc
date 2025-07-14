@@ -654,7 +654,7 @@ OrtStatusPtr BindContextOutput(Ort::KernelContext& ctx,
 }
 
 OrtStatusPtr BindKernelOutput(Ort::KernelContext& ctx,
-                              OrtMemoryInfo* /*mem_info*/,
+                              const OrtMemoryInfo* /*mem_info*/,
                               DDSOutputAllocatorMap& allocator_map,
                               char const* output_name,
                               size_t output_index,
@@ -1416,6 +1416,7 @@ OrtStatus* TensorrtExecutionProvider::CreateNodeComputeInfoFromGraph(OrtEp* this
     tactics = GetTacticSourceFromString(tactic_sources_);
   }
   *compute_state = {
+                 static_cast<uint32_t>(device_id_),
                  fused_node_name,
                  builder_.get(),
                  &parsers_[fused_node_name],
@@ -2281,6 +2282,7 @@ OrtStatus* TRTEpNodeComputeInfo::ComputeImpl(OrtNodeComputeInfo* this_ptr, void*
   std::unordered_map<std::string, std::vector<int64_t>>
       shape_tensor_values_int64;  // same as above but for int64 shape tensor input
 
+  uint16_t device_id = trt_state->device_id;
   auto max_workspace_size = trt_state->max_workspace_size;
   auto trt_builder = trt_state->builder;
   auto trt_engine = trt_state->engine->get();
@@ -2317,7 +2319,7 @@ OrtStatus* TRTEpNodeComputeInfo::ComputeImpl(OrtNodeComputeInfo* this_ptr, void*
   
   // Get default OrtMemoryInfo from factory
   // Get allocator from OrtKernelContext
-  OrtMemoryInfo* mem_info = ep.factory_.GetDefaultMemInfo();
+  const OrtMemoryInfo* mem_info = ep.factory_.GetDefaultGpuMemInfoForDeviceId(device_id);
   OrtAllocator* alloc = nullptr;
   ep.GetAllocator(&alloc);
   if (alloc == nullptr) {

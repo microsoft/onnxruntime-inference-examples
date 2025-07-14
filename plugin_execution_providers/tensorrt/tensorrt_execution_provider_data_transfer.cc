@@ -9,14 +9,21 @@
 void CUDA_RETURN_IF_ERROR(cudaError_t res);
 
 /*static*/
-bool ORT_API_CALL TRTEpDataTransfer::CanCopyImpl(void* this_ptr,
-                                                   const OrtMemoryDevice* src_memory_device,
-                                                   const OrtMemoryDevice* dst_memory_device) noexcept {
+bool ORT_API_CALL TRTEpDataTransfer::CanCopyImpl(void* this_ptr, const OrtMemoryDevice* src_memory_device,
+                                                 const OrtMemoryDevice* dst_memory_device) noexcept {
   auto& impl = *static_cast<TRTEpDataTransfer*>(this_ptr);
-  bool src_is_our_device = impl.ep_api.MemoryDevice_AreEqual(src_memory_device, impl.device_mem_info);
-  bool dst_is_our_device = impl.ep_api.MemoryDevice_AreEqual(dst_memory_device, impl.device_mem_info);
 
-  return src_is_our_device || dst_is_our_device;
+  auto it = std::find_if(impl.cuda_gpu_mem_devices_.begin(), impl.cuda_gpu_mem_devices_.end(),
+                         [&impl, &src_memory_device, &dst_memory_device](const OrtMemoryDevice* memory_device) {
+                           bool src_is_our_device = impl.ep_api.MemoryDevice_AreEqual(src_memory_device, memory_device);
+                           bool dst_is_our_device = impl.ep_api.MemoryDevice_AreEqual(dst_memory_device, memory_device);
+                           return src_is_our_device || dst_is_our_device;
+                         });
+
+  if (it != impl.cuda_gpu_mem_devices_.end()) {
+    return true;
+  }
+  return false;
 }
 
 // function to copy one or more tensors.

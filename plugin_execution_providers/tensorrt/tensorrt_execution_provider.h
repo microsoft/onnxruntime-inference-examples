@@ -153,6 +153,7 @@ class OutputAllocator : public nvinfer1::IOutputAllocator {
 };
 
 struct TensorrtComputeState {
+  uint32_t device_id;
   std::string fused_node_name;
   nvinfer1::IBuilder* builder;
   tensorrt_ptr::unique_pointer<nvonnxparser::IParser>* parser = nullptr;
@@ -207,6 +208,7 @@ struct TensorrtComputeState {
 
 // Minimum information to construct kernel function state for direct engine load code path
 struct TensorrtComputeStateForEPContext {
+  uint32_t device_id;
   std::string fused_node_name;
   std::unique_ptr<nvinfer1::ICudaEngine>* engine = nullptr;
   std::unique_ptr<nvinfer1::IExecutionContext>* context = nullptr;

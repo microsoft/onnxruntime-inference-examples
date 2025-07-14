@@ -6,9 +6,9 @@
 #include "tensorrt_execution_provider_utils.h"
 
 struct TRTEpDataTransfer : OrtDataTransferImpl, ApiPtrs {
-  TRTEpDataTransfer(ApiPtrs api_ptrs, const OrtMemoryDevice* device_mem_info_,
-                      const OrtMemoryDevice* shared_mem_info_ = nullptr)
-      : ApiPtrs(api_ptrs), device_mem_info{device_mem_info_}, shared_mem_info{shared_mem_info_} {
+  TRTEpDataTransfer(ApiPtrs api_ptrs, std::vector<const OrtMemoryDevice*> device_mem_infos,
+                      std::vector<const OrtMemoryDevice*> shared_mem_infos)
+      : ApiPtrs(api_ptrs), cuda_gpu_mem_devices_{device_mem_infos}, cuda_pinned_mem_devices_{shared_mem_infos} {
     CanCopy = CanCopyImpl;
     CopyTensors = CopyTensorsImpl;
     Release = ReleaseImpl;
@@ -25,6 +25,6 @@ struct TRTEpDataTransfer : OrtDataTransferImpl, ApiPtrs {
   static void ORT_API_CALL ReleaseImpl(void* this_ptr) noexcept;
 
  private:
-  const OrtMemoryDevice* device_mem_info;
-  const OrtMemoryDevice* shared_mem_info;
+  std::vector<const OrtMemoryDevice*> cuda_gpu_mem_devices_;
+  std::vector<const OrtMemoryDevice*> cuda_pinned_mem_devices_;
 };
