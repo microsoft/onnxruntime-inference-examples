@@ -1717,7 +1717,9 @@ OrtStatus* ORT_API_CALL TensorrtExecutionProvider::GetCapabilityImpl(OrtEp* this
   int number_of_trt_nodes = 0;
   for (const auto& group : supported_nodes_vector) {
     if (!group.first.empty()) {
-      std::vector<const OrtNode*> supported_nodes(group.first.size());
+      std::vector<const OrtNode*> supported_nodes;
+      supported_nodes.reserve(group.first.size());
+
       for (const auto& index : group.first) {
         const OrtNode* supported_node = nodes[index];
 
@@ -1782,7 +1784,7 @@ OrtStatus* ORT_API_CALL TensorrtExecutionProvider::CompileImpl(_In_ OrtEp* this_
 
     // Gets number of node's outputs
     size_t num_node_outputs = 0;
-    RETURN_IF_ERROR(ort_api.Node_GetNumInputs(fused_node, &num_node_outputs));
+    RETURN_IF_ERROR(ort_api.Node_GetNumOutputs(fused_node, &num_node_outputs));
 
     std::vector<const OrtValueInfo*> node_outputs(num_node_outputs);
     RETURN_IF_ERROR(ort_api.Node_GetOutputs(fused_node, node_outputs.data(), node_outputs.size()));
