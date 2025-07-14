@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include "tensorrt_execution_provider_utils.h"
+#include "ep_utils.h"
 
 struct TRTEpDataTransfer : OrtDataTransferImpl, ApiPtrs {
   TRTEpDataTransfer(ApiPtrs api_ptrs, std::vector<const OrtMemoryDevice*> device_mem_infos,

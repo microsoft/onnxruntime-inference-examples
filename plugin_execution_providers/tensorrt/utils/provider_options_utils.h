@@ -10,7 +10,7 @@
 #include <vector>
 
 #include "onnxruntime_c_api.h"
-#include "../tensorrt_execution_provider_utils.h"
+#include "ep_utils.h"
 #include "parse_string.h"
 #include "provider_options.h"
 

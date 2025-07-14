@@ -5,7 +5,7 @@
 #include <fstream>
 #include <filesystem>
 
-#include "tensorrt_execution_provider_utils.h"
+#include "ep_utils.h"
 #include "onnx_ctx_model_helper.h"
 
 extern TensorrtLogger& GetTensorrtLogger(bool verbose_log);
@@ -108,4 +108,21 @@ OrtStatus* EPContextNodeHelper::CreateEPContextNode(const std::string& engine_ca
                                               attributes.data(), attributes.size(), ep_context_node));
   
   return nullptr;
+}
+
+/*
+ * Get the weight-refitted engine cache path from a weight-stripped engine cache path
+ *
+ * Weight-stipped engine:
+ * An engine with weights stripped and its size is smaller than a regualr engine.
+ * The cache name of weight-stripped engine is TensorrtExecutionProvider_TRTKernel_XXXXX.stripped.engine
+ *
+ * Weight-refitted engine:
+ * An engine that its weights have been refitted and it's simply a regular engine.
+ * The cache name of weight-refitted engine is TensorrtExecutionProvider_TRTKernel_XXXXX.engine
+ */
+std::string GetWeightRefittedEnginePath(std::string stripped_engine_cache) {
+  std::filesystem::path stripped_engine_cache_path(stripped_engine_cache);
+  std::string refitted_engine_cache_path = stripped_engine_cache_path.stem().stem().string() + ".engine";
+  return refitted_engine_cache_path;
 }

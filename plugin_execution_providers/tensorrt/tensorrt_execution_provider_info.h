@@ -3,7 +3,6 @@
 
 #pragma once
 
-#include "tensorrt_execution_provider_utils.h"
 #include "provider_options.h"
 
 #include <string>

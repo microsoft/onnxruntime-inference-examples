@@ -58,11 +58,16 @@ OrtStatus* ORT_API_CALL TensorrtExecutionProviderFactory::GetSupportedDevicesImp
 
   std::vector<const OrtMemoryDevice*> cuda_gpu_mem_devices;
   std::vector<const OrtMemoryDevice*> cuda_pinned_mem_devices;
+  int GPU_cnt = 0;
 
   for (size_t i = 0; i < num_devices && num_ep_devices < max_ep_devices; ++i) {
     // C API
     const OrtHardwareDevice& device = *devices[i];
     if (factory->ort_api.HardwareDevice_Type(&device) == OrtHardwareDeviceType::OrtHardwareDeviceType_GPU) {
+      if (GPU_cnt > 0) {
+        continue;
+      }
+      GPU_cnt++;
       // These can be returned as nullptr if you have nothing to add.
       OrtKeyValuePairs* ep_metadata = nullptr;
       OrtKeyValuePairs* ep_options = nullptr;
@@ -87,7 +92,8 @@ OrtStatus* ORT_API_CALL TensorrtExecutionProviderFactory::GetSupportedDevicesImp
       }
 
       uint32_t vendor_id = factory->ort_api.HardwareDevice_VendorId(&device);
-      uint32_t device_id = factory->ort_api.HardwareDevice_DeviceId(&device);
+      //uint32_t device_id = factory->ort_api.HardwareDevice_DeviceId(&device);
+      uint32_t device_id = 0;
       
       // CUDA allocator OrtMemoryInfo
       OrtMemoryInfo* mem_info = nullptr;

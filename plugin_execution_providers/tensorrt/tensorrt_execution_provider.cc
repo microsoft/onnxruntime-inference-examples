@@ -12,12 +12,13 @@
 #define ORT_EP_UTILS_ORT_GRAPH_TO_PROTO_IMPL
 #include "ort_graph_to_proto.h"
 
-//#include "tensorrt_execution_provider_utils.h"
+#include "tensorrt_execution_provider_utils.h"
 #include "tensorrt_execution_provider.h"
 #include "cuda_allocator.h"
 #include "onnx_ctx_model_helper.h"
 #include "onnx/onnx_pb.h"
 #include "cuda/unary_elementwise_ops_impl.h"
+#include "ep_utils.h"
 
 #ifdef _WIN32
 #include <windows.h>
@@ -30,6 +31,10 @@
 #define OPENLIB(libname) dlopen((libname), RTLD_LAZY)
 #define LIBFUNC(lib, fn) dlsym((lib), (fn))
 #endif
+
+const OrtApi* g_ort_api = nullptr;
+const OrtEpApi* g_ep_api = nullptr;
+const OrtModelEditorApi* g_model_editor_api = nullptr;
 
 void CUDA_RETURN_IF_ERROR(cudaError_t res) {
   if (res != cudaSuccess) abort();
@@ -1795,9 +1800,9 @@ OrtStatus* ORT_API_CALL TensorrtExecutionProvider::CompileImpl(_In_ OrtEp* this_
     
     OrtStatus* status;
     if (EPContextNodeHelper::GraphHasCtxNode(graphs[fused_node_idx], ort_api)) {
-      RETURN_IF_ERROR(ep->CreateNodeComputeInfoFromPrecompiledEngine(this_ptr, graphs[fused_node_idx], fused_node,
-                                                                     input_map, output_map,
-                                                                     &node_compute_infos_result[fused_node_idx]));
+      //RETURN_IF_ERROR(ep->CreateNodeComputeInfoFromPrecompiledEngine(this_ptr, graphs[fused_node_idx], fused_node,
+      //                                                               input_map, output_map,
+      //                                                               &node_compute_infos_result[fused_node_idx]));
     } else {
       RETURN_IF_ERROR(ep->CreateNodeComputeInfoFromGraph(this_ptr, graphs[fused_node_idx], fused_node, input_map,
                                                          output_map, &node_compute_infos_result[fused_node_idx],
@@ -1899,6 +1904,8 @@ OrtStatus* TensorrtExecutionProvider::RefitEngine(
 #endif
 }
 
+TensorrtExecutionProvider::~TensorrtExecutionProvider() = default;
+
 /// <summary>
 /// 
 /// Plugin TensorRT EP that implements OrtEp
@@ -1908,7 +1915,8 @@ TensorrtExecutionProvider::TensorrtExecutionProvider(TensorrtExecutionProviderFa
                                                      const std::string& name,
                                                      const OrtSessionOptions& session_options,
                                                      const OrtLogger& logger)
-    : ApiPtrs{static_cast<const ApiPtrs&>(factory)},
+    : OrtEp{},  // explicitly call the struct ctor to ensure all optional values are default initialized
+      ApiPtrs{static_cast<const ApiPtrs&>(factory)},
       factory_(factory),
       name_{name},
       session_options_{session_options},

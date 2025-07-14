@@ -3,8 +3,8 @@
 
 #pragma once
 
-#include "tensorrt_execution_provider_utils.h"
 #include "tensorrt_execution_provider.h"
+#include "ep_utils.h"
 #include "nv_includes.h"
 
 #include <string>
