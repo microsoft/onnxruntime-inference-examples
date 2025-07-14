@@ -18,6 +18,7 @@ TensorrtExecutionProviderFactory::TensorrtExecutionProviderFactory(const char* e
   ort_version_supported = ORT_API_VERSION;  // set to the ORT version we were compiled with.
   GetName = GetNameImpl;
   GetVendor = GetVendorImpl;
+  GetVersion = GetVersionImpl;
 
   GetSupportedDevices = GetSupportedDevicesImpl;
 
@@ -38,6 +39,11 @@ const char* ORT_API_CALL TensorrtExecutionProviderFactory::GetNameImpl(const Ort
 const char* ORT_API_CALL TensorrtExecutionProviderFactory::GetVendorImpl(const OrtEpFactory* this_ptr) noexcept {
   const auto* factory = static_cast<const TensorrtExecutionProviderFactory*>(this_ptr);
   return factory->vendor_.c_str();
+}
+
+const char* ORT_API_CALL TensorrtExecutionProviderFactory::GetVersionImpl(const OrtEpFactory* this_ptr) noexcept {
+  const auto* factory = static_cast<const TensorrtExecutionProviderFactory*>(this_ptr);
+  return factory->ep_version_.c_str();
 }
 
 OrtStatus* ORT_API_CALL TensorrtExecutionProviderFactory::GetSupportedDevicesImpl(

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "tensorrt_execution_provider_utils.h"
+#include "ep_utils.h"
 #include "tensorrt_execution_provider_data_transfer.h"
 
 using MemoryInfoUniquePtr = std::unique_ptr<OrtMemoryInfo, std::function<void(OrtMemoryInfo*)>>;
@@ -20,6 +20,8 @@ struct TensorrtExecutionProviderFactory : public OrtEpFactory, public ApiPtrs {
   static const char* ORT_API_CALL GetNameImpl(const OrtEpFactory* this_ptr) noexcept;
 
   static const char* ORT_API_CALL GetVendorImpl(const OrtEpFactory* this_ptr) noexcept;
+
+  static const char* ORT_API_CALL TensorrtExecutionProviderFactory::GetVersionImpl(const OrtEpFactory* this_ptr) noexcept;
 
   static OrtStatus* ORT_API_CALL GetSupportedDevicesImpl(OrtEpFactory* this_ptr,
                                                          const OrtHardwareDevice* const* devices, size_t num_devices,
@@ -52,6 +54,7 @@ struct TensorrtExecutionProviderFactory : public OrtEpFactory, public ApiPtrs {
 
   const std::string ep_name_;           // EP name
   const std::string vendor_{"Nvidia"};  // EP vendor name
+  const std::string ep_version_{"0.1.0"};  // EP version
 
   // OrtMemoryInfo for allocators and data transfer.
   
