@@ -119,14 +119,6 @@ OrtStatus* ORT_API_CALL TensorrtExecutionProviderFactory::GetSupportedDevicesImp
 
       ep_devices[num_ep_devices++] = ep_device;
     }
-
-  // Create gpu data transfer
-  auto data_transfer_impl = std::make_unique<TRTEpDataTransfer>(
-      static_cast<const ApiPtrs&>(*factory),
-      cuda_gpu_mem_devices,    // device memory
-      cuda_pinned_mem_devices  // shared memory
-  );
-
   
   // C++ API equivalent. Throws on error.
   //{
@@ -141,6 +133,12 @@ OrtStatus* ORT_API_CALL TensorrtExecutionProviderFactory::GetSupportedDevicesImp
   //  }
   //}
   }
+
+    // Create gpu data transfer
+  auto data_transfer_impl = std::make_unique<TRTEpDataTransfer>(static_cast<const ApiPtrs&>(*factory),
+                                                                cuda_gpu_mem_devices,    // device memory
+                                                                cuda_pinned_mem_devices  // shared memory
+                                                               );
 
   return nullptr;
 }
