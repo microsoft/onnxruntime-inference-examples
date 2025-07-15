@@ -1,6 +1,6 @@
 # usage:
 # cd build/
-# cmake -S ../ -B ./ -DCMAKE_BUILD_TYPE=Debug -DORT_HOME=/home/lochi/onnxruntime-win-x64-gpu-1.22.0 -DCMAKE_CUDA_ARCHITECTURES=80 -DCMAKE_CUDA_COMPILER=/usr/local/cuda/bin/nvcc -DTENSORRT_HOME=/home/lochi/tensorrt/TensorRT-10.3.0.26 (see the result of "nvidia-smi --query-gpu=compute_cap --format=csv,noheader,nounits")
+# cmake -S ../ -B ./ -DCMAKE_BUILD_TYPE=Debug -DORT_HOME=/home/lochi/onnxruntime-win-x64-gpu-1.23.0 -DCMAKE_CUDA_ARCHITECTURES=80 -DCMAKE_CUDA_COMPILER=/usr/local/cuda/bin/nvcc -DTENSORRT_HOME=/home/lochi/tensorrt/TensorRT-10.3.0.26 (see the result of "nvidia-smi --query-gpu=compute_cap --format=csv,noheader,nounits")
 # cmake --build ./ --config Debug
 cmake_minimum_required(VERSION 3.26)
 project(TensorRTEp VERSION 1.0)
@@ -9,8 +9,15 @@ enable_language(CUDA)
 file(TO_CMAKE_PATH CUDAToolkit_ROOT "/usr/local/cuda")
 find_package(CUDAToolkit REQUIRED)
 
-# Use dynamic runtime /MD and /MDd
-set(CMAKE_CUDA_FLAGS_DEBUG "${CMAKE_CUDA_FLAGS_DEBUG} -Xcompiler=\"/MTd\"")
+# CMake config to force dynamic debug CRT globally for all dependencies.
+# This is to address the issue of:
+# libprotobufd.lib(common.obj) : error LNK2038: mismatch detected for 'RuntimeLibrary': value 'MTd_StaticDebug' doesn't match value 'MDd_DynamicDebug' in unary_elementwise_ops_impl.obj
+if (WIN32)
+  if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreadedDebugDLL" CACHE STRING "" FORCE)  # /MDd
+    set(BUILD_SHARED_LIBS OFF)  # Build protobuf as static .lib, but using dynamic runtime
+  endif()
+endif()
 
 add_definitions(-DONNX_NAMESPACE=onnx)
 add_definitions(-DONNX_ML)
@@ -42,6 +49,13 @@ FetchContent_Declare(
   GIT_TAG        v21.12  # Use a specific tag or commit
 )
 
+if (WIN32)
+  if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    # Sometimes, protobuf ignores CMAKE_MSVC_RUNTIME_LIBRARY. To ensure it works:
+    set(protobuf_MSVC_STATIC_RUNTIME OFF CACHE BOOL "" FORCE)
+  endif()
+endif()
+
 FetchContent_MakeAvailable(protobuf)
 
 # Add ONNX
@@ -52,6 +66,10 @@ FetchContent_Declare(
 )
 
 FetchContent_MakeAvailable(onnx)
+
+#set(ONNX_USE_LITE_PROTO OFF CACHE BOOL "" FORCE)
+#set(ONNX_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+#set(ONNX_GEN_PB_TYPE_STUBS OFF CACHE BOOL "" FORCE)
 
 # Add GSL
 FetchContent_Declare(
@@ -74,25 +92,24 @@ FetchContent_MakeAvailable(flatbuffers)
 set(DEPS_PATH "${CMAKE_BINARY_DIR}/_deps")
 
 if (WIN32) # Windows
-  set(PLATFORM "Windows")
-  set(ORT_LIB "${ORT_HOME}/build/${PLATFORM}/${CMAKE_BUILD_TYPE}/${CMAKE_BUILD_TYPE}/onnxruntime.lib")
-  set(DEPS_PATH "${ORT_HOME}/build/${PLATFORM}/${CMAKE_BUILD_TYPE}/_deps")
+  set(ORT_LIB "${ORT_HOME}/lib/onnxruntime.lib")
   set(TRT_LIBS "${TENSORRT_HOME}/lib/nvinfer_10.lib" 
                "${TENSORRT_HOME}/lib/nvinfer_plugin_10.lib"
                "${TENSORRT_HOME}/lib/nvonnxparser_10.lib")
-  set(DEPS_LIBS "${DEPS_PATH}/flatbuffers-build/${CMAKE_BUILD_TYPE}/flatbuffers.lib"
-               "${DEPS_PATH}/onnx-build/${CMAKE_BUILD_TYPE}/onnx.lib"
-               "${DEPS_PATH}/onnx-build/${CMAKE_BUILD_TYPE}/onnx_proto.lib")
   
   if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     set(DEPS_LIBS ${DEPS_LIBS}
-                 "${DEPS_PATH}/protobuf-build/${CMAKE_BUILD_TYPE}/libprotobufd.lib"
-                 "${DEPS_PATH}/protobuf-build/${CMAKE_BUILD_TYPE}/libprotocd.lib")
+                  "${DEPS_PATH}/protobuf-build/${CMAKE_BUILD_TYPE}/libprotobufd.lib"
+                  "${DEPS_PATH}/protobuf-build/${CMAKE_BUILD_TYPE}/libprotocd.lib")
   else()
     set(DEPS_LIBS ${DEPS_LIBS} 
-                 "${DEPS_PATH}/protobuf-build/${CMAKE_BUILD_TYPE}/libprotobuf.lib"
-                 "${DEPS_PATH}/protobuf-build/${CMAKE_BUILD_TYPE}/libprotoc.lib")
+                  "${DEPS_PATH}/protobuf-build/${CMAKE_BUILD_TYPE}/libprotobuf.lib"
+                  "${DEPS_PATH}/protobuf-build/${CMAKE_BUILD_TYPE}/libprotoc.lib")
   endif()
+
+  set(DEPS_LIBS "${DEPS_PATH}/flatbuffers-build/${CMAKE_BUILD_TYPE}/flatbuffers.lib"
+                "${DEPS_PATH}/onnx-build/${CMAKE_BUILD_TYPE}/onnx.lib"
+                "${DEPS_PATH}/onnx-build/${CMAKE_BUILD_TYPE}/onnx_proto.lib")
 
   set(TRT_EP_LIB_LINK_FLAG
         "-DEF:${CMAKE_SOURCE_DIR}/tensorrt_execution_provider.def")
@@ -125,8 +142,7 @@ MESSAGE(STATUS "Deps libs: ${DEPS_LIBS}")
 set_property(TARGET TensorRTEp APPEND_STRING PROPERTY LINK_FLAGS
                ${TRT_EP_LIB_LINK_FLAG})
 
-target_include_directories(TensorRTEp PUBLIC #"${ORT_HOME}/include"
-                                             "${ORT_HOME}/include/onnxruntime/core/session"
+target_include_directories(TensorRTEp PUBLIC "${ORT_HOME}/include"
                                              "./utils"
                                              "/usr/local/cuda/include"
                                              "${TENSORRT_HOME}/include"
@@ -137,8 +153,9 @@ target_include_directories(TensorRTEp PUBLIC #"${ORT_HOME}/include"
                                              "${DEPS_PATH}/protobuf-src/src"
 )
 
-target_link_libraries(TensorRTEp PUBLIC ${ORT_LIB}
+target_link_libraries(TensorRTEp PUBLIC #${DEPS_LIBS}
+                                        protobuf::libprotobuf onnx flatbuffers
+                                        ${ORT_LIB}
                                         ${TRT_LIBS}
                                         CUDA::cudart
-                                        ${DEPS_LIBS}
 )
