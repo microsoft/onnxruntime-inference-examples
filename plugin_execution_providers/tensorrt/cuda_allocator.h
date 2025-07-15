@@ -4,8 +4,6 @@
 #pragma once
 #include <atomic>
 #include "onnxruntime_c_api.h"
-#define ORT_API_MANUAL_INIT
-#include "onnxruntime_cxx_api.h"
 
 using DeviceId = int16_t;
 

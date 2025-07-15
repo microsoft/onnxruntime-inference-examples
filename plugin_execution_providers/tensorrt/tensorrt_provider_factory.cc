@@ -1,6 +1,4 @@
-#define ORT_API_MANUAL_INIT
 #include "onnxruntime_cxx_api.h"
-#undef ORT_API_MANUAL_INIT
 #include "tensorrt_provider_factory.h"
 #include "tensorrt_execution_provider.h"
 #include "cuda_allocator.h"
@@ -145,7 +143,7 @@ OrtStatus* ORT_API_CALL TensorrtExecutionProviderFactory::GetSupportedDevicesImp
                                                                 cuda_gpu_mem_devices,    // device memory
                                                                 cuda_pinned_mem_devices  // shared memory
                                                                );
-
+  factory->SetGPUDataTransfer(std::move(data_transfer_impl));
   return nullptr;
 }
 
@@ -281,6 +279,10 @@ void TensorrtExecutionProviderFactory::SetHostAccessibleMemInfo(MemoryInfoUnique
   cuda_pinned_memory_info_to_device_id_map_[mem_info.get()] = device_id;
   device_id_to_cuda_pinned_memory_info_map_[device_id] = mem_info.get();
   cuda_pinned_memory_infos_.push_back(std::move(mem_info));
+}
+
+void TensorrtExecutionProviderFactory::SetGPUDataTransfer(std::unique_ptr<TRTEpDataTransfer> gpu_data_transfer) {
+  data_transfer_impl_ = std::move(gpu_data_transfer);
 }
 
 // To make symbols visible on macOS/iOS

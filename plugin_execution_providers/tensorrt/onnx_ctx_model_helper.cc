@@ -21,6 +21,7 @@ bool EPContextNodeHelper::GraphHasCtxNode(const OrtGraph* graph, const OrtApi& o
   RETURN_IF_ERROR(ort_api.Graph_GetNumNodes(graph, &num_nodes));
 
   std::vector<const OrtNode*> nodes(num_nodes);
+  RETURN_IF_ERROR(ort_api.Graph_GetNodes(graph, nodes.data(), nodes.size()));
 
   for (size_t i = 0; i < num_nodes; ++i) {
     auto node = nodes[i];

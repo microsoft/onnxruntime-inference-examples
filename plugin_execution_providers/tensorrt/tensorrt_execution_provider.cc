@@ -5,9 +5,7 @@
 #include <iostream>
 #include <cuda_runtime.h>
 
-#define ORT_API_MANUAL_INIT
 #include "onnxruntime_cxx_api.h"
-#undef ORT_API_MANUAL_INIT
 
 #define ORT_EP_UTILS_ORT_GRAPH_TO_PROTO_IMPL
 #include "ort_graph_to_proto.h"

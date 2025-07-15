@@ -1,9 +1,5 @@
 #pragma once
 
-#define ORT_API_MANUAL_INIT
-#include "onnxruntime_cxx_api.h"
-#undef ORT_API_MANUAL_INIT
-
 #include "tensorrt_provider_factory.h"
 #include "utils/provider_options.h"
 #include "tensorrt_execution_provider_info.h"

@@ -52,6 +52,8 @@ struct TensorrtExecutionProviderFactory : public OrtEpFactory, public ApiPtrs {
 
   void SetHostAccessibleMemInfo(MemoryInfoUniquePtr mem_info, uint32_t device_id);
 
+  void SetGPUDataTransfer(std::unique_ptr<TRTEpDataTransfer> gpu_data_transfer);
+
   const std::string ep_name_;           // EP name
   const std::string vendor_{"Nvidia"};  // EP vendor name
   const std::string ep_version_{"0.1.0"};  // EP version
