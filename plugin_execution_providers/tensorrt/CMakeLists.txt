@@ -9,6 +9,9 @@ enable_language(CUDA)
 file(TO_CMAKE_PATH CUDAToolkit_ROOT "/usr/local/cuda")
 find_package(CUDAToolkit REQUIRED)
 
+# Use dynamic runtime /MD and /MDd
+set(CMAKE_CUDA_FLAGS_DEBUG "${CMAKE_CUDA_FLAGS_DEBUG} -Xcompiler=\"/MTd\"")
+
 add_definitions(-DONNX_NAMESPACE=onnx)
 add_definitions(-DONNX_ML)
 add_definitions(-DNV_TENSORRT_MAJOR=10)
@@ -71,15 +74,16 @@ FetchContent_MakeAvailable(flatbuffers)
 set(DEPS_PATH "${CMAKE_BINARY_DIR}/_deps")
 
 if (WIN32) # Windows
-  set(ORT_LIB "${ORT_HOME}/lib/onnxruntime.lib")
-  #set(ORT_LIB "${ORT_HOME}/lib/onnxruntime.dll")
+  set(PLATFORM "Windows")
+  set(ORT_LIB "${ORT_HOME}/build/${PLATFORM}/${CMAKE_BUILD_TYPE}/${CMAKE_BUILD_TYPE}/onnxruntime.lib")
+  set(DEPS_PATH "${ORT_HOME}/build/${PLATFORM}/${CMAKE_BUILD_TYPE}/_deps")
   set(TRT_LIBS "${TENSORRT_HOME}/lib/nvinfer_10.lib" 
                "${TENSORRT_HOME}/lib/nvinfer_plugin_10.lib"
                "${TENSORRT_HOME}/lib/nvonnxparser_10.lib")
   set(DEPS_LIBS "${DEPS_PATH}/flatbuffers-build/${CMAKE_BUILD_TYPE}/flatbuffers.lib"
-                "${DEPS_PATH}/onnx-build/${CMAKE_BUILD_TYPE}/onnx.lib"
-                "${DEPS_PATH}/onnx-build/${CMAKE_BUILD_TYPE}/onnx_proto.lib")
-
+               "${DEPS_PATH}/onnx-build/${CMAKE_BUILD_TYPE}/onnx.lib"
+               "${DEPS_PATH}/onnx-build/${CMAKE_BUILD_TYPE}/onnx_proto.lib")
+  
   if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     set(DEPS_LIBS ${DEPS_LIBS}
                  "${DEPS_PATH}/protobuf-build/${CMAKE_BUILD_TYPE}/libprotobufd.lib"
@@ -89,6 +93,10 @@ if (WIN32) # Windows
                  "${DEPS_PATH}/protobuf-build/${CMAKE_BUILD_TYPE}/libprotobuf.lib"
                  "${DEPS_PATH}/protobuf-build/${CMAKE_BUILD_TYPE}/libprotoc.lib")
   endif()
+
+  set(TRT_EP_LIB_LINK_FLAG
+        "-DEF:${CMAKE_SOURCE_DIR}/tensorrt_execution_provider.def")
+
 else() # Linux
   set(ORT_LIB "${ORT_HOME}/lib/libonnxruntime.so")
   set(TRT_LIBS "${TENSORRT_HOME}/lib/libnvinfer.so"
@@ -114,12 +122,16 @@ MESSAGE(STATUS "ORT lib  : ${ORT_LIB}")
 MESSAGE(STATUS "TRT libs : ${TRT_LIBS}")
 MESSAGE(STATUS "Deps libs: ${DEPS_LIBS}")
 
-target_include_directories(TensorRTEp PUBLIC "${ORT_HOME}/include"
+set_property(TARGET TensorRTEp APPEND_STRING PROPERTY LINK_FLAGS
+               ${TRT_EP_LIB_LINK_FLAG})
+
+target_include_directories(TensorRTEp PUBLIC #"${ORT_HOME}/include"
+                                             "${ORT_HOME}/include/onnxruntime/core/session"
                                              "./utils"
                                              "/usr/local/cuda/include"
                                              "${TENSORRT_HOME}/include"
                                              "${DEPS_PATH}/flatbuffers-src/include"
-                                             "${DEPS_PATH}/gsl-src/include"
+                                             "${DEPS_PATH}/gsl-src/include" # GSL is header-only
                                              "${DEPS_PATH}/onnx-src"
                                              "${DEPS_PATH}/onnx-build"
                                              "${DEPS_PATH}/protobuf-src/src"
@@ -128,8 +140,5 @@ target_include_directories(TensorRTEp PUBLIC "${ORT_HOME}/include"
 target_link_libraries(TensorRTEp PUBLIC ${ORT_LIB}
                                         ${TRT_LIBS}
                                         CUDA::cudart
-                                        protobuf
-                                        onnx
-                                        gsl
-                                        flatbuffers
+                                        ${DEPS_LIBS}
 )
