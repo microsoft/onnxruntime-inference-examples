@@ -16,6 +16,15 @@ struct TensorrtExecutionProviderFactory : public OrtEpFactory, public ApiPtrs {
 
   const OrtMemoryInfo* GetHostAccessibleMemInfoForDeviceId(uint32_t device_id) const;
 
+  OrtStatus* CreateMemoryInfoForDevices(int num_devices);
+
+  // CUDA gpu memory and CUDA pinned memory are required for allocator and data transfer, these are the OrtMemoryInfo
+  // instance required for that.
+  // Current TRT EP implementation uses one default OrtMemoryInfo and one host accessible OrtMemoryInfo per ep device.
+  std::vector<MemoryInfoUniquePtr> cuda_gpu_memory_infos;
+  std::vector<MemoryInfoUniquePtr> cuda_pinned_memory_infos;
+  std::unordered_map<uint32_t, const OrtMemoryInfo*> device_id_to_cuda_gpu_memory_info_map;  // device id -> OrtMemoryInfo
+
  private:
   static const char* ORT_API_CALL GetNameImpl(const OrtEpFactory* this_ptr) noexcept;
 
@@ -44,33 +53,11 @@ struct TensorrtExecutionProviderFactory : public OrtEpFactory, public ApiPtrs {
   static OrtStatus* ORT_API_CALL CreateDataTransferImpl(OrtEpFactory* this_ptr,
                                                         OrtDataTransferImpl** data_transfer) noexcept;
 
-  bool GetDeviceIdForDefaultGpuMemInfo(const OrtMemoryInfo* mem_info, uint32_t* device_id) const;
-
-  void SetDefaultGpuMemInfo(MemoryInfoUniquePtr mem_info, uint32_t device_id);
-
-  bool GetDeviceIdForHostAccessibleMemInfo(const OrtMemoryInfo* mem_info, uint32_t* device_id) const;
-
-  void SetHostAccessibleMemInfo(MemoryInfoUniquePtr mem_info, uint32_t device_id);
-
   void SetGPUDataTransfer(std::unique_ptr<TRTEpDataTransfer> gpu_data_transfer);
 
   const std::string ep_name_;           // EP name
   const std::string vendor_{"Nvidia"};  // EP vendor name
   const std::string ep_version_{"0.1.0"};  // EP version
-
-  // OrtMemoryInfo for allocators and data transfer.
-  
-  // CUDA gpu memory and CUDA pinned memory are required for allocator and data transfer, these are the OrtMemoryInfo instance required for that.
-  // Current TRT EP implementation uses one default OrtMemoryInfo and one host accessible OrtMemoryInfo per ep device.
-  std::unordered_map<const OrtMemoryInfo*, uint32_t> cuda_gpu_memory_info_to_device_id_map_;   // OrtMemoryInfo -> device id
-  std::unordered_map<const OrtMemoryInfo*, uint32_t> cuda_pinned_memory_info_to_device_id_map_;
-  std::unordered_map<uint32_t, const OrtMemoryInfo*> device_id_to_cuda_gpu_memory_info_map_;   // device id -> OrtMemoryInfo
-  std::unordered_map<uint32_t, const OrtMemoryInfo*> device_id_to_cuda_pinned_memory_info_map_;
-  std::vector<MemoryInfoUniquePtr> cuda_gpu_memory_infos_;
-  std::vector<MemoryInfoUniquePtr> cuda_pinned_memory_infos_;
-
-  // CPU allocator so we can control the arena behavior. optional as ORT always provides a CPU allocator if needed.
-  // MemoryInfoUniquePtr cpu_memory_info_;
 
   std::unique_ptr<TRTEpDataTransfer> data_transfer_impl_;  // data transfer implementation for this factory
 };

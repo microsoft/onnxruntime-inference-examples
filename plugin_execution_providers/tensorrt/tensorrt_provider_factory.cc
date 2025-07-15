@@ -44,6 +44,32 @@ const char* ORT_API_CALL TensorrtExecutionProviderFactory::GetVersionImpl(const 
   return factory->ep_version_.c_str();
 }
 
+OrtStatus* TensorrtExecutionProviderFactory::CreateMemoryInfoForDevices(int num_devices) {
+  cuda_gpu_memory_infos.reserve(num_devices);
+  cuda_pinned_memory_infos.reserve(num_devices);
+
+  for (int device_id = 0; device_id < num_devices; ++device_id) {
+    OrtMemoryInfo* mem_info = nullptr;
+    RETURN_IF_ERROR(ort_api.CreateMemoryInfo_V2("Cuda", OrtMemoryInfoDeviceType_GPU,
+                                                /*vendor OrtDevice::VendorIds::NVIDIA*/ 0x10DE,
+                                                /* device_id */ device_id, OrtDeviceMemoryType_DEFAULT,
+                                                /*alignment*/ 0, OrtAllocatorType::OrtDeviceAllocator, &mem_info));
+
+    cuda_gpu_memory_infos.emplace_back(MemoryInfoUniquePtr(mem_info, ort_api.ReleaseMemoryInfo));
+
+    // HOST_ACCESSIBLE memory should use the non-CPU device type
+    mem_info = nullptr;
+    RETURN_IF_ERROR(ort_api.CreateMemoryInfo_V2("CudaPinned", OrtMemoryInfoDeviceType_GPU,
+                                                /*vendor OrtDevice::VendorIds::NVIDIA*/ 0x10DE,
+                                                /* device_id */ device_id, OrtDeviceMemoryType_HOST_ACCESSIBLE,
+                                                /*alignment*/ 0, OrtAllocatorType::OrtDeviceAllocator, &mem_info));
+
+    cuda_pinned_memory_infos.emplace_back(MemoryInfoUniquePtr(mem_info, ort_api.ReleaseMemoryInfo));
+  }
+
+  return nullptr;
+}
+
 OrtStatus* ORT_API_CALL TensorrtExecutionProviderFactory::GetSupportedDevicesImpl(
                                                        OrtEpFactory* this_ptr,
                                                        const OrtHardwareDevice* const* devices,
@@ -54,18 +80,24 @@ OrtStatus* ORT_API_CALL TensorrtExecutionProviderFactory::GetSupportedDevicesImp
   size_t& num_ep_devices = *p_num_ep_devices;
   auto* factory = static_cast<TensorrtExecutionProviderFactory*>(this_ptr);
 
+  int num_cuda_devices = 0;
+  cudaGetDeviceCount(&num_cuda_devices);
+  RETURN_IF_ERROR(factory->CreateMemoryInfoForDevices(num_cuda_devices));
+
   std::vector<const OrtMemoryDevice*> cuda_gpu_mem_devices;
   std::vector<const OrtMemoryDevice*> cuda_pinned_mem_devices;
-  int GPU_cnt = 0;
+  int32_t device_id = 0;
 
   for (size_t i = 0; i < num_devices && num_ep_devices < max_ep_devices; ++i) {
     // C API
     const OrtHardwareDevice& device = *devices[i];
     if (factory->ort_api.HardwareDevice_Type(&device) == OrtHardwareDeviceType::OrtHardwareDeviceType_GPU) {
-      if (GPU_cnt > 0) {
+      
+      // workaround for duplicate devices when using remote desktop.
+      if (device_id > 0) {
         continue;
       }
-      GPU_cnt++;
+
       // These can be returned as nullptr if you have nothing to add.
       OrtKeyValuePairs* ep_metadata = nullptr;
       OrtKeyValuePairs* ep_options = nullptr;
@@ -89,39 +121,19 @@ OrtStatus* ORT_API_CALL TensorrtExecutionProviderFactory::GetSupportedDevicesImp
         return status;
       }
 
-      uint32_t vendor_id = factory->ort_api.HardwareDevice_VendorId(&device);
-      //uint32_t device_id = factory->ort_api.HardwareDevice_DeviceId(&device);
-      uint32_t device_id = 0;
-      
-      // CUDA allocator OrtMemoryInfo
-      OrtMemoryInfo* mem_info = nullptr;
-      status = factory->ort_api.CreateMemoryInfo_V2("Cuda", OrtMemoryInfoDeviceType_GPU, vendor_id, device_id, OrtDeviceMemoryType_DEFAULT,
-                                               /*alignment*/ 0, OrtAllocatorType::OrtDeviceAllocator, &mem_info);
-
-      assert(status == nullptr);  // should never fail.
-      MemoryInfoUniquePtr cuda_gpu_memory_info = MemoryInfoUniquePtr(mem_info, factory->ort_api.ReleaseMemoryInfo);
-
-      // CUDA PINNED allocator OrtMemoryInfo
-      // HOST_ACCESSIBLE memory should use the non-CPU device type.
-      mem_info = nullptr;
-      status = factory->ort_api.CreateMemoryInfo_V2("CudaPinned", OrtMemoryInfoDeviceType_GPU, vendor_id, device_id, OrtDeviceMemoryType_HOST_ACCESSIBLE,
-                                           /*alignment*/ 0, OrtAllocatorType::OrtDeviceAllocator, &mem_info);
-
-      assert(status == nullptr);  // should never fail.
-      MemoryInfoUniquePtr cuda_pinned_memory_info = MemoryInfoUniquePtr(mem_info, factory->ort_api.ReleaseMemoryInfo);
+      const OrtMemoryInfo* cuda_gpu_mem_info = factory->cuda_gpu_memory_infos[device_id].get();
+      const OrtMemoryInfo* cuda_pinned_mem_info = factory->cuda_pinned_memory_infos[device_id].get();
 
       // Register the allocator info required by TRT EP.
-      RETURN_IF_ERROR(factory->ep_api.EpDevice_AddAllocatorInfo(ep_device, cuda_gpu_memory_info.get()));
-      RETURN_IF_ERROR(factory->ep_api.EpDevice_AddAllocatorInfo(ep_device, cuda_pinned_memory_info.get()));
+      RETURN_IF_ERROR(factory->ep_api.EpDevice_AddAllocatorInfo(ep_device, cuda_gpu_mem_info));
+      RETURN_IF_ERROR(factory->ep_api.EpDevice_AddAllocatorInfo(ep_device, cuda_pinned_mem_info));
 
       // Get memory device from memory info for gpu data transfer
-      cuda_gpu_mem_devices.push_back(factory->ep_api.MemoryInfo_GetMemoryDevice(cuda_gpu_memory_info.get()));
-      cuda_pinned_mem_devices.push_back(factory->ep_api.MemoryInfo_GetMemoryDevice(cuda_pinned_memory_info.get()));
-
-      factory->SetDefaultGpuMemInfo(std::move(cuda_gpu_memory_info), device_id);
-      factory->SetHostAccessibleMemInfo(std::move(cuda_pinned_memory_info), device_id);
+      cuda_gpu_mem_devices.push_back(factory->ep_api.MemoryInfo_GetMemoryDevice(cuda_gpu_mem_info));
+      cuda_pinned_mem_devices.push_back(factory->ep_api.MemoryInfo_GetMemoryDevice(cuda_pinned_mem_info));
 
       ep_devices[num_ep_devices++] = ep_device;
+      ++device_id;
     }
   
   // C++ API equivalent. Throws on error.
@@ -202,13 +214,15 @@ OrtStatus* ORT_API_CALL TensorrtExecutionProviderFactory::CreateAllocatorImpl(
   // NOTE: The OrtMemoryInfo pointer should only ever be coming straight from an OrtEpDevice, and pointer based
   // matching should work.
   
-  uint32_t device_id = 0;
+  const OrtMemoryDevice* mem_device = factory.ep_api.MemoryInfo_GetMemoryDevice(memory_info);
+  uint32_t device_id = factory.ep_api.MemoryDevice_GetDeviceId(mem_device);
 
-  if (factory.GetDeviceIdForDefaultGpuMemInfo(memory_info, &device_id)) {
+  if (factory.ep_api.MemoryDevice_GetMemoryType(mem_device) == OrtDeviceMemoryType_DEFAULT) {
     // create a CUDA allocator
     auto cuda_allocator = std::make_unique<CUDAAllocator>(memory_info, static_cast<DeviceId>(device_id));
+    factory.device_id_to_cuda_gpu_memory_info_map[device_id] = memory_info;
     *allocator = cuda_allocator.release();
-  } else if (factory.GetDeviceIdForHostAccessibleMemInfo(memory_info, &device_id)) {
+  } else if (factory.ep_api.MemoryDevice_GetMemoryType(mem_device) == OrtDeviceMemoryType_HOST_ACCESSIBLE) {
     // create a CUDA PINNED allocator
     auto cuda_pinned_allocator = std::make_unique<CUDAPinnedAllocator>(memory_info);
     *allocator = cuda_pinned_allocator.release();
@@ -233,52 +247,6 @@ OrtStatus* ORT_API_CALL TensorrtExecutionProviderFactory::CreateDataTransferImpl
   *data_transfer = factory.data_transfer_impl_.get();
 
   return nullptr;
-}
-
-bool TensorrtExecutionProviderFactory::GetDeviceIdForDefaultGpuMemInfo(const OrtMemoryInfo* mem_info, uint32_t* device_id) const {
-  auto iter = cuda_gpu_memory_info_to_device_id_map_.find(mem_info);
-  if (iter != cuda_gpu_memory_info_to_device_id_map_.end()) {
-    *device_id = iter->second;
-    return true;
-  }
-  return false;
-}
-
-const OrtMemoryInfo* TensorrtExecutionProviderFactory::GetDefaultGpuMemInfoForDeviceId(uint32_t device_id) const {
-  auto iter = device_id_to_cuda_gpu_memory_info_map_.find(device_id);
-  if (iter != device_id_to_cuda_gpu_memory_info_map_.end()) {
-    return iter->second;
-  }
-  return nullptr;
-}
-
-void TensorrtExecutionProviderFactory::SetDefaultGpuMemInfo(MemoryInfoUniquePtr mem_info, uint32_t device_id) {
-  cuda_gpu_memory_info_to_device_id_map_[mem_info.get()] = device_id;
-  device_id_to_cuda_gpu_memory_info_map_[device_id] = mem_info.get();
-  cuda_gpu_memory_infos_.push_back(std::move(mem_info));
-}
-
-bool TensorrtExecutionProviderFactory::GetDeviceIdForHostAccessibleMemInfo(const OrtMemoryInfo* mem_info, uint32_t* device_id) const {
-  auto iter = cuda_pinned_memory_info_to_device_id_map_.find(mem_info);
-  if (iter != cuda_pinned_memory_info_to_device_id_map_.end()) {
-    *device_id = iter->second;
-    return true;
-  }
-  return false;
-}
-
-const OrtMemoryInfo* TensorrtExecutionProviderFactory::GetHostAccessibleMemInfoForDeviceId(uint32_t device_id) const {
-  auto iter = device_id_to_cuda_pinned_memory_info_map_.find(device_id);
-  if (iter != device_id_to_cuda_pinned_memory_info_map_.end()) {
-    return iter->second;
-  }
-  return nullptr;
-}
-
-void TensorrtExecutionProviderFactory::SetHostAccessibleMemInfo(MemoryInfoUniquePtr mem_info, uint32_t device_id) {
-  cuda_pinned_memory_info_to_device_id_map_[mem_info.get()] = device_id;
-  device_id_to_cuda_pinned_memory_info_map_[device_id] = mem_info.get();
-  cuda_pinned_memory_infos_.push_back(std::move(mem_info));
 }
 
 void TensorrtExecutionProviderFactory::SetGPUDataTransfer(std::unique_ptr<TRTEpDataTransfer> gpu_data_transfer) {

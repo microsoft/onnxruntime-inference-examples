@@ -2327,7 +2327,11 @@ OrtStatus* TRTEpNodeComputeInfo::ComputeImpl(OrtNodeComputeInfo* this_ptr, void*
   
   // Get default OrtMemoryInfo from factory
   // Get allocator from OrtKernelContext
-  const OrtMemoryInfo* mem_info = ep.factory_.GetDefaultGpuMemInfoForDeviceId(device_id);
+  const OrtMemoryInfo* mem_info = nullptr;
+  if (ep.factory_.device_id_to_cuda_gpu_memory_info_map.find(device_id) !=
+      ep.factory_.device_id_to_cuda_gpu_memory_info_map.end()) {
+    mem_info = ep.factory_.device_id_to_cuda_gpu_memory_info_map[device_id];
+  }
   OrtAllocator* alloc = nullptr;
   ep.GetAllocator(&alloc);
   if (alloc == nullptr) {
