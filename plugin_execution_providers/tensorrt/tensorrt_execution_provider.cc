@@ -2339,6 +2339,9 @@ OrtStatus* TRTEpNodeComputeInfo::ComputeImpl(OrtNodeComputeInfo* this_ptr, void*
   Ort::ThrowOnError(ep.ort_api.KernelContext_GetGPUComputeStream(kernel_context, &cuda_stream));
   cudaStream_t stream = static_cast<cudaStream_t>(cuda_stream);
 
+  //cudaStream_t stream;
+  cudaStreamCreate(&stream);
+
   // Name the engine cache based on GPU compute capacity and reduce the chance of loading an incompatible cache
   // Note: Engine cache generated on a GPU with large memory might not be loadable on a GPU with smaller memory, even
   // if they share the same compute capacity Prepare cache name
