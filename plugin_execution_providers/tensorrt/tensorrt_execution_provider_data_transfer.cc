@@ -61,7 +61,7 @@ OrtStatus* ORT_API_CALL TRTEpDataTransfer::CopyTensorsImpl(void* this_ptr,
     RETURN_IF_ERROR(impl.ort_api.GetTensorMutableData(dst_tensors[i], &dst_data));
 
     size_t bytes = 0;
-    RETURN_IF_ERROR(impl.ort_api.GetTensorSizeInBytes(reinterpret_cast<const OrtValue*>(src_data), &bytes));
+    RETURN_IF_ERROR(impl.ort_api.GetTensorSizeInBytes(src_tensors[i], &bytes));
 
     // for the sync version of memcpy, launch to cuda default stream
     if (dst_device_type == OrtMemoryInfoDeviceType_GPU) {
