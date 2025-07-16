@@ -16,7 +16,7 @@ The source code for this sample is available [here](https://github.com/microsoft
 # How to build
 
 ## Prerequisites
-1. Download the latest version of the [YOLOv4](https://github.com/onnx/models/tree/master/vision/object_detection_segmentation/yolov4) model from here.
+1. Download the latest version of the [YOLOv4](https://github.com/onnx/models/tree/master/validated/vision/object_detection_segmentation/yolov4) model from here.
 
 ## Install ONNX Runtime for OpenVINO™ Execution Provider
 Please install the onnxruntime-openvino python package from [here](https://pypi.org/project/onnxruntime-openvino). The package for Linux contains prebuilt OpenVINO Libs with ABI 0.
