@@ -212,7 +212,9 @@ struct TensorrtComputeStateForEPContext {
   std::vector<std::unordered_map<std::string, size_t>> output_info;
   bool context_memory_sharing_enable = false;
   size_t* max_context_mem_size_ptr = nullptr;
+  AllocatorUniquePtr<void>* context_memory = nullptr;
   std::mutex* tensorrt_mu_ptr = nullptr;
+  bool sync_stream_after_enqueue = true;
 };
 
 using ShapeRangesMap = std::unordered_map<std::string, std::unordered_map<size_t, std::vector<std::vector<int64_t>>>>;
@@ -345,6 +347,8 @@ struct TensorrtExecutionProvider : public OrtEp, public ApiPtrs {
   std::string onnx_model_folder_path_;
   const void* onnx_model_bytestream_;
   size_t onnx_model_bytestream_size_;
+  const void* onnx_external_data_bytestream_ = nullptr;
+  size_t onnx_external_data_bytestream_size_ = 0;
   bool build_heuristics_enable_ = false;
   bool sparsity_enable_ = false;
   int builder_optimization_level_ = 3;
@@ -438,6 +442,18 @@ struct TensorrtExecutionProvider : public OrtEp, public ApiPtrs {
 /// </summary>
 struct TRTEpNodeComputeInfo : OrtNodeComputeInfo {
   explicit TRTEpNodeComputeInfo(TensorrtExecutionProvider& ep);
+
+  static OrtStatus* ORT_API_CALL CreateStateImpl(OrtNodeComputeInfo* this_ptr, OrtNodeComputeContext* compute_context,
+                                                 void** compute_state);
+  static OrtStatus* ORT_API_CALL ComputeImpl(OrtNodeComputeInfo* this_ptr, void* compute_state,
+                                             OrtKernelContext* kernel_context);
+  static void ORT_API_CALL ReleaseStateImpl(OrtNodeComputeInfo* this_ptr, void* compute_state);
+
+  TensorrtExecutionProvider& ep;
+};
+
+struct TRTEpEpContextNodeComputeInfo : OrtNodeComputeInfo {
+  explicit TRTEpEpContextNodeComputeInfo(TensorrtExecutionProvider& ep);
 
   static OrtStatus* ORT_API_CALL CreateStateImpl(OrtNodeComputeInfo* this_ptr, OrtNodeComputeContext* compute_context,
                                                  void** compute_state);

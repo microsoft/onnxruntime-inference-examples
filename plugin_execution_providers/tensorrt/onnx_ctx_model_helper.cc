@@ -7,6 +7,7 @@
 
 #include "ep_utils.h"
 #include "onnx_ctx_model_helper.h"
+#include "onnx/onnx_pb.h"
 
 extern TensorrtLogger& GetTensorrtLogger(bool verbose_log);
 
@@ -28,7 +29,7 @@ bool EPContextNodeHelper::GraphHasCtxNode(const OrtGraph* graph, const OrtApi& o
 
     const char* op_type = nullptr;
     RETURN_IF_ERROR(ort_api.Node_GetOperatorType(node, &op_type));
-    if (node != nullptr && op_type == "EPContext") {
+    if (node != nullptr && std::string(op_type) == "EPContext") {
       return true;
     }
   }
@@ -85,7 +86,7 @@ OrtStatus* EPContextNodeHelper::CreateEPContextNode(const std::string& engine_ca
   std::array<OrtOpAttr*, 4> attributes = {};
   DeferOrtRelease<OrtOpAttr> defer_release_attrs(attributes.data(), attributes.size(), ort_api.ReleaseOpAttr);
 
-  RETURN_IF_ERROR(ort_api.CreateOpAttr("embed_mode", &embed_mode, 1, ORT_OP_ATTR_INT, &attributes[0]));
+  RETURN_IF_ERROR(ort_api.CreateOpAttr("embed_mode", &embed_mode, sizeof(int64_t), ORT_OP_ATTR_INT, &attributes[0]));
 
   std::string engine_data_str = "";
   if (embed_mode) {
@@ -93,13 +94,13 @@ OrtStatus* EPContextNodeHelper::CreateEPContextNode(const std::string& engine_ca
       engine_data_str.assign(engine_data, size);
     }
     RETURN_IF_ERROR(
-        ort_api.CreateOpAttr("ep_cache_context", engine_data_str.c_str(), 1, ORT_OP_ATTR_STRING, &attributes[1]));
+        ort_api.CreateOpAttr("ep_cache_context", engine_data_str.c_str(), engine_data_str.size(), ORT_OP_ATTR_STRING, &attributes[1]));
   } else {
-    RETURN_IF_ERROR(ort_api.CreateOpAttr("ep_cache_context", engine_cache_path.c_str(), 1, ORT_OP_ATTR_STRING, &attributes[1]));
+    RETURN_IF_ERROR(ort_api.CreateOpAttr("ep_cache_context", engine_cache_path.c_str(), engine_cache_path.size(), ORT_OP_ATTR_STRING, &attributes[1]));
   }
 
  
-  ort_api.CreateOpAttr("hardware_architecture", compute_capability.c_str(), 1, ORT_OP_ATTR_STRING, &attributes[2]);
+  ort_api.CreateOpAttr("hardware_architecture", compute_capability.c_str(), compute_capability.size(), ORT_OP_ATTR_STRING, &attributes[2]);
   ort_api.CreateOpAttr("onnx_model_filename", std::filesystem::path(onnx_model_path).filename().string().c_str(), 1,
                        ORT_OP_ATTR_STRING, &attributes[3]);
 
@@ -108,6 +109,153 @@ OrtStatus* EPContextNodeHelper::CreateEPContextNode(const std::string& engine_ca
                                               input_names.size(), output_names.data(), output_names.size(),
                                               attributes.data(), attributes.size(), ep_context_node));
   
+  return nullptr;
+}
+
+OrtStatus* EPContextNodeReader::GetEpContextFromGraph(const OrtGraph& graph) {
+  /*
+  if (!ValidateEPCtxNode(graph)) {
+    return ORT_MAKE_STATUS(ONNXRUNTIME, EP_FAIL, "It's not a valid EP Context node");
+  }
+  */
+
+  size_t num_nodes = 0;
+  RETURN_IF_ERROR(ort_api.Graph_GetNumNodes(&graph, &num_nodes));
+
+  std::vector<const OrtNode*> nodes(num_nodes);
+  RETURN_IF_ERROR(ort_api.Graph_GetNodes(&graph, nodes.data(), nodes.size()));
+
+  auto node = nodes[0];
+
+  size_t num_node_attributes = 0;
+  RETURN_IF_ERROR(ort_api.Node_GetNumAttributes(node, &num_node_attributes));
+
+  /*
+  std::vector<const OrtOpAttr*> node_attributes(num_node_attributes);
+  RETURN_IF_ERROR(ort_api.Node_GetAttributes(node, node_attributes.data(), node_attributes.size()));
+  */
+
+  const OrtOpAttr* node_attr = nullptr;
+  RETURN_IF_ERROR(ort_api.Node_GetAttributeByName(node, "embed_mode", &node_attr));
+  const int64_t embed_mode = reinterpret_cast<const ONNX_NAMESPACE::AttributeProto*>(node_attr)->i();
+
+  // Only make path checks if model not provided as byte buffer
+  //bool make_secure_path_checks = !GetModelPath(graph_viewer).empty();
+  bool make_secure_path_checks = false;
+
+  if (embed_mode) {
+    // Get engine from byte stream.
+    node_attr = nullptr;
+    RETURN_IF_ERROR(ort_api.Node_GetAttributeByName(node, "ep_cache_context", &node_attr));
+    const std::string& context_binary = reinterpret_cast<const ONNX_NAMESPACE::AttributeProto*>(node_attr)->s();
+
+    *(trt_engine_) = std::unique_ptr<nvinfer1::ICudaEngine>(trt_runtime_->deserializeCudaEngine(const_cast<char*>(context_binary.c_str()),
+                                                                                                static_cast<size_t>(context_binary.length())));
+    //LOGS_DEFAULT(VERBOSE) << "[TensorRT EP] Read engine as binary data from \"ep_cache_context\" attribute of ep context node and deserialized it";
+    if (!(*trt_engine_)) {
+      return ort_api.CreateStatus(ORT_EP_FAIL, "TensorRT EP could not deserialize engine from binary data");
+    }
+
+    /*
+    if (weight_stripped_engine_refit_) {
+      const std::string onnx_model_filename = attrs.at(ONNX_MODEL_FILENAME).s();
+      std::string placeholder;
+      auto status = TensorrtExecutionProvider::RefitEngine(onnx_model_filename,
+                                                           onnx_model_folder_path_,
+                                                           placeholder,
+                                                           make_secure_path_checks,
+                                                           onnx_model_bytestream_,
+                                                           onnx_model_bytestream_size_,
+                                                           onnx_external_data_bytestream_,
+                                                           onnx_external_data_bytestream_size_,
+                                                           (*trt_engine_).get(),
+                                                           false, // serialize refitted engine to disk
+                                                           detailed_build_log_);
+      if (status != Status::OK()) {
+        return ORT_MAKE_STATUS(ONNXRUNTIME, EP_FAIL, status.ErrorMessage());
+      }
+    }
+    */
+  } else {
+    // Get engine from cache file.
+    node_attr = nullptr;
+    RETURN_IF_ERROR(ort_api.Node_GetAttributeByName(node, "ep_cache_context", &node_attr));
+    std::string cache_path = reinterpret_cast<const ONNX_NAMESPACE::AttributeProto*>(node_attr)->s();
+
+    /*
+    // For security purpose, in the case of running context model, TRT EP won't allow
+    // engine cache path to be the relative path like "../file_path" or the absolute path.
+    // It only allows the engine cache to be in the same directory or sub directory of the context model.
+    if (IsAbsolutePath(cache_path)) {
+      return ORT_MAKE_STATUS(ONNXRUNTIME, EP_FAIL, "For security purpose, the ep_cache_context attribute should be set with a relative path, but it is an absolute path:  " + cache_path);
+    }
+    if (IsRelativePathToParentPath(cache_path)) {
+      return ORT_MAKE_STATUS(ONNXRUNTIME, EP_FAIL, "The file path in ep_cache_context attribute has '..'. For security purpose, it's not allowed to point outside the directory.");
+    }
+
+    // The engine cache and context model (current model) should be in the same directory
+    std::filesystem::path ctx_model_dir(GetPathOrParentPathOfCtxModel(ep_context_model_path_));
+    auto engine_cache_path = ctx_model_dir.append(cache_path);
+    LOGS_DEFAULT(VERBOSE) << "[TensorRT EP] GetEpContextFromGraph engine_cache_path: " + engine_cache_path.string();
+
+    // If it's a weight-stripped engine cache, it needs to be refitted even though the refit flag is not enabled
+    if (!weight_stripped_engine_refit_) {
+      weight_stripped_engine_refit_ = IsWeightStrippedEngineCache(engine_cache_path);
+    }
+
+    // If the serialized refitted engine is present, use it directly without refitting the engine again
+    if (weight_stripped_engine_refit_) {
+      const std::filesystem::path refitted_engine_cache_path = GetWeightRefittedEnginePath(engine_cache_path.string());
+      if (std::filesystem::exists(refitted_engine_cache_path)) {
+        LOGS_DEFAULT(VERBOSE) << "[TensorRT EP] " + refitted_engine_cache_path.string() + " exists.";
+        engine_cache_path = refitted_engine_cache_path.string();
+        weight_stripped_engine_refit_ = false;
+      }
+    }
+    */
+
+    std::filesystem::path engine_cache_path(cache_path);
+    if (!std::filesystem::exists(engine_cache_path)) {
+      std::string error_msg =
+          "TensorRT EP can't find engine cache: " + engine_cache_path.string() +
+          ". Please make sure engine cache is in the same directory or sub-directory of context model.";
+      return ort_api.CreateStatus(ORT_EP_FAIL, error_msg.c_str());
+    }
+
+    std::ifstream engine_file(engine_cache_path.string(), std::ios::binary | std::ios::in);
+    engine_file.seekg(0, std::ios::end);
+    size_t engine_size = engine_file.tellg();
+    engine_file.seekg(0, std::ios::beg);
+    std::unique_ptr<char[]> engine_buf{new char[engine_size]};
+    engine_file.read((char*)engine_buf.get(), engine_size);
+    *(trt_engine_) = std::unique_ptr<nvinfer1::ICudaEngine>(trt_runtime_->deserializeCudaEngine(engine_buf.get(), engine_size));
+    if (!(*trt_engine_)) {
+      std::string error_msg = "TensorRT EP could not deserialize engine from cache: " + engine_cache_path.string();
+      return ort_api.CreateStatus(ORT_EP_FAIL, error_msg.c_str());
+    }
+    // LOGS_DEFAULT(VERBOSE) << "[TensorRT EP] DeSerialized " + engine_cache_path.string();
+
+    /*
+    if (weight_stripped_engine_refit_) {
+      const std::string onnx_model_filename = attrs.at(ONNX_MODEL_FILENAME).s();
+      std::string weight_stripped_engine_cache = engine_cache_path.string();
+      auto status = TensorrtExecutionProvider::RefitEngine(onnx_model_filename,
+                                                           onnx_model_folder_path_,
+                                                           weight_stripped_engine_cache,
+                                                           make_secure_path_checks,
+                                                           onnx_model_bytestream_,
+                                                           onnx_model_bytestream_size_,
+                                                           onnx_external_data_bytestream_,
+                                                           onnx_external_data_bytestream_size_,
+                                                           (*trt_engine_).get(),
+                                                           true, // serialize refitted engine to disk
+                                                           detailed_build_log_);
+      if (status != Status::OK()) {
+        return ORT_MAKE_STATUS(ONNXRUNTIME, EP_FAIL, status.ErrorMessage());
+      }
+    }
+    */
+  }
   return nullptr;
 }
 
