@@ -9,9 +9,10 @@
 void CUDA_RETURN_IF_ERROR(cudaError_t res);
 
 /*static*/
-bool ORT_API_CALL TRTEpDataTransfer::CanCopyImpl(void* this_ptr, const OrtMemoryDevice* src_memory_device,
+bool ORT_API_CALL TRTEpDataTransfer::CanCopyImpl(const OrtDataTransferImpl* this_ptr,
+                                                 const OrtMemoryDevice* src_memory_device,
                                                  const OrtMemoryDevice* dst_memory_device) noexcept {
-  auto& impl = *static_cast<TRTEpDataTransfer*>(this_ptr);
+  auto& impl = *static_cast<const TRTEpDataTransfer*>(this_ptr);
 
   auto it = std::find_if(impl.cuda_gpu_mem_devices_.begin(), impl.cuda_gpu_mem_devices_.end(),
                          [&impl, &src_memory_device, &dst_memory_device](const OrtMemoryDevice* memory_device) {
@@ -29,7 +30,7 @@ bool ORT_API_CALL TRTEpDataTransfer::CanCopyImpl(void* this_ptr, const OrtMemory
 // function to copy one or more tensors.
 // implementation can optionally use async copy if a stream is available for the input.
 /*static*/
-OrtStatus* ORT_API_CALL TRTEpDataTransfer::CopyTensorsImpl(void* this_ptr,
+OrtStatus* ORT_API_CALL TRTEpDataTransfer::CopyTensorsImpl(OrtDataTransferImpl* this_ptr,
                                                            const OrtValue** src_tensors_ptr,
                                                            OrtValue** dst_tensors_ptr,
                                                            OrtSyncStream** streams_ptr,
@@ -97,10 +98,10 @@ OrtStatus* ORT_API_CALL TRTEpDataTransfer::CopyTensorsImpl(void* this_ptr,
 }
 
 /*static*/
-void ORT_API_CALL TRTEpDataTransfer::ReleaseImpl(void* this_ptr) noexcept {
+void ORT_API_CALL TRTEpDataTransfer::ReleaseImpl(OrtDataTransferImpl* this_ptr) noexcept {
   // In our setup the factory owns a shared ExampleDataTransfer instance so it will do the cleanup, and we ignore
   // the call to Release from the plugin_ep::DataTransfer dtor (see /onnxruntime/core/framework/plugin_data_transfer.h)
   //
   // If you create a new instance on each call to OrtEpFactory::CreateDataTransfer you call `delete` here
-  delete static_cast<TRTEpDataTransfer*>(this_ptr);
+  delete this_ptr;
 }

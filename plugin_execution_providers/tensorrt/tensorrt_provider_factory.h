@@ -12,10 +12,6 @@ struct TensorrtExecutionProviderFactory : public OrtEpFactory, public ApiPtrs {
  public:
   TensorrtExecutionProviderFactory(const char* ep_name, ApiPtrs apis);
 
-  const OrtMemoryInfo* GetDefaultGpuMemInfoForDeviceId(uint32_t device_id) const;
-
-  const OrtMemoryInfo* GetHostAccessibleMemInfoForDeviceId(uint32_t device_id) const;
-
   OrtStatus* CreateMemoryInfoForDevices(int num_devices);
 
   // CUDA gpu memory and CUDA pinned memory are required for allocator and data transfer, these are the OrtMemoryInfo
@@ -24,6 +20,10 @@ struct TensorrtExecutionProviderFactory : public OrtEpFactory, public ApiPtrs {
   std::vector<MemoryInfoUniquePtr> cuda_gpu_memory_infos;
   std::vector<MemoryInfoUniquePtr> cuda_pinned_memory_infos;
   std::unordered_map<uint32_t, const OrtMemoryInfo*> device_id_to_cuda_gpu_memory_info_map;  // device id -> OrtMemoryInfo
+
+  std::vector<const OrtMemoryDevice*> cuda_gpu_mem_devices;
+  std::vector<const OrtMemoryDevice*> cuda_pinned_mem_devices;
+  std::unique_ptr<TRTEpDataTransfer> data_transfer_impl;  // data transfer implementation for this factory
 
  private:
   static const char* ORT_API_CALL GetNameImpl(const OrtEpFactory* this_ptr) noexcept;
@@ -53,11 +53,11 @@ struct TensorrtExecutionProviderFactory : public OrtEpFactory, public ApiPtrs {
   static OrtStatus* ORT_API_CALL CreateDataTransferImpl(OrtEpFactory* this_ptr,
                                                         OrtDataTransferImpl** data_transfer) noexcept;
 
+  static bool ORT_API_CALL IsStreamAwareImpl(const OrtEpFactory* /*this_ptr*/) noexcept;
+
   void SetGPUDataTransfer(std::unique_ptr<TRTEpDataTransfer> gpu_data_transfer);
 
   const std::string ep_name_;           // EP name
   const std::string vendor_{"Nvidia"};  // EP vendor name
   const std::string ep_version_{"0.1.0"};  // EP version
-
-  std::unique_ptr<TRTEpDataTransfer> data_transfer_impl_;  // data transfer implementation for this factory
 };

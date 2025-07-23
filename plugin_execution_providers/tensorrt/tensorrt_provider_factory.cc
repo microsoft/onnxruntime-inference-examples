@@ -27,6 +27,8 @@ TensorrtExecutionProviderFactory::TensorrtExecutionProviderFactory(const char* e
   ReleaseAllocator = ReleaseAllocatorImpl;
 
   CreateDataTransfer = CreateDataTransferImpl;
+
+  IsStreamAware = IsStreamAwareImpl;
 }
 
 const char* ORT_API_CALL TensorrtExecutionProviderFactory::GetNameImpl(const OrtEpFactory* this_ptr) noexcept {
@@ -80,24 +82,19 @@ OrtStatus* ORT_API_CALL TensorrtExecutionProviderFactory::GetSupportedDevicesImp
   size_t& num_ep_devices = *p_num_ep_devices;
   auto* factory = static_cast<TensorrtExecutionProviderFactory*>(this_ptr);
 
+  // Create two memory infos per device.
+  // The memory info is required to create allocator and gpu data transfer.
   int num_cuda_devices = 0;
   cudaGetDeviceCount(&num_cuda_devices);
   RETURN_IF_ERROR(factory->CreateMemoryInfoForDevices(num_cuda_devices));
 
-  std::vector<const OrtMemoryDevice*> cuda_gpu_mem_devices;
-  std::vector<const OrtMemoryDevice*> cuda_pinned_mem_devices;
   int32_t device_id = 0;
 
   for (size_t i = 0; i < num_devices && num_ep_devices < max_ep_devices; ++i) {
     // C API
     const OrtHardwareDevice& device = *devices[i];
-    if (factory->ort_api.HardwareDevice_Type(&device) == OrtHardwareDeviceType::OrtHardwareDeviceType_GPU) {
-      
-      // workaround for duplicate devices when using remote desktop.
-      if (device_id > 0) {
-        continue;
-      }
 
+    if (factory->ort_api.HardwareDevice_Type(&device) == OrtHardwareDeviceType::OrtHardwareDeviceType_GPU) {
       // These can be returned as nullptr if you have nothing to add.
       OrtKeyValuePairs* ep_metadata = nullptr;
       OrtKeyValuePairs* ep_options = nullptr;
@@ -129,8 +126,8 @@ OrtStatus* ORT_API_CALL TensorrtExecutionProviderFactory::GetSupportedDevicesImp
       RETURN_IF_ERROR(factory->ep_api.EpDevice_AddAllocatorInfo(ep_device, cuda_pinned_mem_info));
 
       // Get memory device from memory info for gpu data transfer
-      cuda_gpu_mem_devices.push_back(factory->ep_api.MemoryInfo_GetMemoryDevice(cuda_gpu_mem_info));
-      cuda_pinned_mem_devices.push_back(factory->ep_api.MemoryInfo_GetMemoryDevice(cuda_pinned_mem_info));
+      factory->cuda_gpu_mem_devices.push_back(factory->ep_api.MemoryInfo_GetMemoryDevice(cuda_gpu_mem_info));
+      factory->cuda_pinned_mem_devices.push_back(factory->ep_api.MemoryInfo_GetMemoryDevice(cuda_pinned_mem_info));
 
       ep_devices[num_ep_devices++] = ep_device;
       ++device_id;
@@ -152,10 +149,12 @@ OrtStatus* ORT_API_CALL TensorrtExecutionProviderFactory::GetSupportedDevicesImp
 
     // Create gpu data transfer
   auto data_transfer_impl = std::make_unique<TRTEpDataTransfer>(static_cast<const ApiPtrs&>(*factory),
-                                                                cuda_gpu_mem_devices,    // device memory
-                                                                cuda_pinned_mem_devices  // shared memory
+                                                                factory->cuda_gpu_mem_devices,  // device memory
+                                                                factory->cuda_pinned_mem_devices  // shared memory
                                                                );
-  factory->SetGPUDataTransfer(std::move(data_transfer_impl));
+
+  factory->data_transfer_impl = std::move(data_transfer_impl);
+
   return nullptr;
 }
 
@@ -244,13 +243,13 @@ OrtStatus* ORT_API_CALL TensorrtExecutionProviderFactory::CreateDataTransferImpl
                                                                  OrtEpFactory* this_ptr,
                                                                  OrtDataTransferImpl** data_transfer) noexcept {
   auto& factory = *static_cast<TensorrtExecutionProviderFactory*>(this_ptr);
-  *data_transfer = factory.data_transfer_impl_.get();
+  *data_transfer = factory.data_transfer_impl.get();
 
   return nullptr;
 }
 
-void TensorrtExecutionProviderFactory::SetGPUDataTransfer(std::unique_ptr<TRTEpDataTransfer> gpu_data_transfer) {
-  data_transfer_impl_ = std::move(gpu_data_transfer);
+bool ORT_API_CALL TensorrtExecutionProviderFactory::IsStreamAwareImpl(const OrtEpFactory* /*this_ptr*/) noexcept {
+  return false;
 }
 
 // To make symbols visible on macOS/iOS
@@ -265,6 +264,7 @@ extern "C" {
 // Public symbols
 //
 EXPORT_SYMBOL OrtStatus* CreateEpFactories(const char* registration_name, const OrtApiBase* ort_api_base,
+                                           const OrtLogger*,
                                            OrtEpFactory** factories, size_t max_factories, size_t* num_factories) {
   const OrtApi* ort_api = ort_api_base->GetApi(ORT_API_VERSION);
   const OrtEpApi* ort_ep_api = ort_api->GetEpApi();
@@ -285,7 +285,7 @@ EXPORT_SYMBOL OrtStatus* CreateEpFactories(const char* registration_name, const 
 }
 
 EXPORT_SYMBOL OrtStatus* ReleaseEpFactory(OrtEpFactory* factory) {
-  delete factory;
+  delete static_cast<TensorrtExecutionProviderFactory*>(factory);
   return nullptr;
 }
 
