@@ -9,12 +9,17 @@ enable_language(CUDA)
 file(TO_CMAKE_PATH CUDAToolkit_ROOT "/usr/local/cuda")
 find_package(CUDAToolkit REQUIRED)
 
-# CMake config to force dynamic debug CRT globally for all dependencies.
+# CMake config to force dynamic debug CRT or dynamic release CRT globally for all dependencies.
 # This is to address the issue of:
 # libprotobufd.lib(common.obj) : error LNK2038: mismatch detected for 'RuntimeLibrary': value 'MTd_StaticDebug' doesn't match value 'MDd_DynamicDebug' in unary_elementwise_ops_impl.obj
 if (WIN32)
   if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreadedDebugDLL" CACHE STRING "" FORCE)  # /MDd
+    set(BUILD_SHARED_LIBS OFF)  # Build protobuf as static .lib, but using dynamic runtime
+  endif()
+
+  if(CMAKE_BUILD_TYPE STREQUAL "Release")
+    set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreadedDLL" CACHE STRING "" FORCE)
     set(BUILD_SHARED_LIBS OFF)  # Build protobuf as static .lib, but using dynamic runtime
   endif()
 endif()
@@ -50,10 +55,8 @@ FetchContent_Declare(
 )
 
 if (WIN32)
-  if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-    # Sometimes, protobuf ignores CMAKE_MSVC_RUNTIME_LIBRARY. To ensure it works:
-    set(protobuf_MSVC_STATIC_RUNTIME OFF CACHE BOOL "" FORCE)
-  endif()
+  # Sometimes, protobuf ignores CMAKE_MSVC_RUNTIME_LIBRARY. To ensure it works:
+  set(protobuf_MSVC_STATIC_RUNTIME OFF CACHE BOOL "" FORCE)
 endif()
 
 FetchContent_MakeAvailable(protobuf)
@@ -66,10 +69,6 @@ FetchContent_Declare(
 )
 
 FetchContent_MakeAvailable(onnx)
-
-#set(ONNX_USE_LITE_PROTO OFF CACHE BOOL "" FORCE)
-#set(ONNX_BUILD_TESTS OFF CACHE BOOL "" FORCE)
-#set(ONNX_GEN_PB_TYPE_STUBS OFF CACHE BOOL "" FORCE)
 
 # Add GSL
 FetchContent_Declare(
