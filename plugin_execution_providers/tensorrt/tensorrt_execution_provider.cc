@@ -14,6 +14,7 @@
 #include "tensorrt_execution_provider.h"
 #include "cuda_allocator.h"
 #include "onnx_ctx_model_helper.h"
+#include "tensorrt_execution_provider_stream_support.h"
 #include "onnx/onnx_pb.h"
 #include "cuda/unary_elementwise_ops_impl.h"
 #include "ep_utils.h"
@@ -1960,6 +1961,30 @@ const char* ORT_API_CALL TensorrtExecutionProvider::GetNameImpl(const OrtEp* thi
   return ep->name_.c_str();
 }
 
+OrtStatus* ORT_API_CALL TensorrtExecutionProvider::CreateSyncStreamForDeviceImpl(_In_ OrtEp* this_ptr,
+                                                                                 _In_ const OrtMemoryDevice* memory_device,
+                                                                                 _Outptr_ OrtSyncStreamImpl** stream) noexcept {
+  // A per-session OrtSyncStreamImpl can be created here if the session options affect the implementation.
+  // Logging of any issues should use logger_ which is the session logger.
+
+  TensorrtExecutionProvider* ep = static_cast<TensorrtExecutionProvider*>(this_ptr);
+
+  // we only create streams for the default device memory.
+  if (auto mem_type = ep->factory_.ep_api.MemoryDevice_GetMemoryType(memory_device);
+      mem_type != OrtDeviceMemoryType_DEFAULT) {
+    std::string error = "Invalid OrtMemoryDevice. Expected OrtDeviceMemoryType_DEFAULT(0). Got ";
+    error += std::to_string(mem_type);
+    return ep->ort_api.CreateStatus(ORT_INVALID_ARGUMENT, error.c_str());
+  }
+
+  auto device_id = ep->factory_.ep_api.MemoryDevice_GetDeviceId(memory_device);
+
+  auto sync_stream = std::make_unique<TrtSyncStreamImpl>(ep->factory_, ep, device_id, nullptr);
+  *stream = sync_stream.release();
+
+  return nullptr;
+}
+
 /**
  * Refit the weight-stripped engine
  */
@@ -2070,6 +2095,7 @@ TensorrtExecutionProvider::TensorrtExecutionProvider(TensorrtExecutionProviderFa
   GetCapability = GetCapabilityImpl;
   Compile = CompileImpl;
   ReleaseNodeComputeInfos = ReleaseNodeComputeInfosImpl;
+  CreateSyncStreamForDevice = CreateSyncStreamForDeviceImpl;
 
   // Initialize the execution provider.
   auto status = ort_api.Logger_LogMessage(&logger_,
@@ -2158,7 +2184,7 @@ TensorrtExecutionProvider::TensorrtExecutionProvider(TensorrtExecutionProviderFa
     force_timing_cache_match_ = info_.force_timing_cache;
     detailed_build_log_ = info_.detailed_build_log;
     dump_ep_context_model_ = info_.dump_ep_context_model;
-    dump_ep_context_model_ = true;
+    //dump_ep_context_model_ = true;
     ep_context_file_path_ = info_.ep_context_file_path;
     ep_context_embed_mode_ = info_.ep_context_embed_mode;
     enable_engine_cache_for_ep_context_model();
@@ -2378,7 +2404,6 @@ void ORT_API_CALL TensorrtExecutionProvider::ReleaseNodeComputeInfosImpl(OrtEp* 
   }
 }
 
-
 //
 // Implementation of TRTEpNodeComputeInfo
 //
@@ -2487,7 +2512,7 @@ OrtStatus* TRTEpNodeComputeInfo::ComputeImpl(OrtNodeComputeInfo* this_ptr, void*
   cudaStream_t stream = static_cast<cudaStream_t>(cuda_stream);
 
   //cudaStream_t stream;
-  cudaStreamCreate(&stream);
+  //cudaStreamCreate(&stream);
 
   // Name the engine cache based on GPU compute capacity and reduce the chance of loading an incompatible cache
   // Note: Engine cache generated on a GPU with large memory might not be loadable on a GPU with smaller memory, even
@@ -3053,6 +3078,9 @@ void TRTEpNodeComputeInfo::ReleaseStateImpl(OrtNodeComputeInfo* this_ptr, void* 
   // Do nothing for here.
 }
 
+//
+// Implementation of TRTEpEpContextNodeComputeInfo
+//
 TRTEpEpContextNodeComputeInfo::TRTEpEpContextNodeComputeInfo(TensorrtExecutionProvider& ep) : ep(ep) {
   ort_version_supported = ORT_API_VERSION;
   CreateState = CreateStateImpl;

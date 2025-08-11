@@ -249,7 +249,7 @@ OrtStatus* ORT_API_CALL TensorrtExecutionProviderFactory::CreateDataTransferImpl
 }
 
 bool ORT_API_CALL TensorrtExecutionProviderFactory::IsStreamAwareImpl(const OrtEpFactory* /*this_ptr*/) noexcept {
-  return false;
+  return true;
 }
 
 // To make symbols visible on macOS/iOS

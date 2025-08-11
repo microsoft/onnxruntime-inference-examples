@@ -227,7 +227,7 @@ static const std::string k_ep_ctx_onnx_model_filename = "onnx_model_filename";
 
 /// <summary>
 /// 
-/// Plugin TensorRT EP
+/// Plugin TensorRT EP implementing OrtEp.
 ///
 /// </summary>
 struct TensorrtExecutionProvider : public OrtEp, public ApiPtrs {
@@ -311,6 +311,8 @@ struct TensorrtExecutionProvider : public OrtEp, public ApiPtrs {
   std::unordered_map<std::string, std::string> trt_node_name_with_precision_;
   std::unordered_map<std::string, std::unordered_map<std::string, float>> dynamic_range_map_;
   std::unordered_map<std::string, std::string> cache_suffix_;
+  bool external_stream_ = false;
+  cudaStream_t stream_ = nullptr;
 
  private:
   static const char* ORT_API_CALL GetNameImpl(const OrtEp* this_ptr) noexcept;
@@ -323,12 +325,11 @@ struct TensorrtExecutionProvider : public OrtEp, public ApiPtrs {
   static void ORT_API_CALL ReleaseNodeComputeInfosImpl(OrtEp* this_ptr, OrtNodeComputeInfo** node_compute_infos,
                                                        size_t num_node_compute_infos) noexcept;
 
-  OrtStatus* CreateEpContextNodes(gsl::span<const OrtNode*> fused_nodes,
-                                  /*out*/ gsl::span<OrtNode*> ep_context_nodes);
+  static OrtStatus* ORT_API_CALL CreateSyncStreamForDeviceImpl(_In_ OrtEp* this_ptr,
+                                                               _In_ const OrtMemoryDevice* memory_device,
+                                                               _Outptr_ OrtSyncStreamImpl** stream) noexcept;
 
   mutable TensorrtExecutionProviderInfo info_;
-  bool external_stream_ = false;
-  cudaStream_t stream_ = nullptr;
   int max_partition_iterations_ = 1000;
   size_t min_subgraph_size_ = 1;
   size_t max_workspace_size_ = 1 << 30;  // 1GB
