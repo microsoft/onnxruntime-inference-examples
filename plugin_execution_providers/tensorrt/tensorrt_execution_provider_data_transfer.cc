@@ -3,6 +3,7 @@
 
 #include "tensorrt_execution_provider_data_transfer.h"
 
+#include <cuda_runtime_api.h>
 #include <cassert>
 #include <gsl/span>
 
@@ -46,8 +47,8 @@ OrtStatus* ORT_API_CALL TRTEpDataTransfer::CopyTensorsImpl(OrtDataTransferImpl* 
 
     const OrtMemoryDevice* src_device = nullptr;
     const OrtMemoryDevice* dst_device = nullptr;
-    RETURN_IF_ERROR(impl.ep_api.Value_GetMemoryDevice(src_tensors[i], &src_device));
-    RETURN_IF_ERROR(impl.ep_api.Value_GetMemoryDevice(dst_tensors[i], &dst_device));
+    src_device = impl.ep_api.Value_GetMemoryDevice(src_tensors[i]);
+    dst_device = impl.ep_api.Value_GetMemoryDevice(dst_tensors[i]);
 
     OrtMemoryInfoDeviceType src_device_type = impl.ep_api.MemoryDevice_GetDeviceType(src_device);
     OrtMemoryInfoDeviceType dst_device_type = impl.ep_api.MemoryDevice_GetDeviceType(dst_device);
