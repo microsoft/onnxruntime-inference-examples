@@ -5,8 +5,9 @@
 cmake_minimum_required(VERSION 3.26)
 project(TensorRTEp VERSION 1.0)
 set(CMAKE_CXX_STANDARD 17)
-enable_language(CUDA)
-file(TO_CMAKE_PATH CUDAToolkit_ROOT "/usr/local/cuda")
+
+enable_language(CUDA) # via nvcc to get the CUDA tool kit
+file(TO_CMAKE_PATH "/usr/local/cuda" CUDAToolkit_ROOT)
 find_package(CUDAToolkit REQUIRED)
 
 # CMake config to force dynamic debug CRT or dynamic release CRT globally for all dependencies.
