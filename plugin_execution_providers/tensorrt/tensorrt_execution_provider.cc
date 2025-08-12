@@ -2071,11 +2071,15 @@ OrtStatus* TensorrtExecutionProvider::RefitEngine(
 #endif
 }
 
-TensorrtExecutionProvider::~TensorrtExecutionProvider() = default;
+TensorrtExecutionProvider::~TensorrtExecutionProvider() {
+  if (alloc_ != nullptr) {
+    ort_api.ReleaseAllocator(alloc_);
+  }
+}
 
 /// <summary>
 /// 
-/// Plugin TensorRT EP that implements OrtEp
+/// Plugin TensorRT EP implementing OrtEp
 /// 
 /// </summary>
 TensorrtExecutionProvider::TensorrtExecutionProvider(TensorrtExecutionProviderFactory& factory,
@@ -2494,18 +2498,17 @@ OrtStatus* TRTEpNodeComputeInfo::ComputeImpl(OrtNodeComputeInfo* this_ptr, void*
   auto& dds_output_allocator_map = dds_output_allocator_maps[fused_node_name];
   
   // Get default OrtMemoryInfo from factory
-  // Get allocator from OrtKernelContext
   const OrtMemoryInfo* mem_info = nullptr;
-  if (ep.factory_.device_id_to_cuda_gpu_memory_info_map.find(device_id) !=
-      ep.factory_.device_id_to_cuda_gpu_memory_info_map.end()) {
-    mem_info = ep.factory_.device_id_to_cuda_gpu_memory_info_map[device_id];
+  if (ep.factory_.cuda_gpu_memory_infos.find(device_id) !=
+      ep.factory_.cuda_gpu_memory_infos.end()) {
+    mem_info = ep.factory_.cuda_gpu_memory_infos[device_id].get();
   }
-  OrtAllocator* alloc = nullptr;
-  ep.GetAllocator(&alloc);
-  if (alloc == nullptr) {
-    Ort::ThrowOnError(ep.ort_api.KernelContext_GetAllocator(kernel_context, mem_info, &alloc));
-    ep.SetAllocator(alloc);
+
+  // Get allocator from OrtKernelContext
+  if (ep.alloc_ == nullptr) {
+    Ort::ThrowOnError(ep.ort_api.KernelContext_GetAllocator(kernel_context, mem_info, &ep.alloc_));
   }
+  OrtAllocator* alloc = ep.alloc_;
 
   void* cuda_stream;
   Ort::ThrowOnError(ep.ort_api.KernelContext_GetGPUComputeStream(kernel_context, &cuda_stream));
@@ -3134,18 +3137,17 @@ OrtStatus* TRTEpEpContextNodeComputeInfo::ComputeImpl(OrtNodeComputeInfo* this_p
   std::unordered_map<std::string, std::vector<int64_t>> shape_tensor_values_int64;  // same as above but for int64 shape tensor input
 
   // Get default OrtMemoryInfo from factory
-  // Get allocator from OrtKernelContext
   const OrtMemoryInfo* mem_info = nullptr;
-  if (ep.factory_.device_id_to_cuda_gpu_memory_info_map.find(device_id) !=
-      ep.factory_.device_id_to_cuda_gpu_memory_info_map.end()) {
-    mem_info = ep.factory_.device_id_to_cuda_gpu_memory_info_map[device_id];
+  if (ep.factory_.cuda_gpu_memory_infos.find(device_id) !=
+      ep.factory_.cuda_gpu_memory_infos.end()) {
+    mem_info = ep.factory_.cuda_gpu_memory_infos[device_id].get();
   }
-  OrtAllocator* alloc = nullptr;
-  ep.GetAllocator(&alloc);
-  if (alloc == nullptr) {
-    Ort::ThrowOnError(ep.ort_api.KernelContext_GetAllocator(kernel_context, mem_info, &alloc));
-    ep.SetAllocator(alloc);
+
+  // Get allocator from OrtKernelContext
+  if (ep.alloc_ == nullptr) {
+    Ort::ThrowOnError(ep.ort_api.KernelContext_GetAllocator(kernel_context, mem_info, &ep.alloc_));
   }
+  OrtAllocator* alloc = ep.alloc_;
 
   void* cuda_stream;
   Ort::ThrowOnError(ep.ort_api.KernelContext_GetGPUComputeStream(kernel_context, &cuda_stream));

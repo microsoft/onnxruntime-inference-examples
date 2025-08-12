@@ -57,7 +57,7 @@ OrtStatus* TensorrtExecutionProviderFactory::CreateMemoryInfoForDevices(int num_
                                                 /* device_id */ device_id, OrtDeviceMemoryType_DEFAULT,
                                                 /*alignment*/ 0, OrtAllocatorType::OrtDeviceAllocator, &mem_info));
 
-    cuda_gpu_memory_infos.emplace_back(MemoryInfoUniquePtr(mem_info, ort_api.ReleaseMemoryInfo));
+    cuda_gpu_memory_infos[device_id] = MemoryInfoUniquePtr(mem_info, ort_api.ReleaseMemoryInfo);
 
     // HOST_ACCESSIBLE memory should use the non-CPU device type
     mem_info = nullptr;
@@ -66,7 +66,7 @@ OrtStatus* TensorrtExecutionProviderFactory::CreateMemoryInfoForDevices(int num_
                                                 /* device_id */ device_id, OrtDeviceMemoryType_HOST_ACCESSIBLE,
                                                 /*alignment*/ 0, OrtAllocatorType::OrtDeviceAllocator, &mem_info));
 
-    cuda_pinned_memory_infos.emplace_back(MemoryInfoUniquePtr(mem_info, ort_api.ReleaseMemoryInfo));
+    cuda_pinned_memory_infos[device_id] = MemoryInfoUniquePtr(mem_info, ort_api.ReleaseMemoryInfo);
   }
 
   return nullptr;
@@ -196,35 +196,50 @@ void ORT_API_CALL TensorrtExecutionProviderFactory::ReleaseEpImpl(OrtEpFactory* 
   delete trt_ep;
 }
 
-OrtStatus* ORT_API_CALL TensorrtExecutionProviderFactory::CreateAllocatorImpl(
-                                                              OrtEpFactory* this_ptr, const OrtMemoryInfo* memory_info,
-                                                              const OrtKeyValuePairs* /*allocator_options*/,
-                                                              OrtAllocator** allocator) noexcept {
+OrtStatus* ORT_API_CALL TensorrtExecutionProviderFactory::CreateAllocatorImpl(OrtEpFactory* this_ptr,
+                                                                              const OrtMemoryInfo* memory_info,
+                                                                              const OrtKeyValuePairs* /*allocator_options*/,
+                                                                              OrtAllocator** allocator) noexcept {
   auto& factory = *static_cast<TensorrtExecutionProviderFactory*>(this_ptr);
-  *allocator = nullptr;
 
-  // NOTE: The factory implementation can return a shared OrtAllocator* instead of creating a new instance on each call.
-  //       To do this just make ReleaseAllocatorImpl a no-op.
+  // NOTE: The factory implementation is free to return a shared OrtAllocator* instance instead of creating a new
+  //       allocator on each call. To do this have an allocator instance as an OrtEpFactory class member and make
+  //       ReleaseAllocatorImpl a no-op.
 
-  // NOTE: If OrtMemoryInfo has allocator type (call MemoryInfoGetType) of OrtArenaAllocator, an ORT BFCArena
-  //       will be added to wrap the returned OrtAllocator. The EP is free to implement its own arena, and if it
-  //       wants to do this the OrtMemoryInfo MUST be created with an allocator type of OrtDeviceAllocator.
-
-  // NOTE: The OrtMemoryInfo pointer should only ever be coming straight from an OrtEpDevice, and pointer based
-  // matching should work.
+  // NOTE: EP should implement its own arena logic. ep_arena.cc/h is provided as a reference and we use it here for
+  //       device memory. `allocator_options` can be used for arena configuration and there is a helper in ep_arena.h
+  //       to convert from OrtKeyValuePairs to the same arena config settings that ORT uses.
+  //       You are of course free to have completely different settings.
   
   const OrtMemoryDevice* mem_device = factory.ep_api.MemoryInfo_GetMemoryDevice(memory_info);
   uint32_t device_id = factory.ep_api.MemoryDevice_GetDeviceId(mem_device);
 
   if (factory.ep_api.MemoryDevice_GetMemoryType(mem_device) == OrtDeviceMemoryType_DEFAULT) {
+    // use the one that previously created
+    if (factory.cuda_gpu_allocators.find(device_id) != factory.cuda_gpu_allocators.end()) {
+      *allocator = factory.cuda_gpu_allocators[device_id].get();
+      return nullptr;
+    }
+
     // create a CUDA allocator
     auto cuda_allocator = std::make_unique<CUDAAllocator>(memory_info, static_cast<DeviceId>(device_id));
-    factory.device_id_to_cuda_gpu_memory_info_map[device_id] = memory_info;
-    *allocator = cuda_allocator.release();
+
+    *allocator = cuda_allocator.get();
+    factory.cuda_gpu_allocators[device_id] = std::move(cuda_allocator);
+   
   } else if (factory.ep_api.MemoryDevice_GetMemoryType(mem_device) == OrtDeviceMemoryType_HOST_ACCESSIBLE) {
+    // use the one that previously created
+    if (factory.cuda_pinned_allocators.find(device_id) != factory.cuda_pinned_allocators.end()) {
+      *allocator = factory.cuda_pinned_allocators[device_id].get();
+      return nullptr;
+    }
+
     // create a CUDA PINNED allocator
     auto cuda_pinned_allocator = std::make_unique<CUDAPinnedAllocator>(memory_info);
-    *allocator = cuda_pinned_allocator.release();
+
+    *allocator = cuda_pinned_allocator.get();
+    factory.cuda_pinned_allocators[device_id] = std::move(cuda_pinned_allocator);
+
   } else {
     return factory.ort_api.CreateStatus(ORT_INVALID_ARGUMENT,
                                         "INTERNAL ERROR! Unknown memory info provided to CreateAllocator. "
@@ -236,7 +251,8 @@ OrtStatus* ORT_API_CALL TensorrtExecutionProviderFactory::CreateAllocatorImpl(
 
 void ORT_API_CALL TensorrtExecutionProviderFactory::ReleaseAllocatorImpl(OrtEpFactory* /*this*/,
                                                                          OrtAllocator* allocator) noexcept {
-  delete static_cast<CUDAAllocator*>(allocator);
+  // no-op. The allocators will be shared across sessions.
+  // delete static_cast<CUDAAllocator*>(allocator);
 }
 
 OrtStatus* ORT_API_CALL TensorrtExecutionProviderFactory::CreateDataTransferImpl(

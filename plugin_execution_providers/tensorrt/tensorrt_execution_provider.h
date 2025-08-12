@@ -264,10 +264,6 @@ struct TensorrtExecutionProvider : public OrtEp, public ApiPtrs {
                                     const void* onnx_model_bytestream, size_t onnx_model_bytestream_size,
                                     nvinfer1::ICudaEngine* trt_engine, bool serialize_refitted_engine,
                                     bool detailed_build_log);
-
-  void GetAllocator(OrtAllocator** alloc) const { *alloc = alloc_; }
-
-  void SetAllocator(OrtAllocator* alloc) { alloc_ = alloc; }
  
   std::unordered_map<std::string, DDSOutputAllocatorMap>& GetDDSOutputAllocators() {
     return dds_output_allocator_maps_;
@@ -313,6 +309,10 @@ struct TensorrtExecutionProvider : public OrtEp, public ApiPtrs {
   std::unordered_map<std::string, std::string> cache_suffix_;
   bool external_stream_ = false;
   cudaStream_t stream_ = nullptr;
+
+  // The OrtAllocator object will be get during ep compute time
+  // and should be kept for the lifetime of TRT EP object.
+  OrtAllocator* alloc_ = nullptr;
 
  private:
   static const char* ORT_API_CALL GetNameImpl(const OrtEp* this_ptr) noexcept;
@@ -374,10 +374,6 @@ struct TensorrtExecutionProvider : public OrtEp, public ApiPtrs {
   bool cuda_graph_enable_ = false;
   std::string cache_prefix_;
   bool engine_hw_compatible_ = false;
-
-  // The OrtAllocator object will be get during ep compute time
-  // and should be kept for the lifetime of TRT EP object.
-  OrtAllocator* alloc_ = nullptr;
 
   // For create/dump EP context node model
   bool dump_ep_context_model_ = false;

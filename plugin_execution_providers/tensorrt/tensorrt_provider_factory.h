@@ -2,6 +2,7 @@
 
 #include "ep_utils.h"
 #include "tensorrt_execution_provider_data_transfer.h"
+#include "cuda_allocator.h"
 
 using MemoryInfoUniquePtr = std::unique_ptr<OrtMemoryInfo, std::function<void(OrtMemoryInfo*)>>;
 
@@ -17,9 +18,12 @@ struct TensorrtExecutionProviderFactory : public OrtEpFactory, public ApiPtrs {
   // CUDA gpu memory and CUDA pinned memory are required for allocator and data transfer, these are the OrtMemoryInfo
   // instance required for that.
   // Current TRT EP implementation uses one default OrtMemoryInfo and one host accessible OrtMemoryInfo per ep device.
-  std::vector<MemoryInfoUniquePtr> cuda_gpu_memory_infos;
-  std::vector<MemoryInfoUniquePtr> cuda_pinned_memory_infos;
-  std::unordered_map<uint32_t, const OrtMemoryInfo*> device_id_to_cuda_gpu_memory_info_map;  // device id -> OrtMemoryInfo
+  std::unordered_map<uint32_t, MemoryInfoUniquePtr> cuda_gpu_memory_infos; // device id -> memory info
+  std::unordered_map<uint32_t, MemoryInfoUniquePtr> cuda_pinned_memory_infos;
+
+  // Keeps allocators per ep device in factory so they can be shared across sessions.
+  std::unordered_map<uint32_t, std::unique_ptr<CUDAAllocator>> cuda_gpu_allocators; // device id -> allocator
+  std::unordered_map<uint32_t, std::unique_ptr<CUDAPinnedAllocator>> cuda_pinned_allocators;
 
   std::vector<const OrtMemoryDevice*> cuda_gpu_mem_devices;
   std::vector<const OrtMemoryDevice*> cuda_pinned_mem_devices;
