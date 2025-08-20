@@ -2,8 +2,8 @@
 
 #include "onnxruntime_cxx_api.h"
 
-#include "flatbuffers/idl.h"
-#include "ort_trt_int8_cal_table.fbs.h"
+//#include "flatbuffers/idl.h"
+//#include "ort_trt_int8_cal_table.fbs.h"
 #include "make_string.h"
 // #include "core/providers/cuda/cuda_pch.h"
 // #include "core/common/path_string.h"

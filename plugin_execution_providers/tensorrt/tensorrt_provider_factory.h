@@ -34,7 +34,7 @@ struct TensorrtExecutionProviderFactory : public OrtEpFactory, public ApiPtrs {
 
   static const char* ORT_API_CALL GetVendorImpl(const OrtEpFactory* this_ptr) noexcept;
 
-  static const char* ORT_API_CALL TensorrtExecutionProviderFactory::GetVersionImpl(const OrtEpFactory* this_ptr) noexcept;
+  static const char* ORT_API_CALL GetVersionImpl(const OrtEpFactory* this_ptr) noexcept;
 
   static OrtStatus* ORT_API_CALL GetSupportedDevicesImpl(OrtEpFactory* this_ptr,
                                                          const OrtHardwareDevice* const* devices, size_t num_devices,
