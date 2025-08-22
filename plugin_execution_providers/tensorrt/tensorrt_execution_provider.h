@@ -226,7 +226,7 @@ static const std::string k_ep_ctx_hardware_architecture = "hardware_architecture
 static const std::string k_ep_ctx_onnx_model_filename = "onnx_model_filename";
 
 /// <summary>
-/// 
+///
 /// Plugin TensorRT EP implementing OrtEp.
 ///
 /// </summary>
@@ -260,11 +260,11 @@ struct TensorrtExecutionProvider : public OrtEp, public ApiPtrs {
                                             OrtNode** ep_context_node);
 
   OrtStatus* RefitEngine(std::string onnx_model_filename, std::string& onnx_model_folder_path,
-                                    std::string& weight_stripped_engine_cath_path, bool path_check,
-                                    const void* onnx_model_bytestream, size_t onnx_model_bytestream_size,
-                                    nvinfer1::ICudaEngine* trt_engine, bool serialize_refitted_engine,
-                                    bool detailed_build_log);
- 
+                         std::string& weight_stripped_engine_cath_path, bool path_check,
+                         const void* onnx_model_bytestream, size_t onnx_model_bytestream_size,
+                         nvinfer1::ICudaEngine* trt_engine, bool serialize_refitted_engine,
+                         bool detailed_build_log);
+
   std::unordered_map<std::string, DDSOutputAllocatorMap>& GetDDSOutputAllocators() {
     return dds_output_allocator_maps_;
   }
@@ -296,13 +296,13 @@ struct TensorrtExecutionProvider : public OrtEp, public ApiPtrs {
   std::unique_lock<std::mutex> GetApiLock() const;
 
   /**Check the graph is the subgraph of control flow op*/
-  //bool IsSubGraphOfControlFlowOp(const OrtGraphViewer* graph) const;
+  // bool IsSubGraphOfControlFlowOp(const OrtGraphViewer* graph) const;
 
   /**Check whether all the nodes of the graph are assigned to specific ep*/
-  //bool AllNodesAssignedToSpecificEP(const OrtGraphViewer* graph, const std::string& provider_type) const;
+  // bool AllNodesAssignedToSpecificEP(const OrtGraphViewer* graph, const std::string& provider_type) const;
 
   /**Check whether all the nodes of subgraph are supported*/
-  //bool IsSubGraphFullySupported(SubGraphCollection_t supported_nodes_vector, const int number_of_ort_nodes) const;
+  // bool IsSubGraphFullySupported(SubGraphCollection_t supported_nodes_vector, const int number_of_ort_nodes) const;
 
   std::unordered_map<std::string, std::string> trt_node_name_with_precision_;
   std::unordered_map<std::string, std::unordered_map<std::string, float>> dynamic_range_map_;

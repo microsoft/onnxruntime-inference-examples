@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-#include <cuda_runtime.h> //#incldue "core/providers/cuda/cuda_pch.h"
+#include <cuda_runtime.h>  //#incldue "core/providers/cuda/cuda_pch.h"
 
 #include "tensorrt_execution_provider_info.h"
 #include "provider_options_utils.h"
@@ -128,114 +128,114 @@ TensorrtExecutionProviderInfo TensorrtExecutionProviderInfo::FromProviderOptions
   return info;
 }
 
-//ProviderOptions TensorrtExecutionProviderInfo::ToProviderOptions(const TensorrtExecutionProviderInfo& info) {
-//  const ProviderOptions options{
-//      {tensorrt::provider_option_names::kDeviceId, MakeStringWithClassicLocale(info.device_id)},
-//      {tensorrt::provider_option_names::kMaxPartitionIterations, MakeStringWithClassicLocale(info.max_partition_iterations)},
-//      {tensorrt::provider_option_names::kHasUserComputeStream, MakeStringWithClassicLocale(info.has_user_compute_stream)},
-//      {tensorrt::provider_option_names::kUserComputeStream, MakeStringWithClassicLocale(reinterpret_cast<size_t>(info.user_compute_stream))},
-//      {tensorrt::provider_option_names::kMinSubgraphSize, MakeStringWithClassicLocale(info.min_subgraph_size)},
-//      {tensorrt::provider_option_names::kMaxWorkspaceSize, MakeStringWithClassicLocale(info.max_workspace_size)},
-//      {tensorrt::provider_option_names::kFp16Enable, MakeStringWithClassicLocale(info.fp16_enable)},
-//      {tensorrt::provider_option_names::kInt8Enable, MakeStringWithClassicLocale(info.int8_enable)},
-//      {tensorrt::provider_option_names::kInt8CalibTable, MakeStringWithClassicLocale(info.int8_calibration_table_name)},
-//      {tensorrt::provider_option_names::kInt8UseNativeCalibTable, MakeStringWithClassicLocale(info.int8_use_native_calibration_table)},
-//      {tensorrt::provider_option_names::kDLAEnable, MakeStringWithClassicLocale(info.dla_enable)},
-//      {tensorrt::provider_option_names::kDLACore, MakeStringWithClassicLocale(info.dla_core)},
-//      {tensorrt::provider_option_names::kDumpSubgraphs, MakeStringWithClassicLocale(info.dump_subgraphs)},
-//      {tensorrt::provider_option_names::kEngineCacheEnable, MakeStringWithClassicLocale(info.engine_cache_enable)},
-//      {tensorrt::provider_option_names::kEngineCachePath, MakeStringWithClassicLocale(info.engine_cache_path)},
-//      {tensorrt::provider_option_names::kWeightStrippedEngineEnable, MakeStringWithClassicLocale(info.weight_stripped_engine_enable)},
-//      {tensorrt::provider_option_names::kOnnxModelFolderPath, MakeStringWithClassicLocale(info.onnx_model_folder_path)},
-//      {tensorrt::provider_option_names::kEngineCachePrefix, MakeStringWithClassicLocale(info.engine_cache_prefix)},
-//      {tensorrt::provider_option_names::kDecryptionEnable, MakeStringWithClassicLocale(info.engine_decryption_enable)},
-//      {tensorrt::provider_option_names::kDecryptionLibPath, MakeStringWithClassicLocale(info.engine_decryption_lib_path)},
-//      {tensorrt::provider_option_names::kForceSequentialEngineBuild, MakeStringWithClassicLocale(info.force_sequential_engine_build)},
-//      // add new provider option here.
-//      {tensorrt::provider_option_names::kContextMemorySharingEnable, MakeStringWithClassicLocale(info.context_memory_sharing_enable)},
-//      {tensorrt::provider_option_names::kLayerNormFP32Fallback, MakeStringWithClassicLocale(info.layer_norm_fp32_fallback)},
-//      {tensorrt::provider_option_names::kTimingCacheEnable, MakeStringWithClassicLocale(info.timing_cache_enable)},
-//      {tensorrt::provider_option_names::kTimingCachePath, MakeStringWithClassicLocale(info.timing_cache_path)},
-//      {tensorrt::provider_option_names::kForceTimingCacheMatch, MakeStringWithClassicLocale(info.force_timing_cache)},
-//      {tensorrt::provider_option_names::kDetailedBuildLog, MakeStringWithClassicLocale(info.detailed_build_log)},
-//      {tensorrt::provider_option_names::kBuildHeuristics, MakeStringWithClassicLocale(info.build_heuristics_enable)},
-//      {tensorrt::provider_option_names::kSparsityEnable, MakeStringWithClassicLocale(info.sparsity_enable)},
-//      {tensorrt::provider_option_names::kBuilderOptimizationLevel, MakeStringWithClassicLocale(info.builder_optimization_level)},
-//      {tensorrt::provider_option_names::kAuxiliaryStreams, MakeStringWithClassicLocale(info.auxiliary_streams)},
-//      {tensorrt::provider_option_names::kTacticSources, MakeStringWithClassicLocale(info.tactic_sources)},
-//      {tensorrt::provider_option_names::kExtraPluginLibPaths, MakeStringWithClassicLocale(info.extra_plugin_lib_paths)},
-//      {tensorrt::provider_option_names::kProfilesMinShapes, MakeStringWithClassicLocale(info.profile_min_shapes)},
-//      {tensorrt::provider_option_names::kProfilesMaxShapes, MakeStringWithClassicLocale(info.profile_max_shapes)},
-//      {tensorrt::provider_option_names::kProfilesOptShapes, MakeStringWithClassicLocale(info.profile_opt_shapes)},
-//      {tensorrt::provider_option_names::kCudaGraphEnable, MakeStringWithClassicLocale(info.cuda_graph_enable)},
-//      {tensorrt::provider_option_names::kDumpEpContextModel, MakeStringWithClassicLocale(info.dump_ep_context_model)},
-//      {tensorrt::provider_option_names::kEpContextFilePath, MakeStringWithClassicLocale(info.ep_context_file_path)},
-//      {tensorrt::provider_option_names::kEpContextEmbedMode, MakeStringWithClassicLocale(info.ep_context_embed_mode)},
-//      {tensorrt::provider_option_names::kEngineHwCompatible, MakeStringWithClassicLocale(info.engine_hw_compatible)},
-//  };
-//  return options;
-//}
+// ProviderOptions TensorrtExecutionProviderInfo::ToProviderOptions(const TensorrtExecutionProviderInfo& info) {
+//   const ProviderOptions options{
+//       {tensorrt::provider_option_names::kDeviceId, MakeStringWithClassicLocale(info.device_id)},
+//       {tensorrt::provider_option_names::kMaxPartitionIterations, MakeStringWithClassicLocale(info.max_partition_iterations)},
+//       {tensorrt::provider_option_names::kHasUserComputeStream, MakeStringWithClassicLocale(info.has_user_compute_stream)},
+//       {tensorrt::provider_option_names::kUserComputeStream, MakeStringWithClassicLocale(reinterpret_cast<size_t>(info.user_compute_stream))},
+//       {tensorrt::provider_option_names::kMinSubgraphSize, MakeStringWithClassicLocale(info.min_subgraph_size)},
+//       {tensorrt::provider_option_names::kMaxWorkspaceSize, MakeStringWithClassicLocale(info.max_workspace_size)},
+//       {tensorrt::provider_option_names::kFp16Enable, MakeStringWithClassicLocale(info.fp16_enable)},
+//       {tensorrt::provider_option_names::kInt8Enable, MakeStringWithClassicLocale(info.int8_enable)},
+//       {tensorrt::provider_option_names::kInt8CalibTable, MakeStringWithClassicLocale(info.int8_calibration_table_name)},
+//       {tensorrt::provider_option_names::kInt8UseNativeCalibTable, MakeStringWithClassicLocale(info.int8_use_native_calibration_table)},
+//       {tensorrt::provider_option_names::kDLAEnable, MakeStringWithClassicLocale(info.dla_enable)},
+//       {tensorrt::provider_option_names::kDLACore, MakeStringWithClassicLocale(info.dla_core)},
+//       {tensorrt::provider_option_names::kDumpSubgraphs, MakeStringWithClassicLocale(info.dump_subgraphs)},
+//       {tensorrt::provider_option_names::kEngineCacheEnable, MakeStringWithClassicLocale(info.engine_cache_enable)},
+//       {tensorrt::provider_option_names::kEngineCachePath, MakeStringWithClassicLocale(info.engine_cache_path)},
+//       {tensorrt::provider_option_names::kWeightStrippedEngineEnable, MakeStringWithClassicLocale(info.weight_stripped_engine_enable)},
+//       {tensorrt::provider_option_names::kOnnxModelFolderPath, MakeStringWithClassicLocale(info.onnx_model_folder_path)},
+//       {tensorrt::provider_option_names::kEngineCachePrefix, MakeStringWithClassicLocale(info.engine_cache_prefix)},
+//       {tensorrt::provider_option_names::kDecryptionEnable, MakeStringWithClassicLocale(info.engine_decryption_enable)},
+//       {tensorrt::provider_option_names::kDecryptionLibPath, MakeStringWithClassicLocale(info.engine_decryption_lib_path)},
+//       {tensorrt::provider_option_names::kForceSequentialEngineBuild, MakeStringWithClassicLocale(info.force_sequential_engine_build)},
+//       // add new provider option here.
+//       {tensorrt::provider_option_names::kContextMemorySharingEnable, MakeStringWithClassicLocale(info.context_memory_sharing_enable)},
+//       {tensorrt::provider_option_names::kLayerNormFP32Fallback, MakeStringWithClassicLocale(info.layer_norm_fp32_fallback)},
+//       {tensorrt::provider_option_names::kTimingCacheEnable, MakeStringWithClassicLocale(info.timing_cache_enable)},
+//       {tensorrt::provider_option_names::kTimingCachePath, MakeStringWithClassicLocale(info.timing_cache_path)},
+//       {tensorrt::provider_option_names::kForceTimingCacheMatch, MakeStringWithClassicLocale(info.force_timing_cache)},
+//       {tensorrt::provider_option_names::kDetailedBuildLog, MakeStringWithClassicLocale(info.detailed_build_log)},
+//       {tensorrt::provider_option_names::kBuildHeuristics, MakeStringWithClassicLocale(info.build_heuristics_enable)},
+//       {tensorrt::provider_option_names::kSparsityEnable, MakeStringWithClassicLocale(info.sparsity_enable)},
+//       {tensorrt::provider_option_names::kBuilderOptimizationLevel, MakeStringWithClassicLocale(info.builder_optimization_level)},
+//       {tensorrt::provider_option_names::kAuxiliaryStreams, MakeStringWithClassicLocale(info.auxiliary_streams)},
+//       {tensorrt::provider_option_names::kTacticSources, MakeStringWithClassicLocale(info.tactic_sources)},
+//       {tensorrt::provider_option_names::kExtraPluginLibPaths, MakeStringWithClassicLocale(info.extra_plugin_lib_paths)},
+//       {tensorrt::provider_option_names::kProfilesMinShapes, MakeStringWithClassicLocale(info.profile_min_shapes)},
+//       {tensorrt::provider_option_names::kProfilesMaxShapes, MakeStringWithClassicLocale(info.profile_max_shapes)},
+//       {tensorrt::provider_option_names::kProfilesOptShapes, MakeStringWithClassicLocale(info.profile_opt_shapes)},
+//       {tensorrt::provider_option_names::kCudaGraphEnable, MakeStringWithClassicLocale(info.cuda_graph_enable)},
+//       {tensorrt::provider_option_names::kDumpEpContextModel, MakeStringWithClassicLocale(info.dump_ep_context_model)},
+//       {tensorrt::provider_option_names::kEpContextFilePath, MakeStringWithClassicLocale(info.ep_context_file_path)},
+//       {tensorrt::provider_option_names::kEpContextEmbedMode, MakeStringWithClassicLocale(info.ep_context_embed_mode)},
+//       {tensorrt::provider_option_names::kEngineHwCompatible, MakeStringWithClassicLocale(info.engine_hw_compatible)},
+//   };
+//   return options;
+// }
 //
-//ProviderOptions TensorrtExecutionProviderInfo::ToProviderOptions(const OrtTensorRTProviderOptionsV2& info) {
-//  auto empty_if_null = [](const char* s) { return s != nullptr ? std::string{s} : std::string{}; };
-//  const std::string kInt8CalibTable_ = empty_if_null(info.trt_int8_calibration_table_name);
-//  const std::string kEngineCachePath_ = empty_if_null(info.trt_engine_cache_path);
-//  const std::string kEngineCachePrefix_ = empty_if_null(info.trt_engine_cache_prefix);
-//  const std::string kTimingCachePath_ = empty_if_null(info.trt_timing_cache_path);
-//  const std::string kTacticSources_ = empty_if_null(info.trt_tactic_sources);
-//  const std::string kDecryptionLibPath_ = empty_if_null(info.trt_engine_decryption_lib_path);
-//  const std::string kExtraPluginLibPaths_ = empty_if_null(info.trt_extra_plugin_lib_paths);
-//  const std::string kProfilesMinShapes_ = empty_if_null(info.trt_profile_min_shapes);
-//  const std::string kProfilesMaxShapes_ = empty_if_null(info.trt_profile_max_shapes);
-//  const std::string kProfilesOptShapes_ = empty_if_null(info.trt_profile_opt_shapes);
-//  const std::string kEpContextFilePath_ = empty_if_null(info.trt_ep_context_file_path);
-//  const std::string kOnnxModelFolderPath_ = empty_if_null(info.trt_onnx_model_folder_path);
+// ProviderOptions TensorrtExecutionProviderInfo::ToProviderOptions(const OrtTensorRTProviderOptionsV2& info) {
+//   auto empty_if_null = [](const char* s) { return s != nullptr ? std::string{s} : std::string{}; };
+//   const std::string kInt8CalibTable_ = empty_if_null(info.trt_int8_calibration_table_name);
+//   const std::string kEngineCachePath_ = empty_if_null(info.trt_engine_cache_path);
+//   const std::string kEngineCachePrefix_ = empty_if_null(info.trt_engine_cache_prefix);
+//   const std::string kTimingCachePath_ = empty_if_null(info.trt_timing_cache_path);
+//   const std::string kTacticSources_ = empty_if_null(info.trt_tactic_sources);
+//   const std::string kDecryptionLibPath_ = empty_if_null(info.trt_engine_decryption_lib_path);
+//   const std::string kExtraPluginLibPaths_ = empty_if_null(info.trt_extra_plugin_lib_paths);
+//   const std::string kProfilesMinShapes_ = empty_if_null(info.trt_profile_min_shapes);
+//   const std::string kProfilesMaxShapes_ = empty_if_null(info.trt_profile_max_shapes);
+//   const std::string kProfilesOptShapes_ = empty_if_null(info.trt_profile_opt_shapes);
+//   const std::string kEpContextFilePath_ = empty_if_null(info.trt_ep_context_file_path);
+//   const std::string kOnnxModelFolderPath_ = empty_if_null(info.trt_onnx_model_folder_path);
 //
-//  const ProviderOptions options{
-//      {tensorrt::provider_option_names::kDeviceId, MakeStringWithClassicLocale(info.device_id)},
-//      {tensorrt::provider_option_names::kHasUserComputeStream, MakeStringWithClassicLocale(info.has_user_compute_stream)},
-//      {tensorrt::provider_option_names::kUserComputeStream, MakeStringWithClassicLocale(reinterpret_cast<size_t>(info.user_compute_stream))},
-//      {tensorrt::provider_option_names::kMaxPartitionIterations, MakeStringWithClassicLocale(info.trt_max_partition_iterations)},
-//      {tensorrt::provider_option_names::kMinSubgraphSize, MakeStringWithClassicLocale(info.trt_min_subgraph_size)},
-//      {tensorrt::provider_option_names::kMaxWorkspaceSize, MakeStringWithClassicLocale(info.trt_max_workspace_size)},
-//      {tensorrt::provider_option_names::kFp16Enable, MakeStringWithClassicLocale(info.trt_fp16_enable)},
-//      {tensorrt::provider_option_names::kInt8Enable, MakeStringWithClassicLocale(info.trt_int8_enable)},
-//      {tensorrt::provider_option_names::kInt8CalibTable, kInt8CalibTable_},
-//      {tensorrt::provider_option_names::kInt8UseNativeCalibTable, MakeStringWithClassicLocale(info.trt_int8_use_native_calibration_table)},
-//      {tensorrt::provider_option_names::kDLAEnable, MakeStringWithClassicLocale(info.trt_dla_enable)},
-//      {tensorrt::provider_option_names::kDLACore, MakeStringWithClassicLocale(info.trt_dla_core)},
-//      {tensorrt::provider_option_names::kDumpSubgraphs, MakeStringWithClassicLocale(info.trt_dump_subgraphs)},
-//      {tensorrt::provider_option_names::kEngineCacheEnable, MakeStringWithClassicLocale(info.trt_engine_cache_enable)},
-//      {tensorrt::provider_option_names::kEngineCachePath, kEngineCachePath_},
-//      {tensorrt::provider_option_names::kEngineCachePrefix, kEngineCachePrefix_},
-//      {tensorrt::provider_option_names::kWeightStrippedEngineEnable, MakeStringWithClassicLocale(info.trt_weight_stripped_engine_enable)},
-//      {tensorrt::provider_option_names::kOnnxModelFolderPath, kOnnxModelFolderPath_},
-//      {tensorrt::provider_option_names::kDecryptionEnable, MakeStringWithClassicLocale(info.trt_engine_decryption_enable)},
-//      {tensorrt::provider_option_names::kDecryptionLibPath, kDecryptionLibPath_},
-//      {tensorrt::provider_option_names::kForceSequentialEngineBuild, MakeStringWithClassicLocale(info.trt_force_sequential_engine_build)},
-//      {tensorrt::provider_option_names::kContextMemorySharingEnable, MakeStringWithClassicLocale(info.trt_context_memory_sharing_enable)},
-//      {tensorrt::provider_option_names::kLayerNormFP32Fallback, MakeStringWithClassicLocale(info.trt_layer_norm_fp32_fallback)},
-//      {tensorrt::provider_option_names::kTimingCacheEnable, MakeStringWithClassicLocale(info.trt_timing_cache_enable)},
-//      {tensorrt::provider_option_names::kTimingCachePath, kTimingCachePath_},
-//      {tensorrt::provider_option_names::kForceTimingCacheMatch, MakeStringWithClassicLocale(info.trt_force_timing_cache)},
-//      {tensorrt::provider_option_names::kDetailedBuildLog, MakeStringWithClassicLocale(info.trt_detailed_build_log)},
-//      {tensorrt::provider_option_names::kBuildHeuristics, MakeStringWithClassicLocale(info.trt_build_heuristics_enable)},
-//      {tensorrt::provider_option_names::kSparsityEnable, MakeStringWithClassicLocale(info.trt_sparsity_enable)},
-//      {tensorrt::provider_option_names::kBuilderOptimizationLevel, MakeStringWithClassicLocale(info.trt_builder_optimization_level)},
-//      {tensorrt::provider_option_names::kAuxiliaryStreams, MakeStringWithClassicLocale(info.trt_auxiliary_streams)},
-//      {tensorrt::provider_option_names::kTacticSources, kTacticSources_},
-//      {tensorrt::provider_option_names::kExtraPluginLibPaths, kExtraPluginLibPaths_},
-//      {tensorrt::provider_option_names::kProfilesMinShapes, kProfilesMinShapes_},
-//      {tensorrt::provider_option_names::kProfilesMaxShapes, kProfilesMaxShapes_},
-//      {tensorrt::provider_option_names::kProfilesOptShapes, kProfilesOptShapes_},
-//      {tensorrt::provider_option_names::kCudaGraphEnable, MakeStringWithClassicLocale(info.trt_cuda_graph_enable)},
-//      {tensorrt::provider_option_names::kEpContextFilePath, kEpContextFilePath_},
-//      {tensorrt::provider_option_names::kDumpEpContextModel, MakeStringWithClassicLocale(info.trt_dump_ep_context_model)},
-//      {tensorrt::provider_option_names::kEpContextEmbedMode, MakeStringWithClassicLocale(info.trt_ep_context_embed_mode)},
-//      {tensorrt::provider_option_names::kEngineHwCompatible, MakeStringWithClassicLocale(info.trt_engine_hw_compatible)},
-//  };
-//  return options;
-//}
+//   const ProviderOptions options{
+//       {tensorrt::provider_option_names::kDeviceId, MakeStringWithClassicLocale(info.device_id)},
+//       {tensorrt::provider_option_names::kHasUserComputeStream, MakeStringWithClassicLocale(info.has_user_compute_stream)},
+//       {tensorrt::provider_option_names::kUserComputeStream, MakeStringWithClassicLocale(reinterpret_cast<size_t>(info.user_compute_stream))},
+//       {tensorrt::provider_option_names::kMaxPartitionIterations, MakeStringWithClassicLocale(info.trt_max_partition_iterations)},
+//       {tensorrt::provider_option_names::kMinSubgraphSize, MakeStringWithClassicLocale(info.trt_min_subgraph_size)},
+//       {tensorrt::provider_option_names::kMaxWorkspaceSize, MakeStringWithClassicLocale(info.trt_max_workspace_size)},
+//       {tensorrt::provider_option_names::kFp16Enable, MakeStringWithClassicLocale(info.trt_fp16_enable)},
+//       {tensorrt::provider_option_names::kInt8Enable, MakeStringWithClassicLocale(info.trt_int8_enable)},
+//       {tensorrt::provider_option_names::kInt8CalibTable, kInt8CalibTable_},
+//       {tensorrt::provider_option_names::kInt8UseNativeCalibTable, MakeStringWithClassicLocale(info.trt_int8_use_native_calibration_table)},
+//       {tensorrt::provider_option_names::kDLAEnable, MakeStringWithClassicLocale(info.trt_dla_enable)},
+//       {tensorrt::provider_option_names::kDLACore, MakeStringWithClassicLocale(info.trt_dla_core)},
+//       {tensorrt::provider_option_names::kDumpSubgraphs, MakeStringWithClassicLocale(info.trt_dump_subgraphs)},
+//       {tensorrt::provider_option_names::kEngineCacheEnable, MakeStringWithClassicLocale(info.trt_engine_cache_enable)},
+//       {tensorrt::provider_option_names::kEngineCachePath, kEngineCachePath_},
+//       {tensorrt::provider_option_names::kEngineCachePrefix, kEngineCachePrefix_},
+//       {tensorrt::provider_option_names::kWeightStrippedEngineEnable, MakeStringWithClassicLocale(info.trt_weight_stripped_engine_enable)},
+//       {tensorrt::provider_option_names::kOnnxModelFolderPath, kOnnxModelFolderPath_},
+//       {tensorrt::provider_option_names::kDecryptionEnable, MakeStringWithClassicLocale(info.trt_engine_decryption_enable)},
+//       {tensorrt::provider_option_names::kDecryptionLibPath, kDecryptionLibPath_},
+//       {tensorrt::provider_option_names::kForceSequentialEngineBuild, MakeStringWithClassicLocale(info.trt_force_sequential_engine_build)},
+//       {tensorrt::provider_option_names::kContextMemorySharingEnable, MakeStringWithClassicLocale(info.trt_context_memory_sharing_enable)},
+//       {tensorrt::provider_option_names::kLayerNormFP32Fallback, MakeStringWithClassicLocale(info.trt_layer_norm_fp32_fallback)},
+//       {tensorrt::provider_option_names::kTimingCacheEnable, MakeStringWithClassicLocale(info.trt_timing_cache_enable)},
+//       {tensorrt::provider_option_names::kTimingCachePath, kTimingCachePath_},
+//       {tensorrt::provider_option_names::kForceTimingCacheMatch, MakeStringWithClassicLocale(info.trt_force_timing_cache)},
+//       {tensorrt::provider_option_names::kDetailedBuildLog, MakeStringWithClassicLocale(info.trt_detailed_build_log)},
+//       {tensorrt::provider_option_names::kBuildHeuristics, MakeStringWithClassicLocale(info.trt_build_heuristics_enable)},
+//       {tensorrt::provider_option_names::kSparsityEnable, MakeStringWithClassicLocale(info.trt_sparsity_enable)},
+//       {tensorrt::provider_option_names::kBuilderOptimizationLevel, MakeStringWithClassicLocale(info.trt_builder_optimization_level)},
+//       {tensorrt::provider_option_names::kAuxiliaryStreams, MakeStringWithClassicLocale(info.trt_auxiliary_streams)},
+//       {tensorrt::provider_option_names::kTacticSources, kTacticSources_},
+//       {tensorrt::provider_option_names::kExtraPluginLibPaths, kExtraPluginLibPaths_},
+//       {tensorrt::provider_option_names::kProfilesMinShapes, kProfilesMinShapes_},
+//       {tensorrt::provider_option_names::kProfilesMaxShapes, kProfilesMaxShapes_},
+//       {tensorrt::provider_option_names::kProfilesOptShapes, kProfilesOptShapes_},
+//       {tensorrt::provider_option_names::kCudaGraphEnable, MakeStringWithClassicLocale(info.trt_cuda_graph_enable)},
+//       {tensorrt::provider_option_names::kEpContextFilePath, kEpContextFilePath_},
+//       {tensorrt::provider_option_names::kDumpEpContextModel, MakeStringWithClassicLocale(info.trt_dump_ep_context_model)},
+//       {tensorrt::provider_option_names::kEpContextEmbedMode, MakeStringWithClassicLocale(info.trt_ep_context_embed_mode)},
+//       {tensorrt::provider_option_names::kEngineHwCompatible, MakeStringWithClassicLocale(info.trt_engine_hw_compatible)},
+//   };
+//   return options;
+// }
 //
 ///**
 // * Update OrtTensorRTProviderOptionsV2 instance with ProviderOptions (map of string-based key-value pairs)
@@ -250,7 +250,7 @@ TensorrtExecutionProviderInfo TensorrtExecutionProviderInfo::FromProviderOptions
 // *
 // * Note: If there is strncpy involved, please remember to deallocate or simply call C API ReleaseTensorRTProviderOptions.
 // */
-//void TensorrtExecutionProviderInfo::UpdateProviderOptions(void* provider_options, const ProviderOptions& options, bool string_copy) {
+// void TensorrtExecutionProviderInfo::UpdateProviderOptions(void* provider_options, const ProviderOptions& options, bool string_copy) {
 //  if (provider_options == nullptr) {
 //    return;
 //  }
@@ -262,11 +262,11 @@ TensorrtExecutionProviderInfo TensorrtExecutionProviderInfo::FromProviderOptions
 //        return (const char*)nullptr;
 //      } else {
 //        dest = new char[str_size + 1];
-//#ifdef _MSC_VER
+// #ifdef _MSC_VER
 //        strncpy_s(dest, str_size + 1, s_in.c_str(), str_size);
-//#else
+// #else
 //        strncpy(dest, s_in.c_str(), str_size);
-//#endif
+// #endif
 //        dest[str_size] = '\0';
 //        return (const char*)dest;
 //      }

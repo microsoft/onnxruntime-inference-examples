@@ -73,12 +73,12 @@ OrtStatus* TensorrtExecutionProviderFactory::CreateMemoryInfoForDevices(int num_
 }
 
 OrtStatus* ORT_API_CALL TensorrtExecutionProviderFactory::GetSupportedDevicesImpl(
-                                                       OrtEpFactory* this_ptr,
-                                                       const OrtHardwareDevice* const* devices,
-                                                       size_t num_devices,
-                                                       OrtEpDevice** ep_devices,
-                                                       size_t max_ep_devices,
-                                                       size_t* p_num_ep_devices) noexcept {
+    OrtEpFactory* this_ptr,
+    const OrtHardwareDevice* const* devices,
+    size_t num_devices,
+    OrtEpDevice** ep_devices,
+    size_t max_ep_devices,
+    size_t* p_num_ep_devices) noexcept {
   size_t& num_ep_devices = *p_num_ep_devices;
   auto* factory = static_cast<TensorrtExecutionProviderFactory*>(this_ptr);
 
@@ -103,7 +103,7 @@ OrtStatus* ORT_API_CALL TensorrtExecutionProviderFactory::GetSupportedDevicesImp
 
       // The ep options can be provided here as default values.
       // Users can also call SessionOptionsAppendExecutionProvider_V2 C API with provided ep options to override.
-      factory->ort_api.AddKeyValuePair(ep_metadata, "gpu_type", "data center"); // random example using made up values
+      factory->ort_api.AddKeyValuePair(ep_metadata, "gpu_type", "data center");  // random example using made up values
       factory->ort_api.AddKeyValuePair(ep_options, "trt_builder_optimization_level", "3");
 
       // OrtEpDevice copies ep_metadata and ep_options.
@@ -132,26 +132,26 @@ OrtStatus* ORT_API_CALL TensorrtExecutionProviderFactory::GetSupportedDevicesImp
       ep_devices[num_ep_devices++] = ep_device;
       ++device_id;
     }
-  
-  // C++ API equivalent. Throws on error.
-  //{
-  //  Ort::ConstHardwareDevice device(devices[i]);
-  //  if (device.Type() == OrtHardwareDeviceType::OrtHardwareDeviceType_GPU) {
-  //    Ort::KeyValuePairs ep_metadata;
-  //    Ort::KeyValuePairs ep_options;
-  //    ep_metadata.Add("version", "0.1");
-  //    ep_options.Add("trt_builder_optimization_level", "3");
-  //    Ort::EpDevice ep_device{*this_ptr, device, ep_metadata.GetConst(), ep_options.GetConst()};
-  //    ep_devices[num_ep_devices++] = ep_device.release();
-  //  }
-  //}
+
+    // C++ API equivalent. Throws on error.
+    //{
+    //  Ort::ConstHardwareDevice device(devices[i]);
+    //  if (device.Type() == OrtHardwareDeviceType::OrtHardwareDeviceType_GPU) {
+    //    Ort::KeyValuePairs ep_metadata;
+    //    Ort::KeyValuePairs ep_options;
+    //    ep_metadata.Add("version", "0.1");
+    //    ep_options.Add("trt_builder_optimization_level", "3");
+    //    Ort::EpDevice ep_device{*this_ptr, device, ep_metadata.GetConst(), ep_options.GetConst()};
+    //    ep_devices[num_ep_devices++] = ep_device.release();
+    //  }
+    //}
   }
 
-    // Create gpu data transfer
+  // Create gpu data transfer
   auto data_transfer_impl = std::make_unique<TRTEpDataTransfer>(static_cast<const ApiPtrs&>(*factory),
-                                                                factory->cuda_gpu_mem_devices,  // device memory
+                                                                factory->cuda_gpu_mem_devices,    // device memory
                                                                 factory->cuda_pinned_mem_devices  // shared memory
-                                                               );
+  );
 
   factory->data_transfer_impl = std::move(data_transfer_impl);
 
@@ -159,12 +159,12 @@ OrtStatus* ORT_API_CALL TensorrtExecutionProviderFactory::GetSupportedDevicesImp
 }
 
 OrtStatus* ORT_API_CALL TensorrtExecutionProviderFactory::CreateEpImpl(
-                                            OrtEpFactory* this_ptr,
-                                            _In_reads_(num_devices) const OrtHardwareDevice* const* /*devices*/,
-                                            _In_reads_(num_devices) const OrtKeyValuePairs* const* /*ep_metadata*/,
-                                            _In_ size_t num_devices,
-                                            _In_ const OrtSessionOptions* session_options,
-                                            _In_ const OrtLogger* logger, _Out_ OrtEp** ep) noexcept {
+    OrtEpFactory* this_ptr,
+    _In_reads_(num_devices) const OrtHardwareDevice* const* /*devices*/,
+    _In_reads_(num_devices) const OrtKeyValuePairs* const* /*ep_metadata*/,
+    _In_ size_t num_devices,
+    _In_ const OrtSessionOptions* session_options,
+    _In_ const OrtLogger* logger, _Out_ OrtEp** ep) noexcept {
   auto* factory = static_cast<TensorrtExecutionProviderFactory*>(this_ptr);
   *ep = nullptr;
 
@@ -210,7 +210,7 @@ OrtStatus* ORT_API_CALL TensorrtExecutionProviderFactory::CreateAllocatorImpl(Or
   //       device memory. `allocator_options` can be used for arena configuration and there is a helper in ep_arena.h
   //       to convert from OrtKeyValuePairs to the same arena config settings that ORT uses.
   //       You are of course free to have completely different settings.
-  
+
   const OrtMemoryDevice* mem_device = factory.ep_api.MemoryInfo_GetMemoryDevice(memory_info);
   uint32_t device_id = factory.ep_api.MemoryDevice_GetDeviceId(mem_device);
 
@@ -226,7 +226,7 @@ OrtStatus* ORT_API_CALL TensorrtExecutionProviderFactory::CreateAllocatorImpl(Or
 
     *allocator = cuda_allocator.get();
     factory.cuda_gpu_allocators[device_id] = std::move(cuda_allocator);
-   
+
   } else if (factory.ep_api.MemoryDevice_GetMemoryType(mem_device) == OrtDeviceMemoryType_HOST_ACCESSIBLE) {
     // use the one that previously created
     if (factory.cuda_pinned_allocators.find(device_id) != factory.cuda_pinned_allocators.end()) {
@@ -256,8 +256,8 @@ void ORT_API_CALL TensorrtExecutionProviderFactory::ReleaseAllocatorImpl(OrtEpFa
 }
 
 OrtStatus* ORT_API_CALL TensorrtExecutionProviderFactory::CreateDataTransferImpl(
-                                                                 OrtEpFactory* this_ptr,
-                                                                 OrtDataTransferImpl** data_transfer) noexcept {
+    OrtEpFactory* this_ptr,
+    OrtDataTransferImpl** data_transfer) noexcept {
   auto& factory = *static_cast<TensorrtExecutionProviderFactory*>(this_ptr);
   *data_transfer = factory.data_transfer_impl.get();
 

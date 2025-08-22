@@ -22,10 +22,10 @@
 #define ORT_TSTR_CONVERT_FROM_STRING(X) X
 #endif
 
-//#include "core/common/common.h"
-//#include "core/session/onnxruntime_c_api.h"
+// #include "core/common/common.h"
+// #include "core/session/onnxruntime_c_api.h"
 
-//#include "common.h"
+// #include "common.h"
 
 namespace onnxruntime {
 // char type for filesystem paths

@@ -78,7 +78,7 @@ void ORT_API_CALL TrtSyncStreamImpl::ReleaseImpl(_In_ OrtSyncStreamImpl* this_pt
 
 /*static*/
 OrtStatus* TrtSyncNotificationImpl::Create(cudaStream_t stream, const ApiPtrs& apis,
-                                           std::unique_ptr<TrtSyncNotificationImpl>& notification){
+                                           std::unique_ptr<TrtSyncNotificationImpl>& notification) {
   auto trt_sync_notification = std::make_unique<TrtSyncNotificationImpl>(stream, apis);
   CUDA_RETURN_IF_ERROR(cudaEventCreateWithFlags(&trt_sync_notification->event_, cudaEventDisableTiming));
 

@@ -9,7 +9,6 @@
 #endif
 #include <cuda_fp16.h>
 
-
 namespace cuda {
 
 // the postfix of means the types supported by the op:
@@ -72,7 +71,7 @@ struct OP_Cast {
   IMPL_CAST_IMPL(T, uint32_t)  \
   IMPL_CAST_IMPL(T, uint64_t)  \
   IMPL_CAST_IMPL(T, bool)      \
-  //IMPL_CAST_IMPL(T, BFloat16)
+  // IMPL_CAST_IMPL(T, BFloat16)
 
 IMPL_CAST_IMPL_FROM(half)
 IMPL_CAST_IMPL_FROM(float)
@@ -86,6 +85,6 @@ IMPL_CAST_IMPL_FROM(uint16_t)
 IMPL_CAST_IMPL_FROM(uint32_t)
 IMPL_CAST_IMPL_FROM(uint64_t)
 IMPL_CAST_IMPL_FROM(bool)
-//IMPL_CAST_IMPL_FROM(BFloat16)
+// IMPL_CAST_IMPL_FROM(BFloat16)
 
 }  // namespace cuda

@@ -46,7 +46,6 @@ OrtStatus* EPContextNodeHelper::CreateEPContextNode(const std::string& engine_ca
                                                     const std::string& compute_capability,
                                                     const std::string& onnx_model_path,
                                                     OrtNode** ep_context_node) {
-
   // Helper to collect input or output names from an array of OrtValueInfo instances.
   auto collect_input_output_names = [&](gsl::span<const OrtValueInfo* const> value_infos,
                                         std::vector<const char*>& result) -> OrtStatus* {
@@ -99,16 +98,14 @@ OrtStatus* EPContextNodeHelper::CreateEPContextNode(const std::string& engine_ca
     RETURN_IF_ERROR(ort_api.CreateOpAttr("ep_cache_context", engine_cache_path.c_str(), engine_cache_path.size(), ORT_OP_ATTR_STRING, &attributes[1]));
   }
 
- 
   ort_api.CreateOpAttr("hardware_architecture", compute_capability.c_str(), compute_capability.size(), ORT_OP_ATTR_STRING, &attributes[2]);
   ort_api.CreateOpAttr("onnx_model_filename", std::filesystem::path(onnx_model_path).filename().string().c_str(), 1,
                        ORT_OP_ATTR_STRING, &attributes[3]);
 
-
   RETURN_IF_ERROR(model_editor_api.CreateNode("EPContext", "com.microsoft", fused_node_name, input_names.data(),
                                               input_names.size(), output_names.data(), output_names.size(),
                                               attributes.data(), attributes.size(), ep_context_node));
-  
+
   return nullptr;
 }
 
@@ -140,7 +137,7 @@ OrtStatus* EPContextNodeReader::GetEpContextFromGraph(const OrtGraph& graph) {
   const int64_t embed_mode = reinterpret_cast<const ONNX_NAMESPACE::AttributeProto*>(node_attr)->i();
 
   // Only make path checks if model not provided as byte buffer
-  //bool make_secure_path_checks = !GetModelPath(graph_viewer).empty();
+  // bool make_secure_path_checks = !GetModelPath(graph_viewer).empty();
   bool make_secure_path_checks = false;
 
   if (embed_mode) {
@@ -151,7 +148,7 @@ OrtStatus* EPContextNodeReader::GetEpContextFromGraph(const OrtGraph& graph) {
 
     *(trt_engine_) = std::unique_ptr<nvinfer1::ICudaEngine>(trt_runtime_->deserializeCudaEngine(const_cast<char*>(context_binary.c_str()),
                                                                                                 static_cast<size_t>(context_binary.length())));
-    //LOGS_DEFAULT(VERBOSE) << "[TensorRT EP] Read engine as binary data from \"ep_cache_context\" attribute of ep context node and deserialized it";
+    // LOGS_DEFAULT(VERBOSE) << "[TensorRT EP] Read engine as binary data from \"ep_cache_context\" attribute of ep context node and deserialized it";
     if (!(*trt_engine_)) {
       return ort_api.CreateStatus(ORT_EP_FAIL, "TensorRT EP could not deserialize engine from binary data");
     }

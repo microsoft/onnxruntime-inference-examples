@@ -2,14 +2,14 @@
 
 #include "onnxruntime_cxx_api.h"
 
-//#include "flatbuffers/idl.h"
-//#include "ort_trt_int8_cal_table.fbs.h"
+// #include "flatbuffers/idl.h"
+// #include "ort_trt_int8_cal_table.fbs.h"
 #include "make_string.h"
 // #include "core/providers/cuda/cuda_pch.h"
 // #include "core/common/path_string.h"
 // #include "core/framework/murmurhash3.h"
 
-//#include"nv_includes.h"
+// #include"nv_includes.h"
 #include "gsl/narrow"
 
 #include <fstream>
@@ -26,11 +26,11 @@ struct ApiPtrs {
   const OrtModelEditorApi& model_editor_api;
 };
 
-#define ENFORCE(condition, ...)                            \
-  do {                                                      \
-    if (!(condition)) {                                      \
-      throw std::runtime_error(MakeString(__VA_ARGS__));    \
-    }                                                       \
+#define ENFORCE(condition, ...)                          \
+  do {                                                   \
+    if (!(condition)) {                                  \
+      throw std::runtime_error(MakeString(__VA_ARGS__)); \
+    }                                                    \
   } while (false)
 
 #define THROW(...) \
@@ -53,11 +53,11 @@ std::string ComposeString(Args&&... args) {
 };
 */
 
-#define RETURN_IF(cond, ...)                                                               \
-  do {                                                                                     \
-    if ((cond)) {                                                                          \
+#define RETURN_IF(cond, ...)                                                           \
+  do {                                                                                 \
+    if ((cond)) {                                                                      \
       return Ort::GetApi().CreateStatus(ORT_EP_FAIL, MakeString(__VA_ARGS__).c_str()); \
-    }                                                                                      \
+    }                                                                                  \
   } while (0)
 
 #define RETURN_IF_NOT(condition, ...) RETURN_IF(!(condition), __VA_ARGS__)
@@ -83,7 +83,7 @@ std::string ComposeString(Args&&... args) {
       std::cerr << Ort::GetApi().GetErrorMessage(status) << std::endl; \
       return false;                                                    \
     }                                                                  \
-  } while (0)  
+  } while (0)
 
 // Helper to release Ort one or more objects obtained from the public C API at the end of their scope.
 template <typename T>

@@ -10,7 +10,7 @@
 // #include "core/common/path_string.h"
 // #include "core/framework/murmurhash3.h"
 
-#include"nv_includes.h"
+#include "nv_includes.h"
 #include "gsl/narrow"
 
 #include <fstream>
@@ -36,7 +36,7 @@ bool CalcMemSizeForArrayWithAlignment(size_t nmemb, size_t size, size_t alignmen
 
 template <typename T>
 AllocatorUniquePtr<T> MakeUniquePtrFromOrtAllocator(OrtAllocator* ort_allocator, size_t count_or_bytes,
-                                                     bool use_reserve = false) {
+                                                    bool use_reserve = false) {
   size_t alloc_size = count_or_bytes;
   // if T is not void, 'count_or_bytes' == number of items so allow for that
   if constexpr (!std::is_void<T>::value) {
@@ -92,7 +92,7 @@ bool SetDynamicRange(nvinfer1::INetworkDefinition& network, std::unordered_map<s
 #if defined(_MSC_VER)
 #pragma warning(pop)
 #endif
-        //LOGS_DEFAULT(ERROR) << "Failed to set dynamic range for network input " << tensor_name;
+        // LOGS_DEFAULT(ERROR) << "Failed to set dynamic range for network input " << tensor_name;
         return false;
       }
     }
@@ -113,7 +113,7 @@ bool SetDynamicRange(nvinfer1::INetworkDefinition& network, std::unordered_map<s
 #if defined(_MSC_VER)
 #pragma warning(pop)
 #endif
-          //LOGS_DEFAULT(ERROR) << "Failed to set dynamic range for tensor " << tensor_name;
+          // LOGS_DEFAULT(ERROR) << "Failed to set dynamic range for tensor " << tensor_name;
           return false;
         }
       } else if (trt_layer->getType() == nvinfer1::LayerType::kCONSTANT) {
@@ -145,7 +145,7 @@ bool SetDynamicRange(nvinfer1::INetworkDefinition& network, std::unordered_map<s
               break;
 #endif  // NV_TENSORRT_MAJOR >= 10
             default:
-              //LOGS_DEFAULT(ERROR) << "Found unsupported datatype for layer " << const_layer_name;
+              // LOGS_DEFAULT(ERROR) << "Found unsupported datatype for layer " << const_layer_name;
               return false;
           }
           max_weight = std::max(max_weight, std::abs(weight));
@@ -159,7 +159,7 @@ bool SetDynamicRange(nvinfer1::INetworkDefinition& network, std::unordered_map<s
 #if defined(_MSC_VER)
 #pragma warning(pop)
 #endif
-          //LOGS_DEFAULT(ERROR) << "Failed to set dynamic range for layer " << const_layer_name;
+          // LOGS_DEFAULT(ERROR) << "Failed to set dynamic range for layer " << const_layer_name;
           return false;
         }
       }
@@ -192,7 +192,7 @@ nvinfer1::TacticSources GetTacticSourceFromString(std::string& tactic_string) {
     if (t.front() == '+') {
       enable = true;
     } else if (t.front() != '-') {
-      //LOGS_DEFAULT(WARNING) << "[TensorRT EP] Tactic source must be prefixed with + or - skipping: " << t;
+      // LOGS_DEFAULT(WARNING) << "[TensorRT EP] Tactic source must be prefixed with + or - skipping: " << t;
     }
     t.erase(0, 1);
 
@@ -205,17 +205,17 @@ nvinfer1::TacticSources GetTacticSourceFromString(std::string& tactic_string) {
     nvinfer1::TacticSource source{};
     t = toUpper(t);
     if (t == "CUBLAS") {
-      //LOGS_DEFAULT(WARNING) << "[TensorRT EP] Tactic kCUBLAS is deprecated in TensorRT 10.0";
+      // LOGS_DEFAULT(WARNING) << "[TensorRT EP] Tactic kCUBLAS is deprecated in TensorRT 10.0";
 #if NV_TENSORRT_MAJOR < 10
       source = nvinfer1::TacticSource::kCUBLAS;
 #endif
     } else if (t == "CUBLASLT" || t == "CUBLAS_LT") {
-      //LOGS_DEFAULT(WARNING) << "[TensorRT EP] Tactic kCUBLAS_LT is deprecated in TensorRT 9.0";
+      // LOGS_DEFAULT(WARNING) << "[TensorRT EP] Tactic kCUBLAS_LT is deprecated in TensorRT 9.0";
 #if NV_TENSORRT_MAJOR < 9
       source = nvinfer1::TacticSource::kCUBLAS_LT;
 #endif
     } else if (t == "CUDNN") {
-      //LOGS_DEFAULT(WARNING) << "[TensorRT EP] Tactic kCUDNN is deprecated in TensorRT 10.0";
+      // LOGS_DEFAULT(WARNING) << "[TensorRT EP] Tactic kCUDNN is deprecated in TensorRT 10.0";
 #if NV_TENSORRT_MAJOR < 10
       source = nvinfer1::TacticSource::kCUDNN;
 #endif
@@ -224,7 +224,7 @@ nvinfer1::TacticSources GetTacticSourceFromString(std::string& tactic_string) {
     } else if (t == "JIT_CONVOLUTIONS") {
       source = nvinfer1::TacticSource::kJIT_CONVOLUTIONS;
     } else {
-      //LOGS_DEFAULT(WARNING) << "[TensorRT EP] Tactic source was not found with name: " << t;
+      // LOGS_DEFAULT(WARNING) << "[TensorRT EP] Tactic source was not found with name: " << t;
     }
 
     uint32_t sourceBit = 1U << static_cast<uint32_t>(source);
@@ -241,8 +241,8 @@ nvinfer1::TacticSources GetTacticSourceFromString(std::string& tactic_string) {
 inline std::vector<char> loadTimingCacheFile(const std::string inFileName) {
   std::ifstream iFile(inFileName, std::ios::in | std::ios::binary);
   if (!iFile) {
-    //LOGS_DEFAULT(WARNING) << "[TensorRT EP] Could not read timing cache from: " << inFileName
-    //                      << ". A new timing cache will be generated and written.";
+    // LOGS_DEFAULT(WARNING) << "[TensorRT EP] Could not read timing cache from: " << inFileName
+    //                       << ". A new timing cache will be generated and written.";
     return std::vector<char>();
   }
   iFile.seekg(0, std::ifstream::end);
@@ -257,7 +257,7 @@ inline std::vector<char> loadTimingCacheFile(const std::string inFileName) {
 inline void saveTimingCacheFile(const std::string outFileName, const nvinfer1::IHostMemory* blob) {
   std::ofstream oFile(outFileName, std::ios::out | std::ios::binary);
   if (!oFile) {
-    //LOGS_DEFAULT(WARNING) << "[TensorRT EP] Could not write timing cache to: " << outFileName;
+    // LOGS_DEFAULT(WARNING) << "[TensorRT EP] Could not write timing cache to: " << outFileName;
     return;
   }
   oFile.write((char*)blob->data(), blob->size());

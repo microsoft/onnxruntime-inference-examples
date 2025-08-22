@@ -27,7 +27,7 @@ namespace cuda {
   DECL_IMPL_CAST(T, uint32_t)  \
   DECL_IMPL_CAST(T, uint64_t)  \
   DECL_IMPL_CAST(T, bool)      \
-  //DECL_IMPL_CAST(T, BFloat16)
+  // DECL_IMPL_CAST(T, BFloat16)
 
 DECL_IMPL_CAST_FROM(half)
 DECL_IMPL_CAST_FROM(float)
@@ -41,7 +41,7 @@ DECL_IMPL_CAST_FROM(uint16_t)
 DECL_IMPL_CAST_FROM(uint32_t)
 DECL_IMPL_CAST_FROM(uint64_t)
 DECL_IMPL_CAST_FROM(bool)
-//DECL_IMPL_CAST_FROM(BFloat16)
+// DECL_IMPL_CAST_FROM(BFloat16)
 
 template <typename InT, typename OutT>
 void Impl_Cast(cudaStream_t stream, const InT* input_data, OutT* output_data, size_t count) {

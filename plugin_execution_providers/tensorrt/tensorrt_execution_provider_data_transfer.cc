@@ -90,7 +90,7 @@ OrtStatus* ORT_API_CALL TRTEpDataTransfer::CopyTensorsImpl(OrtDataTransferImpl* 
       CUDA_RETURN_IF_ERROR(cudaMemcpy(dst_data, src_data, bytes, cudaMemcpyDeviceToHost));
     } else {
       // CPU -> CPU involves copy to/from pinned memory and a synchronize may be required first
-      //ORT_ENFORCE(dst_data != src_data);
+      // ORT_ENFORCE(dst_data != src_data);
       memcpy(dst_data, src_data, bytes);
     }
   }
@@ -104,6 +104,6 @@ void ORT_API_CALL TRTEpDataTransfer::ReleaseImpl(OrtDataTransferImpl* this_ptr) 
   // the call to Release from the plugin_ep::DataTransfer dtor (see /onnxruntime/core/framework/plugin_data_transfer.h)
   //
   // If you create a new instance on each call to OrtEpFactory::CreateDataTransfer you call `delete` here
-  //delete static_cast<TRTEpDataTransfer*>(this_ptr);
+  // delete static_cast<TRTEpDataTransfer*>(this_ptr);
   ;
 }

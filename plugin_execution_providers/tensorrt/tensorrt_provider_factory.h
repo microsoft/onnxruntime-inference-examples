@@ -18,11 +18,11 @@ struct TensorrtExecutionProviderFactory : public OrtEpFactory, public ApiPtrs {
   // CUDA gpu memory and CUDA pinned memory are required for allocator and data transfer, these are the OrtMemoryInfo
   // instance required for that.
   // Current TRT EP implementation uses one default OrtMemoryInfo and one host accessible OrtMemoryInfo per ep device.
-  std::unordered_map<uint32_t, MemoryInfoUniquePtr> cuda_gpu_memory_infos; // device id -> memory info
+  std::unordered_map<uint32_t, MemoryInfoUniquePtr> cuda_gpu_memory_infos;  // device id -> memory info
   std::unordered_map<uint32_t, MemoryInfoUniquePtr> cuda_pinned_memory_infos;
 
   // Keeps allocators per ep device in factory so they can be shared across sessions.
-  std::unordered_map<uint32_t, std::unique_ptr<CUDAAllocator>> cuda_gpu_allocators; // device id -> allocator
+  std::unordered_map<uint32_t, std::unique_ptr<CUDAAllocator>> cuda_gpu_allocators;  // device id -> allocator
   std::unordered_map<uint32_t, std::unique_ptr<CUDAPinnedAllocator>> cuda_pinned_allocators;
 
   std::vector<const OrtMemoryDevice*> cuda_gpu_mem_devices;
@@ -59,7 +59,7 @@ struct TensorrtExecutionProviderFactory : public OrtEpFactory, public ApiPtrs {
 
   static bool ORT_API_CALL IsStreamAwareImpl(const OrtEpFactory* /*this_ptr*/) noexcept;
 
-  const std::string ep_name_;           // EP name
-  const std::string vendor_{"Nvidia"};  // EP vendor name
+  const std::string ep_name_;              // EP name
+  const std::string vendor_{"Nvidia"};     // EP vendor name
   const std::string ep_version_{"0.1.0"};  // EP version
 };

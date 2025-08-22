@@ -150,7 +150,7 @@ class ProviderOptionsParser {
       RETURN_IF_NOT(
           (parse_status == nullptr),
           "Failed to parse provider option \"", name, "\": ");
-          //"Failed to parse provider option \"", name, "\": ", parse_status.ErrorMessage());
+      //"Failed to parse provider option \"", name, "\": ", parse_status.ErrorMessage());
     }
 
     return nullptr;

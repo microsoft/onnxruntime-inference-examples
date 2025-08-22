@@ -8,7 +8,7 @@
 
 struct TRTEpDataTransfer : OrtDataTransferImpl, ApiPtrs {
   TRTEpDataTransfer(ApiPtrs api_ptrs, std::vector<const OrtMemoryDevice*>& device_mem_infos,
-                      std::vector<const OrtMemoryDevice*>& shared_mem_infos)
+                    std::vector<const OrtMemoryDevice*>& shared_mem_infos)
       : ApiPtrs(api_ptrs), cuda_gpu_mem_devices_{device_mem_infos}, cuda_pinned_mem_devices_{shared_mem_infos} {
     CanCopy = CanCopyImpl;
     CopyTensors = CopyTensorsImpl;

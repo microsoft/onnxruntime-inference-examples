@@ -117,20 +117,20 @@ namespace onnxruntime {
   ORT_DISALLOW_COPY_AND_ASSIGNMENT(TypeName);           \
   ORT_DISALLOW_MOVE(TypeName)
 
-#define ORT_RETURN_IF_ERROR(expr)                                                                                      \
-  do {                                                                                                                 \
-    auto _status = (expr);                                                                                             \
-    if ((!_status.IsOK())) {                                                                                           \
-      return _status;                                                                                                  \
-    }                                                                                                                  \
+#define ORT_RETURN_IF_ERROR(expr) \
+  do {                            \
+    auto _status = (expr);        \
+    if ((!_status.IsOK())) {      \
+      return _status;             \
+    }                             \
   } while (0)
 
-#define ORT_THROW_IF_ERROR(expr)                                                                              \
-  do {                                                                                                        \
-    auto _status = (expr);                                                                                    \
-    if ((!_status.IsOK())) {                                                                                  \
-      ORT_THROW(_status);                                                                                     \
-    }                                                                                                         \
+#define ORT_THROW_IF_ERROR(expr) \
+  do {                           \
+    auto _status = (expr);       \
+    if ((!_status.IsOK())) {     \
+      ORT_THROW(_status);        \
+    }                            \
   } while (0)
 
 // use this macro when cannot early return

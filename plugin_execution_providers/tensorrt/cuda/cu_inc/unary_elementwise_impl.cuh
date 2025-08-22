@@ -35,7 +35,7 @@ __global__ void _UnaryElementWise(
   InT value[NumElementsPerThread];
 
   CUDA_LONG id = start;
-  #pragma unroll
+#pragma unroll
   for (int i = 0; i < NumElementsPerThread; i++) {
     if (id < N) {
       value[i] = input_data[id];
@@ -44,7 +44,7 @@ __global__ void _UnaryElementWise(
   }
 
   id = start;
-  #pragma unroll
+#pragma unroll
   for (int i = 0; i < NumElementsPerThread; i++) {
     if (id < N) {
       output_data[id] = functor(value[i]);

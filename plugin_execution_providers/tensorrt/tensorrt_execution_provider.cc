@@ -723,7 +723,7 @@ SubGraphCollection_t TensorrtExecutionProvider::GetSupportedList(SubGraphCollect
 }
 
 OrtStatus* ORT_API_CALL TensorrtExecutionProvider::GetCapabilityImpl(OrtEp* this_ptr, const OrtGraph* graph,
-                                                     OrtEpGraphSupportInfo* graph_support_info) noexcept {
+                                                                     OrtEpGraphSupportInfo* graph_support_info) noexcept {
   TensorrtExecutionProvider* ep = static_cast<TensorrtExecutionProvider*>(this_ptr);
   const OrtApi& ort_api = ep->ort_api;
 
@@ -784,7 +784,6 @@ OrtStatus* ORT_API_CALL TensorrtExecutionProvider::GetCapabilityImpl(OrtEp* this
         std::vector<const OrtGraph*> node_subgraphs(num_subgraphs);
         RETURN_FALSE_AND_PRINT_IF_ERROR(ort_api.Node_GetSubgraphs(node, node_subgraphs.data(), node_subgraphs.size(), nullptr));
 
-        
         // Iterate the node's subgraphs
         for (size_t subgraph_idx = 0; subgraph_idx < num_subgraphs; subgraph_idx++) {
           const OrtGraph* subgraph = node_subgraphs[subgraph_idx];
@@ -792,7 +791,7 @@ OrtStatus* ORT_API_CALL TensorrtExecutionProvider::GetCapabilityImpl(OrtEp* this
           // Get number of subgraph's nodes
           size_t num_subgraph_nodes = 0;
           RETURN_FALSE_AND_PRINT_IF_ERROR(ort_api.Graph_GetNumNodes(subgraph, &num_subgraph_nodes));
-          
+
           // TRT EP should consider the empty subgraph is fully supported by TRT.
           if (num_subgraph_nodes == 0) {
             continue;
@@ -827,7 +826,6 @@ OrtStatus* ORT_API_CALL TensorrtExecutionProvider::GetCapabilityImpl(OrtEp* this
       new_subgraph = true;
     }
   }
-
 
   // Use this local definitions for now
   // TODO: Use provider option
@@ -1763,7 +1761,6 @@ OrtStatus* TensorrtExecutionProvider::CreateNodeComputeInfoFromPrecompiledEngine
                                                                                  std::unordered_map<std::string, size_t>& input_map,
                                                                                  std::unordered_map<std::string, size_t>& output_map,
                                                                                  OrtNodeComputeInfo** node_compute_info) {
-
   TensorrtExecutionProvider* ep = static_cast<TensorrtExecutionProvider*>(this_ptr);
 
   const char* name = nullptr;
@@ -1867,17 +1864,17 @@ OrtStatus* TensorrtExecutionProvider::CreateNodeComputeInfoFromPrecompiledEngine
   std::unique_ptr<TensorrtComputeStateForEPContext> compute_state = std::make_unique<TensorrtComputeStateForEPContext>();
 
   *compute_state = {
-        static_cast<uint32_t>(device_id_),
-        fused_node_name,
-        &engines_[fused_node_name],
-        &contexts_[fused_node_name],
-        input_info_[fused_node_name],
-        output_info_[fused_node_name],
-        context_memory_sharing_enable_,
-        &max_ctx_mem_size_,
-        &context_memory_,
-        &tensorrt_mu_,
-        sync_stream_after_enqueue_};
+      static_cast<uint32_t>(device_id_),
+      fused_node_name,
+      &engines_[fused_node_name],
+      &contexts_[fused_node_name],
+      input_info_[fused_node_name],
+      output_info_[fused_node_name],
+      context_memory_sharing_enable_,
+      &max_ctx_mem_size_,
+      &context_memory_,
+      &tensorrt_mu_,
+      sync_stream_after_enqueue_};
 
   ep->compute_states_for_ep_context_[fused_node_name] = std::move(compute_state);
 
@@ -1886,7 +1883,6 @@ OrtStatus* TensorrtExecutionProvider::CreateNodeComputeInfoFromPrecompiledEngine
   *node_compute_info = ep_node_compute_info.release();
 
   return nullptr;
-
 }
 
 OrtStatus* ORT_API_CALL TensorrtExecutionProvider::CompileImpl(_In_ OrtEp* this_ptr,
@@ -1895,10 +1891,9 @@ OrtStatus* ORT_API_CALL TensorrtExecutionProvider::CompileImpl(_In_ OrtEp* this_
                                                                _In_ size_t count,
                                                                _Out_writes_all_(count) OrtNodeComputeInfo** node_compute_infos,
                                                                _Out_writes_(count) OrtNode** ep_context_nodes) noexcept {
-
   TensorrtExecutionProvider* ep = static_cast<TensorrtExecutionProvider*>(this_ptr);
   const OrtApi& ort_api = ep->ort_api;
-  
+
   gsl::span<OrtNodeComputeInfo*> node_compute_infos_result(node_compute_infos, count);
   gsl::span<OrtNode*> ep_context_nodes_result(ep_context_nodes, count);
 
@@ -1911,13 +1906,13 @@ OrtStatus* ORT_API_CALL TensorrtExecutionProvider::CompileImpl(_In_ OrtEp* this_
 
     std::vector<const OrtValueInfo*> node_inputs(num_node_inputs);
     RETURN_IF_ERROR(ort_api.Node_GetInputs(fused_node, node_inputs.data(), node_inputs.size()));
-    
+
     // Builds map from input name to its index in input list
     std::unordered_map<std::string, size_t> input_map;
     input_map.reserve(num_node_inputs);
     for (size_t i = 0; i < num_node_inputs; i++) {
       const OrtValueInfo* value_info = node_inputs[i];
-      const char* name = nullptr; 
+      const char* name = nullptr;
       RETURN_IF_ERROR(ort_api.GetValueInfoName(value_info, &name));
 
       input_map.emplace(name, i);
@@ -1940,7 +1935,7 @@ OrtStatus* ORT_API_CALL TensorrtExecutionProvider::CompileImpl(_In_ OrtEp* this_
 
       output_map.emplace(name, i);
     }
-    
+
     OrtStatus* status;
     if (EPContextNodeHelper::GraphHasCtxNode(graphs[fused_node_idx], ort_api)) {
       RETURN_IF_ERROR(ep->CreateNodeComputeInfoFromPrecompiledEngine(this_ptr, graphs[fused_node_idx], fused_node,
@@ -1952,7 +1947,7 @@ OrtStatus* ORT_API_CALL TensorrtExecutionProvider::CompileImpl(_In_ OrtEp* this_
                                                          &ep_context_nodes_result[fused_node_idx]));
     }
   }
-  
+
   return nullptr;
 }
 
@@ -2033,7 +2028,8 @@ OrtStatus* TensorrtExecutionProvider::RefitEngine(
   if (refit_from_file) {
     // LOGS_DEFAULT(VERBOSE) << "[TensorRT EP] Refitting from file on disk: " << onnx_model_path.string();
     if (!parser_refitter->refitFromFile(onnx_model_path.string().c_str())) {
-      std::string err_msg = "TensorRT EP's IParserRefitter could not refit deserialized weight-stripped engine with "
+      std::string err_msg =
+          "TensorRT EP's IParserRefitter could not refit deserialized weight-stripped engine with "
           "weights contained in: " +
           onnx_model_path.string();
       return ort_api.CreateStatus(ORT_EP_FAIL, err_msg.c_str());
@@ -2078,9 +2074,9 @@ TensorrtExecutionProvider::~TensorrtExecutionProvider() {
 }
 
 /// <summary>
-/// 
+///
 /// Plugin TensorRT EP implementing OrtEp
-/// 
+///
 /// </summary>
 TensorrtExecutionProvider::TensorrtExecutionProvider(TensorrtExecutionProviderFactory& factory,
                                                      const std::string& name,
@@ -2092,7 +2088,6 @@ TensorrtExecutionProvider::TensorrtExecutionProvider(TensorrtExecutionProviderFa
       name_{name},
       session_options_{session_options},
       logger_{logger} {
-
   // Implementation of OrtEp interfaces
   ort_version_supported = ORT_API_VERSION;  // set to the ORT version we were compiled with.
   GetName = GetNameImpl;
@@ -2154,7 +2149,7 @@ TensorrtExecutionProvider::TensorrtExecutionProvider(TensorrtExecutionProviderFa
   info_ = TensorrtExecutionProviderInfo::FromProviderOptions(provider_options);
   info_.has_trt_options = true;
   device_id_ = info_.device_id;
-  //api_->CreateDevice(OrtMemoryInfoDeviceType::OrtMemoryInfoDeviceType_GPU, OrtMemoryType::OrtMemoryType_Default, device_id_, &default_device);
+  // api_->CreateDevice(OrtMemoryInfoDeviceType::OrtMemoryInfoDeviceType_GPU, OrtMemoryType::OrtMemoryType_Default, device_id_, &default_device);
 
   std::string profile_min_shapes, profile_max_shapes, profile_opt_shapes;
 
@@ -2188,7 +2183,7 @@ TensorrtExecutionProvider::TensorrtExecutionProvider(TensorrtExecutionProviderFa
     force_timing_cache_match_ = info_.force_timing_cache;
     detailed_build_log_ = info_.detailed_build_log;
     dump_ep_context_model_ = info_.dump_ep_context_model;
-    //dump_ep_context_model_ = true;
+    // dump_ep_context_model_ = true;
     ep_context_file_path_ = info_.ep_context_file_path;
     ep_context_embed_mode_ = info_.ep_context_embed_mode;
     enable_engine_cache_for_ep_context_model();
@@ -2419,10 +2414,10 @@ TRTEpNodeComputeInfo::TRTEpNodeComputeInfo(TensorrtExecutionProvider& ep) : ep(e
 }
 
 OrtStatus* TRTEpNodeComputeInfo::CreateStateImpl(OrtNodeComputeInfo* this_ptr, OrtNodeComputeContext* compute_context,
-                                                   void** compute_state) {
+                                                 void** compute_state) {
   auto* node_compute_info = static_cast<TRTEpNodeComputeInfo*>(this_ptr);
   TensorrtExecutionProvider& ep = node_compute_info->ep;
-  
+
   std::string fused_node_name = ep.ep_api.NodeComputeContext_NodeName(compute_context);
   auto state_it = ep.compute_states_.find(fused_node_name);
   if (state_it == ep.compute_states_.end()) {
@@ -2496,7 +2491,7 @@ OrtStatus* TRTEpNodeComputeInfo::ComputeImpl(OrtNodeComputeInfo* this_ptr, void*
 
   std::unordered_map<std::string, DDSOutputAllocatorMap>& dds_output_allocator_maps = ep.GetDDSOutputAllocators();
   auto& dds_output_allocator_map = dds_output_allocator_maps[fused_node_name];
-  
+
   // Get default OrtMemoryInfo from factory
   const OrtMemoryInfo* mem_info = nullptr;
   if (ep.factory_.cuda_gpu_memory_infos.find(device_id) !=
@@ -2514,8 +2509,8 @@ OrtStatus* TRTEpNodeComputeInfo::ComputeImpl(OrtNodeComputeInfo* this_ptr, void*
   Ort::ThrowOnError(ep.ort_api.KernelContext_GetGPUComputeStream(kernel_context, &cuda_stream));
   cudaStream_t stream = static_cast<cudaStream_t>(cuda_stream);
 
-  //cudaStream_t stream;
-  //cudaStreamCreate(&stream);
+  // cudaStream_t stream;
+  // cudaStreamCreate(&stream);
 
   // Name the engine cache based on GPU compute capacity and reduce the chance of loading an incompatible cache
   // Note: Engine cache generated on a GPU with large memory might not be loadable on a GPU with smaller memory, even
@@ -2852,8 +2847,8 @@ OrtStatus* TRTEpNodeComputeInfo::ComputeImpl(OrtNodeComputeInfo* this_ptr, void*
     if (weight_stripped_engine_refit) {
       auto status =
           ep.RefitEngine(model_path, onnx_model_folder_path, engine_cache_path, false /* path check for security */,
-                      onnx_model_bytestream, onnx_model_bytestream_size, trt_engine,
-                      true /* serialize refitted engine to disk */, detailed_build_log);
+                         onnx_model_bytestream, onnx_model_bytestream_size, trt_engine,
+                         true /* serialize refitted engine to disk */, detailed_build_log);
       if (status != nullptr) {
         return ep.ort_api.CreateStatus(ORT_EP_FAIL, "RefitEngine failed.");
       }
@@ -3062,7 +3057,7 @@ OrtStatus* TRTEpNodeComputeInfo::ComputeImpl(OrtNodeComputeInfo* this_ptr, void*
   if (cuda_graph_enable_ && !IsGraphCaptured(0)) {
     if (IsGraphCaptureAllowed()) {
       CaptureEnd(0);
-      // CUDA work issued to a capturing stream doesn’t actually run on the GPU,
+      // CUDA work issued to a capturing stream doesn't actually run on the GPU,
       // so run the captured graph here to actually execute the work.
       ORT_RETURN_IF_ERROR(ReplayGraph(0));
     } else {
@@ -3092,7 +3087,7 @@ TRTEpEpContextNodeComputeInfo::TRTEpEpContextNodeComputeInfo(TensorrtExecutionPr
 }
 
 OrtStatus* TRTEpEpContextNodeComputeInfo::CreateStateImpl(OrtNodeComputeInfo* this_ptr, OrtNodeComputeContext* compute_context,
-                                                 void** compute_state) {
+                                                          void** compute_state) {
   auto* node_compute_info = static_cast<TRTEpEpContextNodeComputeInfo*>(this_ptr);
   TensorrtExecutionProvider& ep = node_compute_info->ep;
 
@@ -3109,7 +3104,7 @@ OrtStatus* TRTEpEpContextNodeComputeInfo::CreateStateImpl(OrtNodeComputeInfo* th
 }
 
 OrtStatus* TRTEpEpContextNodeComputeInfo::ComputeImpl(OrtNodeComputeInfo* this_ptr, void* compute_state,
-                                             OrtKernelContext* kernel_context) {
+                                                      OrtKernelContext* kernel_context) {
   auto* node_compute_info = static_cast<TRTEpEpContextNodeComputeInfo*>(this_ptr);
   TensorrtExecutionProvider& ep = node_compute_info->ep;
 
@@ -3336,7 +3331,7 @@ OrtStatus* TRTEpEpContextNodeComputeInfo::ComputeImpl(OrtNodeComputeInfo* this_p
   if (cuda_graph_enable_ && !IsGraphCaptured(0)) {
     if (IsGraphCaptureAllowed()) {
       CaptureEnd(0);
-      // CUDA work issued to a capturing stream doesn’t actually run on the GPU,
+      // CUDA work issued to a capturing stream doesn't actually run on the GPU,
       // so run the captured graph here to actually execute the work.
       ORT_RETURN_IF_ERROR(ReplayGraph(0));
     } else {
@@ -3346,7 +3341,6 @@ OrtStatus* TRTEpEpContextNodeComputeInfo::ComputeImpl(OrtNodeComputeInfo* this_p
   */
 
   return nullptr;
-
 }
 
 void TRTEpEpContextNodeComputeInfo::ReleaseStateImpl(OrtNodeComputeInfo* this_ptr, void* compute_state) {

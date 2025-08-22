@@ -13,10 +13,10 @@
 // Class implementing Stream support for synchronization.
 //
 struct TrtSyncStreamImpl : public OrtSyncStreamImpl, public ApiPtrs {
- TrtSyncStreamImpl(TensorrtExecutionProviderFactory& factory,
-                   const OrtEp* ep,
-                   uint32_t device_id,
-                   const OrtKeyValuePairs* /*stream_options*/);
+  TrtSyncStreamImpl(TensorrtExecutionProviderFactory& factory,
+                    const OrtEp* ep,
+                    uint32_t device_id,
+                    const OrtKeyValuePairs* /*stream_options*/);
 
  private:
   static OrtStatus* ORT_API_CALL CreateNotificationImpl(_In_ OrtSyncStreamImpl* this_ptr,

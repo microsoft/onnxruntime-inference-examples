@@ -11,24 +11,24 @@
 #include <vector>
 
 #include "common.h"
-//#include "code_location.h"
+// #include "code_location.h"
 
 namespace onnxruntime {
 
 class NotImplementedException : public std::logic_error {
  public:
-  explicit NotImplementedException(const char* _Message = "Function not yet implemented") noexcept : std::logic_error(_Message){};
-  explicit NotImplementedException(const std::string& _Message = "Function not yet implemented") noexcept : std::logic_error(_Message){};
+  explicit NotImplementedException(const char* _Message = "Function not yet implemented") noexcept : std::logic_error(_Message) {};
+  explicit NotImplementedException(const std::string& _Message = "Function not yet implemented") noexcept : std::logic_error(_Message) {};
 };
 
 class TypeMismatchException : public std::logic_error {
  public:
-  TypeMismatchException() noexcept : logic_error("Type mismatch"){};
+  TypeMismatchException() noexcept : logic_error("Type mismatch") {};
 };
 
 class OnnxRuntimeException : public std::exception {
  public:
-  // code location is not provided for now 
+  // code location is not provided for now
   /*
   OnnxRuntimeException(const CodeLocation& location, const std::string& msg) noexcept
       : OnnxRuntimeException(location, nullptr, msg) {
@@ -83,7 +83,7 @@ class OnnxRuntimeException : public std::exception {
   }
 
  private:
-  //const CodeLocation location_;
+  // const CodeLocation location_;
   const std::vector<std::string> stacktrace_;
   std::string what_;
 };
