@@ -978,11 +978,20 @@ OrtStatus* ORT_API_CALL TensorrtExecutionProvider::GetCapabilityImpl(OrtEp* this
 
   const size_t number_of_subgraphs = supported_nodes_vector.size();
   if (number_of_trt_nodes == 0) {
-    // LOGS_DEFAULT(WARNING) << "[TensorRT EP] No graph will run on TensorRT execution provider";
+    std::string message = "[TensorRT EP] No graph will run on TensorRT execution provider";
+    Ort::ThrowOnError(ep->ort_api.Logger_LogMessage(&ep->logger_,
+                                                    OrtLoggingLevel::ORT_LOGGING_LEVEL_WARNING,
+                                                    message.c_str(), ORT_FILE, __LINE__, __FUNCTION__));
   } else if (number_of_trt_nodes == nodes.size()) {
-    // LOGS_DEFAULT(INFO) << "[TensorRT EP] Whole graph will run on TensorRT execution provider";
+    std::string message = "[TensorRT EP] Whole graph will run on TensorRT execution provider";
+    Ort::ThrowOnError(ep->ort_api.Logger_LogMessage(&ep->logger_,
+                                                    OrtLoggingLevel::ORT_LOGGING_LEVEL_INFO,
+                                                    message.c_str(), ORT_FILE, __LINE__, __FUNCTION__));
   } else {
-    // LOGS_DEFAULT(INFO) << "[TensorRT EP] Graph is partitioned and number of subgraphs running on TensorRT execution provider is " << number_of_subgraphs;
+    std::string message = "[TensorRT EP] Graph is partitioned and number of subgraphs running on TensorRT execution provider is " + std::to_string(number_of_subgraphs);
+    Ort::ThrowOnError(ep->ort_api.Logger_LogMessage(&ep->logger_,
+                                                    OrtLoggingLevel::ORT_LOGGING_LEVEL_INFO,
+                                                    message.c_str(), ORT_FILE, __LINE__, __FUNCTION__));
   }
 
   return nullptr;
@@ -1074,7 +1083,10 @@ OrtStatus* TensorrtExecutionProvider::CreateNodeComputeInfoFromGraph(OrtEp* this
       if (layer->getType() == nvinfer1::LayerType::kELEMENTWISE &&
           next_layer->getType() == nvinfer1::LayerType::kREDUCE &&
           (static_cast<nvinfer1::IElementWiseLayer*>(layer))->getOperation() == nvinfer1::ElementWiseOperation::kPOW) {
-        // LOGS_DEFAULT(VERBOSE) << "[TensorRT EP] Force Pow + Reduce ops in layer norm to run in FP32 to avoid overflow";
+        std::string message = "[TensorRT EP] Force Pow + Reduce ops in layer norm to run in FP32 to avoid overflow";
+        Ort::ThrowOnError(ep->ort_api.Logger_LogMessage(&ep->logger_,
+                                                       OrtLoggingLevel::ORT_LOGGING_LEVEL_VERBOSE,
+                                                       message.c_str(), ORT_FILE, __LINE__, __FUNCTION__));
         layer->setPrecision(nvinfer1::DataType::kFLOAT);
         next_layer->setPrecision(nvinfer1::DataType::kFLOAT);
         layer->setOutputType(0, nvinfer1::DataType::kFLOAT);
@@ -1241,8 +1253,10 @@ OrtStatus* TensorrtExecutionProvider::CreateNodeComputeInfoFromGraph(OrtEp* this
 #pragma warning(pop)
 #endif
       fp16_enable_ = false;
-      // LOGS_DEFAULT(WARNING) << "[TensorRT EP] ORT_TENSORRT_FP16_ENABLE or ORT_TENSORRT_BF16_ENABLE is set, but "
-      //                          "platform doesn't support fast native fp16/bf16";
+      std::string message = "[TensorRT EP] ORT_TENSORRT_FP16_ENABLE or ORT_TENSORRT_BF16_ENABLE is set, but platform doesn't support fast native fp16/bf16";
+      Ort::ThrowOnError(ep->ort_api.Logger_LogMessage(&ep->logger_,
+                                                      OrtLoggingLevel::ORT_LOGGING_LEVEL_WARNING,
+                                                      message.c_str(), ORT_FILE, __LINE__, __FUNCTION__));
     }
   }
 
@@ -1283,12 +1297,18 @@ OrtStatus* TensorrtExecutionProvider::CreateNodeComputeInfoFromGraph(OrtEp* this
   if (fp16_enable_) {
     trt_config->setFlag(nvinfer1::BuilderFlag::kFP16);
     trt_node_name_with_precision += "_fp16";
-    // LOGS_DEFAULT(VERBOSE) << "[TensorRT EP] FP16 mode is enabled";
+    std::string message = "[TensorRT EP] FP16 mode is enabled";
+    Ort::ThrowOnError(ep->ort_api.Logger_LogMessage(&ep->logger_,
+                                                    OrtLoggingLevel::ORT_LOGGING_LEVEL_VERBOSE,
+                                                    message.c_str(), ORT_FILE, __LINE__, __FUNCTION__));
   }
   if (int8_enable_) {
     trt_config->setFlag(nvinfer1::BuilderFlag::kINT8);
     trt_node_name_with_precision += "_int8";
-    // LOGS_DEFAULT(VERBOSE) << "[TensorRT EP] INT8 mode is enabled";
+    std::string message = "[TensorRT EP] INT8 mode is enabled";
+    Ort::ThrowOnError(ep->ort_api.Logger_LogMessage(&ep->logger_,
+                                                    OrtLoggingLevel::ORT_LOGGING_LEVEL_VERBOSE,
+                                                    message.c_str(), ORT_FILE, __LINE__, __FUNCTION__));
   }
 #if defined(_MSC_VER)
 #pragma warning(pop)
@@ -1298,16 +1318,25 @@ OrtStatus* TensorrtExecutionProvider::CreateNodeComputeInfoFromGraph(OrtEp* this
     if (dla_enable_ && dla_core_ >= 0) {  // DLA can only run with FP16 and INT8
       int number_of_dla_core = trt_builder->getNbDLACores();
       if (number_of_dla_core == 0) {
-        // LOGS_DEFAULT(WARNING) << "[TensorRT EP] Try to use DLA core, but platform doesn't have any DLA core";
+        std::string message = "[TensorRT EP] Try to use DLA core, but platform doesn't have any DLA core";
+        Ort::ThrowOnError(ep->ort_api.Logger_LogMessage(&ep->logger_,
+                                                        OrtLoggingLevel::ORT_LOGGING_LEVEL_WARNING,
+                                                        message.c_str(), ORT_FILE, __LINE__, __FUNCTION__));
         dla_enable_ = false;
       } else {
         if (dla_core_ >= number_of_dla_core) {
-          // LOGS_DEFAULT(WARNING) << "[TensorRT EP] Try to use DLA core #" << dla_core_
-          //                       << ", but it exceeds platform's maximum DLA core number " << number_of_dla_core
-          //                       << ". Use DLA core 0 instead.";
+          std::string message = "[TensorRT EP] Try to use DLA core #" + std::to_string(dla_core_) +
+                                std::string(", but it exceeds platform's maximum DLA core number ") + std::to_string(number_of_dla_core) + 
+                                std::string(". Use DLA core 0 instead.");
+          Ort::ThrowOnError(ep->ort_api.Logger_LogMessage(&ep->logger_,
+                                                          OrtLoggingLevel::ORT_LOGGING_LEVEL_WARNING,
+                                                          message.c_str(), ORT_FILE, __LINE__, __FUNCTION__));
           dla_core_ = 0;
         }
-        // LOGS_DEFAULT(VERBOSE) << "[TensorRT EP] use DLA core " << dla_core_;
+        std::string message = "[TensorRT EP] use DLA core " + dla_core_;
+        Ort::ThrowOnError(ep->ort_api.Logger_LogMessage(&ep->logger_,
+                                                        OrtLoggingLevel::ORT_LOGGING_LEVEL_VERBOSE,
+                                                        message.c_str(), ORT_FILE, __LINE__, __FUNCTION__));
         trt_config->setFlag(nvinfer1::BuilderFlag::kGPU_FALLBACK);
         trt_config->setDefaultDeviceType(nvinfer1::DeviceType::kDLA);
         trt_config->setDLACore(dla_core_);
@@ -1319,7 +1348,10 @@ OrtStatus* TensorrtExecutionProvider::CreateNodeComputeInfoFromGraph(OrtEp* this
   // enable sparse weights
   if (sparsity_enable_) {
     trt_config->setFlag(nvinfer1::BuilderFlag::kSPARSE_WEIGHTS);
-    // LOGS_DEFAULT(VERBOSE) << "[TensorRT EP] Sparse weights are allowed";
+    std::string message = "[TensorRT EP] Sparse weights are allowed";
+    Ort::ThrowOnError(ep->ort_api.Logger_LogMessage(&ep->logger_,
+                                                    OrtLoggingLevel::ORT_LOGGING_LEVEL_VERBOSE,
+                                                    message.c_str(), ORT_FILE, __LINE__, __FUNCTION__));
   }
 #if NV_TENSORRT_MAJOR == 8 && NV_TENSORRT_MINOR == 5
   if (build_heuristics_enable_) {
@@ -1332,11 +1364,17 @@ OrtStatus* TensorrtExecutionProvider::CreateNodeComputeInfoFromGraph(OrtEp* this
   // for TRT 8.6 onwards, heuristic-based tactic option is automatically enabled by setting builder optimization level 2
   if (build_heuristics_enable_) {
     if (builder_optimization_level_ == 2) {
-      // LOGS_DEFAULT(WARNING) << "[TensorRT EP] Builder heuristics are automatically enabled by builder optimization "
-      //                          "level 2. trt_build_heuristics_enable is deprecated on TRT 8.6 onwards.";
+      std::string message = "[TensorRT EP] Builder heuristics are automatically enabled by builder optimization "
+                            + std::string("level 2. trt_build_heuristics_enable is deprecated on TRT 8.6 onwards.");
+      Ort::ThrowOnError(ep->ort_api.Logger_LogMessage(&ep->logger_,
+                                                      OrtLoggingLevel::ORT_LOGGING_LEVEL_WARNING,
+                                                      message.c_str(), ORT_FILE, __LINE__, __FUNCTION__));
     } else {
-      // LOGS_DEFAULT(WARNING) << "[TensorRT EP] trt_build_heuristics_enable is deprecated on TRT 8.6 onwards. Please set "
-      //                          "builder optimization level as 2 to enable builder heuristics.";
+      std::string message = "[TensorRT EP] trt_build_heuristics_enable is deprecated on TRT 8.6 onwards. Please set "
+                            + std::string("builder optimization level as 2 to enable builder heuristics.");
+      Ort::ThrowOnError(ep->ort_api.Logger_LogMessage(&ep->logger_,
+                                                      OrtLoggingLevel::ORT_LOGGING_LEVEL_WARNING,
+                                                      message.c_str(), ORT_FILE, __LINE__, __FUNCTION__));
     }
   }
 #endif
@@ -1345,13 +1383,19 @@ OrtStatus* TensorrtExecutionProvider::CreateNodeComputeInfoFromGraph(OrtEp* this
   // switch optimizaion level
   if (builder_optimization_level_ != 3) {
     trt_config->setBuilderOptimizationLevel(builder_optimization_level_);
-    // LOGS_DEFAULT(VERBOSE) << "[TensorRT EP] Builder optimization level is set to " << builder_optimization_level_;
+    std::string message = "[TensorRT EP] Builder optimization level is set to " + builder_optimization_level_;
+    Ort::ThrowOnError(ep->ort_api.Logger_LogMessage(&ep->logger_,
+                                                    OrtLoggingLevel::ORT_LOGGING_LEVEL_VERBOSE,
+                                                    message.c_str(), ORT_FILE, __LINE__, __FUNCTION__));
   }
 
   // limit auxiliary streams
   if (auxiliary_streams_ >= 0) {
     trt_config->setMaxAuxStreams(auxiliary_streams_);
-    // LOGS_DEFAULT(VERBOSE) << "[TensorRT EP] Auxiliary streams are se to " << auxiliary_streams_;
+    std::string message = "[TensorRT EP] Auxiliary streams are se to " + auxiliary_streams_;
+    Ort::ThrowOnError(ep->ort_api.Logger_LogMessage(&ep->logger_,
+                                                    OrtLoggingLevel::ORT_LOGGING_LEVEL_VERBOSE,
+                                                    message.c_str(), ORT_FILE, __LINE__, __FUNCTION__));
   }
 #else
   if (builder_optimization_level_ != 3) {
@@ -1365,9 +1409,15 @@ OrtStatus* TensorrtExecutionProvider::CreateNodeComputeInfoFromGraph(OrtEp* this
   if (weight_stripped_engine_enable_) {
 #if NV_TENSORRT_MAJOR >= 10
     trt_config->setFlag(nvinfer1::BuilderFlag::kSTRIP_PLAN);
-    // LOGS_DEFAULT(VERBOSE) << "[TensorRT EP] STRIP_PLAN is enabled";
+    std::string message = "[TensorRT EP] STRIP_PLAN is enabled";
+    Ort::ThrowOnError(ep->ort_api.Logger_LogMessage(&ep->logger_,
+                                                    OrtLoggingLevel::ORT_LOGGING_LEVEL_VERBOSE,
+                                                    message.c_str(), ORT_FILE, __LINE__, __FUNCTION__));
     trt_config->setFlag(nvinfer1::BuilderFlag::kREFIT_IDENTICAL);
-    // LOGS_DEFAULT(VERBOSE) << "[TensorRT EP] REFIT_IDENTICAL is enabled";
+    message = "[TensorRT EP] REFIT_IDENTICAL is enabled";
+    Ort::ThrowOnError(ep->ort_api.Logger_LogMessage(&ep->logger_,
+                                                    OrtLoggingLevel::ORT_LOGGING_LEVEL_VERBOSE,
+                                                    message.c_str(), ORT_FILE, __LINE__, __FUNCTION__));
 #else
     LOGS_DEFAULT(WARNING) << "[TensorRT EP] weight-stripped engines can only be used on TRT 10.0 onwards!";
 #endif
@@ -1378,7 +1428,10 @@ OrtStatus* TensorrtExecutionProvider::CreateNodeComputeInfoFromGraph(OrtEp* this
     nvinfer1::TacticSources tactics = trt_config->getTacticSources();
     tactics |= GetTacticSourceFromString(tactic_sources_);
     trt_config->setTacticSources(tactics);
-    // LOGS_DEFAULT(VERBOSE) << "[TensorRT EP] Tactic sources are limited using " << tactic_sources_;
+    std::string message = "[TensorRT EP] Tactic sources are limited using " + tactic_sources_;
+    Ort::ThrowOnError(ep->ort_api.Logger_LogMessage(&ep->logger_,
+                                                    OrtLoggingLevel::ORT_LOGGING_LEVEL_VERBOSE,
+                                                    message.c_str(), ORT_FILE, __LINE__, __FUNCTION__));
   }
 
   // Build TRT engine (if needed) and load TRT engine if:
@@ -1406,7 +1459,10 @@ OrtStatus* TensorrtExecutionProvider::CreateNodeComputeInfoFromGraph(OrtEp* this
   if (engine_cache_enable_ && engine_hw_compatible_) {
     trt_config->setHardwareCompatibilityLevel(nvinfer1::HardwareCompatibilityLevel::kAMPERE_PLUS);
     cache_hw_compat = "_sm80+";
-    // LOGS_DEFAULT(VERBOSE) << "[TensorRT EP] Hardware compatibility is enabled when loading and capturing engine cache.";
+    std::string message = "[TensorRT EP] Hardware compatibility is enabled when loading and capturing engine cache.";
+    Ort::ThrowOnError(ep->ort_api.Logger_LogMessage(&ep->logger_,
+                                                    OrtLoggingLevel::ORT_LOGGING_LEVEL_VERBOSE,
+                                                    message.c_str(), ORT_FILE, __LINE__, __FUNCTION__));
   }
 #endif
 
@@ -1446,9 +1502,15 @@ OrtStatus* TensorrtExecutionProvider::CreateNodeComputeInfoFromGraph(OrtEp* this
         engine_update =
             CompareProfiles(profile_cache_path, profile_min_shapes_, profile_max_shapes_, profile_opt_shapes_);
         if (engine_update) {
-          // LOGS_DEFAULT(VERBOSE) << "[TensorRT EP] Engine will be built";
+          std::string message = "[TensorRT EP] Engine will be built";
+          Ort::ThrowOnError(ep->ort_api.Logger_LogMessage(&ep->logger_,
+                                                          OrtLoggingLevel::ORT_LOGGING_LEVEL_VERBOSE,
+                                                          message.c_str(), ORT_FILE, __LINE__, __FUNCTION__));
         } else {
-          // LOGS_DEFAULT(VERBOSE) << "[TensorRT EP] Engine won't be rebuilt";
+          std::string message = "[TensorRT EP] Engine won't be rebuilt";
+          Ort::ThrowOnError(ep->ort_api.Logger_LogMessage(&ep->logger_,
+                                                          OrtLoggingLevel::ORT_LOGGING_LEVEL_VERBOSE,
+                                                          message.c_str(), ORT_FILE, __LINE__, __FUNCTION__));
         }
       }
 
@@ -1461,7 +1523,10 @@ OrtStatus* TensorrtExecutionProvider::CreateNodeComputeInfoFromGraph(OrtEp* this
         engine_file.read((char*)engine_buf.get(), engine_size);
         trt_engine =
             std::unique_ptr<nvinfer1::ICudaEngine>(runtime_->deserializeCudaEngine(engine_buf.get(), engine_size));
-        // LOGS_DEFAULT(VERBOSE) << "[TensorRT EP] DeSerialized " + engine_cache_path;
+        std::string message = "[TensorRT EP] DeSerialized " + engine_cache_path;
+        Ort::ThrowOnError(ep->ort_api.Logger_LogMessage(&ep->logger_,
+                                                        OrtLoggingLevel::ORT_LOGGING_LEVEL_VERBOSE,
+                                                        message.c_str(), ORT_FILE, __LINE__, __FUNCTION__));
         if (trt_engine == nullptr) {
           std::string err_msg = "TensorRT EP could not deserialize engine from cache: " + engine_cache_path;
           return ort_api.CreateStatus(ORT_EP_FAIL, err_msg.c_str());
@@ -1483,7 +1548,10 @@ OrtStatus* TensorrtExecutionProvider::CreateNodeComputeInfoFromGraph(OrtEp* this
         // Deserialize engine
         trt_engine =
             std::unique_ptr<nvinfer1::ICudaEngine>(runtime_->deserializeCudaEngine(engine_buf.get(), engine_size));
-        // LOGS_DEFAULT(VERBOSE) << "[TensorRT EP] Decrypted and DeSerialized " + encrypted_engine_cache_path;
+        std::string message = "[TensorRT EP] Decrypted and DeSerialized " + encrypted_engine_cache_path;
+        Ort::ThrowOnError(ep->ort_api.Logger_LogMessage(&ep->logger_,
+                                                        OrtLoggingLevel::ORT_LOGGING_LEVEL_VERBOSE,
+                                                        message.c_str(), ORT_FILE, __LINE__, __FUNCTION__));
         if (trt_engine == nullptr) {
           std::string err_msg = "TensorRT EP could not deserialize engine from encrypted cache: " + encrypted_engine_cache_path;
           return ort_api.CreateStatus(ORT_EP_FAIL, err_msg.c_str());
@@ -1517,7 +1585,10 @@ OrtStatus* TensorrtExecutionProvider::CreateNodeComputeInfoFromGraph(OrtEp* this
           }
           trt_config->setTimingCache(*timing_cache, force_timing_cache_match_);
           if (detailed_build_log_) {
-            // LOGS_DEFAULT(VERBOSE) << "[TensorRT EP] Deserialized timing cache from " + timing_cache_path;
+            std::string message = "[TensorRT EP] Deserialized timing cache from " + timing_cache_path;
+            Ort::ThrowOnError(ep->ort_api.Logger_LogMessage(&ep->logger_,
+                                                            OrtLoggingLevel::ORT_LOGGING_LEVEL_VERBOSE,
+                                                            message.c_str(), ORT_FILE, __LINE__, __FUNCTION__));
           }
         }
 
@@ -1551,7 +1622,10 @@ OrtStatus* TensorrtExecutionProvider::CreateNodeComputeInfoFromGraph(OrtEp* this
           // Serialize engine profile if it has explicit profiles
           if (has_explicit_profile) {
             SerializeProfileV2(profile_cache_path, input_explicit_shape_ranges);
-            // LOGS_DEFAULT(VERBOSE) << "[TensorRT EP] Serialized " + profile_cache_path;
+            std::string message = "[TensorRT EP] Serialized " + profile_cache_path;
+            Ort::ThrowOnError(ep->ort_api.Logger_LogMessage(&ep->logger_,
+                                                            OrtLoggingLevel::ORT_LOGGING_LEVEL_VERBOSE,
+                                                            message.c_str(), ORT_FILE, __LINE__, __FUNCTION__));
           }
 
           if (engine_decryption_enable_) {
@@ -1563,7 +1637,10 @@ OrtStatus* TensorrtExecutionProvider::CreateNodeComputeInfoFromGraph(OrtEp* this
                 std::string err_msg = "TensorRT EP call to engine encryption library failed";
                 return ort_api.CreateStatus(ORT_EP_FAIL, err_msg.c_str());
               }
-              // LOGS_DEFAULT(VERBOSE) << "[TensorRT EP] Serialized and encrypted engine " + encrypted_engine_cache_path;
+              std::string message = "[TensorRT EP] Serialized and encrypted engine " + encrypted_engine_cache_path;
+              Ort::ThrowOnError(ep->ort_api.Logger_LogMessage(&ep->logger_,
+                                                              OrtLoggingLevel::ORT_LOGGING_LEVEL_VERBOSE,
+                                                              message.c_str(), ORT_FILE, __LINE__, __FUNCTION__));
             } else {
               // LOGS_DEFAULT(WARNING)
               //     << "[TensorRT EP] Engine cache encryption function is not found. No cache is written to disk";
@@ -1571,7 +1648,10 @@ OrtStatus* TensorrtExecutionProvider::CreateNodeComputeInfoFromGraph(OrtEp* this
           } else {
             std::ofstream file(engine_cache_path, std::ios::binary | std::ios::out);
             file.write(reinterpret_cast<char*>(serialized_engine->data()), serialized_engine->size());
-            // LOGS_DEFAULT(VERBOSE) << "[TensorRT EP] Serialized engine " + engine_cache_path;
+            std::string message = "[TensorRT EP] Serialized engine " + engine_cache_path;
+            Ort::ThrowOnError(ep->ort_api.Logger_LogMessage(&ep->logger_,
+                                                            OrtLoggingLevel::ORT_LOGGING_LEVEL_VERBOSE,
+                                                            message.c_str(), ORT_FILE, __LINE__, __FUNCTION__));
           }
         }
         // serialize and save timing cache
@@ -1584,14 +1664,20 @@ OrtStatus* TensorrtExecutionProvider::CreateNodeComputeInfoFromGraph(OrtEp* this
           }
           saveTimingCacheFile(timing_cache_path, timingCacheHostData.get());
           if (detailed_build_log_) {
-            // LOGS_DEFAULT(VERBOSE) << "[TensorRT EP] Serialized timing cache " + timing_cache_path;
+            std::string message = "[TensorRT EP] Serialized timing cache " + timing_cache_path;
+            Ort::ThrowOnError(ep->ort_api.Logger_LogMessage(&ep->logger_,
+                                                            OrtLoggingLevel::ORT_LOGGING_LEVEL_VERBOSE,
+                                                            message.c_str(), ORT_FILE, __LINE__, __FUNCTION__));
           }
         }
       }
     }
 
     if (weight_stripped_engine_refit_) {
-      // LOGS_DEFAULT(VERBOSE) << "[TensorRT EP] Refit engine from main ONNX file after engine build";
+      std::string message = "[TensorRT EP] Refit engine from main ONNX file after engine build";
+      Ort::ThrowOnError(ep->ort_api.Logger_LogMessage(&ep->logger_,
+                                                      OrtLoggingLevel::ORT_LOGGING_LEVEL_VERBOSE,
+                                                      message.c_str(), ORT_FILE, __LINE__, __FUNCTION__));
       char* onnx = string_buf.data();
       size_t onnx_size = string_buf.size();
       auto status = RefitEngine(model_path_, onnx_model_folder_path_, engine_cache_path,
@@ -1989,6 +2075,7 @@ OrtStatus* TensorrtExecutionProvider::RefitEngine(
     std::string onnx_model_filename, std::string& onnx_model_folder_path, std::string& weight_stripped_engine_cath_path,
     bool path_check, const void* onnx_model_bytestream, size_t onnx_model_bytestream_size,
     nvinfer1::ICudaEngine* trt_engine, bool serialize_refitted_engine, bool detailed_build_log) {
+
 #if NV_TENSORRT_MAJOR >= 10
   bool refit_from_file = onnx_model_bytestream == nullptr && onnx_model_bytestream_size == 0;
   std::filesystem::path onnx_model_path{onnx_model_folder_path};
@@ -2028,7 +2115,10 @@ OrtStatus* TensorrtExecutionProvider::RefitEngine(
   auto parser_refitter =
       std::unique_ptr<nvonnxparser::IParserRefitter>(nvonnxparser::createParserRefitter(*refitter, trt_logger));
   if (refit_from_file) {
-    // LOGS_DEFAULT(VERBOSE) << "[TensorRT EP] Refitting from file on disk: " << onnx_model_path.string();
+    std::string message = "[TensorRT EP] Refitting from file on disk: " + onnx_model_path.string();
+    Ort::ThrowOnError(ort_api.Logger_LogMessage(&logger_,
+                                                OrtLoggingLevel::ORT_LOGGING_LEVEL_VERBOSE,
+                                                message.c_str(), ORT_FILE, __LINE__, __FUNCTION__));
     if (!parser_refitter->refitFromFile(onnx_model_path.string().c_str())) {
       std::string err_msg =
           "TensorRT EP's IParserRefitter could not refit deserialized weight-stripped engine with "
@@ -2037,7 +2127,10 @@ OrtStatus* TensorrtExecutionProvider::RefitEngine(
       return ort_api.CreateStatus(ORT_EP_FAIL, err_msg.c_str());
     }
   } else {
-    // LOGS_DEFAULT(VERBOSE) << "[TensorRT EP] Refitting from byte array";
+    std::string message = "[TensorRT EP] Refitting from byte array";
+    Ort::ThrowOnError(ort_api.Logger_LogMessage(&logger_,
+                                                OrtLoggingLevel::ORT_LOGGING_LEVEL_VERBOSE,
+                                                message.c_str(), ORT_FILE, __LINE__, __FUNCTION__));
     if (!parser_refitter->refitFromBytes(onnx_model_bytestream, onnx_model_bytestream_size)) {
       std::string err_msg =
           "TensorRT EP's IParserRefitter could not refit deserialized weight-stripped engine with "
@@ -2046,7 +2139,10 @@ OrtStatus* TensorrtExecutionProvider::RefitEngine(
     }
   }
   if (refitter->refitCudaEngine()) {
-    // LOGS_DEFAULT(VERBOSE) << "[TensorRT EP] Successfully refitted the weight-stripped engine.";
+    std::string message = "[TensorRT EP] Successfully refitted the weight-stripped engine.";
+    Ort::ThrowOnError(ort_api.Logger_LogMessage(&logger_,
+                                                OrtLoggingLevel::ORT_LOGGING_LEVEL_VERBOSE,
+                                                message.c_str(), ORT_FILE, __LINE__, __FUNCTION__));
   } else {
     std::string err_msg =
         "TensorRT EP's IRefitter could not refit deserialized weight-stripped engine with weights contained in: " +
@@ -2060,7 +2156,10 @@ OrtStatus* TensorrtExecutionProvider::RefitEngine(
     nvinfer1::IHostMemory* serialized_engine = trt_engine->serialize();
     std::ofstream engine_file(refitted_engine_cache, std::ios::binary | std::ios::out);
     engine_file.write(reinterpret_cast<const char*>(serialized_engine->data()), serialized_engine->size());
-    // LOGS_DEFAULT(VERBOSE) << "[TensorRT EP] Serialize the refitted engine to " << refitted_engine_cache;
+    std::string message = "[TensorRT EP] Serialize the refitted engine to " + refitted_engine_cache;
+    Ort::ThrowOnError(ort_api.Logger_LogMessage(&logger_,
+                                                OrtLoggingLevel::ORT_LOGGING_LEVEL_VERBOSE,
+                                                message.c_str(), ORT_FILE, __LINE__, __FUNCTION__));
   }
   return nullptr;
 #else
@@ -2226,19 +2325,31 @@ TensorrtExecutionProvider::TensorrtExecutionProvider(TensorrtExecutionProviderFa
 
   // Validate setting
   if (max_partition_iterations_ <= 0) {
-    // LOGS_DEFAULT(WARNING) << "[TensorRT EP] TensorRT option trt_max_partition_iterations must be a positive integer value. Set it to 1000";
+    std::string message = "[TensorRT EP] TensorRT option trt_max_partition_iterations must be a positive integer value. Set it to 1000";
+    Ort::ThrowOnError(ort_api.Logger_LogMessage(&logger_,
+                                                OrtLoggingLevel::ORT_LOGGING_LEVEL_WARNING,
+                                                message.c_str(), ORT_FILE, __LINE__, __FUNCTION__));
     max_partition_iterations_ = 1000;
   }
   if (min_subgraph_size_ <= 0) {
-    // LOGS_DEFAULT(WARNING) << "[TensorRT EP] TensorRT option trt_min_subgraph_size must be a positive integer value. Set it to 1";
+    std::string message = "[TensorRT EP] TensorRT option trt_min_subgraph_size must be a positive integer value. Set it to 1";
+    Ort::ThrowOnError(ort_api.Logger_LogMessage(&logger_,
+                                                OrtLoggingLevel::ORT_LOGGING_LEVEL_WARNING,
+                                                message.c_str(), ORT_FILE, __LINE__, __FUNCTION__));
     min_subgraph_size_ = 1;
   }
   if (max_workspace_size_ <= 0) {
-    // LOGS_DEFAULT(WARNING) << "[TensorRT EP] TensorRT option trt_max_workspace_size must be a positive integer value. Set it to 1073741824 (1GB)";
+    std::string message = "[TensorRT EP] TensorRT option trt_max_workspace_size must be a positive integer value. Set it to 1073741824 (1GB)";
+    Ort::ThrowOnError(ort_api.Logger_LogMessage(&logger_,
+                                                OrtLoggingLevel::ORT_LOGGING_LEVEL_WARNING,
+                                                message.c_str(), ORT_FILE, __LINE__, __FUNCTION__));
     max_workspace_size_ = 1 << 30;
   }
   if (dla_core_ < 0) {
-    // LOGS_DEFAULT(WARNING) << "[TensorRT EP] TensorRT option trt_dla_core must be a non-negative integer value. Set it to 0";
+    std::string message = "[TensorRT EP] TensorRT option trt_dla_core must be a non-negative integer value. Set it to 0";
+    Ort::ThrowOnError(ort_api.Logger_LogMessage(&logger_,
+                                                OrtLoggingLevel::ORT_LOGGING_LEVEL_WARNING,
+                                                message.c_str(), ORT_FILE, __LINE__, __FUNCTION__));
     dla_core_ = 0;
   }
 
@@ -2277,14 +2388,23 @@ TensorrtExecutionProvider::TensorrtExecutionProvider(TensorrtExecutionProviderFa
   if (engine_cache_enable_ && engine_hw_compatible_) {
 #if NV_TENSORRT_MAJOR == 8 && NV_TENSORRT_MINOR > 5 || NV_TENSORRT_MAJOR > 8
     if (std::stoi(compute_capability_) < 80) {
-      // LOGS_DEFAULT(WARNING) << "Engine hardware compatibility cannot be enabled as GPU arch < 80. ";
+      std::string message = "Engine hardware compatibility cannot be enabled as GPU arch < 80. ";
+      Ort::ThrowOnError(ort_api.Logger_LogMessage(&logger_,
+                                                  OrtLoggingLevel::ORT_LOGGING_LEVEL_WARNING,
+                                                  message.c_str(), ORT_FILE, __LINE__, __FUNCTION__));
       engine_hw_compatible_ = false;
     } else if (std::stoi(compute_capability_) == 87) {
-      // LOGS_DEFAULT(WARNING) << "Engine hardware compatibility cannot be enabled on Jetson Orin. ";
+      std::string message = "Engine hardware compatibility cannot be enabled on Jetson Orin. ";
+      Ort::ThrowOnError(ort_api.Logger_LogMessage(&logger_,
+                                                  OrtLoggingLevel::ORT_LOGGING_LEVEL_WARNING,
+                                                  message.c_str(), ORT_FILE, __LINE__, __FUNCTION__));
       engine_hw_compatible_ = false;
     }
 #else
-    // LOGS_DEFAULT(WARNING) << "Engine hardware compatibility cannot be enabled as TRT < 8.6. ";
+    std::string message = "Engine hardware compatibility cannot be enabled as TRT < 8.6. ";
+    Ort::ThrowOnError(ort_api.Logger_LogMessage(&logger_,
+                                                OrtLoggingLevel::ORT_LOGGING_LEVEL_WARNING,
+                                                message.c_str(), ORT_FILE, __LINE__, __FUNCTION__));
     engine_hw_compatible_ = false;
 #endif
   }
@@ -2337,7 +2457,10 @@ TensorrtExecutionProvider::TensorrtExecutionProvider(TensorrtExecutionProviderFa
   //     status = ParseProfileShapes(profile_min_shapes, profile_min_shapes_);
   //     if (!status) {
   //         profile_min_shapes_.clear();
-  //         // LOGS_DEFAULT(WARNING) << "[TensorRT EP] The format of provider option 'trt_profile_min_shapes' is wrong, please follow the format of 'input1:dim1xdimd2...,input2:dim1xdim2...,...'";
+  //         std::string message = "[TensorRT EP] The format of provider option 'trt_profile_min_shapes' is wrong, please follow the format of 'input1:dim1xdimd2...,input2:dim1xdim2...,...'";
+  //         Ort::ThrowOnError(ep->ort_api.Logger_LogMessage(&ep->logger_,
+  //                                                         OrtLoggingLevel::ORT_LOGGING_LEVEL_WARNING,
+  //                                                         message.c_str(), ORT_FILE, __LINE__, __FUNCTION__));
   //     }
   // }
 
@@ -2345,7 +2468,10 @@ TensorrtExecutionProvider::TensorrtExecutionProvider(TensorrtExecutionProviderFa
   //     status = ParseProfileShapes(profile_max_shapes, profile_max_shapes_);
   //     if (!status) {
   //         profile_max_shapes_.clear();
-  //         // LOGS_DEFAULT(WARNING) << "[TensorRT EP] The format of provider option 'trt_profile_max_shapes' is wrong, please follow the format of 'input1:dim1xdimd2...,input2:dim1xdim2...,...'";
+  //         std::string message = "[TensorRT EP] The format of provider option 'trt_profile_max_shapes' is wrong, please follow the format of 'input1:dim1xdimd2...,input2:dim1xdim2...,...'";
+  //         Ort::ThrowOnError(ep->ort_api.Logger_LogMessage(&ep->logger_,
+  //                                                         OrtLoggingLevel::ORT_LOGGING_LEVEL_WARNING,
+  //                                                         message.c_str(), ORT_FILE, __LINE__, __FUNCTION__));
   //     }
   // }
 
@@ -2353,15 +2479,24 @@ TensorrtExecutionProvider::TensorrtExecutionProvider(TensorrtExecutionProviderFa
   //     status = ParseProfileShapes(profile_opt_shapes, profile_opt_shapes_);
   //     if (!status) {
   //         profile_opt_shapes_.clear();
-  //         // LOGS_DEFAULT(WARNING) << "[TensorRT EP] The format of provider option 'trt_profile_opt_shapes' is wrong, please follow the format of 'input1:dim1xdimd2...,input2:dim1xdim2...,...'";
+  //         std::string message = "[TensorRT EP] The format of provider option 'trt_profile_opt_shapes' is wrong, please follow the format of 'input1:dim1xdimd2...,input2:dim1xdim2...,...'";
+  //         Ort::ThrowOnError(ep->ort_api.Logger_LogMessage(&ep->logger_,
+  //                                                         OrtLoggingLevel::ORT_LOGGING_LEVEL_WARNING,
+  //                                                         message.c_str(), ORT_FILE, __LINE__, __FUNCTION__));
   //     }
   // }
 
   // if (status) {
   //     status = ValidateProfileShapes(profile_min_shapes_, profile_max_shapes_, profile_opt_shapes_);
   //     if (!status) {
-  //         // LOGS_DEFAULT(WARNING) << "[TensorRT EP] Profile shapes validation failed. Make sure the provider options 'trt_profile_min_shapes', 'trt_profile_max_shapes' and 'trt_profile_opt_shapes' have same input name and number of profile.";
-  //         // LOGS_DEFAULT(WARNING) << "[TensorRT EP] TRT EP will implicitly create optimization profiles based on input tensor for you.";
+  //         std::string message = "[TensorRT EP] Profile shapes validation failed. Make sure the provider options 'trt_profile_min_shapes', 'trt_profile_max_shapes' and 'trt_profile_opt_shapes' have same input name and number of profile.";
+  //         Ort::ThrowOnError(ep->ort_api.Logger_LogMessage(&ep->logger_,
+  //                                                         OrtLoggingLevel::ORT_LOGGING_LEVEL_WARNING,
+  //                                                         message.c_str(), ORT_FILE, __LINE__, __FUNCTION__));
+  //         message = "[TensorRT EP] TRT EP will implicitly create optimization profiles based on input tensor for you.";
+  //         Ort::ThrowOnError(ep->ort_api.Logger_LogMessage(&ep->logger_,
+  //                                                         OrtLoggingLevel::ORT_LOGGING_LEVEL_WARNING,
+  //                                                         message.c_str(), ORT_FILE, __LINE__, __FUNCTION__));
   //         profile_min_shapes_.clear();
   //         profile_max_shapes_.clear();
   //         profile_opt_shapes_.clear();
@@ -2530,8 +2665,10 @@ OrtStatus* TRTEpNodeComputeInfo::ComputeImpl(OrtNodeComputeInfo* this_ptr, void*
 #if NV_TENSORRT_MAJOR == 8 && NV_TENSORRT_MINOR > 5 || NV_TENSORRT_MAJOR > 8
   if (engine_cache_enable && engine_hw_compatible) {
     cache_hw_compat = "_sm80+";
-    // LOGS_DEFAULT(VERBOSE)
-    //     << "[TensorRT EP] Hardware compatibility is enabled when loading and capturing engine cache.";
+    std::string message = "[TensorRT EP] Hardware compatibility is enabled when loading and capturing engine cache.";
+    Ort::ThrowOnError(ep.ort_api.Logger_LogMessage(&ep.logger_,
+                                                   OrtLoggingLevel::ORT_LOGGING_LEVEL_VERBOSE,
+                                                   message.c_str(), ORT_FILE, __LINE__, __FUNCTION__));
   }
 #endif
 
@@ -2562,7 +2699,10 @@ OrtStatus* TRTEpNodeComputeInfo::ComputeImpl(OrtNodeComputeInfo* this_ptr, void*
     if (engine_file && !trt_state->engine_decryption_enable && profile_file) {
       // Deserialize profile
       shape_ranges = DeserializeProfileV2(profile_file);
-      // LOGS_DEFAULT(VERBOSE) << "[TensorRT EP] DeSerialized " + profile_cache_path;
+      std::string message = "[TensorRT EP] DeSerialized " + profile_cache_path;
+      Ort::ThrowOnError(ep.ort_api.Logger_LogMessage(&ep.logger_,
+                                                     OrtLoggingLevel::ORT_LOGGING_LEVEL_VERBOSE,
+                                                     message.c_str(), ORT_FILE, __LINE__, __FUNCTION__));
 
       // Prepare buffer
       engine_file.seekg(0, std::ios::end);
@@ -2581,14 +2721,20 @@ OrtStatus* TRTEpNodeComputeInfo::ComputeImpl(OrtNodeComputeInfo* this_ptr, void*
         std::string err_msg = "TensorRT EP Failed to Build Engine.";
         return ep.ort_api.CreateStatus(ORT_EP_FAIL, err_msg.c_str());
       }
-      // LOGS_DEFAULT(VERBOSE) << "[TensorRT EP] DeSerialized " + engine_cache_path;
+      message = "[TensorRT EP] DeSerialized " + engine_cache_path;
+      Ort::ThrowOnError(ep.ort_api.Logger_LogMessage(&ep.logger_,
+                                                     OrtLoggingLevel::ORT_LOGGING_LEVEL_VERBOSE,
+                                                     message.c_str(), ORT_FILE, __LINE__, __FUNCTION__));
       trt_engine = trt_state->engine->get();
       context_update = true;
 
     } else if (trt_state->engine_decryption_enable && std::filesystem::exists(encrypted_engine_cache_path) &&
                profile_file) {
       shape_ranges = DeserializeProfileV2(profile_file);
-      // LOGS_DEFAULT(VERBOSE) << "[TensorRT EP] DeSerialized " + profile_cache_path;
+      std::string message = "[TensorRT EP] DeSerialized " + profile_cache_path;
+      Ort::ThrowOnError(ep.ort_api.Logger_LogMessage(&ep.logger_,
+                                                     OrtLoggingLevel::ORT_LOGGING_LEVEL_VERBOSE,
+                                                     message.c_str(), ORT_FILE, __LINE__, __FUNCTION__));
       //  Decrypt engine
       size_t engine_size = 0;
       if (!trt_state->engine_decryption(encrypted_engine_cache_path.c_str(), nullptr, &engine_size)) {
@@ -2610,7 +2756,10 @@ OrtStatus* TRTEpNodeComputeInfo::ComputeImpl(OrtNodeComputeInfo* this_ptr, void*
         std::string err_msg = "TensorRT EP could not deserialize engine from encrypted cache: " + encrypted_engine_cache_path;
         return ep.ort_api.CreateStatus(ORT_EP_FAIL, err_msg.c_str());
       }
-      // LOGS_DEFAULT(VERBOSE) << "[TensorRT EP] Decrypted and DeSerialized " + encrypted_engine_cache_path;
+      message = "[TensorRT EP] Decrypted and DeSerialized " + encrypted_engine_cache_path;
+      Ort::ThrowOnError(ep.ort_api.Logger_LogMessage(&ep.logger_,
+                                                     OrtLoggingLevel::ORT_LOGGING_LEVEL_VERBOSE,
+                                                     message.c_str(), ORT_FILE, __LINE__, __FUNCTION__));
       trt_engine = trt_state->engine->get();
       context_update = true;
     }
@@ -2671,18 +2820,27 @@ OrtStatus* TRTEpNodeComputeInfo::ComputeImpl(OrtNodeComputeInfo* this_ptr, void*
     // Set precision
     if (trt_state->int8_enable) {
       trt_config->setFlag(nvinfer1::BuilderFlag::kINT8);
-      // LOGS_DEFAULT(VERBOSE) << "[TensorRT EP] INT8 mode is enabled";
+      std::string message = "[TensorRT EP] INT8 mode is enabled";
+      Ort::ThrowOnError(ep.ort_api.Logger_LogMessage(&ep.logger_,
+                                                     OrtLoggingLevel::ORT_LOGGING_LEVEL_VERBOSE,
+                                                     message.c_str(), ORT_FILE, __LINE__, __FUNCTION__));
     }
     if (trt_state->fp16_enable) {
       trt_config->setFlag(nvinfer1::BuilderFlag::kFP16);
-      // LOGS_DEFAULT(VERBOSE) << "[TensorRT EP] FP16 mode is enabled";
+      std::string message = "[TensorRT EP] FP16 mode is enabled";
+      Ort::ThrowOnError(ep.ort_api.Logger_LogMessage(&ep.logger_,
+                                                     OrtLoggingLevel::ORT_LOGGING_LEVEL_VERBOSE,
+                                                     message.c_str(), ORT_FILE, __LINE__, __FUNCTION__));
     }
 #if defined(_MSC_VER)
 #pragma warning(pop)
 #endif
     // Set DLA (DLA can only run with FP16 or INT8)
     if ((trt_state->fp16_enable || trt_state->int8_enable) && trt_state->dla_enable) {
-      // LOGS_DEFAULT(VERBOSE) << "[TensorRT EP] use DLA core " << trt_state->dla_core;
+      std::string message = "[TensorRT EP] use DLA core " + trt_state->dla_core;
+      Ort::ThrowOnError(ep.ort_api.Logger_LogMessage(&ep.logger_,
+                                                     OrtLoggingLevel::ORT_LOGGING_LEVEL_VERBOSE,
+                                                     message.c_str(), ORT_FILE, __LINE__, __FUNCTION__));
       trt_config->setFlag(nvinfer1::BuilderFlag::kGPU_FALLBACK);
       trt_config->setDefaultDeviceType(nvinfer1::DeviceType::kDLA);
       trt_config->setDLACore(trt_state->dla_core);
@@ -2691,42 +2849,69 @@ OrtStatus* TRTEpNodeComputeInfo::ComputeImpl(OrtNodeComputeInfo* this_ptr, void*
     // enable sparse weights
     if (trt_state->sparsity_enable) {
       trt_config->setFlag(nvinfer1::BuilderFlag::kSPARSE_WEIGHTS);
-      // LOGS_DEFAULT(VERBOSE) << "[TensorRT EP] Sparse weights are allowed";
+      std::string message = "[TensorRT EP] Sparse weights are allowed";
+      Ort::ThrowOnError(ep.ort_api.Logger_LogMessage(&ep.logger_,
+                                                     OrtLoggingLevel::ORT_LOGGING_LEVEL_VERBOSE,
+                                                     message.c_str(), ORT_FILE, __LINE__, __FUNCTION__));
     }
 #if NV_TENSORRT_MAJOR == 8 && NV_TENSORRT_MINOR == 5
     // enable builder heuristics
     if (trt_state->build_heuristics_enable) {
       trt_config->setFlag(nvinfer1::BuilderFlag::kENABLE_TACTIC_HEURISTIC);
-      // LOGS_DEFAULT(VERBOSE) << "[TensorRT EP] Builder heuristics are enabled";
+      std::string message = "[TensorRT EP] Builder heuristics are enabled";
+      Ort::ThrowOnError(ep.ort_api.Logger_LogMessage(&ep.logger_,
+                                                     OrtLoggingLevel::ORT_LOGGING_LEVEL_VERBOSE,
+                                                     message.c_str(), ORT_FILE, __LINE__, __FUNCTION__));
     }
 #elif NV_TENSORRT_MAJOR == 8 && NV_TENSORRT_MINOR > 5 || NV_TENSORRT_MAJOR > 8
     // switch optimizaion level
     if (trt_state->builder_optimization_level != 3) {
       trt_config->setBuilderOptimizationLevel(trt_state->builder_optimization_level);
-      // LOGS_DEFAULT(VERBOSE) << "[TensorRT EP] Builder optimization level is set to " << builder_optimization_level_;
+      std::string message = "[TensorRT EP] Builder optimization level is set to " + trt_state->builder_optimization_level;
+      Ort::ThrowOnError(ep.ort_api.Logger_LogMessage(&ep.logger_,
+                                                     OrtLoggingLevel::ORT_LOGGING_LEVEL_VERBOSE,
+                                                     message.c_str(), ORT_FILE, __LINE__, __FUNCTION__));
     }
 
     // limit auxiliary streams
     if (trt_state->auxiliary_streams >= 0) {
       trt_config->setMaxAuxStreams(trt_state->auxiliary_streams);
-      // LOGS_DEFAULT(VERBOSE) << "[TensorRT EP] Auxiliary streams are se to " << trt_state->auxiliary_streams;
+      std::string message = "[TensorRT EP] Auxiliary streams are se to " + trt_state->auxiliary_streams;
+      Ort::ThrowOnError(ep.ort_api.Logger_LogMessage(&ep.logger_,
+                                                     OrtLoggingLevel::ORT_LOGGING_LEVEL_VERBOSE,
+                                                     message.c_str(), ORT_FILE, __LINE__, __FUNCTION__));
     }
 #else
     if (trt_state->builder_optimization_level != 3) {
-      // LOGS_DEFAULT(WARNING) << "[TensorRT EP] Builder optimization level can only be used on TRT 8.6 onwards!";
+      std::string message = "[TensorRT EP] Builder optimization level can only be used on TRT 8.6 onwards!";
+      Ort::ThrowOnError(ep.ort_api.Logger_LogMessage(&ep.logger_,
+                                                     OrtLoggingLevel::ORT_LOGGING_LEVEL_VERBOSE,
+                                                     message.c_str(), ORT_FILE, __LINE__, __FUNCTION__));
     }
     if (trt_state->auxiliary_streams >= 0) {
-      // LOGS_DEFAULT(WARNING) << "[TensorRT EP] Auxiliary streams can only be set on TRT 8.6 onwards!";
+      std::string message = "[TensorRT EP] Auxiliary streams can only be set on TRT 8.6 onwards!";
+      Ort::ThrowOnError(ep.ort_api.Logger_LogMessage(&ep.logger_,
+                                                     OrtLoggingLevel::ORT_LOGGING_LEVEL_VERBOSE,
+                                                     message.c_str(), ORT_FILE, __LINE__, __FUNCTION__));
     }
 #endif
     if (weight_stripped_engine_enable) {
 #if NV_TENSORRT_MAJOR >= 10
       trt_config->setFlag(nvinfer1::BuilderFlag::kSTRIP_PLAN);
-      // LOGS_DEFAULT(VERBOSE) << "[TensorRT EP] STRIP_PLAN is enabled";
+      std::string message = "[TensorRT EP] STRIP_PLAN is enabled";
+      Ort::ThrowOnError(ep.ort_api.Logger_LogMessage(&ep.logger_,
+                                                     OrtLoggingLevel::ORT_LOGGING_LEVEL_VERBOSE,
+                                                     message.c_str(), ORT_FILE, __LINE__, __FUNCTION__));
       trt_config->setFlag(nvinfer1::BuilderFlag::kREFIT_IDENTICAL);
-      // LOGS_DEFAULT(VERBOSE) << "[TensorRT EP] REFIT_IDENTICAL is enabled";
+      message = "[TensorRT EP] REFIT_IDENTICAL is enabled";
+      Ort::ThrowOnError(ep.ort_api.Logger_LogMessage(&ep.logger_,
+                                                     OrtLoggingLevel::ORT_LOGGING_LEVEL_VERBOSE,
+                                                     message.c_str(), ORT_FILE, __LINE__, __FUNCTION__));
 #else
-      // LOGS_DEFAULT(WARNING) << "[TensorRT EP] weight-stripped engines can only be used on TRT 10.0 onwards!";
+      std::string message = "[TensorRT EP] weight-stripped engines can only be used on TRT 10.0 onwards!";
+      Ort::ThrowOnError(ep.ort_api.Logger_LogMessage(&ep.logger_,
+                                                     OrtLoggingLevel::ORT_LOGGING_LEVEL_WARNING,
+                                                     message.c_str(), ORT_FILE, __LINE__, __FUNCTION__));
 #endif
     }
     // limit used tactic sources
@@ -2734,7 +2919,10 @@ OrtStatus* TRTEpNodeComputeInfo::ComputeImpl(OrtNodeComputeInfo* this_ptr, void*
       nvinfer1::TacticSources tactics = trt_config->getTacticSources();
       tactics |= trt_state->tactic_sources;
       trt_config->setTacticSources(tactics);
-      // LOGS_DEFAULT(VERBOSE) << "[TensorRT EP] Tactic sources are limited using bitmask " << tactics;
+      std::string message = "[TensorRT EP] Tactic sources are limited using bitmask " + tactics;
+      Ort::ThrowOnError(ep.ort_api.Logger_LogMessage(&ep.logger_,
+                                                     OrtLoggingLevel::ORT_LOGGING_LEVEL_VERBOSE,
+                                                     message.c_str(), ORT_FILE, __LINE__, __FUNCTION__));
     }
 
     // Load timing cache from file. Create a fresh cache if the file doesn't exist
@@ -2749,7 +2937,10 @@ OrtStatus* TRTEpNodeComputeInfo::ComputeImpl(OrtNodeComputeInfo* this_ptr, void*
       }
       trt_config->setTimingCache(*timing_cache, force_timing_cache_match);
       if (detailed_build_log) {
-        // LOGS_DEFAULT(VERBOSE) << "[TensorRT EP] Deserialized timing cache from " + timing_cache_path;
+        std::string message = "[TensorRT EP] Deserialized timing cache from " + timing_cache_path;
+        Ort::ThrowOnError(ep.ort_api.Logger_LogMessage(&ep.logger_,
+                                                       OrtLoggingLevel::ORT_LOGGING_LEVEL_VERBOSE,
+                                                       message.c_str(), ORT_FILE, __LINE__, __FUNCTION__));
       }
     }
 
@@ -2757,7 +2948,10 @@ OrtStatus* TRTEpNodeComputeInfo::ComputeImpl(OrtNodeComputeInfo* this_ptr, void*
     // Enable hardware compatility mode if assigned
     if (trt_state->engine_hw_compatible) {
       trt_config->setHardwareCompatibilityLevel(nvinfer1::HardwareCompatibilityLevel::kAMPERE_PLUS);
-      // LOGS_DEFAULT(INFO) << "[TensorRT EP] Re-generate engine with hardware compatibility enabled.";
+      std::string message = "[TensorRT EP] Re-generate engine with hardware compatibility enabled.";
+      Ort::ThrowOnError(ep.ort_api.Logger_LogMessage(&ep.logger_,
+                                                     OrtLoggingLevel::ORT_LOGGING_LEVEL_INFO,
+                                                     message.c_str(), ORT_FILE, __LINE__, __FUNCTION__));
     }
 #endif
 
@@ -2783,10 +2977,11 @@ OrtStatus* TRTEpNodeComputeInfo::ComputeImpl(OrtNodeComputeInfo* this_ptr, void*
       }
       if (detailed_build_log) {
         auto engine_build_stop = std::chrono::steady_clock::now();
-        // LOGS_DEFAULT(INFO)
-        // << "TensorRT engine build for " << trt_state->trt_node_name_with_precision << " took: "
-        // << std::chrono::duration_cast<std::chrono::milliseconds>(engine_build_stop - engine_build_start).count() << "ms"
-        // << std::endl;
+        std::string message = "TensorRT engine build for " + trt_state->trt_node_name_with_precision + " took: "
+                              + std::to_string(std::chrono::duration_cast<std::chrono::milliseconds>(engine_build_stop - engine_build_start).count()) + "ms";
+        Ort::ThrowOnError(ep.ort_api.Logger_LogMessage(&ep.logger_,
+                                                       OrtLoggingLevel::ORT_LOGGING_LEVEL_INFO,
+                                                       message.c_str(), ORT_FILE, __LINE__, __FUNCTION__));
       }
     }
     if (!(*(trt_state->engine))) {
@@ -2797,7 +2992,10 @@ OrtStatus* TRTEpNodeComputeInfo::ComputeImpl(OrtNodeComputeInfo* this_ptr, void*
     if (trt_state->engine_cache_enable) {
       // Serialize engine profile
       SerializeProfileV2(profile_cache_path, shape_ranges);
-      // LOGS_DEFAULT(VERBOSE) << "[TensorRT EP] Serialized " + profile_cache_path;
+      std::string message = "[TensorRT EP] Serialized " + profile_cache_path;
+      Ort::ThrowOnError(ep.ort_api.Logger_LogMessage(&ep.logger_,
+                                                     OrtLoggingLevel::ORT_LOGGING_LEVEL_VERBOSE,
+                                                     message.c_str(), ORT_FILE, __LINE__, __FUNCTION__));
 
       // Serialize engine
       if (trt_state->engine_decryption_enable) {
@@ -2810,7 +3008,10 @@ OrtStatus* TRTEpNodeComputeInfo::ComputeImpl(OrtNodeComputeInfo* this_ptr, void*
             std::string err_msg = "TensorRT EP could not call engine encryption function encrypt";
             return ep.ort_api.CreateStatus(ORT_EP_FAIL, err_msg.c_str());
           }
-          // LOGS_DEFAULT(VERBOSE) << "[TensorRT EP] Serialized and encrypted engine " + encrypted_engine_cache_path;
+          std::string message = "[TensorRT EP] Serialized and encrypted engine " + encrypted_engine_cache_path;
+          Ort::ThrowOnError(ep.ort_api.Logger_LogMessage(&ep.logger_,
+                                                         OrtLoggingLevel::ORT_LOGGING_LEVEL_VERBOSE,
+                                                         message.c_str(), ORT_FILE, __LINE__, __FUNCTION__));
         } else {
           // LOGS_DEFAULT(WARNING)
           // << "[TensorRT EP] Engine cache encryption function is not found. No cache is written to disk";
@@ -2818,7 +3019,10 @@ OrtStatus* TRTEpNodeComputeInfo::ComputeImpl(OrtNodeComputeInfo* this_ptr, void*
       } else {
         std::ofstream file(engine_cache_path, std::ios::binary | std::ios::out);
         file.write(reinterpret_cast<char*>(serialized_engine->data()), serialized_engine->size());
-        // LOGS_DEFAULT(VERBOSE) << "[TensorRT EP] Serialized " + engine_cache_path;
+        std::string message = "[TensorRT EP] Serialized " + engine_cache_path;
+        Ort::ThrowOnError(ep.ort_api.Logger_LogMessage(&ep.logger_,
+                                                       OrtLoggingLevel::ORT_LOGGING_LEVEL_VERBOSE,
+                                                       message.c_str(), ORT_FILE, __LINE__, __FUNCTION__));
       }
     }
 
@@ -2832,7 +3036,10 @@ OrtStatus* TRTEpNodeComputeInfo::ComputeImpl(OrtNodeComputeInfo* this_ptr, void*
       }
       saveTimingCacheFile(timing_cache_path, timingCacheHostData.get());
       if (detailed_build_log) {
-        // LOGS_DEFAULT(VERBOSE) << "[TensorRT EP] Serialized timing cache " + timing_cache_path;
+        std::string message = "[TensorRT EP] Serialized timing cache " + timing_cache_path;
+        Ort::ThrowOnError(ep.ort_api.Logger_LogMessage(&ep.logger_,
+                                                       OrtLoggingLevel::ORT_LOGGING_LEVEL_VERBOSE,
+                                                       message.c_str(), ORT_FILE, __LINE__, __FUNCTION__));
       }
     }
 
