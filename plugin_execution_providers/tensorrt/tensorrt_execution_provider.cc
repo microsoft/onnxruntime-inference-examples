@@ -128,9 +128,13 @@ bool ApplyProfileShapesFromProviderOptions(std::vector<nvinfer1::IOptimizationPr
                                            std::unordered_map<std::string, std::vector<std::vector<int64_t>>>& profile_min_shapes,
                                            std::unordered_map<std::string, std::vector<std::vector<int64_t>>>& profile_max_shapes,
                                            std::unordered_map<std::string, std::vector<std::vector<int64_t>>>& profile_opt_shapes,
-                                           ShapeRangesMap& input_explicit_shape_ranges) {
+                                           ShapeRangesMap& input_explicit_shape_ranges,
+                                           const OrtLogger* logger) {
   if (trt_profiles.size() == 0) {
-    //    LOGS_DEFAULT(WARNING) << "[TensorRT EP] Number of optimization profiles should be greater than 0, but it's 0.";
+    std::string message = "[TensorRT EP] Number of optimization profiles should be greater than 0, but it's 0.";
+    Ort::ThrowOnError(g_ort_api->Logger_LogMessage(logger,
+                                                   OrtLoggingLevel::ORT_LOGGING_LEVEL_WARNING,
+                                                   message.c_str(), ORT_FILE, __LINE__, __FUNCTION__));
     return false;
   }
 
@@ -144,8 +148,11 @@ bool ApplyProfileShapesFromProviderOptions(std::vector<nvinfer1::IOptimizationPr
     input_explicit_shape_ranges[input_name] = inner_map;
   }
 
-  //  LOGS_DEFAULT(VERBOSE) << "[TensorRT EP] Begin to apply profile shapes ...";
-  //  LOGS_DEFAULT(VERBOSE) << "[TensorRT EP] Input tensor name is '" << input_name << "', number of profiles found is " << trt_profiles.size();
+  std::string message = "[TensorRT EP] Begin to apply profile shapes ...\n" + 
+                        std::string("[TensorRT EP] Input tensor name is '") + input_name + std::string("', number of profiles found is ") + std::to_string(trt_profiles.size());
+  Ort::ThrowOnError(g_ort_api->Logger_LogMessage(logger,
+                                                 OrtLoggingLevel::ORT_LOGGING_LEVEL_VERBOSE,
+                                                 message.c_str(), ORT_FILE, __LINE__, __FUNCTION__));
 
   for (size_t i = 0; i < trt_profiles.size(); i++) {
     nvinfer1::Dims dims = input->getDimensions();
@@ -158,7 +165,10 @@ bool ApplyProfileShapesFromProviderOptions(std::vector<nvinfer1::IOptimizationPr
       int shape_size = nb_dims == 0 ? 1 : static_cast<int>(profile_min_shapes[input_name][i].size());
       std::vector<int32_t> shapes_min(shape_size), shapes_opt(shape_size), shapes_max(shape_size);
 
-      //      LOGS_DEFAULT(VERBOSE) << "[TensorRT EP] shape size of this shape tensor is " << shape_size;
+      std::string message = "[TensorRT EP] shape size of this shape tensor is " + std::to_string(shape_size);
+      Ort::ThrowOnError(g_ort_api->Logger_LogMessage(logger,
+                                                     OrtLoggingLevel::ORT_LOGGING_LEVEL_VERBOSE,
+                                                     message.c_str(), ORT_FILE, __LINE__, __FUNCTION__));
 
       for (int j = 0; j < shape_size; j++) {
         auto min_value = profile_min_shapes[input_name][i][j];
@@ -167,9 +177,12 @@ bool ApplyProfileShapesFromProviderOptions(std::vector<nvinfer1::IOptimizationPr
         shapes_min[j] = static_cast<int32_t>(min_value);
         shapes_max[j] = static_cast<int32_t>(max_value);
         shapes_opt[j] = static_cast<int32_t>(opt_value);
-        //        LOGS_DEFAULT(VERBOSE) << "[TensorRT EP] shapes_min.d[" << j << "] is " << shapes_min[j];
-        //        LOGS_DEFAULT(VERBOSE) << "[TensorRT EP] shapes_max.d[" << j << "] is " << shapes_max[j];
-        //        LOGS_DEFAULT(VERBOSE) << "[TensorRT EP] shapes_opt.d[" << j << "] is " << shapes_opt[j];
+        std::string message = "[TensorRT EP] shapes_min.d[" + std::to_string(j) + std::string("] is ") + std::to_string(shapes_min[j]) + std::string("\n") +
+                              std::string("[TensorRT EP] shapes_max.d[") + std::to_string(j) + std::string("] is ") + std::to_string(shapes_max[j]) + std::string("\n") +
+                              std::string("[TensorRT EP] shapes_opt.d[") + std::to_string(j) + std::string("] is ") + std::to_string(shapes_opt[j]);
+        Ort::ThrowOnError(g_ort_api->Logger_LogMessage(logger,
+                                                       OrtLoggingLevel::ORT_LOGGING_LEVEL_VERBOSE,
+                                                       message.c_str(), ORT_FILE, __LINE__, __FUNCTION__));
 
         if (input_explicit_shape_ranges[input_name].find(j) == input_explicit_shape_ranges[input_name].end()) {
           std::vector<std::vector<int64_t>> profile_vector(trt_profiles.size());
@@ -191,7 +204,10 @@ bool ApplyProfileShapesFromProviderOptions(std::vector<nvinfer1::IOptimizationPr
       dims_max.nbDims = nb_dims;
       dims_opt.nbDims = nb_dims;
 
-      //      LOGS_DEFAULT(VERBOSE) << "[TensorRT EP] number of dimension of this execution tensor is " << nb_dims;
+      std::string message = "[TensorRT EP] number of dimension of this execution tensor is " + std::to_string(nb_dims);
+      Ort::ThrowOnError(g_ort_api->Logger_LogMessage(logger,
+                                                     OrtLoggingLevel::ORT_LOGGING_LEVEL_VERBOSE,
+                                                     message.c_str(), ORT_FILE, __LINE__, __FUNCTION__));
 
       for (int j = 0; j < nb_dims; j++) {
         if (dims.d[j] == -1) {
@@ -201,9 +217,13 @@ bool ApplyProfileShapesFromProviderOptions(std::vector<nvinfer1::IOptimizationPr
           dims_min.d[j] = static_cast<int32_t>(min_value);
           dims_max.d[j] = static_cast<int32_t>(max_value);
           dims_opt.d[j] = static_cast<int32_t>(opt_value);
-          //          LOGS_DEFAULT(VERBOSE) << "[TensorRT EP] dims_min.d[" << j << "] is " << dims_min.d[j];
-          //          LOGS_DEFAULT(VERBOSE) << "[TensorRT EP] dims_max.d[" << j << "] is " << dims_max.d[j];
-          //          LOGS_DEFAULT(VERBOSE) << "[TensorRT EP] dims_opt.d[" << j << "] is " << dims_opt.d[j];
+
+          std::string message = "[TensorRT EP] dims_min.d[" + std::to_string(j) + std::string("] is ") + std::to_string(dims_min.d[j]) + std::string("\n") +
+                                std::string("[TensorRT EP] dims_max.d[") + std::to_string(j) + std::string("] is ") + std::to_string(dims_max.d[j]) + std::string("\n") +
+                                std::string("[TensorRT EP] dims_opt.d[") + std::to_string(j) + std::string("] is ") + std::to_string(dims_opt.d[j]);
+          Ort::ThrowOnError(g_ort_api->Logger_LogMessage(logger,
+                                                         OrtLoggingLevel::ORT_LOGGING_LEVEL_VERBOSE,
+                                                         message.c_str(), ORT_FILE, __LINE__, __FUNCTION__));
 
           if (input_explicit_shape_ranges[input_name].find(j) == input_explicit_shape_ranges[input_name].end()) {
             std::vector<std::vector<int64_t>> profile_vector(trt_profiles.size());
@@ -1178,7 +1198,7 @@ OrtStatus* TensorrtExecutionProvider::CreateNodeComputeInfoFromGraph(OrtEp* this
     if (has_explicit_profile) {
       apply_explicit_profile =
           ApplyProfileShapesFromProviderOptions(trt_profiles, input, profile_min_shapes_, profile_max_shapes_,
-                                                profile_opt_shapes_, input_explicit_shape_ranges);
+                                                profile_opt_shapes_, input_explicit_shape_ranges, &ep->logger_);
     }
 
     // If no explicit optimization profile is being applied, TRT EP will later set min/max/opt shape values based on
@@ -1270,8 +1290,10 @@ OrtStatus* TensorrtExecutionProvider::CreateNodeComputeInfoFromGraph(OrtEp* this
 #pragma warning(pop)
 #endif
       int8_enable_ = false;
-      // LOGS_DEFAULT(WARNING)
-      //     << "[TensorRT EP] ORT_TENSORRT_INT8_ENABLE is set, but platform doesn't support fast native int8";
+      std::string message = "[TensorRT EP] ORT_TENSORRT_INT8_ENABLE is set, but platform doesn't support fast native int8";
+      Ort::ThrowOnError(ep->ort_api.Logger_LogMessage(&ep->logger_,
+                                                      OrtLoggingLevel::ORT_LOGGING_LEVEL_WARNING,
+                                                      message.c_str(), ORT_FILE, __LINE__, __FUNCTION__));
     }
   }
 
@@ -1356,9 +1378,12 @@ OrtStatus* TensorrtExecutionProvider::CreateNodeComputeInfoFromGraph(OrtEp* this
 #if NV_TENSORRT_MAJOR == 8 && NV_TENSORRT_MINOR == 5
   if (build_heuristics_enable_) {
     trt_config->setFlag(nvinfer1::BuilderFlag::kENABLE_TACTIC_HEURISTIC);
-    LOGS_DEFAULT(WARNING) << "[TensorRT EP] Builder heuristics are enabled."
-                          << " For TRT > 8.5, trt_build_heuristics_enable is deprecated, please set builder "
-                             "optimization level as 2 to enable builder heuristics.";
+    std::string message = "[TensorRT EP] Builder heuristics are enabled." +
+                          std::string(" For TRT > 8.5, trt_build_heuristics_enable is deprecated, please set builder ") +
+                          std::string("optimization level as 2 to enable builder heuristics.");
+    Ort::ThrowOnError(ep->ort_api.Logger_LogMessage(&ep->logger_,
+                                                    OrtLoggingLevel::ORT_LOGGING_LEVEL_WARNING,
+                                                    message.c_str(), ORT_FILE, __LINE__, __FUNCTION__));
   }
 #elif NV_TENSORRT_MAJOR == 8 && NV_TENSORRT_MINOR > 5 || NV_TENSORRT_MAJOR > 8
   // for TRT 8.6 onwards, heuristic-based tactic option is automatically enabled by setting builder optimization level 2
@@ -1399,10 +1424,16 @@ OrtStatus* TensorrtExecutionProvider::CreateNodeComputeInfoFromGraph(OrtEp* this
   }
 #else
   if (builder_optimization_level_ != 3) {
-    LOGS_DEFAULT(WARNING) << "[TensorRT EP] Builder optimization level can only be used on TRT 8.6 onwards!";
+    std::string message = "[TensorRT EP] Builder optimization level can only be used on TRT 8.6 onwards!";
+    Ort::ThrowOnError(ep->ort_api.Logger_LogMessage(&ep->logger_,
+                                                    OrtLoggingLevel::ORT_LOGGING_LEVEL_WARNING,
+                                                    message.c_str(), ORT_FILE, __LINE__, __FUNCTION__));
   }
   if (auxiliary_streams_ >= 0) {
-    LOGS_DEFAULT(WARNING) << "[TensorRT EP] Auxiliary streams can only be set on TRT 8.6 onwards!";
+    std::string message = "[TensorRT EP] Auxiliary streams can only be set on TRT 8.6 onwards!";
+    Ort::ThrowOnError(ep->ort_api.Logger_LogMessage(&ep->logger_,
+                                                    OrtLoggingLevel::ORT_LOGGING_LEVEL_WARNING,
+                                                    message.c_str(), ORT_FILE, __LINE__, __FUNCTION__));
   }
 #endif
 
@@ -1419,7 +1450,10 @@ OrtStatus* TensorrtExecutionProvider::CreateNodeComputeInfoFromGraph(OrtEp* this
                                                     OrtLoggingLevel::ORT_LOGGING_LEVEL_VERBOSE,
                                                     message.c_str(), ORT_FILE, __LINE__, __FUNCTION__));
 #else
-    LOGS_DEFAULT(WARNING) << "[TensorRT EP] weight-stripped engines can only be used on TRT 10.0 onwards!";
+    std::string message = "[TensorRT EP] weight-stripped engines can only be used on TRT 10.0 onwards!";
+    Ort::ThrowOnError(ep->ort_api.Logger_LogMessage(&ep->logger_,
+                                                    OrtLoggingLevel::ORT_LOGGING_LEVEL_WARNING,
+                                                    message.c_str(), ORT_FILE, __LINE__, __FUNCTION__));
 #endif
   }
 
@@ -1613,10 +1647,11 @@ OrtStatus* TensorrtExecutionProvider::CreateNodeComputeInfoFromGraph(OrtEp* this
         }
         if (detailed_build_log_) {
           auto engine_build_stop = std::chrono::steady_clock::now();
-          // LOGS_DEFAULT(INFO)
-          //     << "TensorRT engine build for " << trt_node_name_with_precision << " took: "
-          //     << std::chrono::duration_cast<std::chrono::milliseconds>(engine_build_stop - engine_build_start).count()
-          //     << "ms" << std::endl;
+          std::string message = "TensorRT engine build for " + trt_node_name_with_precision + std::string(" took: ") +
+                                std::to_string(std::chrono::duration_cast<std::chrono::milliseconds>(engine_build_stop - engine_build_start).count()) + std::string("ms");
+          Ort::ThrowOnError(ep->ort_api.Logger_LogMessage(&ep->logger_,
+                                                          OrtLoggingLevel::ORT_LOGGING_LEVEL_INFO,
+                                                          message.c_str(), ORT_FILE, __LINE__, __FUNCTION__));
         }
         if (engine_cache_enable_) {
           // Serialize engine profile if it has explicit profiles
@@ -1642,8 +1677,10 @@ OrtStatus* TensorrtExecutionProvider::CreateNodeComputeInfoFromGraph(OrtEp* this
                                                               OrtLoggingLevel::ORT_LOGGING_LEVEL_VERBOSE,
                                                               message.c_str(), ORT_FILE, __LINE__, __FUNCTION__));
             } else {
-              // LOGS_DEFAULT(WARNING)
-              //     << "[TensorRT EP] Engine cache encryption function is not found. No cache is written to disk";
+              std::string message = "[TensorRT EP] Engine cache encryption function is not found. No cache is written to disk";
+              Ort::ThrowOnError(ep->ort_api.Logger_LogMessage(&ep->logger_,
+                                                              OrtLoggingLevel::ORT_LOGGING_LEVEL_WARNING,
+                                                              message.c_str(), ORT_FILE, __LINE__, __FUNCTION__));
             }
           } else {
             std::ofstream file(engine_cache_path, std::ios::binary | std::ios::out);
@@ -3013,8 +3050,10 @@ OrtStatus* TRTEpNodeComputeInfo::ComputeImpl(OrtNodeComputeInfo* this_ptr, void*
                                                          OrtLoggingLevel::ORT_LOGGING_LEVEL_VERBOSE,
                                                          message.c_str(), ORT_FILE, __LINE__, __FUNCTION__));
         } else {
-          // LOGS_DEFAULT(WARNING)
-          // << "[TensorRT EP] Engine cache encryption function is not found. No cache is written to disk";
+          std::string message = "[TensorRT EP] Engine cache encryption function is not found. No cache is written to disk";
+          Ort::ThrowOnError(ep.ort_api.Logger_LogMessage(&ep.logger_,
+                                                          OrtLoggingLevel::ORT_LOGGING_LEVEL_WARNING,
+                                                          message.c_str(), ORT_FILE, __LINE__, __FUNCTION__));
         }
       } else {
         std::ofstream file(engine_cache_path, std::ios::binary | std::ios::out);
