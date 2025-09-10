@@ -122,7 +122,7 @@
 #define INCLUDE_ONNXRUNTIME_CORE_PROVIDERS_UTILS_ORT_GRAPH_TO_PROTO_H_
 
 #include <functional>
-#include "core/session/onnxruntime_cxx_api.h"
+#include "onnxruntime_cxx_api.h"
 #include "onnx/onnx_pb.h"
 
 namespace OrtEpUtils {
