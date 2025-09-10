@@ -9,7 +9,8 @@
 #include "onnx_ctx_model_helper.h"
 #include "onnx/onnx_pb.h"
 
-extern TensorrtLogger& GetTensorrtLogger(bool verbose_log);
+extern TensorrtLogger& GetTensorrtLogger(bool verbose_log, const OrtLogger& ort_default_logger,
+                                         const OrtApi* ort_api);
 
 /*
  *  Check whether the graph has the EP context node.

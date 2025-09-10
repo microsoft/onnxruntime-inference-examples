@@ -84,9 +84,11 @@ void OutputAllocator::notifyShape(char const* /*tensorName*/, nvinfer1::Dims con
   }
 }
 
-TensorrtLogger& GetTensorrtLogger(bool verbose_log) {
+TensorrtLogger& GetTensorrtLogger(bool verbose_log,
+                                  const OrtLogger& ort_default_logger,
+                                  const OrtApi* ort_api) {
   const auto log_level = verbose_log ? nvinfer1::ILogger::Severity::kVERBOSE : nvinfer1::ILogger::Severity::kWARNING;
-  static TensorrtLogger trt_logger(log_level);
+  static TensorrtLogger trt_logger(ort_default_logger, ort_api, log_level);
   if (log_level != trt_logger.get_level()) {
     trt_logger.set_level(verbose_log ? nvinfer1::ILogger::Severity::kVERBOSE : nvinfer1::ILogger::Severity::kWARNING);
   }
@@ -1041,7 +1043,7 @@ OrtStatus* TensorrtExecutionProvider::CreateNodeComputeInfoFromGraph(OrtEp* this
     model_proto.SerializeToOstream(&dump);
   }
 
-  TensorrtLogger& trt_logger = GetTensorrtLogger(detailed_build_log_);
+  TensorrtLogger& trt_logger = GetTensorrtLogger(detailed_build_log_, logger_, &ort_api);
   auto trt_builder = GetBuilder(trt_logger);
   auto network_flags = 0;
 #if NV_TENSORRT_MAJOR > 8
@@ -2021,7 +2023,7 @@ OrtStatus* TensorrtExecutionProvider::RefitEngine(
   }
 
   // weight-stripped engine refit logic
-  TensorrtLogger& trt_logger = GetTensorrtLogger(detailed_build_log);
+  TensorrtLogger& trt_logger = GetTensorrtLogger(detailed_build_log, logger_, &ort_api);
   auto refitter = std::unique_ptr<nvinfer1::IRefitter>(nvinfer1::createInferRefitter(*trt_engine, trt_logger));
   auto parser_refitter =
       std::unique_ptr<nvonnxparser::IParserRefitter>(nvonnxparser::createParserRefitter(*refitter, trt_logger));
@@ -2378,7 +2380,7 @@ TensorrtExecutionProvider::TensorrtExecutionProvider(TensorrtExecutionProviderFa
 
   {
     auto lock = GetApiLock();
-    runtime_ = std::unique_ptr<nvinfer1::IRuntime>(nvinfer1::createInferRuntime(GetTensorrtLogger(detailed_build_log_)));
+    runtime_ = std::unique_ptr<nvinfer1::IRuntime>(nvinfer1::createInferRuntime(GetTensorrtLogger(detailed_build_log_, logger_, &ort_api)));
   }
 
   // EP Context setting

@@ -11,8 +11,8 @@
 #include <unordered_map>
 #include <vector>
 
-TensorrtExecutionProviderFactory::TensorrtExecutionProviderFactory(const char* ep_name, ApiPtrs apis)
-    : ApiPtrs(apis), ep_name_{ep_name} {
+TensorrtExecutionProviderFactory::TensorrtExecutionProviderFactory(const char* ep_name, const OrtLogger& default_logger, ApiPtrs apis)
+    : ApiPtrs(apis), default_logger_{default_logger}, ep_name_{ep_name} {
   ort_version_supported = ORT_API_VERSION;  // set to the ORT version we were compiled with.
   GetName = GetNameImpl;
   GetVendor = GetVendorImpl;
@@ -280,14 +280,14 @@ extern "C" {
 // Public symbols
 //
 EXPORT_SYMBOL OrtStatus* CreateEpFactories(const char* registration_name, const OrtApiBase* ort_api_base,
-                                           const OrtLogger*,
+                                           const OrtLogger* default_logger,
                                            OrtEpFactory** factories, size_t max_factories, size_t* num_factories) {
   const OrtApi* ort_api = ort_api_base->GetApi(ORT_API_VERSION);
   const OrtEpApi* ort_ep_api = ort_api->GetEpApi();
   const OrtModelEditorApi* model_editor_api = ort_api->GetModelEditorApi();
 
   // Factory could use registration_name or define its own EP name.
-  std::unique_ptr<OrtEpFactory> factory = std::make_unique<TensorrtExecutionProviderFactory>(registration_name, ApiPtrs{*ort_api, *ort_ep_api, *model_editor_api});
+  std::unique_ptr<OrtEpFactory> factory = std::make_unique<TensorrtExecutionProviderFactory>(registration_name, *default_logger, ApiPtrs{*ort_api, *ort_ep_api, *model_editor_api});
 
   if (max_factories < 1) {
     return ort_api->CreateStatus(ORT_INVALID_ARGUMENT,

@@ -11,7 +11,7 @@ using MemoryInfoUniquePtr = std::unique_ptr<OrtMemoryInfo, std::function<void(Or
 ///
 struct TensorrtExecutionProviderFactory : public OrtEpFactory, public ApiPtrs {
  public:
-  TensorrtExecutionProviderFactory(const char* ep_name, ApiPtrs apis);
+  TensorrtExecutionProviderFactory(const char* ep_name, const OrtLogger& default_logger, ApiPtrs apis);
 
   OrtStatus* CreateMemoryInfoForDevices(int num_devices);
 
@@ -62,4 +62,5 @@ struct TensorrtExecutionProviderFactory : public OrtEpFactory, public ApiPtrs {
   const std::string ep_name_;              // EP name
   const std::string vendor_{"Nvidia"};     // EP vendor name
   const std::string ep_version_{"0.1.0"};  // EP version
+  const OrtLogger& default_logger_;
 };

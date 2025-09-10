@@ -66,10 +66,14 @@ using DestroyFunc = void (*)(void*, void*);
 
 class TensorrtLogger : public nvinfer1::ILogger {
   nvinfer1::ILogger::Severity verbosity_;
+  const OrtLogger& ort_default_logger_;
+  const OrtApi* ort_api_ = nullptr;
 
  public:
-  TensorrtLogger(Severity verbosity = Severity::kWARNING)
-      : verbosity_(verbosity) {}
+  TensorrtLogger(const OrtLogger& ort_default_logger,
+                 const OrtApi* ort_api,
+                 Severity verbosity = Severity::kWARNING)
+      : ort_default_logger_{ort_default_logger}, ort_api_{ort_api}, verbosity_(verbosity) {}
   void log(Severity severity, const char* msg) noexcept override {
     if (severity <= verbosity_) {
       time_t rawtime = std::time(0);
@@ -87,11 +91,19 @@ class TensorrtLogger : public nvinfer1::ILogger {
                                                                             : severity == Severity::kWARNING ? "WARNING"
                                                                             : severity == Severity::kINFO    ? "   INFO"
                                                                                                              : "UNKNOWN");
+      OrtLoggingLevel ort_severity;
       if (severity <= Severity::kERROR) {
-        // LOGS_DEFAULT(ERROR) << "[" << buf << " " << sevstr << "] " << msg;
-      } else {
-        // LOGS_DEFAULT(WARNING) << "[" << buf << " " << sevstr << "] " << msg;
+        ort_severity = ORT_LOGGING_LEVEL_ERROR;
       }
+      else {
+        ort_severity = ORT_LOGGING_LEVEL_WARNING;
+      }
+
+      std::string message = "[" + std::string(buf) + " " + std::string(sevstr) + "] " + std::string(msg);
+
+      Ort::ThrowOnError(ort_api_->Logger_LogMessage(&ort_default_logger_,
+                                                    ort_severity,
+                                                    message.c_str(), ORT_FILE, __LINE__, __FUNCTION__));
     }
   }
   void set_level(Severity verbosity) {
