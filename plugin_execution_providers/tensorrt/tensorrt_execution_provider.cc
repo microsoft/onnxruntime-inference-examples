@@ -35,6 +35,8 @@ const OrtApi* g_ort_api = nullptr;
 const OrtEpApi* g_ep_api = nullptr;
 const OrtModelEditorApi* g_model_editor_api = nullptr;
 
+namespace trt_ep {
+
 void CUDA_RETURN_IF_ERROR(cudaError_t res) {
   if (res != cudaSuccess) abort();
 }
@@ -3596,4 +3598,5 @@ void TRTEpEpContextNodeComputeInfo::ReleaseStateImpl(OrtNodeComputeInfo* this_pt
   TensorrtComputeStateForEPContext& trt_ep_compute_state = *reinterpret_cast<TensorrtComputeStateForEPContext*>(compute_state);
   (void)trt_ep_compute_state;
   // Do nothing for here.
+}
 }

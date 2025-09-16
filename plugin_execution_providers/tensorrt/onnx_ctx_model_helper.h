@@ -12,6 +12,7 @@
 #include <memory>
 #include <gsl/span>
 
+namespace trt_ep {
 class EPContextNodeHelper : public ApiPtrs {
  public:
   EPContextNodeHelper(TensorrtExecutionProvider& ep,
@@ -79,3 +80,4 @@ class EPContextNodeReader : public ApiPtrs {
   size_t onnx_external_data_bytestream_size_;
   bool detailed_build_log_;
 };  // TRTCacheModelHandler
+}  // namespace trt_ep

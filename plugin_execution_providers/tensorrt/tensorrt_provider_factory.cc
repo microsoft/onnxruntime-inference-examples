@@ -11,6 +11,8 @@
 #include <unordered_map>
 #include <vector>
 
+namespace trt_ep {
+
 TensorrtExecutionProviderFactory::TensorrtExecutionProviderFactory(const char* ep_name, const OrtLogger& default_logger, ApiPtrs apis)
     : ApiPtrs(apis), default_logger_{default_logger}, ep_name_{ep_name} {
   ort_version_supported = ORT_API_VERSION;  // set to the ORT version we were compiled with.
@@ -268,6 +270,8 @@ bool ORT_API_CALL TensorrtExecutionProviderFactory::IsStreamAwareImpl(const OrtE
   return true;
 }
 
+}  // namespace trt_ep
+
 // To make symbols visible on macOS/iOS
 #ifdef __APPLE__
 #define EXPORT_SYMBOL __attribute__((visibility("default")))
@@ -287,7 +291,7 @@ EXPORT_SYMBOL OrtStatus* CreateEpFactories(const char* registration_name, const 
   const OrtModelEditorApi* model_editor_api = ort_api->GetModelEditorApi();
 
   // Factory could use registration_name or define its own EP name.
-  std::unique_ptr<OrtEpFactory> factory = std::make_unique<TensorrtExecutionProviderFactory>(registration_name, *default_logger, ApiPtrs{*ort_api, *ort_ep_api, *model_editor_api});
+  std::unique_ptr<OrtEpFactory> factory = std::make_unique<trt_ep::TensorrtExecutionProviderFactory>(registration_name, *default_logger, ApiPtrs{*ort_api, *ort_ep_api, *model_editor_api});
 
   if (max_factories < 1) {
     return ort_api->CreateStatus(ORT_INVALID_ARGUMENT,
@@ -301,7 +305,7 @@ EXPORT_SYMBOL OrtStatus* CreateEpFactories(const char* registration_name, const 
 }
 
 EXPORT_SYMBOL OrtStatus* ReleaseEpFactory(OrtEpFactory* factory) {
-  delete static_cast<TensorrtExecutionProviderFactory*>(factory);
+  delete static_cast<trt_ep::TensorrtExecutionProviderFactory*>(factory);
   return nullptr;
 }
 

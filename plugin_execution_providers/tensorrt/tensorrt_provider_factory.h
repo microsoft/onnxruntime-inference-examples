@@ -6,6 +6,8 @@
 
 using MemoryInfoUniquePtr = std::unique_ptr<OrtMemoryInfo, std::function<void(OrtMemoryInfo*)>>;
 
+namespace trt_ep {
+
 ///
 /// Plugin TensorRT EP factory that can create an OrtEp and return information about the supported hardware devices.
 ///
@@ -64,3 +66,4 @@ struct TensorrtExecutionProviderFactory : public OrtEpFactory, public ApiPtrs {
   const std::string ep_version_{"0.1.0"};  // EP version
   const OrtLogger& default_logger_;
 };
+}  // namespace trt_ep

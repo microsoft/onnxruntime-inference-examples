@@ -17,6 +17,11 @@
 #define EXPORT_API
 #endif
 
+using HashValue = uint64_t;
+using AllocateFunc = void* (*)(void*, size_t, size_t);
+using DestroyFunc = void (*)(void*, void*);
+
+namespace trt_ep {
 namespace tensorrt_env_vars {
 static const std::string kMaxPartitionIterations = "ORT_TENSORRT_MAX_PARTITION_ITERATIONS";
 static const std::string kMinSubgraphSize = "ORT_TENSORRT_MIN_SUBGRAPH_SIZE";
@@ -60,10 +65,6 @@ static const std::string kEngineCachePrefix = "ORT_TENSORRT_CACHE_PREFIX";
 static const std::string kEngineCachePath = "ORT_TENSORRT_ENGINE_CACHE_PATH";
 }  // namespace tensorrt_env_vars
 
-using HashValue = uint64_t;
-using AllocateFunc = void* (*)(void*, size_t, size_t);
-using DestroyFunc = void (*)(void*, void*);
-
 class TensorrtLogger : public nvinfer1::ILogger {
   nvinfer1::ILogger::Severity verbosity_;
   const OrtLogger& ort_default_logger_;
@@ -94,8 +95,7 @@ class TensorrtLogger : public nvinfer1::ILogger {
       OrtLoggingLevel ort_severity;
       if (severity <= Severity::kERROR) {
         ort_severity = ORT_LOGGING_LEVEL_ERROR;
-      }
-      else {
+      } else {
         ort_severity = ORT_LOGGING_LEVEL_WARNING;
       }
 
@@ -472,3 +472,4 @@ struct TRTEpEpContextNodeComputeInfo : OrtNodeComputeInfo {
 
   TensorrtExecutionProvider& ep;
 };
+}  // namespace trt_ep

@@ -9,6 +9,7 @@
 #include "onnx_ctx_model_helper.h"
 #include "onnx/onnx_pb.h"
 
+namespace trt_ep {
 extern TensorrtLogger& GetTensorrtLogger(bool verbose_log, const OrtLogger& ort_default_logger,
                                          const OrtApi* ort_api);
 
@@ -273,3 +274,4 @@ std::string GetWeightRefittedEnginePath(std::string stripped_engine_cache) {
   std::string refitted_engine_cache_path = stripped_engine_cache_path.stem().stem().string() + ".engine";
   return refitted_engine_cache_path;
 }
+}  // namespace trt_ep

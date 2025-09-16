@@ -7,6 +7,8 @@
 
 using DeviceId = int16_t;
 
+namespace trt_ep {
+
 struct CUDAAllocator : OrtAllocator {
   CUDAAllocator(const OrtMemoryInfo* mem_info, DeviceId device_id) : mem_info_(mem_info), device_id_(device_id) {
     OrtAllocator::version = ORT_API_VERSION;
@@ -62,3 +64,5 @@ struct CUDAPinnedAllocator : OrtAllocator {
   DeviceId device_id_ = 0;
   const OrtMemoryInfo* mem_info_ = nullptr;
 };
+
+}  // namespace trt_ep

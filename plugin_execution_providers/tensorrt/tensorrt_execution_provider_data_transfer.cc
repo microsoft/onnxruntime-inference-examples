@@ -7,6 +7,8 @@
 #include <cassert>
 #include <gsl/span>
 
+namespace trt_ep {
+
 void CUDA_RETURN_IF_ERROR(cudaError_t res);
 
 /*static*/
@@ -107,3 +109,4 @@ void ORT_API_CALL TRTEpDataTransfer::ReleaseImpl(OrtDataTransferImpl* this_ptr) 
   // delete static_cast<TRTEpDataTransfer*>(this_ptr);
   ;
 }
+}  // namespace trt_ep

@@ -6,6 +6,8 @@
 #include "ep_utils.h"
 #include "onnxruntime_c_api.h"
 
+namespace trt_ep {
+
 struct TRTEpDataTransfer : OrtDataTransferImpl, ApiPtrs {
   TRTEpDataTransfer(ApiPtrs api_ptrs, std::vector<const OrtMemoryDevice*>& device_mem_infos,
                     std::vector<const OrtMemoryDevice*>& shared_mem_infos)
@@ -29,3 +31,4 @@ struct TRTEpDataTransfer : OrtDataTransferImpl, ApiPtrs {
   std::vector<const OrtMemoryDevice*>& cuda_gpu_mem_devices_;
   std::vector<const OrtMemoryDevice*>& cuda_pinned_mem_devices_;
 };
+}  // namespace trt_ep

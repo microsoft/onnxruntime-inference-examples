@@ -5,6 +5,8 @@
 #include <cuda_runtime_api.h>
 #include "cuda_allocator.h"
 
+namespace trt_ep {
+
 void CUDA_RETURN_IF_ERROR(cudaError_t res);
 
 void CUDAAllocator::CheckDevice(bool throw_when_fail) const {
@@ -74,3 +76,5 @@ void CUDAPinnedAllocator::Free(void* p) {
 const OrtMemoryInfo* CUDAPinnedAllocator::Info() const {
   return mem_info_;
 }
+
+}  // namespace trt_ep

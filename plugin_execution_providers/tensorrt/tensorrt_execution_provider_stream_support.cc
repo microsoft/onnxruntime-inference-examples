@@ -8,6 +8,8 @@
 #include "cuda/cuda_common.h"
 #include "cuda/cuda_call.h"
 
+namespace trt_ep {
+
 //
 // TrtSyncStreamImpl implementation
 //
@@ -117,3 +119,4 @@ OrtStatus* ORT_API_CALL TrtSyncNotificationImpl::WaitOnHostImpl(_In_ OrtSyncNoti
 void ORT_API_CALL TrtSyncNotificationImpl::ReleaseImpl(_In_ OrtSyncNotificationImpl* this_ptr) noexcept {
   delete static_cast<TrtSyncNotificationImpl*>(this_ptr);
 }
+}  // namespace trt_ep

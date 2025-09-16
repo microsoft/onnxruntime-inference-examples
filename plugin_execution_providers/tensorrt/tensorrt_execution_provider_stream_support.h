@@ -9,6 +9,7 @@
 
 #include <cuda_runtime_api.h>
 
+namespace trt_ep {
 //
 // Class implementing Stream support for synchronization.
 //
@@ -60,3 +61,4 @@ struct TrtSyncNotificationImpl : public OrtSyncNotificationImpl, public ApiPtrs 
   cudaStream_t& stream_;
   cudaEvent_t event_;
 };
+}  // namespace trt_ep
