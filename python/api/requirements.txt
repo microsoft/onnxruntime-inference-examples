@@ -1,0 +1,4 @@
+numpy
+torch
+onnx
+--extra-index-url https://download.pytorch.org/whl/cu128
