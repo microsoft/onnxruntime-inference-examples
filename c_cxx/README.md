@@ -1,4 +1,12 @@
-This directory contains a few C/C++ sample applications for demonstrating onnxruntime usage:
+# ORT Tutorials - C/C++ Samples
+
+There is a suite of C/C++ samples in the [ort_tutorial directory](./ort_tutorial).
+All these samples are aimed to rely fully on cross vendor ONNX Runtime APIs, and should be able to run on any platform. 
+Each sample show cases a specific feature of the ONNX Runtime API and illustrates how and why you should use it. The minimal ONNX Runtime version for these samples is 1.23.0.
+
+## Other samples
+
+This directory contains a few other C/C++ sample applications to demonstrate more specific onnxruntime usage:
 
 1. (Windows and Linux) fns_candy_style_transfer: A C application that uses the FNS-Candy style transfer model to re-style images. It is written purely in C, no C++.
 2. (Windows only) MNIST: A windows GUI application for doing handwriting recognition
