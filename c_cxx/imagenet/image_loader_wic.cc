@@ -8,6 +8,37 @@
 #include <sstream>
 
 #include "image_loader.h"
+#include "string_utils.h"
+#include "assert.h"
+
+std::string ToMBString(std::wstring_view s) {
+  if (s.size() >= static_cast<size_t>(std::numeric_limits<int>::max())) throw std::runtime_error("length overflow");
+
+  const int src_len = static_cast<int>(s.size() + 1);
+  const int len = WideCharToMultiByte(CP_ACP, 0, s.data(), src_len, nullptr, 0, nullptr, nullptr);
+  assert(len > 0);
+  std::string ret(static_cast<size_t>(len) - 1, '\0');
+#pragma warning(disable : 4189)
+  const int r = WideCharToMultiByte(CP_ACP, 0, s.data(), src_len, (char*)ret.data(), len, nullptr, nullptr);
+  assert(len == r);
+#pragma warning(default : 4189)
+  return ret;
+}
+
+std::string ToUTF8String(std::wstring_view s) {
+  if (s.size() >= static_cast<size_t>(std::numeric_limits<int>::max())) throw std::runtime_error("length overflow");
+
+  const int src_len = static_cast<int>(s.size() + 1);
+  const int len = WideCharToMultiByte(CP_UTF8, 0, s.data(), src_len, nullptr, 0, nullptr, nullptr);
+  assert(len > 0);
+  std::string ret(static_cast<size_t>(len) - 1, '\0');
+#pragma warning(disable : 4189)
+  const int r = WideCharToMultiByte(CP_UTF8, 0, s.data(), src_len, (char*)ret.data(), len, nullptr, nullptr);
+  assert(len == r);
+#pragma warning(default : 4189)
+  return ret;
+}
+
 
 bool CreateImageLoader(void** out) {
   IWICImagingFactory* piFactory;
@@ -84,24 +115,24 @@ OrtStatus* LoadImageFromFileAndCrop(void* loader, const ORTCHAR_T* filename, dou
     rect.Width = bbox_w_size;
 
     ATLENSURE_SUCCEEDED(ppIFormatConverter->CopyPixels(&rect, stride, static_cast<UINT>(data.size()), data.data()));
-    float* float_file_data = new float[data.size()];
+    std::unique_ptr<float[]> float_file_data(new float[data.size()]);    
     size_t len = data.size();
     for (size_t i = 0; i != len; ++i) {
-      float_file_data[i] = static_cast<float>(data[i]) / 255;
+      float_file_data.get()[i] = static_cast<float>(data[i]) / 255;
     }
 
-    *out = float_file_data;
+    *out = float_file_data.release();
     *out_width = bbox_w_size;
     *out_height = bbox_h_size;
     return nullptr;
   } catch (const std::exception& ex) {
-    std::ostringstream oss;
+    std::basic_ostringstream<ORTCHAR_T> oss;
     oss << "Load " << filename << " failed:" << ex.what();
-    return Ort::GetApi().CreateStatus(ORT_FAIL, oss.str().c_str());
+    return Ort::GetApi().CreateStatus(ORT_FAIL, ToUTF8String(oss.str()).c_str());
   } catch (const CAtlException& ex) {
-    std::ostringstream oss;
+    std::basic_ostringstream<ORTCHAR_T> oss;
     oss << "Load " << filename << " failed:";
     PrintErrorDescription(ex.m_hr, oss);
-    return Ort::GetApi().CreateStatus(ORT_FAIL, oss.str().c_str());
+    return Ort::GetApi().CreateStatus(ORT_FAIL, ToUTF8String(oss.str()).c_str());
   }
 }

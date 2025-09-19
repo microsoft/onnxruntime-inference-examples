@@ -7,6 +7,7 @@ cmake_minimum_required(VERSION 3.13)
 project(onnxruntime_samples C CXX)
 if (WIN32)
  string(APPEND CMAKE_CXX_FLAGS " /W4")
+ add_compile_definitions(-DNOMINMAX)
 else()
  string(APPEND CMAKE_CXX_FLAGS " -Wall -Wextra")
  string(APPEND CMAKE_C_FLAGS " -Wall -Wextra")
@@ -19,7 +20,7 @@ option(LIBPNG_ROOTDIR "libpng root dir")
 option(ONNXRUNTIME_ROOTDIR "onnxruntime root dir")
 include(FetchContent)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 
 if(NOT ONNXRUNTIME_ROOTDIR)
   if(WIN32)
@@ -40,15 +41,15 @@ include_directories("${ONNXRUNTIME_ROOTDIR}/include"                           #
 link_directories("${ONNXRUNTIME_ROOTDIR}/lib")
 
 if(WIN32)
-  add_library(wil INTERFACE)
-
+  set(WIL_BUILD_PACKAGING OFF CACHE BOOL "" FORCE)
+  set(WIL_BUILD_TESTS OFF CACHE BOOL "" FORCE)
   FetchContent_Declare(
       microsoft_wil
-      URL https://github.com/microsoft/wil/archive/refs/tags/v1.0.220914.1.zip
+      URL https://github.com/microsoft/wil/archive/refs/tags/v1.0.250325.1.zip
+      EXCLUDE_FROM_ALL
     )
-  FetchContent_Populate(microsoft_wil)
-  target_include_directories(wil INTERFACE ${microsoft_wil_SOURCE_DIR}/include)
-  set(WIL_LIB wil)
+  FetchContent_MakeAvailable(microsoft_wil)
+  set(WIL_LIB "WIL::WIL")
 endif()
 
 # On Linux the samples use libjpeg and libpng for decoding images.

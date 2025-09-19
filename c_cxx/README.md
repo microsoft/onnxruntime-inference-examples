@@ -21,7 +21,7 @@ Note: These build instructions are for the Windows examples only.
 
 ## Prerequisites
 1. Visual Studio 2019 or 2022
-2. cmake(version >=3.13)
+2. cmake(version >=4.0)
 3. (optional) [libpng 1.6](https://libpng.sourceforge.io/)
 
 ## Install ONNX Runtime

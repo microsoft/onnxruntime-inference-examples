@@ -1,9 +1,10 @@
 # Copyright (c) Microsoft Corporation. All rights reserved.
 # Licensed under the MIT License.
-
-cmake_minimum_required(VERSION 3.13)
-
 add_executable(mnist MNIST.cpp)
+if(WIN32)
+  target_compile_definitions(mnist PRIVATE WIN32_LEAN_AND_MEAN NOMINMAX)
+endif()
+target_link_libraries(mnist PRIVATE WIL::WIL)
 target_link_options(mnist PRIVATE "/SUBSYSTEM:WINDOWS")
 
 copy_ort_dlls(mnist)
