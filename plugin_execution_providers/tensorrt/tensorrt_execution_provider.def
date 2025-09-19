@@ -1,0 +1,5 @@
+LIBRARY "TensorRTEp.dll"
+EXPORTS
+ CreateEpFactories @1
+ ReleaseEpFactory @2
+ 
