@@ -5,7 +5,9 @@
 
 Controller::Controller() : cleanup_group_(CreateThreadpoolCleanupGroup()), event_(CreateOnnxRuntimeEvent()) {
   InitializeThreadpoolEnvironment(&env_);
+  #pragma warning(disable : 6387)  // The doc didn't say if the default pool could be used as callback pool or not
   SetThreadpoolCallbackPool(&env_, nullptr);
+  #pragma warning(default : 6387)
   SetThreadpoolCallbackCleanupGroup(&env_, cleanup_group_, nullptr);
 }
 
@@ -37,7 +39,7 @@ void Controller::SetFailBit(_Inout_opt_ ONNXRUNTIME_CALLBACK_INSTANCE pci, _In_ 
   }
 }
 
-bool Controller::SetEof(ONNXRUNTIME_CALLBACK_INSTANCE pci) {
+bool Controller::SetEof(_Inout_opt_ ONNXRUNTIME_CALLBACK_INSTANCE pci) {
   std::lock_guard<std::mutex> g(m_);
   if (state_ == State::RUNNING) {
     state_ = State::SHUTDOWN;

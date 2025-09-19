@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e -x
 
-ORT_VER="1.13.1"
+ORT_VER="1.22.1"
 
 while getopts i: parameter_Option
 do case "${parameter_Option}"
