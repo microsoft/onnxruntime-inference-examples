@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="12dp">
+
+    <!-- Multiline input box -->
+
+    <!-- Toggle thinking mode -->
+
+    <EditText
+        android:id="@+id/userInput"
+        android:layout_width="0dp"
+        android:layout_height="130dp"
+        android:layout_marginTop="92dp"
+        android:background="@android:drawable/edit_text"
+        android:cursorVisible="true"
+        android:focusable="true"
+        android:gravity="top|start"
+        android:hint="Enter your prompt"
+        android:inputType="textMultiLine"
+        android:maxLines="6"
+        android:minHeight="80dp"
+        android:overScrollMode="always"
+        android:padding="8dp"
+        android:scrollbars="vertical"
+        android:textIsSelectable="true"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <CheckBox
+        android:id="@+id/thinkingToggle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Enable Thinking"
+        android:textSize="12sp"
+        android:checked="false"
+        android:visibility="gone"
+        android:layout_marginTop="8dp"
+        android:layout_marginStart="4dp"
+        app:layout_constraintTop_toBottomOf="@id/userInput"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <!-- Button row -->
+    <LinearLayout
+        android:id="@+id/buttonLayout"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="8dp"
+        app:layout_constraintTop_toBottomOf="@id/thinkingToggle"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <Button
+            android:id="@+id/sendButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="SEND" />
+
+        <Button
+            android:id="@+id/stopButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="STOP" />
+
+        <Button
+            android:id="@+id/clearButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="CLEAR ALL" />
+    </LinearLayout>
+
+    <!-- Scrollable output view -->
+    <ScrollView
+        android:id="@+id/outputScroll"
+        android:layout_width="383dp"
+        android:layout_height="342dp"
+        android:layout_marginTop="12dp"
+        android:background="#EFEFEF"
+        android:padding="12dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/buttonLayout"
+        app:layout_constraintVertical_bias="0.0">
+
+        <TextView
+            android:id="@+id/outputView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:lineSpacingExtra="4dp"
+            android:textColor="#000000"
+            android:textIsSelectable="true"
+            android:textSize="16sp" />
+    </ScrollView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

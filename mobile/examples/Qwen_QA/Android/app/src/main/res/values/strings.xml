@@ -1,0 +1,6 @@
+<resources>
+    <string name="app_name">Local LLM</string>
+    <string name="enter_your_prompt">Enter your prompt</string>
+    <string name="send">SEND</string>
+    <string name="stop">STOP</string>
+</resources>
