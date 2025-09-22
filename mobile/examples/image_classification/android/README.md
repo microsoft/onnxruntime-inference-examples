@@ -21,7 +21,7 @@ Run `mobile/examples/image_classification/android/prepare_models.py` to download
 
 ```bash
 cd mobile/examples/image_classification/android  # cd to this directory
-python -m pip install -r ./prepare_models.requirements.txt
+python -m pip install -r ./requirements.txt
 python ./prepare_models.py --output_dir ./app/src/main/res/raw
 ```
 

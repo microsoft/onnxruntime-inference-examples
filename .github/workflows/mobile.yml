@@ -270,7 +270,7 @@ jobs:
         shell: bash
         run: |
           set -e
-          pip install -r ./prepare_models.requirements.txt
+          pip install -r ./requirements.txt
           ./prepare_models.py --output_dir ./app/src/main/res/raw --format ${{ matrix.ModelFormat }}
         working-directory: mobile/examples/image_classification/android
 

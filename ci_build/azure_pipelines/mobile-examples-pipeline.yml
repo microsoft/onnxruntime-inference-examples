@@ -245,7 +245,7 @@ stages:
 
     - bash: |
         set -e
-        pip install -r ./prepare_models.requirements.txt
+        pip install -r ./requirements.txt
         ./prepare_models.py --output_dir ./app/src/main/res/raw --format $(ModelFormat)
       workingDirectory: mobile/examples/image_classification/android
       displayName: "Generate models"
