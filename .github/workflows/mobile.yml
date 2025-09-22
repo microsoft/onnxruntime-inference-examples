@@ -17,7 +17,7 @@ jobs:
     strategy:
       matrix:
         onnx_model:
-          XcodeArgs: 'GCC_PREPROCESSOR_DEFINITIONS="$GCC_PREPROCESSOR_DEFINITIONS ORT_BASIC_USAGE_USE_ONNX_FORMAT_MODEL"'
+          XcodeArgs: GCC_PREPROCESSOR_DEFINITIONS="$GCC_PREPROCESSOR_DEFINITIONS ORT_BASIC_USAGE_USE_ONNX_FORMAT_MODEL"
         ort_format_model:
           XcodeArgs: ''
     steps:
