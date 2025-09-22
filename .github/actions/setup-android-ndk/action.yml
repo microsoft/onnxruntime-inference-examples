@@ -22,6 +22,7 @@ runs:
       shell: bash
       run: |
         set -e
+        python -m pip install psutil
         "${{ inputs.android-sdk-root }}/cmdline-tools/latest/bin/sdkmanager" --install "ndk;${{ inputs.ndk-version }}"
 
         NDK_PATH="${{ inputs.android-sdk-root }}/ndk/${{ inputs.ndk-version }}"
