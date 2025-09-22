@@ -14,12 +14,6 @@ jobs:
   BasicUsageIos:
     name: Basic Usage iOS
     runs-on: macos-14
-    strategy:
-      matrix:
-        onnx_model:
-          XcodeArgs: GCC_PREPROCESSOR_DEFINITIONS="$GCC_PREPROCESSOR_DEFINITIONS ORT_BASIC_USAGE_USE_ONNX_FORMAT_MODEL"
-        ort_format_model:
-          XcodeArgs: ''
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -52,8 +46,7 @@ jobs:
             -workspace mobile/examples/basic_usage/ios/OrtBasicUsage.xcworkspace \
             -scheme OrtBasicUsage \
             -sdk iphonesimulator \
-            -destination 'platform=iOS Simulator,name=iPhone 15,OS=17.5' \
-            ${{ matrix.XcodeArgs }}
+            -destination 'platform=iOS Simulator,name=iPhone 15,OS=17.5'
 
   WhisperLocalAndroid:
     name: Whisper Local Android
