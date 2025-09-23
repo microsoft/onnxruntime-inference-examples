@@ -9,13 +9,13 @@
 #include <unordered_map>
 #include <memory>
 #include <algorithm>
+#include <stdexcept>
 #include <onnxruntime_cxx_api.h>
 #include "onnxruntime_session_options_config_keys.h"
 
 bool CheckStatus(const OrtApi* g_ort, OrtStatus* status) {
   if (status != nullptr) {
     const char* msg = g_ort->GetErrorMessage(status);
-    std::cerr << msg << std::endl;
     g_ort->ReleaseStatus(status);
     throw Ort::Exception(msg, OrtErrorCode::ORT_EP_FAIL);
   }
@@ -253,6 +253,13 @@ int main(int argc, char* argv[]) {
   std::string model_path(argv[2]);
   std::string input_path(argv[3]);
 
-  run_ort_qnn_ep(backend, model_path, input_path, generate_ctx, float32_model);
+  std::locale::global(std::locale("en_US.UTF-8"));
+  try {
+      run_ort_qnn_ep(backend, model_path, input_path, generate_ctx, float32_model);
+  } catch (const std::exception& e) {
+      std::cerr << "Exception in run_ort_qnn_ep: " << e.what() << std::endl;
+  } catch (...) {
+      std::cerr << "Unknown exception in run_ort_qnn_ep" << std::endl;
+  }
   return 0;
 }

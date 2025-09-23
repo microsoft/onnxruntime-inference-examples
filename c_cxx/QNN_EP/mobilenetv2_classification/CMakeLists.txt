@@ -25,6 +25,8 @@ target_link_libraries(qnn_ep_sample ${ORT_LIBS})
 
 if(MSVC)
   target_link_directories(qnn_ep_sample PRIVATE ${ONNXRUNTIME_BUILDDIR})
+  set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /Zi")
+  set(CMAKE_EXE_LINKER_FLAGS_RELEASE "${CMAKE_EXE_LINKER_FLAGS_RELEASE} /DEBUG")
 else()
   target_link_directories(qnn_ep_sample PRIVATE ${ONNXRUNTIME_ROOTDIR}/build/Android/${CMAKE_BUILD_TYPE})
 endif()

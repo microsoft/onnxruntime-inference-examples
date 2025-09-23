@@ -145,14 +145,16 @@ qnn_ep_sample.exe --htp mobilenetv2-12_quant_shape.onnx kitten_input.raw --gen_c
 
 REM TODO Check for mobilenetv2-12_quant_shape.onnx_ctx.onnx
 
+@ECHO OFF
 IF EXIST mobilenetv2-12_quant_shape.onnx_ctx.onnx (
     REM run mobilenetv2-12_quant_shape.onnx_ctx.onnx with QNN HTP backend (generted from previous step)
+    @ECHO ON
     qnn_ep_sample.exe --htp mobilenetv2-12_quant_shape.onnx_ctx.onnx kitten_input.raw
 ) ELSE (
     ECHO mobilenetv2-12_quant_shape.onnx_ctx.onnx does not exist. It didn't get generated in previous step. Are you using ONNX 1.17+? or build from latest main branch
 )
 
-
+@ECHO ON
 REM run mobilenetv2-12_net_qnn_ctx.onnx (generated from native QNN) with QNN HTP backend
 qnn_ep_sample.exe --qnn mobilenetv2-12_net_qnn_ctx.onnx kitten_input_nhwc.raw
 
