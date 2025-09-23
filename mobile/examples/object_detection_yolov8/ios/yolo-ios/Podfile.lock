@@ -1,0 +1,22 @@
+PODS:
+  - onnxruntime-c (1.17.1)
+  - onnxruntime-objc (1.17.1):
+    - onnxruntime-objc/Core (= 1.17.1)
+  - onnxruntime-objc/Core (1.17.1):
+    - onnxruntime-c (= 1.17.1)
+
+DEPENDENCIES:
+  - onnxruntime-objc
+
+SPEC REPOS:
+  trunk:
+    - onnxruntime-c
+    - onnxruntime-objc
+
+SPEC CHECKSUMS:
+  onnxruntime-c: 58803cb3fcc1fb0a7baa9b16b2bad119d6e3eb78
+  onnxruntime-objc: 089530244113a131305642b7e03fa6f8a9ee9ae6
+
+PODFILE CHECKSUM: 9379fba48d706acf709a30decc58da0f9ab2b681
+
+COCOAPODS: 1.14.3
