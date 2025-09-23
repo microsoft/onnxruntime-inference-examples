@@ -1,0 +1,432 @@
+name: Mobile Examples CI
+
+on:
+  push:
+    branches: [main, 'rel-*']
+  pull_request:
+    branches: [main, 'rel-*']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+  attestations: write
+  id-token: write
+
+jobs:
+  BasicUsageIos:
+    name: Basic Usage iOS
+    runs-on: macos-14
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Use Python 3.10
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.10'
+
+      - name: Generate model
+        shell: bash
+        run: |
+          set -e
+          pip install -r ../model/requirements.txt
+          ../model/gen_model.sh ./OrtBasicUsage/model
+        working-directory: mobile/examples/basic_usage/ios
+
+      - name: Update Podfile
+        run: echo "Using original Podfile"
+
+      - name: Install CocoaPods pods
+        run: pod install
+        working-directory: 'mobile/examples/basic_usage/ios'
+
+      - name: Xcode build and test
+        env:
+          DEVELOPER_DIR: /Applications/Xcode_15.4.app/Contents/Developer
+        run: |
+          xcodebuild test \
+            -workspace mobile/examples/basic_usage/ios/OrtBasicUsage.xcworkspace \
+            -scheme OrtBasicUsage \
+            -sdk iphonesimulator \
+            -destination 'platform=iOS Simulator,name=iPhone 15,OS=17.5'
+
+  WhisperLocalAndroid:
+    name: Whisper Local Android
+    runs-on: ["self-hosted", "1ES.Pool=onnxruntime-examples-Ubuntu2204-CPU"]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Use Python 3.10
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.10'
+
+      - name: Setup Java JDK 17
+        uses: actions/setup-java@v5
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Setup Android NDK
+        uses: ./.github/actions/setup-android-ndk
+
+      - name: Build and run tests
+        run: ./gradlew connectedDebugAndroidTest --no-daemon
+        working-directory: mobile/examples/whisper/local/android
+
+      - name: Stop Android Emulator
+        if: always()
+        run: |
+          env | grep ANDROID
+          if test -f ${{ github.workspace }}/emulator.pid; then
+            echo "Emulator PID:"`cat ${{ github.workspace }}/emulator.pid`
+            python3 tools/python/run_android_emulator.py \
+              --android-sdk-root "${ANDROID_SDK_ROOT}" \
+              --stop \
+              --emulator-pid-file ${{ github.workspace }}/emulator.pid
+            rm ${{ github.workspace }}/emulator.pid
+          else
+            echo "Emulator PID file was expected to exist but does not."
+          fi
+        shell: bash
+
+  WhisperAzureAndroid:
+    name: Whisper Azure Android
+    runs-on: ["self-hosted", "1ES.Pool=onnxruntime-examples-Ubuntu2204-CPU"]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Use Python 3.10
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.10'
+
+      - name: Setup Java JDK 17
+        uses: actions/setup-java@v5
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Setup Android NDK
+        uses: ./.github/actions/setup-android-ndk
+          
+      - name: Build and run tests
+        run: ./gradlew connectedDebugAndroidTest --no-daemon
+        working-directory: mobile/examples/whisper/azure/android
+
+      - name: Stop Android Emulator
+        if: always()
+        run: |
+          env | grep ANDROID
+          if test -f ${{ github.workspace }}/emulator.pid; then
+            echo "Emulator PID:"`cat ${{ github.workspace }}/emulator.pid`
+            python3 tools/python/run_android_emulator.py \
+              --android-sdk-root "${ANDROID_SDK_ROOT}" \
+              --stop \
+              --emulator-pid-file ${{ github.workspace }}/emulator.pid
+            rm ${{ github.workspace }}/emulator.pid
+          else
+            echo "Emulator PID file was expected to exist but does not."
+          fi
+        shell: bash
+
+  SpeechRecognitionIos:
+    name: Speech Recognition iOS
+    runs-on: macos-14
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Use Python 3.10
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.10'
+
+      - name: Generate model
+        shell: bash
+        run: |
+          set -e
+          pip install -r ../model/requirements.txt
+          ../model/gen_model.sh ./SpeechRecognition/model
+        working-directory: mobile/examples/speech_recognition/ios
+
+      - name: Update Podfile
+        run: echo "Using original Podfile"
+
+      - name: Install CocoaPods pods
+        run: pod install
+        working-directory: 'mobile/examples/speech_recognition/ios'
+
+      - name: Xcode build and test
+        env:
+          DEVELOPER_DIR: /Applications/Xcode_15.4.app/Contents/Developer
+        run: |
+          xcodebuild test \
+            -workspace mobile/examples/speech_recognition/ios/SpeechRecognition.xcworkspace \
+            -scheme SpeechRecognition \
+            -sdk iphonesimulator \
+            -destination 'platform=iOS Simulator,name=iPhone 15,OS=17.5'
+
+  ObjectDetectionIos:
+    name: Object Detection iOS
+    runs-on: macos-14
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Use Python 3.10
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.10'
+
+      - name: Generate model
+        shell: bash
+        run: |
+          set -e
+          pip install -r ./prepare_model.requirements.txt
+          ./prepare_model.sh
+        working-directory: mobile/examples/object_detection/ios/ORTObjectDetection
+
+      - name: Update Podfile
+        run: echo "Using original Podfile"
+
+      - name: Install CocoaPods pods
+        run: pod install
+        working-directory: 'mobile/examples/object_detection/ios'
+
+      - name: Xcode build and test
+        env:
+          DEVELOPER_DIR: /Applications/Xcode_15.4.app/Contents/Developer
+        run: |
+          xcodebuild test \
+            -workspace mobile/examples/object_detection/ios/ORTObjectDetection.xcworkspace \
+            -scheme ORTObjectDetection \
+            -sdk iphonesimulator \
+            -destination 'platform=iOS Simulator,name=iPhone 15,OS=17.5'
+
+  ObjectDetectionAndroid:
+    name: Object Detection Android
+    runs-on: ["self-hosted", "1ES.Pool=onnxruntime-examples-Ubuntu2204-CPU"]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Use Python 3.10
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.10'
+
+      - name: Setup Java JDK 17
+        uses: actions/setup-java@v5
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Setup Android NDK
+        uses: ./.github/actions/setup-android-ndk
+          
+      - name: Build and run tests
+        run: ./gradlew connectedDebugAndroidTest --no-daemon
+        working-directory: mobile/examples/object_detection/android
+
+      - name: Stop Android Emulator
+        if: always()
+        run: |
+          env | grep ANDROID
+          if test -f ${{ github.workspace }}/emulator.pid; then
+            echo "Emulator PID:"`cat ${{ github.workspace }}/emulator.pid`
+            python3 tools/python/run_android_emulator.py \
+              --android-sdk-root "${ANDROID_SDK_ROOT}" \
+              --stop \
+              --emulator-pid-file ${{ github.workspace }}/emulator.pid
+            rm ${{ github.workspace }}/emulator.pid
+          else
+            echo "Emulator PID file was expected to exist but does not."
+          fi
+        shell: bash
+
+  ImageClassificationAndroid:
+    name: Image Classification Android
+    runs-on: ["self-hosted", "1ES.Pool=onnxruntime-examples-Ubuntu2204-CPU"]
+    strategy:
+      matrix: 
+        ModelFormat: [onnx, ort]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Use Python 3.10
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.10'
+
+      - name: Setup Java JDK 17
+        uses: actions/setup-java@v5
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Generate models
+        shell: bash
+        run: |
+          set -e
+          pip install -r ./requirements.txt
+          ./prepare_models.py --output_dir ./app/src/main/res/raw --format ${{ matrix.ModelFormat }}
+        working-directory: mobile/examples/image_classification/android
+
+      - name: Setup Android NDK
+        uses: ./.github/actions/setup-android-ndk
+          
+      - name: Build and run tests
+        run: ./gradlew connectedDebugAndroidTest --no-daemon
+        working-directory: mobile/examples/image_classification/android
+
+      - name: Stop Android Emulator
+        if: always()
+        run: |
+          env | grep ANDROID
+          if test -f ${{ github.workspace }}/emulator.pid; then
+            echo "Emulator PID:"`cat ${{ github.workspace }}/emulator.pid`
+            python3 tools/python/run_android_emulator.py \
+              --android-sdk-root "${ANDROID_SDK_ROOT}" \
+              --stop \
+              --emulator-pid-file ${{ github.workspace }}/emulator.pid
+            rm ${{ github.workspace }}/emulator.pid
+          else
+            echo "Emulator PID file was expected to exist but does not."
+          fi
+        shell: bash
+
+  SuperResolutionAndroid:
+    name: Super Resolution Android
+    runs-on: ["self-hosted", "1ES.Pool=onnxruntime-examples-Ubuntu2204-CPU"]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Use Python 3.10
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.10'
+
+      - name: Setup Java JDK 17
+        uses: actions/setup-java@v5
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Setup Android NDK
+        uses: ./.github/actions/setup-android-ndk
+          
+      - name: Build and run tests
+        run: ./gradlew connectedDebugAndroidTest --no-daemon
+        working-directory: mobile/examples/super_resolution/android
+
+      - name: Stop Android Emulator
+        if: always()
+        run: |
+          env | grep ANDROID
+          if test -f ${{ github.workspace }}/emulator.pid; then
+            echo "Emulator PID:"`cat ${{ github.workspace }}/emulator.pid`
+            python3 tools/python/run_android_emulator.py \
+              --android-sdk-root "${ANDROID_SDK_ROOT}" \
+              --stop \
+              --emulator-pid-file ${{ github.workspace }}/emulator.pid
+            rm ${{ github.workspace }}/emulator.pid
+          else
+            echo "Emulator PID file was expected to exist but does not."
+          fi
+        shell: bash
+
+  SuperResolutionIos:
+    name: Super Resolution iOS
+    runs-on: macos-14
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Install CocoaPods pods
+        run: pod install
+        working-directory: 'mobile/examples/super_resolution/ios/ORTSuperResolution'
+
+      - name: Xcode build and test
+        env:
+          DEVELOPER_DIR: /Applications/Xcode_15.4.app/Contents/Developer
+        run: |
+          xcodebuild test \
+            -workspace mobile/examples/super_resolution/ios/ORTSuperResolution/ORTSuperResolution.xcworkspace \
+            -scheme ORTSuperResolution \
+            -sdk iphonesimulator \
+            -destination 'platform=iOS Simulator,name=iPhone 15,OS=17.5'
+
+  QuestionAnsweringAndroid:
+    name: Question Answering Android
+    runs-on: ["self-hosted", "1ES.Pool=onnxruntime-examples-Ubuntu2204-CPU"]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Use Python 3.10
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.10'
+
+      - name: Generate model
+        shell: bash
+        run: |
+          set -e
+          bash ./prepare_model.sh
+        working-directory: 'mobile/examples/question_answering/android'
+
+      - name: Setup Java JDK 17
+        uses: actions/setup-java@v5
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Setup Android NDK
+        uses: ./.github/actions/setup-android-ndk
+          
+      - name: Build and run tests
+        run: ./gradlew connectedDebugAndroidTest --no-daemon
+        working-directory: mobile/examples/question_answering/android
+
+      - name: Stop Android Emulator
+        if: always()
+        run: |
+          env | grep ANDROID
+          if test -f ${{ github.workspace }}/emulator.pid; then
+            echo "Emulator PID:"`cat ${{ github.workspace }}/emulator.pid`
+            python3 tools/python/run_android_emulator.py \
+              --android-sdk-root "${ANDROID_SDK_ROOT}" \
+              --stop \
+              --emulator-pid-file ${{ github.workspace }}/emulator.pid
+            rm ${{ github.workspace }}/emulator.pid
+          else
+            echo "Emulator PID file was expected to exist but does not."
+          fi
+        shell: bash
+
+  QuestionAnsweringIos:
+    name: Question Answering iOS
+    runs-on: macos-14
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Install CocoaPods pods
+        run: pod install
+        working-directory: 'mobile/examples/question_answering/ios/ORTQuestionAnswering'
+
+      - name: Xcode build and test
+        env:
+          DEVELOPER_DIR: /Applications/Xcode_15.4.app/Contents/Developer
+        run: |
+          xcodebuild test \
+            -workspace mobile/examples/question_answering/ios/ORTQuestionAnswering/ORTQuestionAnswering.xcworkspace \
+            -scheme ORTQuestionAnswering \
+            -sdk iphonesimulator \
+            -destination 'platform=iOS Simulator,name=iPhone 15,OS=17.5'

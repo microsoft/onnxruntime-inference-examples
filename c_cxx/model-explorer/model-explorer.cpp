@@ -39,9 +39,10 @@ std::string print_shape(const std::vector<std::int64_t>& v) {
   return ss.str();
 }
 
+// XXX: this function does not handle integer overflow
 int calculate_product(const std::vector<std::int64_t>& v) {
   int total = 1;
-  for (auto& i : v) total *= i;
+  for (auto& i : v) total *= static_cast<int>(i);
   return total;
 }
 
@@ -105,7 +106,7 @@ int main(int argc, ORTCHAR_T* argv[]) {
 
   // generate random numbers in the range [0, 255]
   std::vector<float> input_tensor_values(total_number_elements);
-  std::generate(input_tensor_values.begin(), input_tensor_values.end(), [&] { return rand() % 255; });
+  std::generate(input_tensor_values.begin(), input_tensor_values.end(), [&] { return static_cast<float>(rand() % 255); });
   std::vector<Ort::Value> input_tensors;
   input_tensors.emplace_back(vec_to_tensor<float>(input_tensor_values, input_shape));
 

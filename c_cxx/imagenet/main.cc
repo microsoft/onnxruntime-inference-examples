@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+#include <chrono>
 #include <string>
 #include <string.h>
 #include <sstream>
@@ -27,7 +28,7 @@
 #ifdef _WIN32
 #include <atlbase.h>
 #endif
-
+#include "string_utils.h"
 using namespace std::chrono;
 
 
@@ -44,10 +45,10 @@ class Validator : public OutputCollector<TCharString> {
       if (!line.empty()) labels.push_back(line);
     }
     if (labels.size() != expected_line_count) {
-      std::ostringstream oss;
+      std::basic_ostringstream<ORTCHAR_T> oss;
       oss << "line count mismatch, expect " << expected_line_count << " from " << file_path.c_str() << ", got "
           << labels.size();
-      throw std::runtime_error(oss.str());
+      throw std::runtime_error(ToMBString(oss.str()));
     }
     return labels;
   }

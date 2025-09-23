@@ -10,7 +10,7 @@ option(ONNXRUNTIME_ROOTDIR "onnxruntime root dir")
 include(CheckIncludeFileCXX)
 CHECK_INCLUDE_FILE_CXX(tensorrt_provider_factory.h HAVE_TENSORRT_PROVIDER_FACTORY_H)
 
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 include_directories( 
