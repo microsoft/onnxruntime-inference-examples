@@ -1,13 +1,20 @@
 name: Windows_CI
 on:
   push:
-    branches:
-      - main
+    branches: [main, 'rel-*']
   pull_request:
+    branches: [main, 'rel-*']
+  workflow_dispatch:
 
 concurrency:
   group: ${{ github.head_ref || github.run_id }}
   cancel-in-progress: true
+
+permissions:
+  contents: read
+  packages: write
+  attestations: write
+  id-token: write
 
 jobs:
   Onnxruntime-SCA:

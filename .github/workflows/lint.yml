@@ -1,7 +1,17 @@
 name: Lint
 
 on:
+  push:
+    branches: [main, 'rel-*']
   pull_request:
+    branches: [main, 'rel-*']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+  attestations: write
+  id-token: write
 
 jobs:
   lint:
