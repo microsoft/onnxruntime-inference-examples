@@ -16,7 +16,7 @@ jobs:
     runs-on: macos-14
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Use Python 3.10
         uses: actions/setup-python@v5
@@ -53,7 +53,7 @@ jobs:
     runs-on: ["self-hosted", "1ES.Pool=onnxruntime-examples-Ubuntu2204-CPU"]
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Use Python 3.10
         uses: actions/setup-python@v5
@@ -94,7 +94,7 @@ jobs:
     runs-on: ["self-hosted", "1ES.Pool=onnxruntime-examples-Ubuntu2204-CPU"]
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Use Python 3.10
         uses: actions/setup-python@v5
@@ -135,7 +135,7 @@ jobs:
     runs-on: macos-14
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Use Python 3.10
         uses: actions/setup-python@v5
@@ -172,7 +172,7 @@ jobs:
     runs-on: macos-14
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Use Python 3.10
         uses: actions/setup-python@v5
@@ -209,17 +209,17 @@ jobs:
     runs-on: ["self-hosted", "1ES.Pool=onnxruntime-examples-Ubuntu2204-CPU"]
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Use Python 3.10
         uses: actions/setup-python@v5
         with:
           python-version: '3.10'
 
-      - name: Setup Java JDK 11
+      - name: Setup Java JDK 17
         uses: actions/setup-java@v4
         with:
-          java-version: '11'
+          java-version: '17'
           distribution: 'temurin'
 
       - name: Setup Android NDK
@@ -253,7 +253,7 @@ jobs:
         ModelFormat: [onnx, ort]
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Use Python 3.10
         uses: actions/setup-python@v5
@@ -302,7 +302,7 @@ jobs:
     runs-on: ["self-hosted", "1ES.Pool=onnxruntime-examples-Ubuntu2204-CPU"]
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Use Python 3.10
         uses: actions/setup-python@v5
@@ -343,7 +343,7 @@ jobs:
     runs-on: macos-14
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Install CocoaPods pods
         run: pod install
@@ -364,7 +364,7 @@ jobs:
     runs-on: ["self-hosted", "1ES.Pool=onnxruntime-examples-Ubuntu2204-CPU"]
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Use Python 3.10
         uses: actions/setup-python@v5
@@ -412,7 +412,7 @@ jobs:
     runs-on: macos-14
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Install CocoaPods pods
         run: pod install
