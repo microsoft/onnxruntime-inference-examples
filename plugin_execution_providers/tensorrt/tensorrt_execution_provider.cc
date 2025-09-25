@@ -3,6 +3,7 @@
 #include <list>
 #include <functional>
 #include <iostream>
+#include <numeric>
 #include <cuda_runtime.h>
 
 #include "onnxruntime_cxx_api.h"
@@ -737,11 +738,61 @@ OrtStatusPtr BindKernelOutput(Ort::KernelContext& ctx,
   return nullptr;
 }
 
+bool TensorrtExecutionProvider::AllNodesAssignedToSpecificEP(const OrtGraph* graph, const std::string& provider_type) const {
+  size_t num_nodes = 0;
+  THROW_IF_ERROR(ort_api.Graph_GetNumNodes(graph, &num_nodes));
+
+  // Get all the nodes from the graph
+  std::vector<const OrtNode*> nodes(num_nodes);
+  THROW_IF_ERROR(ort_api.Graph_GetNodes(graph, nodes.data(), nodes.size()));
+
+  for (const auto node : nodes) {
+    const char* ep_name;
+    THROW_IF_ERROR(ort_api.Node_GetEpName(node, &ep_name));
+
+    if (std::string(ep_name) != provider_type) {
+      return false;
+    }
+  }
+
+  return num_nodes != 0;
+}
+
+// Check the graph is the subgraph of control flow op
+bool TensorrtExecutionProvider::IsSubGraphOfControlFlowOp(const OrtGraph* graph) const {
+  const OrtNode* parent_node = nullptr;
+  THROW_IF_ERROR(ort_api.Graph_GetParentNode(graph, &parent_node));
+  if (parent_node) {
+    const char* op_type = nullptr;
+    THROW_IF_ERROR(ort_api.Node_GetOperatorType(parent_node, &op_type));
+
+    if (control_flow_op_set_.find(std::string(op_type)) != control_flow_op_set_.end()) {
+      return true;
+    }
+  }
+  return false;
+}
+
+// Check whether all the nodes of subgraph are supported
+bool TensorrtExecutionProvider::IsSubGraphFullySupported(const OrtGraph* graph, SubGraphCollection_t supported_nodes_vector) const {
+  size_t num_nodes = 0;
+  THROW_IF_ERROR(ort_api.Graph_GetNumNodes(graph, &num_nodes));
+  
+  int number_of_trt_nodes = 0;
+  for (const auto& group : supported_nodes_vector) {
+    if (!group.first.empty()) {
+      number_of_trt_nodes += static_cast<int>(group.first.size());
+    }
+  }
+
+  return number_of_trt_nodes == num_nodes;
+}
+
 SubGraphCollection_t TensorrtExecutionProvider::GetSupportedList(SubGraphCollection_t nodes_vector_input,
                                                                  int iterations, const int max_iterations,
                                                                  const OrtGraph* graph, bool* early_termination) const {
-  // Return if iterations are exceeding predefined number
-  SubGraphCollection_t nodes_list_output;
+  // Temporarily make all nodes supported
+  SubGraphCollection_t nodes_list_output = nodes_vector_input;
 
   return nodes_list_output;
 }
@@ -750,6 +801,7 @@ OrtStatus* ORT_API_CALL TensorrtExecutionProvider::GetCapabilityImpl(OrtEp* this
                                                                      OrtEpGraphSupportInfo* graph_support_info) noexcept {
   TensorrtExecutionProvider* ep = static_cast<TensorrtExecutionProvider*>(this_ptr);
   const OrtApi& ort_api = ep->ort_api;
+  auto ort_graph = Ort::ConstGraph(graph);
 
   size_t num_nodes = 0;
   RETURN_IF_ERROR(ort_api.Graph_GetNumNodes(graph, &num_nodes));
@@ -776,8 +828,7 @@ OrtStatus* ORT_API_CALL TensorrtExecutionProvider::GetCapabilityImpl(OrtEp* this
     return set;
   };
 
-  // auto exclude_ops_set = get_exclude_ops_set(op_types_to_exclude_);
-  auto exclude_ops_set = get_exclude_ops_set("");
+  auto exclude_ops_set = get_exclude_ops_set(ep->op_types_to_exclude_);
 
   /* Iterate all the nodes and exclude the node if:
    *   1. It's a control flow op and its subgraph(s) is not fully TRT eligible.
@@ -821,12 +872,10 @@ OrtStatus* ORT_API_CALL TensorrtExecutionProvider::GetCapabilityImpl(OrtEp* this
             continue;
           }
 
-          /*
-          if (!ep->AllNodesAssignedToSpecificEP(*(subgraph->CreateGraphViewer()), kTensorrtExecutionProvider)) {
+          if (!ep->AllNodesAssignedToSpecificEP(subgraph, ep->name_)) {
             // if not all its subgraphs are supported, we need to exclude this control flow op
             return false;
           }
-          */
         }
         return true;
       };
@@ -862,9 +911,6 @@ OrtStatus* ORT_API_CALL TensorrtExecutionProvider::GetCapabilityImpl(OrtEp* this
     supported_nodes_vector.clear();
   }
 
-  // Temporarily make all nodes supported
-  supported_nodes_vector = parser_nodes_vector;
-
   // Remove subgraphs if its size is less than the predefined minimal size
   for (auto it = supported_nodes_vector.begin(); it != supported_nodes_vector.end(); ++it) {
     const size_t subgraph_size = it->first.size();
@@ -873,108 +919,83 @@ OrtStatus* ORT_API_CALL TensorrtExecutionProvider::GetCapabilityImpl(OrtEp* this
     }
   }
 
-  // Detect and remove cycles from supported node list
-  /* ep->DetectTensorRTGraphCycles(supported_nodes_vector, graph, model_hash); */
+  // TODO: Detect and remove cycles from supported node list
 
-  // Consolidate supported node list
-  /*
-  if (supported_nodes_vector.size() > 1) {
-    nodes_vector.clear();
-    for (const auto& group : supported_nodes_vector) {
-      if (!group.first.empty()) {
-        nodes_vector.insert(nodes_vector.end(), group.first.begin(), group.first.end());
-      }
-    }
-    SubGraphCollection_t consolidated_supported_nodes_vector = {{nodes_vector, true}};
-    if (p->DetectTensorRTGraphCycles(consolidated_supported_nodes_vector, graph, model_hash, false)) {
-      // LOGS_DEFAULT(INFO) << "[TensorRT EP] TensorRT nodes are not consolidated because graph will have cycles after consolidation";
-    } else {
-      // LOGS_DEFAULT(INFO) << "[TensorRT EP] TensorRT nodes are consolidated into one subgraph";
-      supported_nodes_vector = consolidated_supported_nodes_vector;
-    }
-  }
-  */
-
+  // TODO: Consolidate supported node list
+  
   // Handle the case where the graph is subgraph of control flow op.
   // The purpose is to make control flow op as well as its subgraphs run on TRT.
   // Here we need to check whether subgraph is fully supported by TRT and don't fuse the nodes of the subgraph until control flow op level.
-  /*
-  if (p->IsSubGraphOfControlFlowOp(graph) && p->IsSubGraphFullySupported(supported_nodes_vector, number_of_ort_nodes)) {
+  if (ep->IsSubGraphOfControlFlowOp(graph) && ep->IsSubGraphFullySupported(graph, supported_nodes_vector)) {
+    //const std::vector<NodeIndex>& node_index = graph.GetNodesInTopologicalOrder(1);
     bool all_subgraphs_are_supported = true;
 
     // "If" control flow op has two subgraph bodies, "then" body and "else" body respectively.
     // Check its parent node's another subgraph to see whether that subgraph is also fully supported by TRT.
-    const OrtNode* parent_node = nullptr;
-    graph_api_->OrtGraph_GetParenNode(graph, &parent_node);
-    const char* parent_node_op_type = nullptr;
-    graph_api_->OrtNode_GetOpType(parent_node, &parent_node_op_type);
-    if (strcmp(parent_node_op_type, "If") == 0) {
+    Ort::ConstNode parent_node = ort_graph.GetParentNode();
+    if (parent_node.GetOperatorType() == "If") {
       all_subgraphs_are_supported = false;
       SubGraphCollection_t subgraph_supported_nodes_vector;
-      const OrtGraphViewer** subgraphs = nullptr;
-      size_t subgraph_count = 0;
-      graph_api_->OrtNode_GetSubgraphs(parent_node, &subgraphs, &subgraph_count);
-      for (size_t i = 0; i < subgraph_count; i++) {
-        bool same_graph = false;
-        graph_api_->OrtGraph_IsSameGraph(graph, subgraphs[i], &same_graph);
-        if (same_graph) {
-          continue;
-        }
-        int number_of_ort_subgraph_nodes = 0;
-        graph_api_->OrtGraph_NumberOfNodes(subgraphs[i], &number_of_ort_subgraph_nodes);
-        std::vector<size_t> subgraph_nodes_vector(number_of_ort_subgraph_nodes);
-        std::iota(std::begin(subgraph_nodes_vector), std::end(subgraph_nodes_vector), 0);
-        SubGraphCollection_t parser_subgraph_nodes_vector = {{subgraph_nodes_vector, false}};
-        bool subgraph_early_termination = false;
 
-        // Another subgraph of "If" control flow op has no nodes.
-        // In this case, TRT EP should consider this empty subgraph is fully supported by TRT.
-        if (number_of_ort_subgraph_nodes == 0) {
-          all_subgraphs_are_supported = true;
-          break;
-        }
-        // Another subgraph of "If" control flow op has been parsed by GetCapability before and all subgraph's nodes assigned to TRT EP.
-        else if (p->AllNodesAssignedToSpecificEP(subgraphs[i], tensorrtEp)) {
-          all_subgraphs_are_supported = true;
-          break;
-        }
-        // Another subgraph of "If" control flow has been parsed by GetCapability and not all subgraph's nodes assigned to TRT EP.
-        // (Note: GetExecutionProviderType() returns "" meaning node has not yet been assigned to any EPs)
-        else if (!p->AllNodesAssignedToSpecificEP(subgraphs[i], "")) {
-          all_subgraphs_are_supported = false;
-          break;
-        }
+      std::vector<Ort::AttrNameSubgraph> attr_name_subgraphs = parent_node.GetSubgraphs();
+      for (auto attr_name_subgraph : attr_name_subgraphs) {
+        auto subgraph = attr_name_subgraph.sub_graph;
+        const OrtGraph* subgraph_raw_pointer = subgraph;
+        if (subgraph_raw_pointer != graph) {
 
-        // Another subgraph of "If" control flow has not yet been parsed by GetCapability.
-        subgraph_supported_nodes_vector = p->GetSupportedList(parser_subgraph_nodes_vector, 0, p->max_partition_iterations_, subgraphs[i], &subgraph_early_termination);
-        all_subgraphs_are_supported = p->IsSubGraphFullySupported(subgraph_supported_nodes_vector, number_of_ort_subgraph_nodes);
-        break;
+          size_t num_subgraph_nodes = 0;
+          THROW_IF_ERROR(ort_api.Graph_GetNumNodes(subgraph, &num_subgraph_nodes));
+
+          // Another subgraph of "If" control flow op has no nodes.
+          // In this case, TRT EP should consider this empty subgraph is fully supported by TRT.
+          if (num_subgraph_nodes == 0) {
+            all_subgraphs_are_supported = true;
+            break;
+          }
+          // Another subgraph of "If" control flow op has been parsed by GetCapability before and all subgraph's nodes assigned to TRT EP.
+          else if (ep->AllNodesAssignedToSpecificEP(subgraph, ep->name_)) {
+            all_subgraphs_are_supported = true;
+            break;
+          }
+          // Another subgraph of "If" control flow has been parsed by GetCapability and not all subgraph's nodes assigned to TRT EP.
+          // (Note: GetExecutionProviderType() returns "" meaning node has not yet been assigned to any EPs)
+          else if (!ep->AllNodesAssignedToSpecificEP(subgraph, "")) {
+            all_subgraphs_are_supported = false;
+            break;
+          }
+
+          std::vector<size_t> subgraph_nodes_vector(num_subgraph_nodes);
+          std::iota(std::begin(subgraph_nodes_vector), std::end(subgraph_nodes_vector), 0);
+          SubGraphCollection_t parser_subgraph_nodes_vector = {{subgraph_nodes_vector, false}};
+          bool subgraph_early_termination = false;
+
+          // Another subgraph of "If" control flow has not yet been parsed by GetCapability.
+          subgraph_supported_nodes_vector = ep->GetSupportedList(parser_subgraph_nodes_vector, 0, ep->max_partition_iterations_, subgraph, &subgraph_early_termination);
+          all_subgraphs_are_supported = ep->IsSubGraphFullySupported(subgraph, subgraph_supported_nodes_vector);
+          break;
+        }
       }
-      graph_api_->OrtGraph_ReleaseGraphViewerArray(subgraphs, subgraph_count);
     }
 
     if (all_subgraphs_are_supported) {
+      // We want the subgraph nodes to be assigned to TRT EP but don't want them to be fused until later at the control flow op level.
+      // Simply request the subgraph nodes with a single ComputeCapability for each with no MetaDef (i.e. what the default implementation for IExecutionProvider::GetCapability does).
       for (const auto& group : supported_nodes_vector) {
         if (!group.first.empty()) {
           for (const auto& index : group.first) {
-            std::unique_ptr<OrtIndexedSubGraph> sub_graph = std::make_unique<OrtIndexedSubGraph>();
-            sub_graph->node_index_len = 1;
-            sub_graph->node_index = new size_t[sub_graph->node_index_len];
-            sub_graph->node_index[0] = nodes_index[index];
-            cache.push_back(sub_graph.release());
+            const OrtNode* supported_node = nodes[index];
+            RETURN_IF_ERROR(ep->ep_api.EpGraphSupportInfo_AddSingleNode(graph_support_info, supported_node));
           }
         }
       }
-      *cnt = cache.size();
-      *indexed_sub_graph = new OrtIndexedSubGraph*[*cnt];
-      for (size_t i = 0; i < *cnt; i++) {
-        (*indexed_sub_graph)[i] = cache[i];
-      }
-      // LOGS_DEFAULT(INFO) << "[TensorRT EP] Whole graph will run on TensorRT execution provider";
-      return;
+      std::string message = "[TensorRT EP] Whole graph will run on TensorRT execution provider";
+      Ort::ThrowOnError(ep->ort_api.Logger_LogMessage(&ep->logger_,
+                                                      OrtLoggingLevel::ORT_LOGGING_LEVEL_INFO,
+                                                      message.c_str(), ORT_FILE, __LINE__, __FUNCTION__));
+
+      return nullptr;
     }
   }
-  */
 
   int number_of_trt_nodes = 0;
   for (const auto& group : supported_nodes_vector) {
@@ -2251,7 +2272,7 @@ TensorrtExecutionProvider::TensorrtExecutionProvider(TensorrtExecutionProviderFa
 
   // The implementation of the SessionOptionsAppendExecutionProvider C API function automatically adds EP options to
   // the session option configurations with the key prefix "ep.<lowercase_ep_name>.".
-  // We extract those EP options to create a new "provider options" key/value map.
+  // We extract those EP options to create a new "provider options" key-value map.
   std::string lowercase_ep_name = name_.c_str();
   std::transform(lowercase_ep_name.begin(), lowercase_ep_name.end(), lowercase_ep_name.begin(),
                  [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
@@ -2289,7 +2310,6 @@ TensorrtExecutionProvider::TensorrtExecutionProvider(TensorrtExecutionProviderFa
   info_ = TensorrtExecutionProviderInfo::FromProviderOptions(provider_options);
   info_.has_trt_options = true;
   device_id_ = info_.device_id;
-  // api_->CreateDevice(OrtMemoryInfoDeviceType::OrtMemoryInfoDeviceType_GPU, OrtMemoryType::OrtMemoryType_Default, device_id_, &default_device);
 
   std::string profile_min_shapes, profile_max_shapes, profile_opt_shapes;
 
@@ -2358,6 +2378,7 @@ TensorrtExecutionProvider::TensorrtExecutionProvider(TensorrtExecutionProviderFa
     profile_opt_shapes = info_.profile_opt_shapes;
     cuda_graph_enable_ = info_.cuda_graph_enable;
     engine_hw_compatible_ = info_.engine_hw_compatible;
+    op_types_to_exclude_ = info_.op_types_to_exclude;
   } else {
     // deprecate env provider option
   }
