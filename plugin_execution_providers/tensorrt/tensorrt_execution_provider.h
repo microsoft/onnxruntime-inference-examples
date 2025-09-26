@@ -166,13 +166,15 @@ struct TensorrtComputeState {
   std::string onnx_model_folder_path;
   const void* onnx_model_bytestream;
   size_t onnx_model_bytestream_size;
+  const void* onnx_external_data_bytestream;
+  size_t onnx_external_data_bytestream_size;
   std::string cache_prefix;
   std::string cache_suffix;
   bool engine_hw_compatible = false;
   bool sync_stream_after_enqueue = true;
 };
 
-// Minimum information to construct kernel function state for direct engine load code path
+// Minimum information to construct kernel function state for EPContext workflow
 struct TensorrtComputeStateForEPContext {
   uint32_t device_id;
   std::string fused_node_name;
@@ -229,34 +231,21 @@ struct TensorrtExecutionProvider : public OrtEp, public ApiPtrs {
                                             OrtNodeComputeInfo** node_compute_info,
                                             OrtNode** ep_context_node);
 
-  OrtStatus* RefitEngine(std::string onnx_model_filename, std::string& onnx_model_folder_path,
-                         std::string& weight_stripped_engine_cath_path, bool path_check,
-                         const void* onnx_model_bytestream, size_t onnx_model_bytestream_size,
-                         nvinfer1::ICudaEngine* trt_engine, bool serialize_refitted_engine,
+  OrtStatus* RefitEngine(std::string onnx_model_filename,
+                         std::string& onnx_model_folder_path,
+                         std::string& weight_stripped_engine_cath_path,
+                         bool path_check,
+                         const void* onnx_model_bytestream,
+                         size_t onnx_model_bytestream_size,
+                         const void* onnx_external_data_bytestream,
+                         size_t onnx_external_data_bytestream_size,
+                         nvinfer1::ICudaEngine* trt_engine,
+                         bool serialize_refitted_engine,
                          bool detailed_build_log);
 
   std::unordered_map<std::string, DDSOutputAllocatorMap>& GetDDSOutputAllocators() {
     return dds_output_allocator_maps_;
   }
-
-  /*
-  bool IsGraphCaptured(int graph_annotation_id) const { return false; }
-
-  static OrtStatusPtr RefitEngine(std::string onnx_model_filename,
-                                  std::string& onnx_model_folder_path,
-                                  std::string& weight_stripped_engine_cath_path,
-                                  bool path_check,
-                                  nvinfer1::ICudaEngine* trt_engine,
-                                  bool serialize_refitted_engine,
-                                  bool detailed_build_log);
-
-  std::unique_ptr<OrtIndexedSubGraph> GetSubGraph(SubGraph_t graph_nodes_index,
-                                                  const OrtGraph* graph, const HashValue& model_hash, int subgraph_index) const;
-  SubGraphCollection_t GetSupportedList(SubGraphCollection_t supported_nodes_list, int iterations, const int max_iterations,
-                                        const OrtGraph* graph, bool* early_termination) const;
-
-  bool DetectTensorRTGraphCycles(SubGraphCollection_t& supported_nodes_vector, const OrtGraphViewer* graph, const HashValue& model_hash, bool remove_cycles = true) const;
-  */
 
   /**
   Get a unique_lock object to control the concurrency behavior.
@@ -264,15 +253,6 @@ struct TensorrtExecutionProvider : public OrtEp, public ApiPtrs {
   should be protected by a lock when invoked by multiple threads concurrently.
   */
   std::unique_lock<std::mutex> GetApiLock() const;
-
-  /**Check the graph is the subgraph of control flow op*/
-  // bool IsSubGraphOfControlFlowOp(const OrtGraphViewer* graph) const;
-
-  /**Check whether all the nodes of the graph are assigned to specific ep*/
-  // bool AllNodesAssignedToSpecificEP(const OrtGraphViewer* graph, const std::string& provider_type) const;
-
-  /**Check whether all the nodes of subgraph are supported*/
-  // bool IsSubGraphFullySupported(SubGraphCollection_t supported_nodes_vector, const int number_of_ort_nodes) const;
 
   std::unordered_map<std::string, std::string> trt_node_name_with_precision_;
   std::unordered_map<std::string, std::unordered_map<std::string, float>> dynamic_range_map_;
@@ -360,10 +340,6 @@ struct TensorrtExecutionProvider : public OrtEp, public ApiPtrs {
 
   std::unordered_set<std::string> control_flow_op_set_ = {"If", "Loop", "Scan"};
 
-  //  std::unique_ptr<ONNX_NAMESPACE::ModelProto> model_proto_ = ONNX_NAMESPACE::ModelProto::Create();
-
-  //  mutable std::unordered_map<std::string, std::unique_ptr<SubGraphContext>> subgraph_context_map_;
-
   mutable std::unique_ptr<nvinfer1::IBuilder> builder_;
 
   // Following maps that hold TRT objects will be accessible by different threads if ORT is using multithreading.
@@ -384,30 +360,37 @@ struct TensorrtExecutionProvider : public OrtEp, public ApiPtrs {
   std::unordered_map<std::string, std::vector<nvinfer1::IOptimizationProfile*>> profiles_;
   std::unordered_map<std::string, DDSOutputAllocatorMap> dds_output_allocator_maps_;
 
+  // TODO: Add support for external cudnn and cublas.
   // for external stream, we need to create its cudnn/cublass handle before cuda EP enable cuda graph capture
-  //  cudnnHandle_t external_cudnn_handle_ = nullptr;
-  //  cublasHandle_t external_cublas_handle_ = nullptr;
+  // cudnnHandle_t external_cudnn_handle_ = nullptr;
+  // cublasHandle_t external_cublas_handle_ = nullptr;
 
   // Call cudaStreamSynchronize() after TRT enqueueV3()
   mutable bool sync_stream_after_enqueue_ = true;
 
-  //  CUDAGraph cuda_graph_;
-  //  bool is_graph_captured_ = false;
+  // TODO: Add support for CUDA graph for plugin ep.
+  /*
+  CUDAGraph cuda_graph_;
+  bool is_graph_captured_ = false;
   int regular_run_count_before_graph_capture_ = 0;
   // There is chance (currently only happens in CUDA EP) that the second regular run allocates GPU memory for causes like:
   // (1) memory pattern is enabled. (2) arena allocation for stream.
   // Since no GPU memory allocation is allowed during graph capturing, we need at least two regular runs
   // to allocate enough memory in Arena before graph capturing.
   const int min_num_runs_before_cuda_graph_capture_ = 1;  // required min regular runs before graph capture for the necessary memory allocations.
+  */
 
   bool IsGraphCaptureAllowed() const { return false; };
 
   nvinfer1::IBuilder* GetBuilder(TensorrtLogger& trt_logger) const;
 
+  /**Check whether all the nodes of the graph are assigned to specific ep*/
   bool AllNodesAssignedToSpecificEP(const OrtGraph* graph, const std::string& provider_type) const;
 
+  /**Check the graph is the subgraph of control flow op*/
   bool IsSubGraphOfControlFlowOp(const OrtGraph* graph) const;
 
+  /**Check whether all the nodes of subgraph are supported*/
   bool IsSubGraphFullySupported(const OrtGraph* graph, SubGraphCollection_t supported_nodes_vector) const;
 };
 

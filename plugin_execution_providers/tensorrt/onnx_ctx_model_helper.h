@@ -17,14 +17,16 @@ bool IsAbsolutePath(const std::string& path_string);
 bool IsRelativePathToParentPath(const std::string& path_string);
 std::filesystem::path GetPathOrParentPathOfCtxModel(const std::string& ep_context_file_path);
 
+// Class to create an EPContext node from an ORT's fused_node.
+//
+// Note: The class can be instantiated many times during EP's Compile() as to generate the EPContext nodes from fused_nodes/subgraphs and returns them to ORT via Compile(),
+//       ORT will end up creating the EPContext model.
 class EPContextNodeHelper : public ApiPtrs {
  public:
   EPContextNodeHelper(TensorrtExecutionProvider& ep,
                       const OrtGraph* graph,
                       const OrtNode* fused_node)
       : ApiPtrs{static_cast<const ApiPtrs&>(ep)}, graph_(graph), fused_node_(fused_node) {}
-
-  static bool GraphHasCtxNode(const OrtGraph* graph, const OrtApi& ort_api);
 
   OrtStatus* CreateEPContextNode(const std::string& engine_cache_path,
                                  char* engine_data,
@@ -39,9 +41,11 @@ class EPContextNodeHelper : public ApiPtrs {
   const OrtNode* fused_node_ = nullptr;
 };
 
+// Class to read an OrtGraph that contains an EPContext node and get the engine binary accordingly.
 class EPContextNodeReader : public ApiPtrs {
  public:
   EPContextNodeReader(TensorrtExecutionProvider& ep,
+                      const OrtLogger& logger,
                       std::unique_ptr<nvinfer1::ICudaEngine>* trt_engine,
                       nvinfer1::IRuntime* trt_runtime,
                       std::string ep_context_model_path,
@@ -54,6 +58,8 @@ class EPContextNodeReader : public ApiPtrs {
                       size_t onnx_external_data_bytestream_size,
                       bool detailed_build_log)
       : ApiPtrs{static_cast<const ApiPtrs&>(ep)},
+        ep_(ep),
+        logger_(logger),
         trt_engine_(trt_engine),
         trt_runtime_(trt_runtime),
         ep_context_model_path_(ep_context_model_path),
@@ -67,11 +73,15 @@ class EPContextNodeReader : public ApiPtrs {
         detailed_build_log_(detailed_build_log) {
   }
 
-  // bool ValidateEPCtxNode(const OrtGraph& graph);
+  static bool GraphHasCtxNode(const OrtGraph* graph, const OrtApi& ort_api);
+
+  bool ValidateEPCtxNode(const OrtGraph* graph) const;
 
   OrtStatus* GetEpContextFromGraph(const OrtGraph& graph);
 
  private:
+  TensorrtExecutionProvider& ep_;
+  const OrtLogger& logger_;
   std::unique_ptr<nvinfer1::ICudaEngine>* trt_engine_;
   nvinfer1::IRuntime* trt_runtime_;
   std::string ep_context_model_path_;  // If using context model, it implies context model and engine cache is in the same directory

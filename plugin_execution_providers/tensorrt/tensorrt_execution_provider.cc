@@ -36,6 +36,16 @@ const OrtApi* g_ort_api = nullptr;
 const OrtEpApi* g_ep_api = nullptr;
 const OrtModelEditorApi* g_model_editor_api = nullptr;
 
+namespace ONNX_NAMESPACE {
+using int64s = google::protobuf::RepeatedField<int64_t>;
+using float32s = google::protobuf::RepeatedField<float>;
+using StringStringEntryProtos = google::protobuf::RepeatedPtrField<StringStringEntryProto>;
+using TensorProtos = google::protobuf::RepeatedPtrField<TensorProto>;
+using TensorShapeProto_Dimensions = google::protobuf::RepeatedPtrField<TensorShapeProto_Dimension>;
+using ValueInfoProtos = google::protobuf::RepeatedPtrField<ValueInfoProto>;
+using FunctionProtos = google::protobuf::RepeatedPtrField<FunctionProto>;
+}  // namespace ONNX_NAMESPACE
+
 namespace trt_ep {
 
 void CUDA_RETURN_IF_ERROR(cudaError_t res) {
@@ -1048,6 +1058,7 @@ OrtStatus* TensorrtExecutionProvider::CreateNodeComputeInfoFromGraph(OrtEp* this
                                                                      /* out */ OrtNode** ep_context_node) {
   TensorrtExecutionProvider* ep = static_cast<TensorrtExecutionProvider*>(this_ptr);
 
+  // Comment out following code if you want the "large" initializers to be saved to a external file.
   /*
   //Save initializers to external file
   std::string ext_ini_file_path = "model_serialized.bin";
@@ -1735,10 +1746,15 @@ OrtStatus* TensorrtExecutionProvider::CreateNodeComputeInfoFromGraph(OrtEp* this
       Ort::ThrowOnError(ep->ort_api.Logger_LogMessage(&ep->logger_,
                                                       OrtLoggingLevel::ORT_LOGGING_LEVEL_VERBOSE,
                                                       message.c_str(), ORT_FILE, __LINE__, __FUNCTION__));
-      char* onnx = string_buf.data();
-      size_t onnx_size = string_buf.size();
-      auto status = RefitEngine(model_path_, onnx_model_folder_path_, engine_cache_path,
-                                false /* path check for security */, onnx, onnx_size, trt_engine.get(),
+      auto status = RefitEngine(model_path_,
+                                onnx_model_folder_path_,
+                                engine_cache_path,
+                                false /* path check for security */,
+                                onnx_model_bytestream_,
+                                onnx_model_bytestream_size_,
+                                onnx_external_data_bytestream_,
+                                onnx_external_data_bytestream_size_,
+                                trt_engine.get(),
                                 true /* serialize refitted engine to disk */, detailed_build_log_);
       if (status != nullptr) {
         return ort_api.CreateStatus(ORT_EP_FAIL, "RefitEngine failed.");
@@ -1887,6 +1903,8 @@ OrtStatus* TensorrtExecutionProvider::CreateNodeComputeInfoFromGraph(OrtEp* this
       onnx_model_folder_path_,
       onnx_model_bytestream_,
       onnx_model_bytestream_size_,
+      onnx_external_data_bytestream_,
+      onnx_external_data_bytestream_size_,
       cache_prefix_,
       cache_suffix,
       engine_hw_compatible_,
@@ -1920,6 +1938,7 @@ OrtStatus* TensorrtExecutionProvider::CreateNodeComputeInfoFromPrecompiledEngine
 
   // Get engine binary data and deserialize it
   std::unique_ptr<EPContextNodeReader> ep_context_node_reader = std::make_unique<EPContextNodeReader>(*ep,
+                                                                                                      logger_,
                                                                                                       &trt_engine,
                                                                                                       runtime_.get(),
                                                                                                       model_path_,
@@ -2082,7 +2101,7 @@ OrtStatus* ORT_API_CALL TensorrtExecutionProvider::CompileImpl(_In_ OrtEp* this_
     }
 
     OrtStatus* status;
-    if (EPContextNodeHelper::GraphHasCtxNode(graphs[fused_node_idx], ort_api)) {
+    if (EPContextNodeReader::GraphHasCtxNode(graphs[fused_node_idx], ort_api)) {
       RETURN_IF_ERROR(ep->CreateNodeComputeInfoFromPrecompiledEngine(this_ptr, graphs[fused_node_idx], fused_node,
                                                                      input_map, output_map,
                                                                      &node_compute_infos_result[fused_node_idx]));
@@ -2128,12 +2147,21 @@ OrtStatus* ORT_API_CALL TensorrtExecutionProvider::CreateSyncStreamForDeviceImpl
 /**
  * Refit the weight-stripped engine
  */
-OrtStatus* TensorrtExecutionProvider::RefitEngine(
-    std::string onnx_model_filename, std::string& onnx_model_folder_path, std::string& weight_stripped_engine_cath_path,
-    bool path_check, const void* onnx_model_bytestream, size_t onnx_model_bytestream_size,
-    nvinfer1::ICudaEngine* trt_engine, bool serialize_refitted_engine, bool detailed_build_log) {
+OrtStatus* TensorrtExecutionProvider::RefitEngine(std::string onnx_model_filename,
+                                                  std::string& onnx_model_folder_path,
+                                                  std::string& weight_stripped_engine_cath_path,
+                                                  bool path_check,
+                                                  const void* onnx_model_bytestream,
+                                                  size_t onnx_model_bytestream_size,
+                                                  const void* onnx_external_data_bytestream,
+                                                  size_t onnx_external_data_bytestream_size,
+                                                  nvinfer1::ICudaEngine* trt_engine,
+                                                  bool serialize_refitted_engine,
+                                                  bool detailed_build_log) {
 #if NV_TENSORRT_MAJOR >= 10
   bool refit_from_file = onnx_model_bytestream == nullptr && onnx_model_bytestream_size == 0;
+  bool refit_with_external_data = onnx_external_data_bytestream != nullptr && onnx_external_data_bytestream_size != 0;
+  bool refit_complete = false;
   std::filesystem::path onnx_model_path{onnx_model_folder_path};
   if (refit_from_file) {
     if (!onnx_model_filename.empty()) {
@@ -2143,12 +2171,11 @@ OrtStatus* TensorrtExecutionProvider::RefitEngine(
       std::string err_msg = "The ONNX model was not provided as path. Please use provide an ONNX bytestream to enable refitting the weightless engine.";
       return ort_api.CreateStatus(ORT_EP_FAIL, err_msg.c_str());
     } else {
-      /*
       // check if file path to ONNX is legal
       if (path_check && IsAbsolutePath(onnx_model_path.string())) {
         std::string err_msg =
             "For security purpose, the ONNX model path should be set with a relative path, but it is an absolute path: " + onnx_model_path.string();
-            "weightless engine.";
+        "weightless engine.";
         return ort_api.CreateStatus(ORT_EP_FAIL, err_msg.c_str());
       }
       if (path_check && IsRelativePathToParentPath(onnx_model_path.string())) {
@@ -2156,7 +2183,6 @@ OrtStatus* TensorrtExecutionProvider::RefitEngine(
             "The ONNX model path has '..'. For security purpose, it's not allowed to point outside the directory.";
         return ort_api.CreateStatus(ORT_EP_FAIL, err_msg.c_str());
       }
-      */
 
       if (!(std::filesystem::exists(onnx_model_path) && std::filesystem::is_regular_file(onnx_model_path))) {
         std::string err_msg = "The ONNX model " + onnx_model_path.string() + " does not exist.";
@@ -2170,30 +2196,164 @@ OrtStatus* TensorrtExecutionProvider::RefitEngine(
   auto refitter = std::unique_ptr<nvinfer1::IRefitter>(nvinfer1::createInferRefitter(*trt_engine, trt_logger));
   auto parser_refitter =
       std::unique_ptr<nvonnxparser::IParserRefitter>(nvonnxparser::createParserRefitter(*refitter, trt_logger));
-  if (refit_from_file) {
-    std::string message = "[TensorRT EP] Refitting from file on disk: " + onnx_model_path.string();
-    Ort::ThrowOnError(ort_api.Logger_LogMessage(&logger_,
-                                                OrtLoggingLevel::ORT_LOGGING_LEVEL_VERBOSE,
-                                                message.c_str(), ORT_FILE, __LINE__, __FUNCTION__));
-    if (!parser_refitter->refitFromFile(onnx_model_path.string().c_str())) {
-      std::string err_msg =
-          "TensorRT EP's IParserRefitter could not refit deserialized weight-stripped engine with "
-          "weights contained in: " +
-          onnx_model_path.string();
+
+#if (NV_TENSORRT_MAJOR == 10 && NV_TENSORRT_MINOR > 12) || NV_TENSORRT_MAJOR > 10
+  // New refit APIs
+  if (refit_with_external_data) {
+    // A valid model bytestream must be passed.
+    if (refit_from_file) {
+      std::string err_msg = "TensorRT EP's refit with external data must be called with a valid ONNX model bytestream";
       return ort_api.CreateStatus(ORT_EP_FAIL, err_msg.c_str());
     }
-  } else {
-    std::string message = "[TensorRT EP] Refitting from byte array";
+
+    if (!parser_refitter->loadModelProto(onnx_model_bytestream, onnx_model_bytestream_size, nullptr)) {
+      std::string err_msg = "TensorRT EP's IParserRefitter could not load model from provided onnx_model_bytestream";
+      return ort_api.CreateStatus(ORT_EP_FAIL, err_msg.c_str());
+    }
+
+    // Extract weight information from the Refitter.
+    int required_weights = refitter->getAllWeights(0, nullptr);
+    std::vector<char const*> refit_names(required_weights);
+    refitter->getAllWeights(required_weights, refit_names.data());
+    std::string message = "[TensorRT EP] Refitter requires " + std::to_string(required_weights) + " weights";
     Ort::ThrowOnError(ort_api.Logger_LogMessage(&logger_,
                                                 OrtLoggingLevel::ORT_LOGGING_LEVEL_VERBOSE,
                                                 message.c_str(), ORT_FILE, __LINE__, __FUNCTION__));
-    if (!parser_refitter->refitFromBytes(onnx_model_bytestream, onnx_model_bytestream_size)) {
-      std::string err_msg =
-          "TensorRT EP's IParserRefitter could not refit deserialized weight-stripped engine with "
-          "weights contained in the provided bytestraem";
+
+    // Vectors to keep track of data pointers.
+    std::vector<std::string> names;
+    names.reserve(required_weights);
+    std::vector<const char*> bytes;
+    bytes.reserve(required_weights);
+    std::vector<int64_t> sizes;
+    sizes.reserve(required_weights);
+
+    auto onnx_model = std::make_unique<ONNX_NAMESPACE::ModelProto>();
+    ONNX_NAMESPACE::TensorProtos* allInitializers_byte_stream;
+
+    // Reconstruct onnx model view.
+    const auto onnx_model_view = std::string((const char*)onnx_model_bytestream,
+                                             onnx_model_bytestream_size);
+    if (!onnx_model->ParseFromString(onnx_model_view)) {
+      std::string err_msg = "The provided ONNX bytestream to refit could not be parsed.";
       return ort_api.CreateStatus(ORT_EP_FAIL, err_msg.c_str());
+    }
+
+    // Extract graph and initializer information.
+    auto const& graph = onnx_model->mutable_graph();
+    allInitializers_byte_stream = graph->mutable_initializer();
+    message = "[TensorRT EP] Initializers that were found " + std::to_string(allInitializers_byte_stream->size());
+    Ort::ThrowOnError(ort_api.Logger_LogMessage(&logger_,
+                                                OrtLoggingLevel::ORT_LOGGING_LEVEL_VERBOSE,
+                                                message.c_str(), ORT_FILE, __LINE__, __FUNCTION__));
+
+    // Loop through all initializers
+    int missing_initializer_data = 0;
+    for (int initializer_idx = 0; initializer_idx < allInitializers_byte_stream->size(); ++initializer_idx) {
+      auto& proto = allInitializers_byte_stream->at(initializer_idx);
+      auto& proto_name = proto.name();
+      bool weight_is_refittable = std::find(refit_names.begin(), refit_names.end(), proto_name) != refit_names.end();
+      if (weight_is_refittable) {
+        if (proto.has_data_location()) {
+          if (proto.data_location() == ONNX_NAMESPACE::TensorProto_DataLocation_EXTERNAL) {
+            // Default values for reading into external_data blob.
+            int64_t offset = 0;
+            size_t length = 0;
+            auto external_data = proto.mutable_external_data();
+            const std::string kOffset = "offset", kLength = "length";
+            for (int entry_idx = 0; entry_idx < external_data->size(); ++entry_idx) {
+              auto current_key = external_data->at(entry_idx).mutable_key();
+              auto current_value = external_data->at(entry_idx).mutable_value();
+              if (*current_key == kOffset && !current_value->empty()) {
+                offset = std::stoll(*current_value);
+              } else if (*current_key == kLength && !current_value->empty()) {
+                length = std::stoul(*current_value);
+              }
+            }
+            names.push_back(proto.name());
+            bytes.push_back(static_cast<const char*>(onnx_external_data_bytestream) + offset);
+            sizes.push_back(length);
+          } else {
+            std::string err_msg = "[TensorRT EP] Proto: " + proto_name + " expected to have external datalocation, but default datalocation was provided instead.";
+            return ort_api.CreateStatus(ORT_EP_FAIL, err_msg.c_str());
+          }
+        } else if (proto.has_raw_data()) {
+          auto& raw_data = proto.raw_data();
+          names.push_back(proto.name());
+          bytes.push_back(raw_data.c_str());
+          sizes.push_back(raw_data.size());
+        } else {
+          message = "[TensorRT EP] Proto: " + proto_name + " has no raw nor external data.";
+          Ort::ThrowOnError(ort_api.Logger_LogMessage(&logger_,
+                                                      OrtLoggingLevel::ORT_LOGGING_LEVEL_WARNING,
+                                                      message.c_str(), ORT_FILE, __LINE__, __FUNCTION__));
+          ++missing_initializer_data;
+        }
+      } else {
+        message = "[TensorRT EP] Initializer with name: " + proto_name + " was not marked as refittable";
+        Ort::ThrowOnError(ort_api.Logger_LogMessage(&logger_,
+                                                    OrtLoggingLevel::ORT_LOGGING_LEVEL_VERBOSE,
+                                                    message.c_str(), ORT_FILE, __LINE__, __FUNCTION__));
+      }
+    }
+    if (missing_initializer_data) {
+      std::string err_msg = "[TensorRT EP] RefitEngine is missing " + std::to_string(missing_initializer_data) + " initializers.";
+      return ort_api.CreateStatus(ORT_EP_FAIL, err_msg.c_str());
+    }
+
+    // Load extracted initializers into the parser
+    if (!names.empty()) {
+      message = "[TensorRT EP] Number of initializers submitted to refitter " + std::to_string(names.size());
+      Ort::ThrowOnError(ort_api.Logger_LogMessage(&logger_,
+                                                  OrtLoggingLevel::ORT_LOGGING_LEVEL_VERBOSE,
+                                                  message.c_str(), ORT_FILE, __LINE__, __FUNCTION__));
+      for (size_t i = 0; i < names.size(); i++) {
+        bool refloadInit = parser_refitter->loadInitializer(names[i].c_str(), bytes[i], sizes[i]);
+        if (!refloadInit) {
+          std::string err_msg = "TensorRT EP's IParserRefitter could not refit deserialized weight-stripped engine with weights contained in the provided bytestream";
+          return ort_api.CreateStatus(ORT_EP_FAIL, err_msg.c_str());
+        }
+      }
+    }
+    // Perform refit.
+    if (!parser_refitter->refitModelProto()) {
+      std::string err_msg = "TensorRT EP's IParserRefitter refitModelProto() failed with the provided external data bytestream.";
+      return ort_api.CreateStatus(ORT_EP_FAIL, err_msg.c_str());
+    }
+    refit_complete = true;
+  }
+#else
+  // Refitting with external data is not supported prior to TensorRT 10.13. Log a warning in this case for the user.
+  if (refit_with_external_data) {
+    message = "[TensorRT EP] Refitting with an onnx_external_data_bytestream is only supported on TensorRT versions >= 10.13! This parameter will be ignored for refitting, and the resulting refitted engine may be incorrect.";
+    Ort::ThrowOnError(ort_api.Logger_LogMessage(&logger_,
+                                                OrtLoggingLevel::ORT_LOGGING_LEVEL_WARNING,
+                                                message.c_str(), ORT_FILE, __LINE__, __FUNCTION__));
+  }
+#endif  // (NV_TENSORRT_MAJOR == 10 && NV_TENSORRT_MINOR > 12) || NV_TENSORRT_MAJOR > 10
+  // If new refit flow was not completed, then fallback to refit_from_file.
+  if (!refit_complete) {
+    if (refit_from_file) {
+      std::string message = "[TensorRT EP] Refitting from file on disk: " + onnx_model_path.string();
+      Ort::ThrowOnError(ort_api.Logger_LogMessage(&logger_,
+                                                  OrtLoggingLevel::ORT_LOGGING_LEVEL_VERBOSE,
+                                                  message.c_str(), ORT_FILE, __LINE__, __FUNCTION__));
+      if (!parser_refitter->refitFromFile(onnx_model_path.string().c_str())) {
+        std::string err_msg = "TensorRT EP's IParserRefitter could not refit deserialized weight-stripped engine with weights contained in: " + onnx_model_path.string();
+        return ort_api.CreateStatus(ORT_EP_FAIL, err_msg.c_str());
+      }
+    } else {
+      std::string message = "[TensorRT EP] Refitting from byte array";
+      Ort::ThrowOnError(ort_api.Logger_LogMessage(&logger_,
+                                                  OrtLoggingLevel::ORT_LOGGING_LEVEL_VERBOSE,
+                                                  message.c_str(), ORT_FILE, __LINE__, __FUNCTION__));
+      if (!parser_refitter->refitFromBytes(onnx_model_bytestream, onnx_model_bytestream_size)) {
+        std::string err_msg = "TensorRT EP's IParserRefitter could not refit deserialized weight-stripped engine with weights contained in the provided bytestream";
+        return ort_api.CreateStatus(ORT_EP_FAIL, err_msg.c_str());
+      }
     }
   }
+
   if (refitter->refitCudaEngine()) {
     std::string message = "[TensorRT EP] Successfully refitted the weight-stripped engine.";
     Ort::ThrowOnError(ort_api.Logger_LogMessage(&logger_,
@@ -2335,6 +2495,10 @@ TensorrtExecutionProvider::TensorrtExecutionProvider(TensorrtExecutionProviderFa
     engine_cache_enable_ = info_.engine_cache_enable;
     weight_stripped_engine_enable_ = info_.weight_stripped_engine_enable;
     onnx_model_folder_path_ = info_.onnx_model_folder_path;
+    onnx_model_bytestream_ = info_.onnx_bytestream;
+    onnx_model_bytestream_size_ = info_.onnx_bytestream_size;
+    onnx_external_data_bytestream_ = info_.external_data_bytestream;
+    onnx_external_data_bytestream_size_ = info_.external_data_bytestream_size;
     timing_cache_enable_ = info_.timing_cache_enable;
     force_timing_cache_match_ = info_.force_timing_cache;
     detailed_build_log_ = info_.detailed_build_log;
@@ -2674,6 +2838,8 @@ OrtStatus* TRTEpNodeComputeInfo::ComputeImpl(OrtNodeComputeInfo* this_ptr, void*
   auto onnx_model_folder_path = trt_state->onnx_model_folder_path;
   auto onnx_model_bytestream = trt_state->onnx_model_bytestream;
   auto onnx_model_bytestream_size = trt_state->onnx_model_bytestream_size;
+  auto onnx_external_data_bytestream = trt_state->onnx_external_data_bytestream;
+  auto onnx_external_data_bytestream_size = trt_state->onnx_external_data_bytestream_size;
 
   auto sync_stream_after_enqueue = trt_state->sync_stream_after_enqueue;
 
@@ -2702,9 +2868,6 @@ OrtStatus* TRTEpNodeComputeInfo::ComputeImpl(OrtNodeComputeInfo* this_ptr, void*
   void* cuda_stream;
   Ort::ThrowOnError(ep.ort_api.KernelContext_GetGPUComputeStream(kernel_context, &cuda_stream));
   cudaStream_t stream = static_cast<cudaStream_t>(cuda_stream);
-
-  // cudaStream_t stream;
-  // cudaStreamCreate(&stream);
 
   // Name the engine cache based on GPU compute capacity and reduce the chance of loading an incompatible cache
   // Note: Engine cache generated on a GPU with large memory might not be loadable on a GPU with smaller memory, even
@@ -3101,20 +3264,22 @@ OrtStatus* TRTEpNodeComputeInfo::ComputeImpl(OrtNodeComputeInfo* this_ptr, void*
       }
     }
 
-    /*
-    // dump ep context model
-    if (dump_ep_context_model_ && ep_context_embed_mode_) {
-      UpdateCtxNodeModelEngineContext(model_proto_.get(), reinterpret_cast<char*>(serialized_engine->data()),
-                                      serialized_engine->size());
-      DumpCtxModel(model_proto_.get(), ctx_model_path_);
-    }
-    */
+    // TODO: In current ORT's EPContext design, there is no way TRT EP can update the engine cache binary in EPContext node with the rebuilt engine.
+    //       The hacky way is to directly modify the EPContext model that graph_partitioner generates in session initialization.
+
     context_update = true;
 
     if (weight_stripped_engine_refit) {
       auto status =
-          ep.RefitEngine(model_path, onnx_model_folder_path, engine_cache_path, false /* path check for security */,
-                         onnx_model_bytestream, onnx_model_bytestream_size, trt_engine,
+          ep.RefitEngine(model_path,
+                         onnx_model_folder_path,
+                         engine_cache_path,
+                         false /* path check for security */,
+                         onnx_model_bytestream,
+                         onnx_model_bytestream_size,
+                         onnx_external_data_bytestream,
+                         onnx_external_data_bytestream_size,
+                         trt_engine,
                          true /* serialize refitted engine to disk */, detailed_build_log);
       if (status != nullptr) {
         return ep.ort_api.CreateStatus(ORT_EP_FAIL, "RefitEngine failed.");
@@ -3235,6 +3400,7 @@ OrtStatus* TRTEpNodeComputeInfo::ComputeImpl(OrtNodeComputeInfo* this_ptr, void*
     trt_context->setDeviceMemory((*context_memory).get());
   }
 
+  // TODO: Add support for CUDA graph for plugin ep.
   /*
   // Start CUDA graph capture.
   // Note: The reason we don't put graph capture in OnRunStart() like CUDA EP does is because
@@ -3315,6 +3481,7 @@ OrtStatus* TRTEpNodeComputeInfo::ComputeImpl(OrtNodeComputeInfo* this_ptr, void*
     }
   }
 
+  // TODO: Add support for CUDA graph for plugin ep.
   /*
   // End CUDA graph capture.
   // Note: One reason we don't put end of graph capture in OnRunEnd() like CUDA EP does is because of cuda stream
@@ -3509,6 +3676,7 @@ OrtStatus* TRTEpEpContextNodeComputeInfo::ComputeImpl(OrtNodeComputeInfo* this_p
     trt_context->setDeviceMemory((*context_memory).get());
   }
 
+  // TODO: Add support for CUDA graph for plugin ep.
   /*
   // Start CUDA graph capture.
   // Note: The reason we don't put graph capture in OnRunStart() like CUDA EP does is because
@@ -3589,6 +3757,7 @@ OrtStatus* TRTEpEpContextNodeComputeInfo::ComputeImpl(OrtNodeComputeInfo* this_p
     }
   }
 
+  // TODO: Add support for CUDA graph for plugin ep.
   /*
   // End CUDA graph capture.
   // Note: One reason we don't put end of graph capture in OnRunEnd() like CUDA EP does is because of cuda stream
