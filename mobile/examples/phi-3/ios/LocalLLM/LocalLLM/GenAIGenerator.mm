@@ -7,12 +7,12 @@
 #include "ort_genai.h"
 #include "ort_genai_c.h"
 
-
 const size_t kMaxTokens = 200;
 
 @interface GenAIGenerator () {
   std::unique_ptr<OgaModel> model;
   std::unique_ptr<OgaTokenizer> tokenizer;
+  NSString* modelPath;
 }
 @end
 
@@ -30,27 +30,48 @@ typedef std::chrono::time_point<Clock> TimePoint;
   return self;
 }
 
+- (void)setModelFolderPath:(NSString*)modelPath {
+  @synchronized(self) {
+    self->modelPath = [modelPath copy];
+    NSLog(@"Model folder path set to: %@", modelPath);
+    
+    try {
+      [self loadModelFromPath];
+    } catch (const std::exception& e) {
+      NSString* errorMessage = [NSString stringWithUTF8String:e.what()];
+      NSLog(@"Error loading model: %@", errorMessage);
+      
+      // Notify the UI about the error
+      NSDictionary* errorInfo = @{@"error" : errorMessage};
+      dispatch_async(dispatch_get_main_queue(), ^{
+        [[NSNotificationCenter defaultCenter] postNotificationName:@"GenAIError" object:nil userInfo:errorInfo];
+      });
+    }
+  }
+}
+
+- (void)loadModelFromPath {
+  @synchronized(self) {
+    NSLog(@"Creating model...");
+    self->model = OgaModel::Create(self->modelPath.UTF8String);  // throws exception
+    NSLog(@"Creating tokenizer...");
+    self->tokenizer = OgaTokenizer::Create(*self->model);  // throws exception
+  }
+}
+
 - (void)generate:(nonnull NSString*)input_user_question {
   std::vector<long long> tokenTimes;  // per-token generation times
   tokenTimes.reserve(kMaxTokens);
-
   TimePoint startTime, firstTokenTime, tokenStartTime;
 
   try {
+    if (!self->modelPath) {
+      self->modelPath = [[NSBundle mainBundle] resourcePath];
+      NSLog(@"No folder path provided. Using the default folder path: %@", self->modelPath);
+      [self loadModelFromPath];
+    }
+
     NSLog(@"Starting token generation...");
-
-    if (!self->model) {
-      NSLog(@"Creating model...");
-      NSString* llmPath = [[NSBundle mainBundle] resourcePath];
-      const char* modelPath = llmPath.cString;
-      self->model = OgaModel::Create(modelPath);  // throws exception
-    }
-
-    if (!self->tokenizer) {
-      NSLog(@"Creating tokenizer...");
-      self->tokenizer = OgaTokenizer::Create(*self->model);  // throws exception
-    }
-
     auto tokenizer_stream = OgaTokenizerStream::Create(*self->tokenizer);
 
     // Construct the prompt
@@ -66,7 +87,6 @@ typedef std::chrono::time_point<Clock> TimePoint;
     NSLog(@"Setting generator parameters...");
     auto params = OgaGeneratorParams::Create(*self->model);
     params->SetSearchOption("max_length", kMaxTokens);
-    params->SetInputSequences(*sequences);
 
     auto generator = OgaGenerator::Create(*self->model, *params);
 
@@ -74,10 +94,9 @@ typedef std::chrono::time_point<Clock> TimePoint;
     NSLog(@"Starting token generation loop...");
 
     startTime = Clock::now();
+    generator->AppendTokenSequences(*sequences);
     while (!generator->IsDone()) {
       tokenStartTime = Clock::now();
-
-      generator->ComputeLogits();
       generator->GenerateNextToken();
 
       if (isFirstToken) {
@@ -134,7 +153,7 @@ typedef std::chrono::time_point<Clock> TimePoint;
     // Send error to the UI
     NSDictionary* errorInfo = @{@"error" : errorMessage};
     dispatch_async(dispatch_get_main_queue(), ^{
-      [[NSNotificationCenter defaultCenter] postNotificationName:@"TokenGenerationError" object:nil userInfo:errorInfo];
+      [[NSNotificationCenter defaultCenter] postNotificationName:@"GenAIError" object:nil userInfo:errorInfo];
     });
   }
 }

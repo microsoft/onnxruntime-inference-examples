@@ -11,6 +11,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface GenAIGenerator : NSObject
 
+- (void)setModelFolderPath:(nonnull NSString *)modelPath;
 - (void)generate:(NSString *)input_user_question;
 
 @end
