@@ -151,7 +151,7 @@ bool ApplyProfileShapesFromProviderOptions(std::vector<nvinfer1::IOptimizationPr
     input_explicit_shape_ranges[input_name] = inner_map;
   }
 
-  std::string message = "[TensorRT EP] Begin to apply profile shapes ...\n" + 
+  std::string message = "[TensorRT EP] Begin to apply profile shapes ...\n" +
                         std::string("[TensorRT EP] Input tensor name is '") + input_name + std::string("', number of profiles found is ") + std::to_string(trt_profiles.size());
   Ort::ThrowOnError(g_ort_api->Logger_LogMessage(logger,
                                                  OrtLoggingLevel::ORT_LOGGING_LEVEL_VERBOSE,
@@ -777,7 +777,7 @@ bool TensorrtExecutionProvider::IsSubGraphOfControlFlowOp(const OrtGraph* graph)
 bool TensorrtExecutionProvider::IsSubGraphFullySupported(const OrtGraph* graph, SubGraphCollection_t supported_nodes_vector) const {
   size_t num_nodes = 0;
   THROW_IF_ERROR(ort_api.Graph_GetNumNodes(graph, &num_nodes));
-  
+
   int number_of_trt_nodes = 0;
   for (const auto& group : supported_nodes_vector) {
     if (!group.first.empty()) {
@@ -922,12 +922,12 @@ OrtStatus* ORT_API_CALL TensorrtExecutionProvider::GetCapabilityImpl(OrtEp* this
   // TODO: Detect and remove cycles from supported node list
 
   // TODO: Consolidate supported node list
-  
+
   // Handle the case where the graph is subgraph of control flow op.
   // The purpose is to make control flow op as well as its subgraphs run on TRT.
   // Here we need to check whether subgraph is fully supported by TRT and don't fuse the nodes of the subgraph until control flow op level.
   if (ep->IsSubGraphOfControlFlowOp(graph) && ep->IsSubGraphFullySupported(graph, supported_nodes_vector)) {
-    //const std::vector<NodeIndex>& node_index = graph.GetNodesInTopologicalOrder(1);
+    // const std::vector<NodeIndex>& node_index = graph.GetNodesInTopologicalOrder(1);
     bool all_subgraphs_are_supported = true;
 
     // "If" control flow op has two subgraph bodies, "then" body and "else" body respectively.
@@ -942,7 +942,6 @@ OrtStatus* ORT_API_CALL TensorrtExecutionProvider::GetCapabilityImpl(OrtEp* this
         auto subgraph = attr_name_subgraph.sub_graph;
         const OrtGraph* subgraph_raw_pointer = subgraph;
         if (subgraph_raw_pointer != graph) {
-
           size_t num_subgraph_nodes = 0;
           THROW_IF_ERROR(ort_api.Graph_GetNumNodes(subgraph, &num_subgraph_nodes));
 
@@ -1128,8 +1127,8 @@ OrtStatus* TensorrtExecutionProvider::CreateNodeComputeInfoFromGraph(OrtEp* this
           (static_cast<nvinfer1::IElementWiseLayer*>(layer))->getOperation() == nvinfer1::ElementWiseOperation::kPOW) {
         std::string message = "[TensorRT EP] Force Pow + Reduce ops in layer norm to run in FP32 to avoid overflow";
         Ort::ThrowOnError(ep->ort_api.Logger_LogMessage(&ep->logger_,
-                                                       OrtLoggingLevel::ORT_LOGGING_LEVEL_VERBOSE,
-                                                       message.c_str(), ORT_FILE, __LINE__, __FUNCTION__));
+                                                        OrtLoggingLevel::ORT_LOGGING_LEVEL_VERBOSE,
+                                                        message.c_str(), ORT_FILE, __LINE__, __FUNCTION__));
         layer->setPrecision(nvinfer1::DataType::kFLOAT);
         next_layer->setPrecision(nvinfer1::DataType::kFLOAT);
         layer->setOutputType(0, nvinfer1::DataType::kFLOAT);
@@ -1371,7 +1370,7 @@ OrtStatus* TensorrtExecutionProvider::CreateNodeComputeInfoFromGraph(OrtEp* this
       } else {
         if (dla_core_ >= number_of_dla_core) {
           std::string message = "[TensorRT EP] Try to use DLA core #" + std::to_string(dla_core_) +
-                                std::string(", but it exceeds platform's maximum DLA core number ") + std::to_string(number_of_dla_core) + 
+                                std::string(", but it exceeds platform's maximum DLA core number ") + std::to_string(number_of_dla_core) +
                                 std::string(". Use DLA core 0 instead.");
           Ort::ThrowOnError(ep->ort_api.Logger_LogMessage(&ep->logger_,
                                                           OrtLoggingLevel::ORT_LOGGING_LEVEL_WARNING,
@@ -1412,14 +1411,12 @@ OrtStatus* TensorrtExecutionProvider::CreateNodeComputeInfoFromGraph(OrtEp* this
   // for TRT 8.6 onwards, heuristic-based tactic option is automatically enabled by setting builder optimization level 2
   if (build_heuristics_enable_) {
     if (builder_optimization_level_ == 2) {
-      std::string message = "[TensorRT EP] Builder heuristics are automatically enabled by builder optimization "
-                            + std::string("level 2. trt_build_heuristics_enable is deprecated on TRT 8.6 onwards.");
+      std::string message = "[TensorRT EP] Builder heuristics are automatically enabled by builder optimization " + std::string("level 2. trt_build_heuristics_enable is deprecated on TRT 8.6 onwards.");
       Ort::ThrowOnError(ep->ort_api.Logger_LogMessage(&ep->logger_,
                                                       OrtLoggingLevel::ORT_LOGGING_LEVEL_WARNING,
                                                       message.c_str(), ORT_FILE, __LINE__, __FUNCTION__));
     } else {
-      std::string message = "[TensorRT EP] trt_build_heuristics_enable is deprecated on TRT 8.6 onwards. Please set "
-                            + std::string("builder optimization level as 2 to enable builder heuristics.");
+      std::string message = "[TensorRT EP] trt_build_heuristics_enable is deprecated on TRT 8.6 onwards. Please set " + std::string("builder optimization level as 2 to enable builder heuristics.");
       Ort::ThrowOnError(ep->ort_api.Logger_LogMessage(&ep->logger_,
                                                       OrtLoggingLevel::ORT_LOGGING_LEVEL_WARNING,
                                                       message.c_str(), ORT_FILE, __LINE__, __FUNCTION__));
@@ -2135,7 +2132,6 @@ OrtStatus* TensorrtExecutionProvider::RefitEngine(
     std::string onnx_model_filename, std::string& onnx_model_folder_path, std::string& weight_stripped_engine_cath_path,
     bool path_check, const void* onnx_model_bytestream, size_t onnx_model_bytestream_size,
     nvinfer1::ICudaEngine* trt_engine, bool serialize_refitted_engine, bool detailed_build_log) {
-
 #if NV_TENSORRT_MAJOR >= 10
   bool refit_from_file = onnx_model_bytestream == nullptr && onnx_model_bytestream_size == 0;
   std::filesystem::path onnx_model_path{onnx_model_folder_path};
@@ -2258,12 +2254,12 @@ TensorrtExecutionProvider::TensorrtExecutionProvider(TensorrtExecutionProviderFa
   CreateSyncStreamForDevice = CreateSyncStreamForDeviceImpl;
 
   // Initialize the execution provider.
-  auto status = ort_api.Logger_LogMessage(&logger_,
-                                          OrtLoggingLevel::ORT_LOGGING_LEVEL_INFO,
-                                          ("Plugin EP has been created with name " + name_).c_str(),
-                                          ORT_FILE, __LINE__, __FUNCTION__);
+  auto ort_status = ort_api.Logger_LogMessage(&logger_,
+                                              OrtLoggingLevel::ORT_LOGGING_LEVEL_INFO,
+                                              ("Plugin EP has been created with name " + name_).c_str(),
+                                              ORT_FILE, __LINE__, __FUNCTION__);
   // ignore status for now
-  (void)status;
+  (void)ort_status;
 
   // populate apis as global for utility functions
   g_ort_api = &ort_api;
@@ -2343,7 +2339,6 @@ TensorrtExecutionProvider::TensorrtExecutionProvider(TensorrtExecutionProviderFa
     force_timing_cache_match_ = info_.force_timing_cache;
     detailed_build_log_ = info_.detailed_build_log;
     dump_ep_context_model_ = info_.dump_ep_context_model;
-    // dump_ep_context_model_ = true;
     ep_context_file_path_ = info_.ep_context_file_path;
     ep_context_embed_mode_ = info_.ep_context_embed_mode;
     enable_engine_cache_for_ep_context_model();
@@ -2420,7 +2415,6 @@ TensorrtExecutionProvider::TensorrtExecutionProvider(TensorrtExecutionProviderFa
     }
   }
 
-  /*
   // If dump_ep_context_model_ is enable, TRT EP forces cache_path_ to be the relative path of ep_context_file_path_.
   // For example,
   //    - original cache path = "engine_cache_dir" -> new cache path = "./context_model_dir/engine_cache_dir"
@@ -2429,20 +2423,25 @@ TensorrtExecutionProvider::TensorrtExecutionProvider(TensorrtExecutionProviderFa
   // For security reason, it needs to make sure the engine cache is saved inside context model directory.
   if (dump_ep_context_model_ && engine_cache_enable_) {
     if (IsAbsolutePath(cache_path_)) {
-      // LOGS_DEFAULT(ERROR) << "In the case of dumping context model and for security purpose, the trt_engine_cache_path should be set with a relative path, but it is an absolute path:  " << cache_path_;
+      std::string message = "In the case of dumping context model and for security purpose, the trt_engine_cache_path should be set with a relative path, but it is an absolute path:  " + cache_path_;
+      Ort::ThrowOnError(ort_api.Logger_LogMessage(&logger_,
+                                                  OrtLoggingLevel::ORT_LOGGING_LEVEL_ERROR,
+                                                  message.c_str(), ORT_FILE, __LINE__, __FUNCTION__));
     }
     if (IsRelativePathToParentPath(cache_path_)) {
-      // LOGS_DEFAULT(ERROR) << "In the case of dumping context model and for security purpose, The trt_engine_cache_path has '..', it's not allowed to point outside the directory.";
+      std::string message = "In the case of dumping context model and for security purpose, The trt_engine_cache_path has '..', it's not allowed to point outside the directory.";
+      Ort::ThrowOnError(ort_api.Logger_LogMessage(&logger_,
+                                                  OrtLoggingLevel::ORT_LOGGING_LEVEL_ERROR,
+                                                  message.c_str(), ORT_FILE, __LINE__, __FUNCTION__));
     }
 
     // Engine cache relative path to context model directory.
     // It's used when dumping the "ep_cache_context" node attribute.
-    engine_cache_relative_path_to_context_model_dir = cache_path_;
+    engine_cache_relative_path_to_context_model_dir_ = cache_path_;
 
     // Make cache_path_ to be the relative path of ep_context_file_path_
     cache_path_ = GetPathOrParentPathOfCtxModel(ep_context_file_path_).append(cache_path_).string();
   }
-  */
 
   // Hardware compatibility: pre-check on environment
   if (engine_cache_enable_ && engine_hw_compatible_) {
@@ -2485,16 +2484,14 @@ TensorrtExecutionProvider::TensorrtExecutionProvider(TensorrtExecutionProviderFa
   if (engine_decryption_enable_) {
     LIBTYPE handle = OPENLIB(engine_decryption_lib_path_.c_str());
     if (handle == nullptr) {
-      // TODO(yang)
-      // ORT_THROW_IF_ERROR(ORT_MAKE_STATUS(ONNXRUNTIME, EP_FAIL,
-      //                                    "TensorRT EP could not open shared library from " + engine_decryption_lib_path_));
+      std::string message = "TensorRT EP could not open shared library from " + engine_decryption_lib_path_;
+      THROW_IF_ERROR(ort_api.CreateStatus(ORT_EP_FAIL, message.c_str()));
     }
     engine_decryption_ = (int (*)(const char*, char*, size_t*))LIBFUNC(handle, "decrypt");
     engine_encryption_ = (int (*)(const char*, char*, size_t))LIBFUNC(handle, "encrypt");
     if (engine_decryption_ == nullptr) {
-      // TODO(yang)
-      // ORT_THROW_IF_ERROR(ORT_MAKE_STATUS(ONNXRUNTIME, EP_FAIL,
-      //                                    "TensorRT EP could not find decryption function in shared library from " + engine_decryption_lib_path_));
+      std::string message = "TensorRT EP could not find decryption function in shared library from " + engine_decryption_lib_path_;
+      THROW_IF_ERROR(ort_api.CreateStatus(ORT_EP_FAIL, message.c_str()));
     }
   }
 
@@ -2512,56 +2509,56 @@ TensorrtExecutionProvider::TensorrtExecutionProvider(TensorrtExecutionProviderFa
    *  Please refer to ParserProfileShapes() for more details)
    *
    */
-  // bool status = true;
-  // if (status) {
-  //     status = ParseProfileShapes(profile_min_shapes, profile_min_shapes_);
-  //     if (!status) {
-  //         profile_min_shapes_.clear();
-  //         std::string message = "[TensorRT EP] The format of provider option 'trt_profile_min_shapes' is wrong, please follow the format of 'input1:dim1xdimd2...,input2:dim1xdim2...,...'";
-  //         Ort::ThrowOnError(ep->ort_api.Logger_LogMessage(&ep->logger_,
-  //                                                         OrtLoggingLevel::ORT_LOGGING_LEVEL_WARNING,
-  //                                                         message.c_str(), ORT_FILE, __LINE__, __FUNCTION__));
-  //     }
-  // }
+  bool status = true;
+  if (status) {
+    status = ParseProfileShapes(profile_min_shapes, profile_min_shapes_);
+    if (!status) {
+      profile_min_shapes_.clear();
+      std::string message = "[TensorRT EP] The format of provider option 'trt_profile_min_shapes' is wrong, please follow the format of 'input1:dim1xdimd2...,input2:dim1xdim2...,...'";
+      Ort::ThrowOnError(ort_api.Logger_LogMessage(&logger_,
+                                                  OrtLoggingLevel::ORT_LOGGING_LEVEL_WARNING,
+                                                  message.c_str(), ORT_FILE, __LINE__, __FUNCTION__));
+    }
+  }
 
-  // if (status) {
-  //     status = ParseProfileShapes(profile_max_shapes, profile_max_shapes_);
-  //     if (!status) {
-  //         profile_max_shapes_.clear();
-  //         std::string message = "[TensorRT EP] The format of provider option 'trt_profile_max_shapes' is wrong, please follow the format of 'input1:dim1xdimd2...,input2:dim1xdim2...,...'";
-  //         Ort::ThrowOnError(ep->ort_api.Logger_LogMessage(&ep->logger_,
-  //                                                         OrtLoggingLevel::ORT_LOGGING_LEVEL_WARNING,
-  //                                                         message.c_str(), ORT_FILE, __LINE__, __FUNCTION__));
-  //     }
-  // }
+  if (status) {
+    status = ParseProfileShapes(profile_max_shapes, profile_max_shapes_);
+    if (!status) {
+      profile_max_shapes_.clear();
+      std::string message = "[TensorRT EP] The format of provider option 'trt_profile_max_shapes' is wrong, please follow the format of 'input1:dim1xdimd2...,input2:dim1xdim2...,...'";
+      Ort::ThrowOnError(ort_api.Logger_LogMessage(&logger_,
+                                                  OrtLoggingLevel::ORT_LOGGING_LEVEL_WARNING,
+                                                  message.c_str(), ORT_FILE, __LINE__, __FUNCTION__));
+    }
+  }
 
-  // if (status) {
-  //     status = ParseProfileShapes(profile_opt_shapes, profile_opt_shapes_);
-  //     if (!status) {
-  //         profile_opt_shapes_.clear();
-  //         std::string message = "[TensorRT EP] The format of provider option 'trt_profile_opt_shapes' is wrong, please follow the format of 'input1:dim1xdimd2...,input2:dim1xdim2...,...'";
-  //         Ort::ThrowOnError(ep->ort_api.Logger_LogMessage(&ep->logger_,
-  //                                                         OrtLoggingLevel::ORT_LOGGING_LEVEL_WARNING,
-  //                                                         message.c_str(), ORT_FILE, __LINE__, __FUNCTION__));
-  //     }
-  // }
+  if (status) {
+    status = ParseProfileShapes(profile_opt_shapes, profile_opt_shapes_);
+    if (!status) {
+      profile_opt_shapes_.clear();
+      std::string message = "[TensorRT EP] The format of provider option 'trt_profile_opt_shapes' is wrong, please follow the format of 'input1:dim1xdimd2...,input2:dim1xdim2...,...'";
+      Ort::ThrowOnError(ort_api.Logger_LogMessage(&logger_,
+                                                  OrtLoggingLevel::ORT_LOGGING_LEVEL_WARNING,
+                                                  message.c_str(), ORT_FILE, __LINE__, __FUNCTION__));
+    }
+  }
 
-  // if (status) {
-  //     status = ValidateProfileShapes(profile_min_shapes_, profile_max_shapes_, profile_opt_shapes_);
-  //     if (!status) {
-  //         std::string message = "[TensorRT EP] Profile shapes validation failed. Make sure the provider options 'trt_profile_min_shapes', 'trt_profile_max_shapes' and 'trt_profile_opt_shapes' have same input name and number of profile.";
-  //         Ort::ThrowOnError(ep->ort_api.Logger_LogMessage(&ep->logger_,
-  //                                                         OrtLoggingLevel::ORT_LOGGING_LEVEL_WARNING,
-  //                                                         message.c_str(), ORT_FILE, __LINE__, __FUNCTION__));
-  //         message = "[TensorRT EP] TRT EP will implicitly create optimization profiles based on input tensor for you.";
-  //         Ort::ThrowOnError(ep->ort_api.Logger_LogMessage(&ep->logger_,
-  //                                                         OrtLoggingLevel::ORT_LOGGING_LEVEL_WARNING,
-  //                                                         message.c_str(), ORT_FILE, __LINE__, __FUNCTION__));
-  //         profile_min_shapes_.clear();
-  //         profile_max_shapes_.clear();
-  //         profile_opt_shapes_.clear();
-  //     }
-  // }
+  if (status) {
+    status = ValidateProfileShapes(profile_min_shapes_, profile_max_shapes_, profile_opt_shapes_);
+    if (!status) {
+      std::string message = "[TensorRT EP] Profile shapes validation failed. Make sure the provider options 'trt_profile_min_shapes', 'trt_profile_max_shapes' and 'trt_profile_opt_shapes' have same input name and number of profile.";
+      Ort::ThrowOnError(ort_api.Logger_LogMessage(&logger_,
+                                                  OrtLoggingLevel::ORT_LOGGING_LEVEL_WARNING,
+                                                  message.c_str(), ORT_FILE, __LINE__, __FUNCTION__));
+      message = "[TensorRT EP] TRT EP will implicitly create optimization profiles based on input tensor for you.";
+      Ort::ThrowOnError(ort_api.Logger_LogMessage(&logger_,
+                                                  OrtLoggingLevel::ORT_LOGGING_LEVEL_WARNING,
+                                                  message.c_str(), ORT_FILE, __LINE__, __FUNCTION__));
+      profile_min_shapes_.clear();
+      profile_max_shapes_.clear();
+      profile_opt_shapes_.clear();
+    }
+  }
 
   // cuda graph:
   // cudaStreamSynchronize() is not allowed in cuda graph capture.
@@ -3037,8 +3034,7 @@ OrtStatus* TRTEpNodeComputeInfo::ComputeImpl(OrtNodeComputeInfo* this_ptr, void*
       }
       if (detailed_build_log) {
         auto engine_build_stop = std::chrono::steady_clock::now();
-        std::string message = "TensorRT engine build for " + trt_state->trt_node_name_with_precision + " took: "
-                              + std::to_string(std::chrono::duration_cast<std::chrono::milliseconds>(engine_build_stop - engine_build_start).count()) + "ms";
+        std::string message = "TensorRT engine build for " + trt_state->trt_node_name_with_precision + " took: " + std::to_string(std::chrono::duration_cast<std::chrono::milliseconds>(engine_build_stop - engine_build_start).count()) + "ms";
         Ort::ThrowOnError(ep.ort_api.Logger_LogMessage(&ep.logger_,
                                                        OrtLoggingLevel::ORT_LOGGING_LEVEL_INFO,
                                                        message.c_str(), ORT_FILE, __LINE__, __FUNCTION__));
@@ -3075,8 +3071,8 @@ OrtStatus* TRTEpNodeComputeInfo::ComputeImpl(OrtNodeComputeInfo* this_ptr, void*
         } else {
           std::string message = "[TensorRT EP] Engine cache encryption function is not found. No cache is written to disk";
           Ort::ThrowOnError(ep.ort_api.Logger_LogMessage(&ep.logger_,
-                                                          OrtLoggingLevel::ORT_LOGGING_LEVEL_WARNING,
-                                                          message.c_str(), ORT_FILE, __LINE__, __FUNCTION__));
+                                                         OrtLoggingLevel::ORT_LOGGING_LEVEL_WARNING,
+                                                         message.c_str(), ORT_FILE, __LINE__, __FUNCTION__));
         }
       } else {
         std::ofstream file(engine_cache_path, std::ios::binary | std::ios::out);
@@ -3620,4 +3616,4 @@ void TRTEpEpContextNodeComputeInfo::ReleaseStateImpl(OrtNodeComputeInfo* this_pt
   (void)trt_ep_compute_state;
   // Do nothing for here.
 }
-}
+}  // namespace trt_ep

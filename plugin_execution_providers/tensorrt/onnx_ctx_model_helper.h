@@ -13,6 +13,10 @@
 #include <gsl/span>
 
 namespace trt_ep {
+bool IsAbsolutePath(const std::string& path_string);
+bool IsRelativePathToParentPath(const std::string& path_string);
+std::filesystem::path GetPathOrParentPathOfCtxModel(const std::string& ep_context_file_path);
+
 class EPContextNodeHelper : public ApiPtrs {
  public:
   EPContextNodeHelper(TensorrtExecutionProvider& ep,

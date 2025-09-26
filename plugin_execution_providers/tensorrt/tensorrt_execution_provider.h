@@ -352,7 +352,7 @@ struct TensorrtExecutionProvider : public OrtEp, public ApiPtrs {
   int ep_context_embed_mode_ = 0;
   std::string ctx_model_path_;
   std::string ep_cache_context_attr_;
-  std::string engine_cache_relative_path_to_context_model_dir;
+  std::string engine_cache_relative_path_to_context_model_dir_;
 
   OrtGraph* ep_ctx_graph_ = nullptr;
   std::vector<const char*> extra_attr_keys_;

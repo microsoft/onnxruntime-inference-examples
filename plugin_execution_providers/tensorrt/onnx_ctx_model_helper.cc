@@ -6,12 +6,59 @@
 #include <filesystem>
 
 #include "ep_utils.h"
+#include "path_string.h"
 #include "onnx_ctx_model_helper.h"
 #include "onnx/onnx_pb.h"
 
 namespace trt_ep {
 extern TensorrtLogger& GetTensorrtLogger(bool verbose_log, const OrtLogger& ort_default_logger,
                                          const OrtApi* ort_api);
+
+bool IsAbsolutePath(const std::string& path_string) {
+#ifdef _WIN32
+  PathString ort_path_string = ToPathString(path_string);
+  auto path = std::filesystem::path(ort_path_string.c_str());
+  return path.is_absolute();
+#else
+  if (!path_string.empty() && path_string[0] == '/') {
+    return true;
+  }
+  return false;
+#endif
+}
+
+// Like "../file_path"
+bool IsRelativePathToParentPath(const std::string& path_string) {
+#ifdef _WIN32
+  PathString ort_path_string = ToPathString(path_string);
+  auto path = std::filesystem::path(ort_path_string.c_str());
+  auto relative_path = path.lexically_normal().make_preferred().wstring();
+  if (relative_path.find(L"..", 0) != std::string::npos) {
+    return true;
+  }
+  return false;
+#else
+  if (!path_string.empty() && path_string.find("..", 0) != std::string::npos) {
+    return true;
+  }
+  return false;
+#endif
+}
+
+/*
+ * Return the directory where the ep context model locates
+ */
+std::filesystem::path GetPathOrParentPathOfCtxModel(const std::string& ep_context_file_path) {
+  if (ep_context_file_path.empty()) {
+    return std::filesystem::path();
+  }
+  std::filesystem::path ctx_path(ep_context_file_path);
+  if (std::filesystem::is_directory(ep_context_file_path)) {
+    return ctx_path;
+  } else {
+    return ctx_path.parent_path();
+  }
+}
 
 /*
  *  Check whether the graph has the EP context node.
