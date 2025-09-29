@@ -97,3 +97,7 @@ int RunInference() {
 int main(int argc, char* argv[]) {
   return RunInference();
 }
+
+// Note:
+// The mul_1.onnx can be found here:
+// https://github.com/microsoft/onnxruntime/blob/main/onnxruntime/test/testdata/mul_1.onnx
