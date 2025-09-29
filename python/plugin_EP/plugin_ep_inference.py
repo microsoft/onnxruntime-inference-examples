@@ -44,3 +44,8 @@ np.testing.assert_allclose(output_expected, res[0], rtol=1e-05, atol=1e-08)
 # Unregister the library using the application-specified registration name.
 # Must only unregister a library after all sessions that use the library have been released.
 onnxrt.unregister_execution_provider_library(ep_registration_name)
+
+
+# Note:
+# The mul_1.onnx can be found here:
+# https://github.com/microsoft/onnxruntime/blob/main/onnxruntime/test/testdata/mul_1.onnx
