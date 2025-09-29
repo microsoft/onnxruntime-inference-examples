@@ -1,6 +1,7 @@
 # usage:
 # cd build/
 # cmake -S ../ -B ./ -DCMAKE_BUILD_TYPE=Debug -DORT_HOME=/path/to/ort_package/onnxruntime-win-x64-gpu-1.23.0
+# cmake --build ./ --config Debug
 cmake_minimum_required(VERSION 3.26)
 project(plugin_ep_app VERSION 1.0)
 set(CMAKE_CXX_STANDARD 17)
