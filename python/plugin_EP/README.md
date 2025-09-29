@@ -5,18 +5,43 @@
 
 ## Run Inference with explicit OrtEpDevice(s)
 
-Please see `plugin_ep_inference.py` for details
-1. Register plugin EP library with ONNX Runtime via `onnxruntime.register_execution_provider_library()`
-2. Find the OrtEpDevice for that ep name via `onnxruntime.get_ep_devices()`
-3. Append the ep to ORT session option via `sess_options.add_provider_for_devices`
-4. Create ORT session with the ep
-5. Run ORT session
-6. Unregister plugin EP library via `onnxruntime.unregister_execution_provider_library()`
+Please see `plugin_ep_inference.py` for a full example.
+1. Register plugin EP library with ONNX Runtime
+   ````python
+   onnxruntime.register_execution_provider_library("plugin_ep.so")
+   ````
+2. Find the OrtEpDevice for that EP
+   ````Python
+   ep_device = onnxruntime.get_ep_devices()
+   for ep_device in ep_devices:
+       if ep_device.ep_name == ep_name:
+           target_ep_device = ep_device
+    ````
+3. Append the EP to ORT session option
+    ````Python
+    sess_options.add_provider_for_devices([target_ep_device], {})
+    ````
+5. Create ORT session with the EP
+    ```Python
+    sess = onnxrt.InferenceSession("/path/to/model", sess_options=sess_options)
+    ````
+6. Run ORT session
+   ````Python
+   res = sess.run([], {input_name: x})
+   ````
+7. Unregister plugin EP library
+    ```Python
+   onnxruntime.unregister_execution_provider_library(ep_registration_name)
+   ````
 
 
  ## Run Inference with automatic EP selection
- The workflow is the same as above except #2 and #3 step and should be replaced with `sess_options.set_provider_selection_policy(policy)`,
- "policy" could be:
+ The workflow is the same as above except for step 2 and 3.
+ Instead, set the selection policy directly 
+ ````Python
+ sess_options.set_provider_selection_policy(policy)
+ ````
+ Available "policy":
  - `onnxruntime.OrtExecutionProviderDevicePolicy_DEFAULT`
  - `onnxruntime.OrtExecutionProviderDevicePolicy_PREFER_CPU`
  - `onnxruntime.OrtExecutionProviderDevicePolicy_PREFER_NPU`
@@ -25,4 +50,7 @@ Please see `plugin_ep_inference.py` for details
  - `onnxruntime.OrtExecutionProviderDevicePolicy_MAX_EFFICIENCY`
  - `onnxruntime.OrtExecutionProviderDevicePolicy_MIN_OVERALL_POWER`
 
- 
+ ## Note
+ For additional APIs and details on plugin EP usage, see the official documentation:
+ https://onnxruntime.ai/docs/execution-providers/plugin-ep-libraries.html#using-a-plugin-ep-library
+
