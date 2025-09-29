@@ -1,7 +1,8 @@
-# Running Inference with a Plugin EP
+# Running Inference with a Plugin EP using Python API
 ## Prerequisites
+- ONNX Runtime version >= 1.23.0
 - A dynamic/shared EP library that exports the functions `CreateEpFactories()` and `ReleaseEpFactory()`.
-- ONNX Runtime built as a shared library (e.g., `onnxruntime.dll` on Windows or `libonnxruntime.so` on Linux), since the EP library relies on the public ORT C API (which is ABI-stable) to interact with ONNX Runtime. 
+- ORT GPU python wheel installed.
 
 ## Run Inference with explicit OrtEpDevice(s)
 
@@ -53,4 +54,5 @@ Please see `plugin_ep_inference.py` for a full example.
  ## Note
  For additional APIs and details on plugin EP usage, see the official documentation:
  https://onnxruntime.ai/docs/execution-providers/plugin-ep-libraries.html#using-a-plugin-ep-library
+
 
