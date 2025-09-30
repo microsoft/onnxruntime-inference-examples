@@ -17,17 +17,6 @@ std::conditional_t<THRW, void, OrtStatus*> CudaCall(
     ERRTYPE retCode, const char* exprString, const char* libName, ERRTYPE successCode, const char* msg, const char* file, const int line) {
   if (retCode != successCode) {
     try {
-      // #ifdef _WIN32
-      // std::string hostname_str = GetEnvironmentVar("COMPUTERNAME");
-      // if (hostname_str.empty()) {
-      // hostname_str = "?";
-      //}
-      // const char* hostname = hostname_str.c_str();
-      // #else
-      // char hostname[HOST_NAME_MAX];
-      // if (gethostname(hostname, HOST_NAME_MAX) != 0)
-      // strcpy(hostname, "?");
-      // #endif
       int currentCudaDevice = -1;
       cudaGetDevice(&currentCudaDevice);
       cudaGetLastError();  // clear last CUDA error
@@ -54,10 +43,6 @@ std::conditional_t<THRW, void, OrtStatus*> CudaCall(
     return nullptr;
   }
 }
-
-// template <typename ERRTYPE, bool THRW>
-// std::conditional_t<THRW, void, Status> CudaCall(
-// ERRTYPE retCode, const char* exprString, const char* libName, ERRTYPE successCode, const char* msg, const char* file, const int line);
 
 #define CUDA_CALL(expr) (CudaCall<cudaError, false>((expr), #expr, "CUDA", cudaSuccess, "", __FILE__, __LINE__))
 #define CUDA_CALL_THROW(expr) (CudaCall<cudaError, true>((expr), #expr, "CUDA", cudaSuccess, "", __FILE__, __LINE__))
