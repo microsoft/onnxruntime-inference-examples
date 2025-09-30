@@ -26,6 +26,8 @@ struct ApiPtrs {
   const OrtModelEditorApi& model_editor_api;
 };
 
+namespace trt_ep {
+
 #define ENFORCE(condition, ...)                          \
   do {                                                   \
     if (!(condition)) {                                  \
@@ -53,15 +55,6 @@ struct ApiPtrs {
       return _status;                  \
     }                                  \
   } while (0)
-
-/*
-template <typename... Args>
-std::string ComposeString(Args&&... args) {
-  std::ostringstream oss;
-  (oss << ... << args);
-  return oss.str();
-};
-*/
 
 #define RETURN_IF(cond, ...)                                                           \
   do {                                                                                 \
@@ -121,3 +114,5 @@ struct DeferOrtRelease {
 
 template <typename T>
 using AllocatorUniquePtr = std::unique_ptr<T, std::function<void(T*)>>;
+
+}  // namespace trt_ep
