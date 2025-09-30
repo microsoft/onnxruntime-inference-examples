@@ -27,5 +27,8 @@ jobs:
         architecture: ${{ matrix.arch }}
     - name: Install dependencies
       run: npm install
+      working-directory: js/quick-start_onnxruntime-node
+      
     - name: Run the example
       run: node .
+      working-directory: js/quick-start_onnxruntime-node
