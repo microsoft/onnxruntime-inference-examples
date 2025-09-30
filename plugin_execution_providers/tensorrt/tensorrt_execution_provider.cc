@@ -512,113 +512,116 @@ OrtStatusPtr BindContextInput(Ort::KernelContext& ctx,
                               std::vector<AllocatorUniquePtr<void>>& scratch_buffers,
                               OrtAllocator* alloc,
                               cudaStream_t stream) {
-  auto input_tensor = ctx.GetInput(input_index);
-  auto tensor_info = input_tensor.GetTensorTypeAndShapeInfo();
-  const auto tensor_shapes = tensor_info.GetShape();
-  const auto tensor_type = tensor_info.GetElementType();
-  /*
-   * Return the number of elements specified by the tensor shape (all dimensions multiplied by each other).
-   * For 0 dimensions, 1 is returned. If any dimension is less than 0, the result is always -1.
-   *
-   * Examples:<br>
-   * [] = 1<br>
-   * [1,3,4] = 12<br>
-   * [2,0,4] = 0<br>
-   * [-1,3,4] = -1<br>
-   */
-  const auto elem_cnt = tensor_info.GetElementCount();
+  try {
+    auto input_tensor = ctx.GetInput(input_index);
+    auto tensor_info = input_tensor.GetTensorTypeAndShapeInfo();
+    const auto tensor_shapes = tensor_info.GetShape();
+    const auto tensor_type = tensor_info.GetElementType();
+    /*
+     * Return the number of elements specified by the tensor shape (all dimensions multiplied by each other).
+     * For 0 dimensions, 1 is returned. If any dimension is less than 0, the result is always -1.
+     *
+     * Examples:<br>
+     * [] = 1<br>
+     * [1,3,4] = 12<br>
+     * [2,0,4] = 0<br>
+     * [-1,3,4] = -1<br>
+     */
+    const auto elem_cnt = tensor_info.GetElementCount();
 
-  if (trt_engine->isShapeInferenceIO(input_name)) {
-    // Bind "shape tensor" input buffer
+    if (trt_engine->isShapeInferenceIO(input_name)) {
+      // Bind "shape tensor" input buffer
 
-    // The shape of the "shape tensor" is either zero dimension (scalar) or 1-dimension
-    int shape_size = trt_engine->getTensorShape(input_name).nbDims == 0 ? 1 : static_cast<int>(tensor_shapes[0]);
-    switch (tensor_type) {
-      case ONNX_TENSOR_ELEMENT_DATA_TYPE_INT32: {
-        // get shape tensor value if not present
-        if (shape_tensor_values.find(input_name) == shape_tensor_values.end()) {
-          auto input = std::make_unique<int32_t[]>(shape_size);
-          GetShapeOfShapeTensor<int32_t>(input_tensor, input.get(), shape_size, stream);
-          shape_tensor_values[input_name].resize(shape_size);
-          for (int i = 0; i < shape_size; ++i) {
-            shape_tensor_values[input_name][i] = input[i];
+      // The shape of the "shape tensor" is either zero dimension (scalar) or 1-dimension
+      int shape_size = trt_engine->getTensorShape(input_name).nbDims == 0 ? 1 : static_cast<int>(tensor_shapes[0]);
+      switch (tensor_type) {
+        case ONNX_TENSOR_ELEMENT_DATA_TYPE_INT32: {
+          // get shape tensor value if not present
+          if (shape_tensor_values.find(input_name) == shape_tensor_values.end()) {
+            auto input = std::make_unique<int32_t[]>(shape_size);
+            GetShapeOfShapeTensor<int32_t>(input_tensor, input.get(), shape_size, stream);
+            shape_tensor_values[input_name].resize(shape_size);
+            for (int i = 0; i < shape_size; ++i) {
+              shape_tensor_values[input_name][i] = input[i];
+            }
           }
-        }
 
-        if (!trt_context->setTensorAddress(input_name, &shape_tensor_values[input_name][0])) {
-          std::string error_input_name = input_name;
-          std::string error_msg =
-              "TensorRT EP failed to call nvinfer1::IExecutionContext::setTensorAddress() for shape input '" +
-              error_input_name + "'";
-          return g_ort_api->CreateStatus(ORT_EP_FAIL, error_msg.c_str());
-        }
-        break;
-      }
-      case ONNX_TENSOR_ELEMENT_DATA_TYPE_INT64: {
-        // get shape tensor value if not present
-        if (shape_tensor_values_int64.find(input_name) == shape_tensor_values_int64.end()) {
-          auto input = std::make_unique<int64_t[]>(shape_size);
-          GetShapeOfShapeTensor<int64_t>(input_tensor, input.get(), shape_size, stream);
-          shape_tensor_values_int64[input_name].resize(shape_size);
-          for (int i = 0; i < shape_size; ++i) {
-            shape_tensor_values_int64[input_name][i] = input[i];
+          if (!trt_context->setTensorAddress(input_name, &shape_tensor_values[input_name][0])) {
+            std::string error_input_name = input_name;
+            std::string error_msg =
+                "TensorRT EP failed to call nvinfer1::IExecutionContext::setTensorAddress() for shape input '" +
+                error_input_name + "'";
+            return g_ort_api->CreateStatus(ORT_EP_FAIL, error_msg.c_str());
           }
+          break;
         }
+        case ONNX_TENSOR_ELEMENT_DATA_TYPE_INT64: {
+          // get shape tensor value if not present
+          if (shape_tensor_values_int64.find(input_name) == shape_tensor_values_int64.end()) {
+            auto input = std::make_unique<int64_t[]>(shape_size);
+            GetShapeOfShapeTensor<int64_t>(input_tensor, input.get(), shape_size, stream);
+            shape_tensor_values_int64[input_name].resize(shape_size);
+            for (int i = 0; i < shape_size; ++i) {
+              shape_tensor_values_int64[input_name][i] = input[i];
+            }
+          }
 
-        if (!trt_context->setTensorAddress(input_name, &shape_tensor_values_int64[input_name][0])) {
-          std::string error_input_name = input_name;
-          std::string error_msg =
-              "TensorRT EP failed to call nvinfer1::IExecutionContext::setTensorAddress() for shape input '" +
-              error_input_name + "'";
-          return g_ort_api->CreateStatus(ORT_EP_FAIL, error_msg.c_str());
+          if (!trt_context->setTensorAddress(input_name, &shape_tensor_values_int64[input_name][0])) {
+            std::string error_input_name = input_name;
+            std::string error_msg =
+                "TensorRT EP failed to call nvinfer1::IExecutionContext::setTensorAddress() for shape input '" +
+                error_input_name + "'";
+            return g_ort_api->CreateStatus(ORT_EP_FAIL, error_msg.c_str());
+          }
+          break;
         }
-        break;
+        default: {
+          std::string error_input_name = input_name;
+          return g_ort_api->CreateStatus(ORT_EP_FAIL, std::string("The data type of shape tensor should be INT32 or INT64. Please check the data type of " + error_input_name).c_str());
+        }
       }
-      default: {
+    } else {
+      // Set shape for input tensor which is execution tensor
+      nvinfer1::Dims dims = trt_context->getTensorShape(input_name);
+      int nb_dims = dims.nbDims;
+      for (int j = 0, end = nb_dims; j < end; ++j) {
+        dims.d[j] = static_cast<int32_t>(tensor_shapes[j]);
+      }
+      if (!trt_context->setInputShape(input_name, dims)) {
         std::string error_input_name = input_name;
-        return g_ort_api->CreateStatus(ORT_EP_FAIL, std::string("The data type of shape tensor should be INT32 or INT64. Please check the data type of " + error_input_name).c_str());
+        return g_ort_api->CreateStatus(ORT_EP_FAIL, std::string("TensorRT EP failed to call nvinfer1::IExecutionContext::setInputShape() for input '" + error_input_name + "'").c_str());
       }
-    }
-  } else {
-    // Set shape for input tensor which is execution tensor
-    nvinfer1::Dims dims = trt_context->getTensorShape(input_name);
-    int nb_dims = dims.nbDims;
-    for (int j = 0, end = nb_dims; j < end; ++j) {
-      dims.d[j] = static_cast<int32_t>(tensor_shapes[j]);
-    }
-    if (!trt_context->setInputShape(input_name, dims)) {
-      std::string error_input_name = input_name;
-      return g_ort_api->CreateStatus(ORT_EP_FAIL, std::string("TensorRT EP failed to call nvinfer1::IExecutionContext::setInputShape() for input '" + error_input_name + "'").c_str());
-    }
 
-    // Bind "execution tensor" input buffer
-    //
-    // Note: If an engine binding is an empty tensor, it still needs a non-null memory address, and different tensors should have different addresses.
-    //       Therefore, in the case of empty tensor, TRT EP always allocates a dummy byte.
-    //       https://docs.nvidia.com/deeplearning/tensorrt/developer-guide/index.html#empty-tensors
-    void* data = nullptr;
-    switch (tensor_type) {
-      CASE_GET_INPUT_TENSOR(ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT, float)
-      CASE_GET_INPUT_TENSOR(ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT16, uint16_t)
-      CASE_GET_INPUT_TENSOR(ONNX_TENSOR_ELEMENT_DATA_TYPE_BOOL, bool)
-      CASE_GET_INPUT_TENSOR(ONNX_TENSOR_ELEMENT_DATA_TYPE_INT8, int8_t)
-      CASE_GET_INPUT_TENSOR(ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT8, uint8_t)
-      CASE_GET_INPUT_TENSOR(ONNX_TENSOR_ELEMENT_DATA_TYPE_INT32, int32_t)
+      // Bind "execution tensor" input buffer
+      //
+      // Note: If an engine binding is an empty tensor, it still needs a non-null memory address, and different tensors should have different addresses.
+      //       Therefore, in the case of empty tensor, TRT EP always allocates a dummy byte.
+      //       https://docs.nvidia.com/deeplearning/tensorrt/developer-guide/index.html#empty-tensors
+      void* data = nullptr;
+      switch (tensor_type) {
+        CASE_GET_INPUT_TENSOR(ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT, float)
+        CASE_GET_INPUT_TENSOR(ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT16, uint16_t)
+        CASE_GET_INPUT_TENSOR(ONNX_TENSOR_ELEMENT_DATA_TYPE_BOOL, bool)
+        CASE_GET_INPUT_TENSOR(ONNX_TENSOR_ELEMENT_DATA_TYPE_INT8, int8_t)
+        CASE_GET_INPUT_TENSOR(ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT8, uint8_t)
+        CASE_GET_INPUT_TENSOR(ONNX_TENSOR_ELEMENT_DATA_TYPE_INT32, int32_t)
 #if NV_TENSORRT_MAJOR >= 10
-      CASE_GET_INPUT_TENSOR(ONNX_TENSOR_ELEMENT_DATA_TYPE_INT64, int64_t)
+        CASE_GET_INPUT_TENSOR(ONNX_TENSOR_ELEMENT_DATA_TYPE_INT64, int64_t)
 #else
-      // Cast int64 input to int32 input because TensorRT < 10 doesn't support int64
-      CASE_GET_CAST_INPUT_TENSOR(ONNX_TENSOR_ELEMENT_DATA_TYPE_INT64, int64_t, int32_t)
+        // Cast int64 input to int32 input because TensorRT < 10 doesn't support int64
+        CASE_GET_CAST_INPUT_TENSOR(ONNX_TENSOR_ELEMENT_DATA_TYPE_INT64, int64_t, int32_t)
 #endif
-      // Cast double input to float because TensorRT doesn't support double
-      CASE_GET_CAST_INPUT_TENSOR(ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE, double, float)
-      default: {
-        return g_ort_api->CreateStatus(ORT_EP_FAIL, std::string("TensorRT EP input onnx tensor data type: " + std::to_string(tensor_type) + " not supported.").c_str());
+        // Cast double input to float because TensorRT doesn't support double
+        CASE_GET_CAST_INPUT_TENSOR(ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE, double, float)
+        default: {
+          return g_ort_api->CreateStatus(ORT_EP_FAIL, std::string("TensorRT EP input onnx tensor data type: " + std::to_string(tensor_type) + " not supported.").c_str());
+        }
       }
+      trt_context->setTensorAddress(input_name, data);
     }
-    trt_context->setTensorAddress(input_name, data);
+  } catch (const Ort::Exception& e) {
+    return g_ort_api->CreateStatus(ORT_EP_FAIL, e.what());
   }
-
   return nullptr;
 }
 
@@ -663,30 +666,34 @@ OrtStatusPtr BindContextOutput(Ort::KernelContext& ctx,
       dds_output_allocator_map[output_name] = std::move(allocatorPtr);
     }
   } else {
-    output_tensors[i] = ctx.GetOutput(output_index, output_shapes);
-    auto& output_tensor = output_tensors[i];
-    const auto elem_cnt = output_tensor.GetTensorTypeAndShapeInfo().GetElementCount();
+    try {
+      output_tensors[i] = ctx.GetOutput(output_index, output_shapes);
+      auto& output_tensor = output_tensors[i];
+      const auto elem_cnt = output_tensor.GetTensorTypeAndShapeInfo().GetElementCount();
 
-    switch (output_type) {
-      CASE_GET_OUTPUT_TENSOR(ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT, float)
-      CASE_GET_OUTPUT_TENSOR(ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT16, uint16_t)
-      CASE_GET_OUTPUT_TENSOR(ONNX_TENSOR_ELEMENT_DATA_TYPE_BOOL, bool)
-      CASE_GET_OUTPUT_TENSOR(ONNX_TENSOR_ELEMENT_DATA_TYPE_INT8, int8_t)
-      CASE_GET_OUTPUT_TENSOR(ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT8, uint8_t)
-      CASE_GET_OUTPUT_TENSOR(ONNX_TENSOR_ELEMENT_DATA_TYPE_INT32, int32_t)
+      switch (output_type) {
+        CASE_GET_OUTPUT_TENSOR(ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT, float)
+        CASE_GET_OUTPUT_TENSOR(ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT16, uint16_t)
+        CASE_GET_OUTPUT_TENSOR(ONNX_TENSOR_ELEMENT_DATA_TYPE_BOOL, bool)
+        CASE_GET_OUTPUT_TENSOR(ONNX_TENSOR_ELEMENT_DATA_TYPE_INT8, int8_t)
+        CASE_GET_OUTPUT_TENSOR(ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT8, uint8_t)
+        CASE_GET_OUTPUT_TENSOR(ONNX_TENSOR_ELEMENT_DATA_TYPE_INT32, int32_t)
 #if NV_TENSORRT_MAJOR >= 10
-      CASE_GET_OUTPUT_TENSOR(ONNX_TENSOR_ELEMENT_DATA_TYPE_INT64, int64_t)
+        CASE_GET_OUTPUT_TENSOR(ONNX_TENSOR_ELEMENT_DATA_TYPE_INT64, int64_t)
 #else
-      // Allocate int32 CUDA memory for int64 output type because TensorRT < 10 doesn't support int64
-      CASE_GET_CAST_OUTPUT_TENSOR(ONNX_TENSOR_ELEMENT_DATA_TYPE_INT64, int64_t, int32_t)
+        // Allocate int32 CUDA memory for int64 output type because TensorRT < 10 doesn't support int64
+        CASE_GET_CAST_OUTPUT_TENSOR(ONNX_TENSOR_ELEMENT_DATA_TYPE_INT64, int64_t, int32_t)
 #endif
-      // Allocate float CUDA memory for double output type because TensorRT doesn't support double
-      CASE_GET_CAST_OUTPUT_TENSOR(ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE, double, float)
-      default: {
-        return g_ort_api->CreateStatus(ORT_EP_FAIL, std::string("TensorRT EP output tensor data type: " + std::to_string(output_type) + " not supported.").c_str());
+        // Allocate float CUDA memory for double output type because TensorRT doesn't support double
+        CASE_GET_CAST_OUTPUT_TENSOR(ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE, double, float)
+        default: {
+          return g_ort_api->CreateStatus(ORT_EP_FAIL, std::string("TensorRT EP output tensor data type: " + std::to_string(output_type) + " not supported.").c_str());
+        }
       }
+      trt_context->setTensorAddress(output_name, buffers[output_name]);
+    } catch (const Ort::Exception& e) {
+      return g_ort_api->CreateStatus(ORT_EP_FAIL, e.what());
     }
-    trt_context->setTensorAddress(output_name, buffers[output_name]);
   }
 
   return nullptr;
@@ -699,51 +706,55 @@ OrtStatusPtr BindKernelOutput(Ort::KernelContext& ctx,
                               size_t output_index,
                               size_t output_type,
                               cudaStream_t stream) {
-  auto allocator = allocator_map[output_name].get();
-  auto& shape = allocator->getOutputShape();
-  auto output_tensor = ctx.GetOutput(output_index, shape);
+  try {
+    auto allocator = allocator_map[output_name].get();
+    auto& shape = allocator->getOutputShape();
+    auto output_tensor = ctx.GetOutput(output_index, shape);
 
-  /*
-   * Return the number of elements specified by the tensor shape (all dimensions multiplied by each other).
-   * For 0 dimensions, 1 is returned. If any dimension is less than 0, the result is always -1.
-   *
-   * Examples:<br>
-   * [] = 1<br>
-   * [1,3,4] = 12<br>
-   * [2,0,4] = 0<br>
-   * [-1,3,4] = -1<br>
-   */
-  auto elem_cnt = output_tensor.GetTensorTypeAndShapeInfo().GetElementCount();
+    /*
+     * Return the number of elements specified by the tensor shape (all dimensions multiplied by each other).
+     * For 0 dimensions, 1 is returned. If any dimension is less than 0, the result is always -1.
+     *
+     * Examples:<br>
+     * [] = 1<br>
+     * [1,3,4] = 12<br>
+     * [2,0,4] = 0<br>
+     * [-1,3,4] = -1<br>
+     */
+    auto elem_cnt = output_tensor.GetTensorTypeAndShapeInfo().GetElementCount();
 
-  /*
-   * Copy output data from allocation buffer to ORT kernel context output location or
-   * cast (int32 or float) -> (int64 or double) to ORT kernel context output location.
-   *
-   * Note:
-   * 1. If the output tensor is empty tensor (i.e. any of the dimension is 0) which means element count is 0,
-   *    TRT EP does not perform cuda memory copy nor cuda cast to prevent overwriting other location that might belong to other tensors.
-   * 2. The cudaMemcpyAsync() and cuda::Impl_Cast() (implemented as _UnaryElementWise() in cuda ep) are all async, but we
-   *    don't need to explicitly call cudaStreamSynchronize() after those APIs due to CUDA EP and TRT EP uses same stream,
-   *    and within the same stream, operations are guaranteed to be executed in order.
-   */
-  switch (output_type) {
-    CASE_COPY_TENSOR(ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT, float)
-    CASE_COPY_TENSOR(ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT16, uint16_t)
-    CASE_COPY_TENSOR(ONNX_TENSOR_ELEMENT_DATA_TYPE_BOOL, bool)
-    CASE_COPY_TENSOR(ONNX_TENSOR_ELEMENT_DATA_TYPE_INT8, int8_t)
-    CASE_COPY_TENSOR(ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT8, uint8_t)
-    CASE_COPY_TENSOR(ONNX_TENSOR_ELEMENT_DATA_TYPE_INT32, int32_t)
+    /*
+     * Copy output data from allocation buffer to ORT kernel context output location or
+     * cast (int32 or float) -> (int64 or double) to ORT kernel context output location.
+     *
+     * Note:
+     * 1. If the output tensor is empty tensor (i.e. any of the dimension is 0) which means element count is 0,
+     *    TRT EP does not perform cuda memory copy nor cuda cast to prevent overwriting other location that might belong to other tensors.
+     * 2. The cudaMemcpyAsync() and cuda::Impl_Cast() (implemented as _UnaryElementWise() in cuda ep) are all async, but we
+     *    don't need to explicitly call cudaStreamSynchronize() after those APIs due to CUDA EP and TRT EP uses same stream,
+     *    and within the same stream, operations are guaranteed to be executed in order.
+     */
+    switch (output_type) {
+      CASE_COPY_TENSOR(ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT, float)
+      CASE_COPY_TENSOR(ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT16, uint16_t)
+      CASE_COPY_TENSOR(ONNX_TENSOR_ELEMENT_DATA_TYPE_BOOL, bool)
+      CASE_COPY_TENSOR(ONNX_TENSOR_ELEMENT_DATA_TYPE_INT8, int8_t)
+      CASE_COPY_TENSOR(ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT8, uint8_t)
+      CASE_COPY_TENSOR(ONNX_TENSOR_ELEMENT_DATA_TYPE_INT32, int32_t)
 #if NV_TENSORRT_MAJOR >= 10
-    CASE_COPY_TENSOR(ONNX_TENSOR_ELEMENT_DATA_TYPE_INT64, int64_t)
+      CASE_COPY_TENSOR(ONNX_TENSOR_ELEMENT_DATA_TYPE_INT64, int64_t)
 #else
-    // The allocation buffer holds the int32 output data since TRT doesn't support int64. So, we need to cast the data (int32 -> int64) for ORT kernel output.
+      // The allocation buffer holds the int32 output data since TRT doesn't support int64. So, we need to cast the data (int32 -> int64) for ORT kernel output.
 //    CASE_CAST_TENSOR(ONNX_TENSOR_ELEMENT_DATA_TYPE_INT64, int32_t, int64_t)
 #endif
-      // The allocation buffer holds the float output data since TRT doesn't support double. So, we need to cast the data (float -> double) for ORT kernel output.
-      //    CASE_CAST_TENSOR(ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE, float, double)
-    default: {
-      return g_ort_api->CreateStatus(ORT_EP_FAIL, std::string("TensorRT EP output tensor data type: " + std::to_string(output_type) + " not supported.").c_str());
+        // The allocation buffer holds the float output data since TRT doesn't support double. So, we need to cast the data (float -> double) for ORT kernel output.
+        //    CASE_CAST_TENSOR(ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE, float, double)
+      default: {
+        return g_ort_api->CreateStatus(ORT_EP_FAIL, std::string("TensorRT EP output tensor data type: " + std::to_string(output_type) + " not supported.").c_str());
+      }
     }
+  } catch (const Ort::Exception& e) {
+    return g_ort_api->CreateStatus(ORT_EP_FAIL, e.what());
   }
   return nullptr;
 }

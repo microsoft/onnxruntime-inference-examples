@@ -200,7 +200,11 @@ OrtStatus* EPContextNodeReader::GetEpContextFromGraph(const OrtGraph& graph) {
 
   // Get "embed_mode" attribute
   RETURN_IF_ORT_STATUS_ERROR(node.GetAttributeByName("embed_mode", node_attr));
-  ENFORCE(node_attr.GetType() == OrtOpAttrType::ORT_OP_ATTR_INT);
+  try {
+    ENFORCE(node_attr.GetType() == OrtOpAttrType::ORT_OP_ATTR_INT);
+  } catch (const Ort::Exception& e) {
+    return ort_api.CreateStatus(ORT_EP_FAIL, e.what());
+  }
 
   int64_t embed_mode = 0;
   RETURN_IF_ORT_STATUS_ERROR(node_attr.GetValue(embed_mode));
@@ -211,7 +215,12 @@ OrtStatus* EPContextNodeReader::GetEpContextFromGraph(const OrtGraph& graph) {
   if (embed_mode) {
     // Get engine from byte stream.
     RETURN_IF_ORT_STATUS_ERROR(node.GetAttributeByName("ep_cache_context", node_attr));
-    ENFORCE(node_attr.GetType() == OrtOpAttrType::ORT_OP_ATTR_STRING);
+    try {
+      ENFORCE(node_attr.GetType() == OrtOpAttrType::ORT_OP_ATTR_STRING);
+    } catch (const Ort::Exception& e) {
+      return ort_api.CreateStatus(ORT_EP_FAIL, e.what());
+    }
+
     std::string context_binary;
     RETURN_IF_ORT_STATUS_ERROR(node_attr.GetValue<std::string>(context_binary));
 
@@ -228,6 +237,11 @@ OrtStatus* EPContextNodeReader::GetEpContextFromGraph(const OrtGraph& graph) {
 
     if (weight_stripped_engine_refit_) {
       RETURN_IF_ORT_STATUS_ERROR(node.GetAttributeByName("onnx_model_filename", node_attr));
+      try {
+        ENFORCE(node_attr.GetType() == OrtOpAttrType::ORT_OP_ATTR_STRING);
+      } catch (const Ort::Exception& e) {
+        return ort_api.CreateStatus(ORT_EP_FAIL, e.what());
+      }
       std::string onnx_model_filename;
       RETURN_IF_ORT_STATUS_ERROR(node_attr.GetValue<std::string>(onnx_model_filename));
       std::string placeholder;
@@ -249,6 +263,11 @@ OrtStatus* EPContextNodeReader::GetEpContextFromGraph(const OrtGraph& graph) {
   } else {
     // Get engine from cache file.
     RETURN_IF_ORT_STATUS_ERROR(node.GetAttributeByName("ep_cache_context", node_attr));
+    try {
+      ENFORCE(node_attr.GetType() == OrtOpAttrType::ORT_OP_ATTR_STRING);
+    } catch (const Ort::Exception& e) {
+      return ort_api.CreateStatus(ORT_EP_FAIL, e.what());
+    }
     std::string cache_path;
     RETURN_IF_ORT_STATUS_ERROR(node_attr.GetValue<std::string>(cache_path));
 
@@ -317,6 +336,11 @@ OrtStatus* EPContextNodeReader::GetEpContextFromGraph(const OrtGraph& graph) {
 
     if (weight_stripped_engine_refit_) {
       RETURN_IF_ORT_STATUS_ERROR(node.GetAttributeByName("onnx_model_filename", node_attr));
+      try {
+        ENFORCE(node_attr.GetType() == OrtOpAttrType::ORT_OP_ATTR_STRING);
+      } catch (const Ort::Exception& e) {
+        return ort_api.CreateStatus(ORT_EP_FAIL, e.what());
+      }
       std::string onnx_model_filename;
       RETURN_IF_ORT_STATUS_ERROR(node_attr.GetValue<std::string>(onnx_model_filename));
       std::string weight_stripped_engine_cache = engine_cache_path.string();
