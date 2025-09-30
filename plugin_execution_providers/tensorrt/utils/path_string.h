@@ -20,7 +20,6 @@ using PathChar = ORTCHAR_T;
 // string type for filesystem paths
 using PathString = std::basic_string<PathChar>;
 
-
 inline std::string ToUTF8String(const std::string& s) { return s; }
 #ifdef _WIN32
 /**
@@ -47,7 +46,6 @@ inline std::string ToWideString(const std::string& s) { return s; }
 inline std::string ToWideString(const char* s) { return s; }
 inline std::string ToWideString(std::string_view s) { return std::string{s}; }
 #endif
-
 
 inline PathString ToPathString(const PathString& s) {
   return s;

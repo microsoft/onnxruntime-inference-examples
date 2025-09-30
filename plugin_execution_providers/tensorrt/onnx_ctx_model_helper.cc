@@ -184,30 +184,36 @@ bool EPContextNodeReader::ValidateEPCtxNode(const OrtGraph* graph) const {
 
 OrtStatus* EPContextNodeReader::GetEpContextFromGraph(const OrtGraph& graph) {
   if (!ValidateEPCtxNode(&graph)) {
-    return ort_api.CreateStatus(ORT_EP_FAIL, "It's not a valid EP Context node");
+    return ort_api.CreateStatus(ORT_EP_FAIL, "It's not a valid EPContext node");
   }
 
   size_t num_nodes = 0;
   RETURN_IF_ERROR(ort_api.Graph_GetNumNodes(&graph, &num_nodes));
 
-  std::vector<const OrtNode*> nodes(num_nodes);
-  RETURN_IF_ERROR(ort_api.Graph_GetNodes(&graph, nodes.data(), nodes.size()));
+  auto ort_graph = Ort::ConstGraph(&graph);
+  std::vector<Ort::ConstNode> nodes(num_nodes);
+  nodes = ort_graph.GetNodes();
 
-  auto node = nodes[0];
+  // ValidateEPCtxNode() already checked ENFORCE(num_nodes == 1)
+  auto& node = nodes[0];
+  Ort::ConstOpAttr node_attr;
 
-  const OrtOpAttr* node_attr = nullptr;
-  RETURN_IF_ERROR(ort_api.Node_GetAttributeByName(node, "embed_mode", &node_attr));
-  const int64_t embed_mode = reinterpret_cast<const ONNX_NAMESPACE::AttributeProto*>(node_attr)->i();
+  // Get "embed_mode" attribute
+  RETURN_IF_ORT_STATUS_ERROR(node.GetAttributeByName("embed_mode", node_attr));
+  ENFORCE(node_attr.GetType() == OrtOpAttrType::ORT_OP_ATTR_INT);
+
+  int64_t embed_mode = 0;
+  RETURN_IF_ORT_STATUS_ERROR(node_attr.GetValue(embed_mode));
 
   // Only make path checks if model not provided as byte buffer
-  // bool make_secure_path_checks = !GetModelPath(graph_viewer).empty();
-  bool make_secure_path_checks = false;
+  bool make_secure_path_checks = !ort_graph.GetModelPath().empty();
 
   if (embed_mode) {
     // Get engine from byte stream.
-    node_attr = nullptr;
-    RETURN_IF_ERROR(ort_api.Node_GetAttributeByName(node, "ep_cache_context", &node_attr));
-    const std::string& context_binary = reinterpret_cast<const ONNX_NAMESPACE::AttributeProto*>(node_attr)->s();
+    RETURN_IF_ORT_STATUS_ERROR(node.GetAttributeByName("ep_cache_context", node_attr));
+    ENFORCE(node_attr.GetType() == OrtOpAttrType::ORT_OP_ATTR_STRING);
+    std::string context_binary;
+    RETURN_IF_ORT_STATUS_ERROR(node_attr.GetValue<std::string>(context_binary));
 
     *(trt_engine_) = std::unique_ptr<nvinfer1::ICudaEngine>(trt_runtime_->deserializeCudaEngine(const_cast<char*>(context_binary.c_str()),
                                                                                                 static_cast<size_t>(context_binary.length())));
@@ -221,9 +227,9 @@ OrtStatus* EPContextNodeReader::GetEpContextFromGraph(const OrtGraph& graph) {
     }
 
     if (weight_stripped_engine_refit_) {
-      node_attr = nullptr;
-      RETURN_IF_ERROR(ort_api.Node_GetAttributeByName(node, "onnx_model_filename", &node_attr));
-      const std::string onnx_model_filename = reinterpret_cast<const ONNX_NAMESPACE::AttributeProto*>(node_attr)->s();
+      RETURN_IF_ORT_STATUS_ERROR(node.GetAttributeByName("onnx_model_filename", node_attr));
+      std::string onnx_model_filename;
+      RETURN_IF_ORT_STATUS_ERROR(node_attr.GetValue<std::string>(onnx_model_filename));
       std::string placeholder;
       auto status = ep_.RefitEngine(onnx_model_filename,
                                     onnx_model_folder_path_,
@@ -242,9 +248,9 @@ OrtStatus* EPContextNodeReader::GetEpContextFromGraph(const OrtGraph& graph) {
     }
   } else {
     // Get engine from cache file.
-    node_attr = nullptr;
-    RETURN_IF_ERROR(ort_api.Node_GetAttributeByName(node, "ep_cache_context", &node_attr));
-    std::string cache_path = reinterpret_cast<const ONNX_NAMESPACE::AttributeProto*>(node_attr)->s();
+    RETURN_IF_ORT_STATUS_ERROR(node.GetAttributeByName("ep_cache_context", node_attr));
+    std::string cache_path;
+    RETURN_IF_ORT_STATUS_ERROR(node_attr.GetValue<std::string>(cache_path));
 
     // For security purpose, in the case of running context model, TRT EP won't allow
     // engine cache path to be the relative path like "../file_path" or the absolute path.
@@ -310,9 +316,9 @@ OrtStatus* EPContextNodeReader::GetEpContextFromGraph(const OrtGraph& graph) {
                                                 message.c_str(), ORT_FILE, __LINE__, __FUNCTION__));
 
     if (weight_stripped_engine_refit_) {
-      node_attr = nullptr;
-      RETURN_IF_ERROR(ort_api.Node_GetAttributeByName(node, "onnx_model_filename", &node_attr));
-      const std::string onnx_model_filename = reinterpret_cast<const ONNX_NAMESPACE::AttributeProto*>(node_attr)->s();
+      RETURN_IF_ORT_STATUS_ERROR(node.GetAttributeByName("onnx_model_filename", node_attr));
+      std::string onnx_model_filename;
+      RETURN_IF_ORT_STATUS_ERROR(node_attr.GetValue<std::string>(onnx_model_filename));
       std::string weight_stripped_engine_cache = engine_cache_path.string();
       auto status = ep_.RefitEngine(onnx_model_filename,
                                     onnx_model_folder_path_,

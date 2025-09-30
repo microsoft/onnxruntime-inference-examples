@@ -36,12 +36,22 @@ struct ApiPtrs {
 #define THROW(...) \
   throw std::runtime_error(MakeString(__VA_ARGS__));
 
+#define RETURN_IF_ORTSTATUS_ERROR(fn) RETURN_IF_ERROR(fn)
+
 #define RETURN_IF_ERROR(fn)    \
   do {                         \
     OrtStatus* _status = (fn); \
     if (_status != nullptr) {  \
       return _status;          \
     }                          \
+  } while (0)
+
+#define RETURN_IF_ORT_STATUS_ERROR(fn) \
+  do {                                 \
+    auto _status = (fn);               \
+    if (!_status.IsOK()) {             \
+      return _status;                  \
+    }                                  \
   } while (0)
 
 /*
