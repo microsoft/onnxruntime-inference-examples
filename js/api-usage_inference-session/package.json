@@ -5,6 +5,6 @@
   "description": "This example is a demonstration of basic usage of InferenceSession.",
   "main": "index.js",
   "dependencies": {
-    "onnxruntime-node": "^1.15.1"
+    "onnxruntime-node": "^1.23.0"
   }
 }
