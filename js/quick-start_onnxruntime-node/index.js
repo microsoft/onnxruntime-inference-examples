@@ -29,6 +29,7 @@ async function main() {
         const dataC = results.c.data;
         console.log(`data of result tensor 'c': ${dataC}`);
 
+        await session.release()
     } catch (e) {
         console.error(`failed to inference ONNX model: ${e}.`);
     }
