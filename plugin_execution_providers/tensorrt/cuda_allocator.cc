@@ -20,8 +20,6 @@ void CUDAAllocator::CheckDevice(bool throw_when_fail) const {
   } else if (throw_when_fail) {
     CUDA_RETURN_IF_ERROR(cuda_err);
   }
-#else
-//  ORT_UNUSED_PARAMETER(throw_when_fail);
 #endif
 }
 
@@ -45,7 +43,6 @@ void* CUDAAllocator::Alloc(size_t size) {
   CheckDevice(true);
   void* p = nullptr;
   if (size > 0) {
-    // BFCArena was updated recently to handle the exception and adjust the request size
     CUDA_RETURN_IF_ERROR(cudaMalloc((void**)&p, size));
   }
   return p;
