@@ -272,12 +272,7 @@ bool ORT_API_CALL TensorrtExecutionProviderFactory::IsStreamAwareImpl(const OrtE
 
 }  // namespace trt_ep
 
-// To make symbols visible on macOS/iOS
-#ifdef __APPLE__
-#define EXPORT_SYMBOL __attribute__((visibility("default")))
-#else
 #define EXPORT_SYMBOL
-#endif
 
 extern "C" {
 //
