@@ -54,10 +54,10 @@ python3 yolov4.py --h
 
 ### Run the sample on OpenVINO™ Execution Provider
 ```bash
-python3 yolov4.py --device CPU_FP32 --video classroom.mp4 --model yolov4.onnx
+python3 yolov4.py --device CPU --video classroom.mp4 --model yolov4.onnx
 ```
 Note:
-* You can pick different device options to run on OpenVINO™ Execution Provider like GPU_FP32, GPU_FP16 and MYRIAD_FP16.
+* You can pick different device options to run on OpenVINO™ Execution Provider like GPU and NPU.
 
 ### Run the sample on default CPU Execution Provider (MLAS)
 ```bash
@@ -66,17 +66,17 @@ python3 yolov4.py --device cpu --video classroom.mp4 --model yolov4.onnx
 
 ### Run the sample with video as Input
 ```bash
-python3 yolov4.py --device CPU_FP32 --video classroom.mp4 --model yolov4.onnx
+python3 yolov4.py --device CPU --video classroom.mp4 --model yolov4.onnx
 ```
 
 ### Run the sample with Image as Input
 ```bash
-python3 yolov4.py --device CPU_FP32 --image cat.jpg --model yolov4.onnx
+python3 yolov4.py --device CPU --image cat.jpg --model yolov4.onnx
 ```
 
 ### Run the sample with Live Input stream Like webcam
 ```bash
-python3 yolov4.py --device CPU_FP32 --model yolov4.onnx
+python3 yolov4.py --device CPU --model yolov4.onnx
 ```
 
 ## To stop the sample from running
@@ -88,9 +88,7 @@ Just press the letter 'q' or Ctrl+C if on Windows
 
 [Download OpenVINO™ Execution Provider Latest pip wheels from here](https://pypi.org/project/onnxruntime-openvino/)
 
-[OpenVINO™ Execution Provider](https://www.intel.com/content/www/us/en/artificial-intelligence/posts/faster-inferencing-with-one-line-of-code.html)
-
-[Docker Containers](https://www.intel.com/content/www/us/en/artificial-intelligence/posts/openvino-execution-provider-docker-container.html)
+[OpenVINO™ Execution Provider](https://onnxruntime.ai/docs/execution-providers/OpenVINO-ExecutionProvider.html)
 
 [Python Pip Wheel Packages](https://www.intel.com/content/www/us/en/artificial-intelligence/posts/openvino-execution-provider-for-onnx-runtime.html)
 

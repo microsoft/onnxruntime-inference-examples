@@ -218,10 +218,16 @@ int main(int argc, char* argv[])
     //Appending OpenVINO Execution Provider API
     if (useOPENVINO) {
         // Using OPENVINO backend
-        OrtOpenVINOProviderOptions options;
-        options.device_type = "CPU";
-        std::cout << "OpenVINO device type is set to: " << options.device_type << std::endl;
-        sessionOptions.AppendExecutionProvider_OpenVINO(options);
+        std::unordered_map<std::string, std::string> options;
+        options["device_type"] = "CPU";
+        std::string config = R"({
+        "CPU": {
+            "INFERENCE_NUM_THREADS": "1"
+        }
+        })";
+        options["load_config"] = config;
+        std::cout << "OpenVINO device type is set to: " << options["device_type"] << std::endl;
+        sessionOptions.AppendExecutionProvider_OpenVINO_V2(options);
     }
     
     // Sets graph optimization level

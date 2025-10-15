@@ -19,6 +19,7 @@ import argparse
 import sys
 import time
 import platform
+import json
 
 if platform.system() == "Windows":
     import onnxruntime.tools.add_openvino_win_libs as utils
@@ -220,7 +221,7 @@ STRIDES = np.array(STRIDES)
 
 def parse_arguments():
     parser = argparse.ArgumentParser(description='Object Detection using YOLOv4 in OPENCV using OpenVINO Execution Provider for ONNXRuntime')
-    parser.add_argument('--device', default='CPU_FP32', help="Device to perform inference on 'cpu (MLAS)' or on devices supported by OpenVINO-EP [CPU_FP32, GPU_FP32, GPU_FP16, MYRIAD_FP16, VAD-M_FP16].")
+    parser.add_argument('--device', default='CPU', help="Device to perform inference on 'cpu (MLAS)' or on devices supported by OpenVINO-EP [CPU, GPU, NPU].")
     parser.add_argument('--image', help='Path to image file.')
     parser.add_argument('--video', help='Path to video file.')
     parser.add_argument('--model', help='Path to model.')
@@ -283,11 +284,21 @@ def main():
         sess = rt.InferenceSession(args.model, so, providers=['CPUExecutionProvider'])
     else:
         #Specify the path to the ONNX model on your machine and register the OpenVINO EP
-        sess = rt.InferenceSession(args.model, so, providers=['OpenVINOExecutionProvider'], provider_options=[{'device_type' : device}])
+        
+        config_dict = {
+            "CPU": {
+                "INFERENCE_NUM_THREADS": "5",
+                "CACHE_DIR": "C:\\"
+            }
+        }
+
+        config_json = json.dumps(config_dict)
+
+        sess = rt.InferenceSession(args.model, so, providers=['OpenVINOExecutionProvider'], provider_options=[{'device_type' : device, 'load_config' : config_json}])
         print("Device type selected is: " + device + " using the OpenVINO Execution Provider")
         '''
         other 'device_type' options are: (Any hardware target can be assigned if you have the access to it)
-        'CPU_FP32', 'GPU_FP32', 'GPU_FP16', 'MYRIAD_FP16', 'VAD-M_FP16'
+        'CPU', 'GPU', 'NPU'
         '''
 
     input_name = sess.get_inputs()[0].name

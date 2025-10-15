@@ -29,7 +29,7 @@ label = ["aeroplane","bicycle","bird","boat","bottle",
 
 def parse_arguments():
   parser = argparse.ArgumentParser(description='Object Detection using YOLOv2 in OPENCV using OpenVINO Execution Provider for ONNXRuntime')
-  parser.add_argument('--device', default='CPU_FP32', help="Device to perform inference on 'cpu (MLAS)' or on devices supported by OpenVINO-EP [CPU_FP32, CPU_FP32, GPU_FP32, GPU_FP16].")
+  parser.add_argument('--device', default='CPU', help="Device to perform inference on 'cpu (MLAS)' or on devices supported by OpenVINO-EP [CPU, GPU, NPU].")
   parser.add_argument('--video', help='Path to video file.')
   parser.add_argument('--model', help='Path to model.')
   args = parser.parse_args()
@@ -150,16 +150,16 @@ def main():
     print("Device type selected is 'cpu' which is the default CPU Execution Provider (MLAS)")
     #Specify the path to the ONNX model on your machine and register the CPU EP
     sess = rt.InferenceSession(args.model, so, providers=['CPUExecutionProvider'])
-  elif (args.device == 'CPU_FP32', args.device == 'CPU_FP16' or args.device == 'GPU_FP32' or args.device == 'GPU_FP16'):
+  elif (args.device == 'CPU', args.device == 'GPU' or args.device == 'NPU'):
     #Specify the path to the ONNX model on your machine and register the OpenVINO EP
     sess = rt.InferenceSession(args.model, so, providers=['OpenVINOExecutionProvider'], provider_options=[{'device_type' : args.device}])
     print("Device type selected is: " + args.device + " using the OpenVINO Execution Provider")
     '''
     other 'device_type' options are: (Any hardware target can be assigned if you have the access to it)
-    'CPU_FP32', 'CPU_FP16', 'GPU_FP32', 'GPU_FP16'
+    'CPU', 'GPU', 'NPU'
     '''
   else:
-    raise Exception("Device type selected is not [cpu, CPU_FP32, GPU_FP32, GPU_FP16]")
+    raise Exception("Device type selected is not [CPU, GPU, NPU]")
 
   # Get the input name of the model
   input_name = sess.get_inputs()[0].name

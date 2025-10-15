@@ -13,13 +13,14 @@ if(OPENCV_LIBDIR)
 endif()
 
 #In onnxruntime deafault install path, the required dlls are in lib and bin folders
-set(DLL_DIRS "${ONNXRUNTIME_ROOTDIR}/lib;${ONNXRUNTIME_ROOTDIR}/bin")
+set(DLL_DIRS "${ONNXRUNTIME_ROOTDIR}/lib;${ONNXRUNTIME_ROOTDIR}/bin;${OPENCV_ROOTDIR}/x64/vc16/bin")
+
 foreach(DLL_DIR IN LISTS DLL_DIRS)
   file(GLOB ALL_DLLS ${DLL_DIR}/*.dll)
-  foreach(ORTDll IN LISTS ALL_DLLS)
+  foreach(DLLFile IN LISTS ALL_DLLS)
     add_custom_command(TARGET run_squeezenet POST_BUILD 
-				COMMAND ${CMAKE_COMMAND} -E copy_if_different
-				"${ORTDll}"              
-				$<TARGET_FILE_DIR:run_squeezenet>)
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        "${DLLFile}"
+        $<TARGET_FILE_DIR:run_squeezenet>)
   endforeach()
 endforeach()

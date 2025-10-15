@@ -24,8 +24,8 @@ if(OPENCV_ROOTDIR)
   set(OPENCV_FOUND true)
   set(OPENCV_INCLUDE_DIRS "${OPENCV_ROOTDIR}/include")
   set(OPENCV_LIBDIR "${OPENCV_ROOTDIR}/x64/vc16/lib")
-  file(GLOB OPENCV_DEBUG_LIBRARIES ${OPENCV_LIBDIR}/opencv_world470d.lib)
-  file(GLOB OPENCV_RELEASE_LIBRARIES ${OPENCV_LIBDIR}/opencv_world470.lib)
+  file(GLOB OPENCV_DEBUG_LIBRARIES "${OPENCV_LIBDIR}/opencv_world*d.lib")
+  file(GLOB OPENCV_RELEASE_LIBRARIES "${OPENCV_LIBDIR}/opencv_world*.lib")
   list(FILTER OPENCV_RELEASE_LIBRARIES EXCLUDE REGEX ".*d\\.lib")
 endif()
 
@@ -39,10 +39,6 @@ endif()
 
 if(OPENCV_FOUND)
   add_subdirectory(squeezenet_classification)
-endif()
-
-if(OPENCL_FOUND)
-  add_subdirectory(squeezenet_classification_io_buffer)
 endif()
 
 add_subdirectory(model-explorer)
