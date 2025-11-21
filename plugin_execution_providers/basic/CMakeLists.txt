@@ -8,15 +8,16 @@ if(NOT DEFINED ORT_HOME)
   message(FATAL_ERROR "ORT_HOME should be set to the directory containing the onnxruntime library and headers.")
 endif()
 
-set(ORT_LIBRARY_DIR ${ORT_HOME}/lib)
-set(ORT_INCLUDE_DIR ${ORT_HOME}/include)
+if(ANDROID)
+  set(ORT_LIBRARY_DIR ${ORT_HOME}/jni/${ANDROID_ABI})
+  set(ORT_INCLUDE_DIR ${ORT_HOME}/headers)
+else()
+  set(ORT_LIBRARY_DIR ${ORT_HOME}/lib)
+  set(ORT_INCLUDE_DIR ${ORT_HOME}/include)
+endif()
 
-find_library(ORT_LIBRARY
-  NAMES onnxruntime
-  PATHS ${ORT_LIBRARY_DIR}
-  REQUIRED)
-
-message(VERBOSE "ORT_LIBRARY: ${ORT_LIBRARY}")
+message(STATUS "ORT_LIBRARY_DIR: ${ORT_LIBRARY_DIR}")
+message(STATUS "ORT_INCLUDE_DIR: ${ORT_INCLUDE_DIR}")
 
 #
 # basic_plugin_ep
@@ -34,24 +35,25 @@ target_sources(basic_plugin_ep PRIVATE
   ${CMAKE_SOURCE_DIR}/src/plugin_ep_utils.h
 )
 
-target_link_libraries(basic_plugin_ep PRIVATE ${ORT_LIBRARY})
 target_include_directories(basic_plugin_ep PRIVATE ${ORT_INCLUDE_DIR})
+
+target_link_directories(basic_plugin_ep PRIVATE ${ORT_LIBRARY_DIR})
+target_link_libraries(basic_plugin_ep PRIVATE onnxruntime)
 
 set(basic_plugin_ep_link_options)
 if(MSVC)
   list(APPEND basic_plugin_ep_link_options
-       "-DEF:${CMAKE_SOURCE_DIR}/src/ep_lib.def"
-  )
+       "-DEF:${CMAKE_SOURCE_DIR}/src/ep_lib.def")
 else()
   if(UNIX)
     if(APPLE)
       list(APPEND basic_plugin_ep_link_options
-           "-Xlinker" "-dead_strip")
+           "LINKER:-dead_strip")
     else()
       list(APPEND basic_plugin_ep_link_options
-           "-Xlinker" "--version-script=${CMAKE_SOURCE_DIR}/src/ep_lib.lds"
-           "-Xlinker" "--no-undefined"
-           "-Xlinker" "--gc-sections"
+           "LINKER:--version-script=${CMAKE_SOURCE_DIR}/src/ep_lib.lds"
+           "LINKER:--no-undefined"
+           "LINKER:--gc-sections"
            "-z" "noexecstack")
     endif()
   endif()
