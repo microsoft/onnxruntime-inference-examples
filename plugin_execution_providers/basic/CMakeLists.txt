@@ -4,7 +4,10 @@ project(BasicPluginEp)
 
 set(CMAKE_CXX_STANDARD 20)
 
-include(${CMAKE_SOURCE_DIR}/../common/cmake/onnxruntime_library_utils.cmake)
+# directory containing common utilities for plugin EPs
+set(plugin_ep_common_dir ${CMAKE_SOURCE_DIR}/../common)
+
+include(${plugin_ep_common_dir}/cmake/onnxruntime_library_utils.cmake)
 
 set_onnxruntime_paths(
   ORT_HOME ${ORT_HOME}
@@ -28,10 +31,13 @@ target_sources(basic_plugin_ep PRIVATE
   ${CMAKE_SOURCE_DIR}/src/ep_lib_entry.cc
   ${CMAKE_SOURCE_DIR}/src/ep.cc
   ${CMAKE_SOURCE_DIR}/src/ep.h
-  ${CMAKE_SOURCE_DIR}/src/plugin_ep_utils.h
+  ${plugin_ep_common_dir}/src/plugin_ep_utils.h
 )
 
-target_include_directories(basic_plugin_ep PRIVATE ${ORT_INCLUDE_DIR})
+target_include_directories(basic_plugin_ep PRIVATE
+  ${ORT_INCLUDE_DIR}
+  ${plugin_ep_common_dir}/src
+)
 
 target_link_directories(basic_plugin_ep PRIVATE ${ORT_LIBRARY_DIR})
 target_link_libraries(basic_plugin_ep PRIVATE onnxruntime)
