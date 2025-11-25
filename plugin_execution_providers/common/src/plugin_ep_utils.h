@@ -33,18 +33,6 @@
 #define RETURN_IF_NOT(cond, msg) \
   RETURN_IF(!(cond), msg)
 
-// see ORT_ENFORCE for implementations that also capture a stack trace and work in builds with exceptions disabled
-// NOTE: In this simplistic implementation you must provide an argument, even it if's an empty string
-#define EP_ENFORCE(condition, ...)                       \
-  do {                                                   \
-    if (!(condition)) {                                  \
-      std::ostringstream oss;                            \
-      oss << "EP_ENFORCE failed: " << #condition << " "; \
-      oss << __VA_ARGS__;                                \
-      throw std::runtime_error(oss.str());               \
-    }                                                    \
-  } while (false)
-
 // Ignores an OrtStatus* while taking ownership of it so that it does not get leaked.
 #define IGNORE_ORTSTATUS(status_expr)   \
   do {                                  \
@@ -77,11 +65,6 @@
     return status.release();                          \
   } while (false)
 
-#define THROW(...)       \
-  std::ostringstream ss; \
-  ss << __VA_ARGS__;     \
-  throw std::runtime_error(ss.str())
-
 #define EP_API_IMPL_BEGIN \
   try {
 #define EP_API_IMPL_END                                           \
@@ -98,21 +81,6 @@
     Ort::Status status("Caught unknown exception.", ORT_EP_FAIL); \
     return status.release();                                      \
   }
-
-// Returns an entry in the session option configurations, or a default value if not present.
-inline OrtStatus* GetSessionConfigEntryOrDefault(const OrtSessionOptions& session_options,
-                                                 const char* config_key, const std::string& default_val,
-                                                 /*out*/ std::string& config_val) {
-  try {
-    Ort::ConstSessionOptions sess_opt{&session_options};
-    config_val = sess_opt.GetConfigEntryOrDefault(config_key, default_val);
-  } catch (const Ort::Exception& ex) {
-    Ort::Status status(ex);
-    return status.release();
-  }
-
-  return nullptr;
-}
 
 // Returns true (via output parameter) if the given OrtValueInfo represents a float tensor.
 inline void IsFloatTensor(Ort::ConstValueInfo value_info, bool& result) {
