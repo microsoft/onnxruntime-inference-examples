@@ -85,7 +85,7 @@ class MainActivity : ComponentActivity() {
             BasicPluginEpTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     Text(
-                        text = "mul.onnx says that ${x} * ${y} is ${multiplyWithModel(x, y)}",
+                        text = "ONNX Runtime with a plugin EP! ${x} * ${y} is ${multiplyWithModel(x, y)}",
                         modifier = Modifier.padding(innerPadding)
                     )
                 }
