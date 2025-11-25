@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation. All rights reserved.
+# Licensed under the MIT License.
+
 include(FetchContent)
 
 # Sets ONNX Runtime header and library paths.
