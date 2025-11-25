@@ -1,3 +1,8 @@
+// Specifies a directory containing ONNX Runtime libraries and headers to use. This directory
+// should match the onnxruntime-android AAR structure.
+// Specifying `ortHome` is optional. If unspecified, the ONNX Runtime files will be downloaded.
+val ortHome: String? = System.getProperty("ortHome")
+
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
@@ -16,7 +21,9 @@ android {
         consumerProguardFiles("consumer-rules.pro")
         externalNativeBuild {
             cmake {
-                arguments += listOf("-DORT_HOME=D:/source/onnxruntime-inference-examples/plugin_execution_providers/basic/ort_home/onnxruntime-android-1.23.2")
+                if (ortHome != null) {
+                    arguments += listOf("-DORT_HOME=${ortHome}")
+                }
             }
         }
     }
@@ -30,6 +37,7 @@ android {
             )
         }
     }
+
     externalNativeBuild {
         cmake {
             path("../../CMakeLists.txt")

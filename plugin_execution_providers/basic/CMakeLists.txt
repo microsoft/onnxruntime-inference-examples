@@ -4,17 +4,13 @@ project(BasicPluginEp)
 
 set(CMAKE_CXX_STANDARD 20)
 
-if(NOT DEFINED ORT_HOME)
-  message(FATAL_ERROR "ORT_HOME should be set to the directory containing the onnxruntime library and headers.")
-endif()
+include(${CMAKE_SOURCE_DIR}/../common/cmake/onnxruntime_library_utils.cmake)
 
-if(ANDROID)
-  set(ORT_LIBRARY_DIR ${ORT_HOME}/jni/${ANDROID_ABI})
-  set(ORT_INCLUDE_DIR ${ORT_HOME}/headers)
-else()
-  set(ORT_LIBRARY_DIR ${ORT_HOME}/lib)
-  set(ORT_INCLUDE_DIR ${ORT_HOME}/include)
-endif()
+set_onnxruntime_paths(
+  ORT_HOME ${ORT_HOME}
+  DEFAULT_ORT_VERSION "1.23.2"
+  ORT_INCLUDE_DIR_VAR ORT_INCLUDE_DIR
+  ORT_LIBRARY_DIR_VAR ORT_LIBRARY_DIR)
 
 message(STATUS "ORT_LIBRARY_DIR: ${ORT_LIBRARY_DIR}")
 message(STATUS "ORT_INCLUDE_DIR: ${ORT_INCLUDE_DIR}")
