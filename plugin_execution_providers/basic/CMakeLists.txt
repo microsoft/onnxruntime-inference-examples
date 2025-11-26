@@ -12,6 +12,9 @@ set(plugin_ep_common_dir ${CMAKE_SOURCE_DIR}/../common)
 
 include(${plugin_ep_common_dir}/cmake/onnxruntime_library_utils.cmake)
 
+# Set ORT_HOME (cmake ... -DORT_HOME=/path/to/onnxruntime) to provide a specific path to the ONNX Runtime header and
+# library files. This is optional.
+
 set_onnxruntime_paths(
   ORT_HOME ${ORT_HOME}
   DEFAULT_ORT_VERSION "1.23.2"
