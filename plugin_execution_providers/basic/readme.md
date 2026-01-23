@@ -6,6 +6,7 @@ This directory contains a basic example of a custom ONNX Runtime Execution Provi
 - `src`: Contains source code for the basic plugin EP.
 - `android`: Contains example code for setting up and using an Android package.
 - `python`: Contains example code for setting up and using a Python package.
+- `gen_mul_model.py`: Helper script used to generate `mul.onnx` models used in usage examples.
 
 ## Build Instructions
 Use CMake to configure and build the project:
