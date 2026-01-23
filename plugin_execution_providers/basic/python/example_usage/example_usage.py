@@ -1,5 +1,10 @@
 import onnxruntime as ort
 import onnxruntime_ep_basic as basic_ep
+import numpy as np
+
+from pathlib import Path
+
+script_dir = Path(__file__).parent
 
 # Path to the plugin EP library
 ep_lib_path = basic_ep.get_library_path()
@@ -34,11 +39,14 @@ sess_options.add_provider_for_devices(selected_ep_devices, ep_options)
 assert sess_options.has_providers() == True
 
 # Create ORT session with the plugin EP
-model_path = "mul.onnx"
+model_path = str(script_dir / "mul.onnx")
 sess = ort.InferenceSession(model_path, sess_options=sess_options)
 
-# Use `sess`
-# ...
+# Run the model
+input = np.array([[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]], dtype=np.float32)
+print(f"input:\n{input}")
+output = sess.run([], {'x': input, 'y': input})
+print(f"output:\n{output[0]}")
 
 del sess
 
