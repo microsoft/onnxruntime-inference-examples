@@ -4,7 +4,8 @@ import ai.onnxruntime.OnnxTensor
 import ai.onnxruntime.OrtEnvironment
 import ai.onnxruntime.OrtLoggingLevel
 import ai.onnxruntime.OrtSession
-import ai.onnxruntime.example.basicpluginep.getBasicPluginEpLibraryPath
+import ai.onnxruntime.example.basicpluginep.getLibraryPath as getBasicPluginEpLibraryPath
+import ai.onnxruntime.example.basicpluginep.getEpName as getBasicPluginEpName
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -20,7 +21,7 @@ import java.nio.FloatBuffer
 class MainActivity : ComponentActivity() {
     private lateinit var ortEnv: OrtEnvironment
     private lateinit var ortSession: OrtSession
-    private val pluginEpRegistrationName: String = "basic_plugin_ep"
+    private val pluginEpRegistrationName: String = "basic_ep_registration"
 
     private fun readResourceBytes(resourceId: Int): ByteArray {
         return resources.openRawResource(resourceId).readBytes()
@@ -35,7 +36,8 @@ class MainActivity : ComponentActivity() {
         val modelBytes = readResourceBytes(R.raw.mul)
         val sessionOptions = OrtSession.SessionOptions()
         val allEpDevices = ortEnv.epDevices
-        val epDevicesToUse = allEpDevices.filter { it.epName == "BasicPluginEp" }
+        val basicEpName = getBasicPluginEpName()
+        val epDevicesToUse = allEpDevices.filter { it.epName == basicEpName }
         sessionOptions.addExecutionProvider(epDevicesToUse, emptyMap())
         ortSession = ortEnv.createSession(modelBytes, sessionOptions)
     }

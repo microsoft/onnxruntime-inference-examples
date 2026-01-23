@@ -67,7 +67,7 @@ class BasicPluginEpFactory : public OrtEpFactory {
   const OrtEpApi& ep_api_;
   const OrtModelEditorApi& model_editor_api_;
 
-  const std::string ep_name_{"BasicPluginEp"};
+  const std::string ep_name_{"BasicPluginExecutionProvider"};
   const std::string vendor_{"Contoso"};    // EP vendor name
   const uint32_t vendor_id_{0xB357};       // EP vendor ID
   const std::string ep_version_{"0.1.0"};  // EP version
