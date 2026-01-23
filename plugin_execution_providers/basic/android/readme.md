@@ -6,6 +6,13 @@
 
 ## Build Instructions
 
+### Prerequisites
+Generate the model file used by `basicpluginepusage` by running the `gen_mul_model.py` script.
+
+```
+python ./basicpluginepusage/gen_mul_model.py
+```
+
 ### Android Studio
 This directory can be opened with Android Studio. Build and run `basicpluginepusage`.
 
