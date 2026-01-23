@@ -1,0 +1,5 @@
+/build
+/dist
+/onnxruntime_ep_basic.egg-info
+/onnxruntime_ep_basic/basic_plugin_ep.dll
+/onnxruntime_ep_basic/libbasic_plugin_ep.so
