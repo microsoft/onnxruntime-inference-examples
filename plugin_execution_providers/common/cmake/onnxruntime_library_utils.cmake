@@ -10,6 +10,8 @@ function(set_onnxruntime_paths)
   set(options)
   set(one_value_keywords
       # Specifies directory containing ONNX Runtime header and library files.
+      # Generally, `ORT_HOME`/include should contain the headers and `ORT_HOME`/lib should contain the libraries.
+      # For Android, `ORT_HOME` should match the directory structure of the ORT AAR.
       # Optional. If unset or empty, the ONNX Runtime files will be downloaded to the build directory.
       ORT_HOME
       # Specifies the ONNX Runtime version to use if downloading ONNX Runtime.
@@ -100,7 +102,7 @@ function(use_onnxruntime_home_and_set_paths ORT_HOME ORT_INCLUDE_DIR_VAR ORT_LIB
   file(REAL_PATH ${ORT_HOME} ORT_HOME)
 
   if(ANDROID)
-    # Paths are based on the directory structure of the ORT Android AAR.
+    # Paths are based on the directory structure of the ORT AAR.
     set(ORT_HEADER_DIR ${ORT_HOME}/headers)
     set(ORT_LIB_DIR ${ORT_HOME}/jni/${ANDROID_ABI})
   else()
