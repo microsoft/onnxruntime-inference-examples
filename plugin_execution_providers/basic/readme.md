@@ -5,6 +5,7 @@ This directory contains a basic example of a custom ONNX Runtime Execution Provi
 - `CMakeLists.txt`: Build configuration for the basic plugin EP.
 - `src`: Contains source code for the basic plugin EP.
 - `android`: Contains example code for setting up and using an Android package.
+- `python`: Contains example code for setting up and using a Python package.
 
 ## Build Instructions
 Use CMake to configure and build the project:
