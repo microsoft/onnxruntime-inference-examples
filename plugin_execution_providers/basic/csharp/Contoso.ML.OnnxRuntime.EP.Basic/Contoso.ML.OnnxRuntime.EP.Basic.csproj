@@ -25,9 +25,6 @@
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
 
-    <!-- Generate the .nupkg on pack -->
-    <!-- dotnet pack Contoso.ML.OnnxRuntime.EP.Basic.csproj -c Release -->
-    <!-- <GeneratePackageOnBuild>false</GeneratePackageOnBuild> -->
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
   </PropertyGroup>
 

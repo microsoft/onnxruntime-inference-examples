@@ -1,7 +1,13 @@
 @echo off
 
-REM Example: Set the environment variable (can be set outside this script too)
-REM set "BASIC_PLUGIN_EP_LIBRARY_PATH=C:\path\to\onnxruntime_ep_basic.dll"
+REM Builds NuGet package that wraps basic plugin EP
+
+IF "%~1"=="" (
+    echo [ERROR] No build configuration specified.
+    echo Usage: %~nx0 [Debug|Release]
+    exit /b 1
+)
+SET "BUILD_CONFIG=%~1"
 
 if "%BASIC_PLUGIN_EP_LIBRARY_PATH%"=="" (
     echo ERROR: BASIC_PLUGIN_EP_LIBRARY_PATH environment variable is not set.
@@ -34,8 +40,9 @@ if errorlevel 1 (
     exit /b 1
 )
 
-dotnet build .\Contoso.ML.OnnxRuntime.EP.Basic\Contoso.ML.OnnxRuntime.EP.Basic.csproj -c Debug
-dotnet pack .\Contoso.ML.OnnxRuntime.EP.Basic\Contoso.ML.OnnxRuntime.EP.Basic.csproj -c Debug
+echo Building NuGet package ("%BUILD_CONFIG%") ...
+dotnet build .\Contoso.ML.OnnxRuntime.EP.Basic\Contoso.ML.OnnxRuntime.EP.Basic.csproj -c "%BUILD_CONFIG%"
+dotnet pack .\Contoso.ML.OnnxRuntime.EP.Basic\Contoso.ML.OnnxRuntime.EP.Basic.csproj -c "%BUILD_CONFIG%"
 
 set "LOCAL_FEED_FOLDER=local_feed"
 if not exist "%LOCAL_FEED_FOLDER%" (
@@ -44,4 +51,4 @@ if not exist "%LOCAL_FEED_FOLDER%" (
     )
 )
 
-copy /Y .\Contoso.ML.OnnxRuntime.EP.Basic\bin\Debug\Contoso.ML.OnnxRuntime.EP.Basic.1.0.0.* .\local_feed\
+copy /Y .\Contoso.ML.OnnxRuntime.EP.Basic\bin\"%BUILD_CONFIG%"\Contoso.ML.OnnxRuntime.EP.Basic.1.0.0.* .\local_feed\

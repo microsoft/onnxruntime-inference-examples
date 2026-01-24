@@ -4,6 +4,52 @@ namespace Contoso.ML.OnnxRuntime.EP.Basic;
 
 public static class BasicEp
 {
+    /// <summary>
+    /// Returns the path to the plugin EP library DLL contained by this package.
+    /// Can be passed to OrtEnv::RegisterExecutionProviderLibrary().
+    ///
+    /// Note: It is recommended that plugin EP packages provide this information to applications.
+    /// </summary>
+    /// <returns>EP library path or empty string if not found</returns>
+    public static string GetLibraryPath()
+    {
+        string rootDir = GetNativeDirectory();
+        string osArch = $"{GetOSTag()}-{GetArchTag()}";
+        string candidatePath = Path.Combine(rootDir, "runtimes", osArch, "native", "basic_plugin_ep.dll");
+
+        if (File.Exists(candidatePath))
+        {
+            return Path.GetFullPath(candidatePath);
+        }
+
+        // Not found
+        return string.Empty;
+    }
+
+    /// <summary>
+    /// Returns the names of the EPs created by the plugin EP library.
+    /// Can be used to select a OrtEpDevice from those returned by OrtEnv::GetEpDevices().
+    ///
+    /// Note: It is recommended that plugin EP packages provide this information to applications.
+    /// </summary>
+    /// <returns>Array of EP names</returns>
+    public static string[] GetEpNames()
+    {
+        string[] ep_names = { "BasicPluginExecutionProvider" };
+        return ep_names;
+    }
+
+    /// <summary>
+    /// Returns the name of the one EP supported by this plugin EP library.
+    ///
+    /// Note: This is a convenience function exposed by plugin EP packages that only have one EP name.
+    /// </summary>
+    /// <returns></returns>
+    public static string GetEpName()
+    {
+        return GetEpNames()[0];
+    }
+
     private static string GetNativeDirectory()
     {
         var assemblyDir = Path.GetDirectoryName(typeof(BasicEp).Assembly.Location);
@@ -30,31 +76,5 @@ public static class BasicEp
             Architecture.Arm64 => "arm64",
             _ => "unknown"
         };
-    }
-
-    public static string GetLibraryPath()
-    {
-        string rootDir = GetNativeDirectory();
-        string osArch = $"{GetOSTag()}-{GetArchTag()}";
-        string candidatePath = Path.Combine(rootDir, "runtimes", osArch, "native", "basic_plugin_ep.dll");
-
-        if (File.Exists(candidatePath))
-        {
-            return Path.GetFullPath(candidatePath);
-        }
-
-        // Not found
-        return string.Empty;
-    }
-
-    public static string[] GetEpNames()
-    {
-        string[] ep_names = { "BasicPluginExecutionProvider" };
-        return ep_names;
-    }
-
-    public static string GetEpName()
-    {
-        return GetEpNames()[0];
     }
 }
