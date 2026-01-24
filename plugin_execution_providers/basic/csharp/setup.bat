@@ -3,10 +3,11 @@
 REM Builds NuGet package that wraps basic plugin EP
 
 IF "%~1"=="" (
-    echo [ERROR] No build configuration specified.
-    echo Usage: %~nx0 [Debug|Release]
+    echo ERROR: No build configuration specified.
+    echo Usage: .\setup.bat [Debug^|Release]
     exit /b 1
 )
+
 SET "BUILD_CONFIG=%~1"
 
 if "%BASIC_PLUGIN_EP_LIBRARY_PATH%"=="" (
@@ -19,18 +20,17 @@ if not exist "%BASIC_PLUGIN_EP_LIBRARY_PATH%" (
     exit /b 1
 )
 
-set "arch=%PROCESSOR_ARCHITECTURE%"
-if defined PROCESSOR_ARCHITEW6432 set "arch=%PROCESSOR_ARCHITEW6432%"
+set "ARCH=%PROCESSOR_ARCHITECTURE%"
+if defined PROCESSOR_ARCHITEW6432 set "ARCH=%PROCESSOR_ARCHITEW6432%"
 
-if /i "%arch%"=="AMD64" (
+if /i "%ARCH%"=="AMD64" (
     set "DEST_EP_DLL_FOLDER=.\Contoso.ML.OnnxRuntime.EP.Basic\runtimes\win-x64\native\"
-) else if /i "%arch%"=="ARM64" (
+) else if /i "%ARCH%"=="ARM64" (
     set "DEST_EP_DLL_FOLDER=.\Contoso.ML.OnnxRuntime.EP.Basic\runtimes\win-arm64\native\"
 ) else (
-    echo ERROR: Unknown architecture "%arch%"
+    echo ERROR: Unknown architecture "%ARCH%"
     exit /b 1
 )
-
 
 echo Copying EP DLL to "%DEST_EP_DLL_FOLDER%"
 copy /Y "%BASIC_PLUGIN_EP_LIBRARY_PATH%" "%DEST_EP_DLL_FOLDER%" >nul
