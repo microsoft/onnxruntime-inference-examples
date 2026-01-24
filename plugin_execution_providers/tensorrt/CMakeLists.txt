@@ -28,7 +28,7 @@ endif()
 add_definitions(-DONNX_NAMESPACE=onnx)
 add_definitions(-DONNX_ML)
 add_definitions(-DNOMINMAX)
-file(GLOB tensorrt_src "./*.cc" "./utils/*.cc" "./cuda/unary_elementwise_ops_impl.cu" "./*.h")
+file(GLOB tensorrt_src "./src/*.cc" "./src/utils/*.cc" "./src/cuda/unary_elementwise_ops_impl.cu" "./src/*.h")
 add_library(TensorRTEp SHARED ${tensorrt_src})
 
 if (NOT ORT_HOME)
@@ -111,7 +111,7 @@ if (WIN32) # Windows
                 "${DEPS_PATH}/onnx-build/${CMAKE_BUILD_TYPE}/onnx_proto.lib")
 
   set(TRT_EP_LIB_LINK_FLAG
-        "-DEF:${CMAKE_SOURCE_DIR}/tensorrt_execution_provider.def")
+        "-DEF:${CMAKE_SOURCE_DIR}/src/tensorrt_execution_provider.def")
 
 else() # Linux
   set(ORT_LIB "${ORT_HOME}/lib/libonnxruntime.so")
@@ -142,7 +142,7 @@ set_property(TARGET TensorRTEp APPEND_STRING PROPERTY LINK_FLAGS
                ${TRT_EP_LIB_LINK_FLAG})
 
 target_include_directories(TensorRTEp PUBLIC "${ORT_HOME}/include"
-                                             "./utils"
+                                             "./src/utils"
                                              "/usr/local/cuda/include"
                                              "${TENSORRT_HOME}/include"
                                              "${DEPS_PATH}/flatbuffers-src/include"
