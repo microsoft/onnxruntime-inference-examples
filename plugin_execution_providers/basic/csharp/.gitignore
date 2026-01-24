@@ -1,11 +1,7 @@
-.vs/
-local_feed/
+/.vs/
+/local_feed/
 /Contoso.ML.OnnxRuntime.EP.Basic/runtimes/**/native/*.dll
-
-# NuGet Packages
 *.nupkg
-# The packages folder can be ignored because of Package Restore
 **/packages/*
-# except build/, which is used as an MSBuild target.
 !**/packages/build/
 **/bin/*

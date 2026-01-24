@@ -5,12 +5,17 @@
     <TargetFramework>net9.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <RestoreSources>$(RestoreSources);$(MSBuildThisFileDirectory)../local_feed</RestoreSources>
   </PropertyGroup>
-
 
   <ItemGroup>
     <PackageReference Include="Contoso.ML.OnnxRuntime.EP.Basic" Version="1.0.0" />
+    <PackageReference Include="Microsoft.ML.OnnxRuntime" Version="1.23.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+      <Content Include="mul.onnx">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Content>
   </ItemGroup>
 
   <!-- Consume nuget package via project reference during development to get live code changes -->

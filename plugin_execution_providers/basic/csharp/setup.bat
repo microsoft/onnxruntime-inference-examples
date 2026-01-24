@@ -13,21 +13,28 @@ if not exist "%BASIC_PLUGIN_EP_LIBRARY_PATH%" (
     exit /b 1
 )
 
-set "DEST_WIN_X64_FOLDER=.\Contoso.ML.OnnxRuntime.EP.Basic\runtimes\win-x64\native\"
-set "DEST_WIN_ARM64_FOLDER=.\Contoso.ML.OnnxRuntime.EP.Basic\runtimes\win-arm64\native\"
+set "arch=%PROCESSOR_ARCHITECTURE%"
+if defined PROCESSOR_ARCHITEW6432 set "arch=%PROCESSOR_ARCHITEW6432%"
 
-copy /Y "%BASIC_PLUGIN_EP_LIBRARY_PATH%" "%DEST_WIN_X64_FOLDER%" >nul
-if errorlevel 1 (
-    echo ERROR: Failed to EP library to "%DEST_WIN_X64_FOLDER%".
+if /i "%arch%"=="AMD64" (
+    set "DEST_EP_DLL_FOLDER=.\Contoso.ML.OnnxRuntime.EP.Basic\runtimes\win-x64\native\"
+) else if /i "%arch%"=="ARM64" (
+    set "DEST_EP_DLL_FOLDER=.\Contoso.ML.OnnxRuntime.EP.Basic\runtimes\win-arm64\native\"
+) else (
+    echo ERROR: Unknown architecture "%arch%"
     exit /b 1
 )
 
-copy /Y "%BASIC_PLUGIN_EP_LIBRARY_PATH%" "%DEST_WIN_ARM64_FOLDER%" >nul
+
+echo Copying EP DLL to "%DEST_EP_DLL_FOLDER%"
+copy /Y "%BASIC_PLUGIN_EP_LIBRARY_PATH%" "%DEST_EP_DLL_FOLDER%" >nul
+
 if errorlevel 1 (
-    echo ERROR: Failed to EP library to "%DEST_WIN_ARM64_FOLDER%".
+    echo ERROR: Failed to EP library to "%DEST_EP_DLL_FOLDER%".
     exit /b 1
 )
 
+dotnet build .\Contoso.ML.OnnxRuntime.EP.Basic\Contoso.ML.OnnxRuntime.EP.Basic.csproj -c Debug
 dotnet pack .\Contoso.ML.OnnxRuntime.EP.Basic\Contoso.ML.OnnxRuntime.EP.Basic.csproj -c Debug
 
 set "LOCAL_FEED_FOLDER=local_feed"
