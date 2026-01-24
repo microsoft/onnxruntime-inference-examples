@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RestoreSources>$(RestoreSources);$(MSBuildThisFileDirectory)../local_feed</RestoreSources>
+  </PropertyGroup>
+
+
+  <ItemGroup>
+    <PackageReference Include="Contoso.ML.OnnxRuntime.EP.Basic" Version="1.0.0" />
+  </ItemGroup>
+
+  <!-- Consume nuget package via project reference during development to get live code changes -->
+  <ItemGroup>
+    <ProjectReference Include="..\Contoso.ML.OnnxRuntime.EP.Basic\Contoso.ML.OnnxRuntime.EP.Basic.csproj" />
+  </ItemGroup>
+
+</Project>

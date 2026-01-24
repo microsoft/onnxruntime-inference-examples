@@ -1,0 +1,35 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+
+    <!-- Package info -->
+    <PackageId>Contoso.ML.OnnxRuntime.EP.Basic</PackageId>
+    <Version>1.0.0</Version>
+    <Authors>ORT</Authors>
+    <Company>Microsoft</Company>
+    <Description>A minimal package for a basic plugin EP.</Description>
+    <PackageReadmeFile>readme.md</PackageReadmeFile>
+
+    <!-- License/Repository -->
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <RepositoryUrl>https://github.com/microsoft/onnxruntime-inference-examples</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+
+    <!-- Include symbols/source for better debugging experience -->
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+
+    <!-- Generate the .nupkg on pack -->
+    <!-- dotnet pack Contoso.ML.OnnxRuntime.EP.Basic.csproj -c Release -->
+    <!-- <GeneratePackageOnBuild>false</GeneratePackageOnBuild> -->
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Ensure README is included in the package -->
+    <None Include="readme.md" Pack="true" PackagePath="" />
+  </ItemGroup>
+</Project>
