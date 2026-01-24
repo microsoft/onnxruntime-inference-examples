@@ -60,6 +60,7 @@ public static class BasicEp
         // Fallback to AppContext.BaseDirectory (works for single-file/self-contained)
         return AppContext.BaseDirectory;
     }
+
     private static string GetOSTag()
     {
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) return "win";
