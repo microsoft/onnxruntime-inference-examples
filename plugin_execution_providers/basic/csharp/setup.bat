@@ -32,11 +32,18 @@ if /i "%ARCH%"=="AMD64" (
     exit /b 1
 )
 
+if not exist "%DEST_EP_DLL_FOLDER%" (
+    mkdir "%DEST_EP_DLL_FOLDER%" || (
+        echo ERROR: Failed to create "%DEST_EP_DLL_FOLDER%".
+        exit /b 1
+    )
+)
+
 echo Copying EP DLL to "%DEST_EP_DLL_FOLDER%"
 copy /Y "%BASIC_PLUGIN_EP_LIBRARY_PATH%" "%DEST_EP_DLL_FOLDER%" >nul
 
 if errorlevel 1 (
-    echo ERROR: Failed to EP library to "%DEST_EP_DLL_FOLDER%".
+    echo ERROR: Failed to copy EP library to "%DEST_EP_DLL_FOLDER%".
     exit /b 1
 )
 
@@ -48,7 +55,9 @@ set "LOCAL_FEED_FOLDER=local_feed"
 if not exist "%LOCAL_FEED_FOLDER%" (
     mkdir "%LOCAL_FEED_FOLDER%" || (
         echo ERROR: Failed to create "%LOCAL_FEED_FOLDER%"
+        exit /b 1
     )
 )
 
-copy /Y .\Contoso.ML.OnnxRuntime.EP.Basic\bin\"%BUILD_CONFIG%"\Contoso.ML.OnnxRuntime.EP.Basic.1.0.0.* .\local_feed\
+copy /Y .\Contoso.ML.OnnxRuntime.EP.Basic\bin\"%BUILD_CONFIG%"\Contoso.ML.OnnxRuntime.EP.Basic.*.nupkg .\local_feed\
+copy /Y .\Contoso.ML.OnnxRuntime.EP.Basic\bin\"%BUILD_CONFIG%"\Contoso.ML.OnnxRuntime.EP.Basic.*.snupkg .\local_feed\

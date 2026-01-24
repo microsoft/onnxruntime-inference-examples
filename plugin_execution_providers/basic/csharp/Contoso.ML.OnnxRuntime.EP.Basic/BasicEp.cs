@@ -35,8 +35,7 @@ public static class BasicEp
     /// <returns>Array of EP names</returns>
     public static string[] GetEpNames()
     {
-        string[] ep_names = { "BasicPluginExecutionProvider" };
-        return ep_names;
+        return ["BasicPluginExecutionProvider"];
     }
 
     /// <summary>

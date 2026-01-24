@@ -9,6 +9,12 @@ class Program
         string epRegistrationName = "basic_ep_registration";
         string epName = BasicEp.GetEpName();
 
+        if (string.IsNullOrEmpty(epLibPath))
+        {
+            Console.Error.WriteLine("ERROR: BasicEp.GetLibraryPath() returned an empty path");
+            return;
+        }
+
         var env = OrtEnv.Instance();
         env.RegisterExecutionProviderLibrary(epRegistrationName, epLibPath);
         Console.WriteLine($"Registered EP library: {epLibPath}");
@@ -33,7 +39,7 @@ class Program
             Console.WriteLine($"Found OrtEpDevice for EP: {epName}");
 
             // Create session with EP
-            var sessionOptions = new SessionOptions();
+            using var sessionOptions = new SessionOptions();
             sessionOptions.AppendExecutionProvider(env, [epDevice], new Dictionary<string, string> { });
             sessionOptions.AddSessionConfigEntry("session.disable_cpu_ep_fallback", "1");  // Don't run on CPU EP
 
@@ -47,9 +53,9 @@ class Program
             var inputOrtValue = OrtValue.CreateTensorValueFromMemory<float>(inputData, [2, 3]);
             var inputValues = new List<OrtValue> { inputOrtValue, inputOrtValue }.AsReadOnly();
             var inputNames = new List<string> { "x", "y" }.AsReadOnly();
-            var runOptions = new RunOptions();
+            using var runOptions = new RunOptions();
 
-            var outputs = session.Run(runOptions, inputNames, inputValues, session.OutputNames);
+            using var outputs = session.Run(runOptions, inputNames, inputValues, session.OutputNames);
 
             Console.WriteLine($"Input: {string.Join(", ", inputData)}");
             Console.WriteLine($"Output: {string.Join(", ", outputs[0].GetTensorDataAsSpan<float>().ToArray())}");

@@ -19,8 +19,8 @@
   </ItemGroup>
 
   <!-- Consume nuget package via project reference during development to get live code changes -->
-  <ItemGroup>
+  <!-- <ItemGroup>
     <ProjectReference Include="..\Contoso.ML.OnnxRuntime.EP.Basic\Contoso.ML.OnnxRuntime.EP.Basic.csproj" />
-  </ItemGroup>
+  </ItemGroup> -->
 
 </Project>

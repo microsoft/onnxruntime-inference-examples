@@ -1,8 +1,8 @@
-# Basic Plugin Execution Provider with C\#
+# Basic Plugin Execution Provider with C#
 
 ## Contents
-- `Contoso.ML.OnnxRuntime.EP.Basic/`: Contains files for the basic plugin EP C\# NuGet package. `BasicEp.cs` provides helper functions to get the EP library path and the EP name.
-- `SampleApp/`: Contains a sample C\# application showing example usage of the basic plugin EP \C# NuGet package.
+- `Contoso.ML.OnnxRuntime.EP.Basic/`: Contains files for the basic plugin EP C# NuGet package. `BasicEp.cs` provides helper functions to get the EP library path and the EP name.
+- `SampleApp/`: Contains a sample C# application showing example usage of the basic plugin EP C# NuGet package.
 - `setup.bat`: Batch script to generate the NuGet package.
 
 ## Build Instructions

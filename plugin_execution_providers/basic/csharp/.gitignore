@@ -2,6 +2,7 @@
 /local_feed/
 /Contoso.ML.OnnxRuntime.EP.Basic/runtimes/**/native/*.dll
 *.nupkg
+*.snupkg
 **/packages/*
 !**/packages/build/
 **/bin/*
