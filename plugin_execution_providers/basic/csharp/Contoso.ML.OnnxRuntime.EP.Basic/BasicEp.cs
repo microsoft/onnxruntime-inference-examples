@@ -12,6 +12,7 @@ public static class BasicEp
     /// Note: It is recommended that plugin EP packages provide this information to applications.
     /// </summary>
     /// <returns>EP library path</returns>
+    /// <exception cref="FileNotFoundException">If the EP DLL file path does not exist</exception>
     public static string GetLibraryPath()
     {
         string rootDir = GetNativeDirectory();
@@ -19,7 +20,12 @@ public static class BasicEp
         string epDllPath = Path.GetFullPath(Path.Combine(rootDir, "runtimes", osArch,
                                                          "native", "basic_plugin_ep.dll"));
 
-        Debug.Assert(File.Exists(epDllPath), $"Did not find EP DLL path: {epDllPath}");
+        if (!File.Exists(epDllPath))
+        {
+            // This indicates a packaging error.
+            throw new FileNotFoundException($"Did not find EP DLL file: {epDllPath}");
+        }
+
         return epDllPath;
     }
 
