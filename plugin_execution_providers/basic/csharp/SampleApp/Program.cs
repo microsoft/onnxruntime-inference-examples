@@ -9,12 +9,6 @@ class Program
         string epRegistrationName = "basic_ep_registration";
         string epName = BasicEp.GetEpName();
 
-        if (string.IsNullOrEmpty(epLibPath))
-        {
-            Console.Error.WriteLine("ERROR: BasicEp.GetLibraryPath() returned an empty path");
-            return;
-        }
-
         var env = OrtEnv.Instance();
         env.RegisterExecutionProviderLibrary(epRegistrationName, epLibPath);
         Console.WriteLine($"Registered EP library: {epLibPath}");

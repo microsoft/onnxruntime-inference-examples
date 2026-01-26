@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿using System.Diagnostics;
+using System.Runtime.InteropServices;
 
 namespace Contoso.ML.OnnxRuntime.EP.Basic;
 
@@ -10,20 +11,16 @@ public static class BasicEp
     ///
     /// Note: It is recommended that plugin EP packages provide this information to applications.
     /// </summary>
-    /// <returns>EP library path or empty string if not found</returns>
+    /// <returns>EP library path</returns>
     public static string GetLibraryPath()
     {
         string rootDir = GetNativeDirectory();
         string osArch = $"{GetOSTag()}-{GetArchTag()}";
-        string candidatePath = Path.Combine(rootDir, "runtimes", osArch, "native", "basic_plugin_ep.dll");
+        string epDllPath = Path.GetFullPath(Path.Combine(rootDir, "runtimes", osArch,
+                                                         "native", "basic_plugin_ep.dll"));
 
-        if (File.Exists(candidatePath))
-        {
-            return Path.GetFullPath(candidatePath);
-        }
-
-        // Not found
-        return string.Empty;
+        Debug.Assert(File.Exists(epDllPath), $"Did not find EP DLL path: {epDllPath}");
+        return epDllPath;
     }
 
     /// <summary>
