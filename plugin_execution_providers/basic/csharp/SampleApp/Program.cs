@@ -50,7 +50,7 @@ class Program
 
             // Run model
             float[] inputData = [1.0f, 2.0f, 3.0f, 4.0f, 5.0f, 6.0f];
-            var inputOrtValue = OrtValue.CreateTensorValueFromMemory<float>(inputData, [2, 3]);
+            using var inputOrtValue = OrtValue.CreateTensorValueFromMemory<float>(inputData, [2, 3]);
             var inputValues = new List<OrtValue> { inputOrtValue, inputOrtValue }.AsReadOnly();
             var inputNames = new List<string> { "x", "y" }.AsReadOnly();
             using var runOptions = new RunOptions();
