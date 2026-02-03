@@ -5,6 +5,7 @@ This directory contains a basic example of a custom ONNX Runtime Execution Provi
 - `CMakeLists.txt`: Build configuration for the basic plugin EP.
 - `src`: Contains source code for the basic plugin EP.
 - `android`: Contains example code for setting up and using an Android package.
+- `csharp`: Contains example code for setting up and using a C# NuGet package.
 - `python`: Contains example code for setting up and using a Python package.
 - `gen_mul_model.py`: Reference script used to generate `mul.onnx` models used in usage examples. The model files are checked in.
 
@@ -22,4 +23,4 @@ The resulting plugin EP library can be registered with ONNX Runtime for inferenc
 Refer to the ONNX Runtime documentation for details on loading and using plugin EPs. This example is intended for plugin EP developers.
 
 ## References
-- [ONNX Runtime Plugin EP Documentation](https://onnxruntime.ai/docs/execution-providers/plugin-ep-libraries.html)
+- [ONNX Runtime Plugin EP Documentation](https://onnxruntime.ai/docs/execution-providers/plugin-ep-libraries/)
