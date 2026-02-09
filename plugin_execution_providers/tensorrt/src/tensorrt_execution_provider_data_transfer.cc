@@ -17,17 +17,22 @@ bool ORT_API_CALL TRTEpDataTransfer::CanCopyImpl(const OrtDataTransferImpl* this
                                                  const OrtMemoryDevice* dst_memory_device) noexcept {
   auto& impl = *static_cast<const TRTEpDataTransfer*>(this_ptr);
 
-  auto it = std::find_if(impl.cuda_gpu_mem_devices_.begin(), impl.cuda_gpu_mem_devices_.end(),
-                         [&impl, &src_memory_device, &dst_memory_device](const OrtMemoryDevice* memory_device) {
-                           bool src_is_our_device = impl.ep_api.MemoryDevice_AreEqual(src_memory_device, memory_device);
-                           bool dst_is_our_device = impl.ep_api.MemoryDevice_AreEqual(dst_memory_device, memory_device);
-                           return src_is_our_device || dst_is_our_device;
-                         });
+  // logic copied from GPUDataTransfer::CanCopy
+  OrtMemoryInfoDeviceType src_type = impl.ep_api.MemoryDevice_GetDeviceType(src_memory_device);
+  OrtMemoryInfoDeviceType dst_type = impl.ep_api.MemoryDevice_GetDeviceType(dst_memory_device);
+  auto src_vendor_id = impl.ep_api.MemoryDevice_GetVendorId(src_memory_device);
+  auto dst_vendor_id = impl.ep_api.MemoryDevice_GetVendorId(dst_memory_device);
 
-  if (it != impl.cuda_gpu_mem_devices_.end()) {
-    return true;
+  // 0x10DE is the PCI vendor ID for NVIDIA
+  if ((src_type == OrtMemoryInfoDeviceType_GPU && src_vendor_id != 0x10DE) ||
+      (dst_type == OrtMemoryInfoDeviceType_GPU && dst_vendor_id != 0x10DE)) {
+    return false;
   }
-  return false;
+
+  // copy must be GPU to GPU or between GPU and CPU
+  return (src_type == OrtMemoryInfoDeviceType_GPU && dst_type == OrtMemoryInfoDeviceType_GPU) ||
+         (src_type == OrtMemoryInfoDeviceType_GPU && dst_type == OrtMemoryInfoDeviceType_CPU) ||
+         (src_type == OrtMemoryInfoDeviceType_CPU && dst_type == OrtMemoryInfoDeviceType_GPU);
 }
 
 // function to copy one or more tensors.

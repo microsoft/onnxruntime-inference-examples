@@ -30,7 +30,8 @@ endif()
 add_definitions(-DONNX_NAMESPACE=onnx)
 add_definitions(-DONNX_ML)
 add_definitions(-DNOMINMAX)
-file(GLOB tensorrt_src "./src/*.cc" "./src/utils/*.cc" "./src/cuda/unary_elementwise_ops_impl.cu" "./src/*.h")
+
+file(GLOB tensorrt_src "./src/*.cc" "./src/kernels/*.cc" "./src/utils/*.cc" "./src/cuda/unary_elementwise_ops_impl.cu" "./src/*.h" "./src/kernels/*.h")
 add_library(TensorRTEp SHARED ${tensorrt_src})
 
 set_onnxruntime_paths(

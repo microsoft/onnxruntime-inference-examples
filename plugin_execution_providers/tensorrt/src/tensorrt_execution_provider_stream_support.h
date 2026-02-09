@@ -58,7 +58,7 @@ struct TrtSyncNotificationImpl : public OrtSyncNotificationImpl, public ApiPtrs 
   static OrtStatus* ORT_API_CALL WaitOnHostImpl(_In_ OrtSyncNotificationImpl* this_ptr) noexcept;
   static void ORT_API_CALL ReleaseImpl(_In_ OrtSyncNotificationImpl* this_ptr) noexcept;
 
-  cudaStream_t& stream_;
+  cudaStream_t stream_;
   cudaEvent_t event_;
 };
 }  // namespace trt_ep

@@ -8,6 +8,8 @@ using MemoryInfoUniquePtr = std::unique_ptr<OrtMemoryInfo, std::function<void(Or
 
 namespace trt_ep {
 
+struct TensorrtExecutionProvider;
+
 ///
 /// Plugin TensorRT EP factory that can create an OrtEp and return information about the supported hardware devices.
 ///
@@ -16,6 +18,9 @@ struct TensorrtExecutionProviderFactory : public OrtEpFactory, public ApiPtrs {
   TensorrtExecutionProviderFactory(const char* ep_name, const OrtLogger& default_logger, ApiPtrs apis);
 
   OrtStatus* CreateMemoryInfoForDevices(int num_devices);
+
+  // Called by child OrtEp instances to retrieve the cached kernel registry for that EP.
+  OrtStatus* GetKernelRegistryForEp(TensorrtExecutionProvider& ep, /*out*/ const OrtKernelRegistry** kernel_registry);
 
   // CUDA gpu memory and CUDA pinned memory are required for allocator and data transfer, these are the OrtMemoryInfo
   // instance required for that.
@@ -65,5 +70,11 @@ struct TensorrtExecutionProviderFactory : public OrtEpFactory, public ApiPtrs {
   const std::string vendor_{"Nvidia"};     // EP vendor name
   const std::string ep_version_{"0.1.0"};  // EP version
   const OrtLogger& default_logger_;
+
+  // Cached kernel registry used by all OrtEp instances created by this factory. Refer to OrtEp::GetKernelRegistry.
+  //
+  // Note: If this factory instead created EP instances that each supported different hardware configurations, then
+  // the factory could cache a different kernel registry per EP configuration.
+  OrtKernelRegistry* kernel_registry_ = nullptr;
 };
 }  // namespace trt_ep
