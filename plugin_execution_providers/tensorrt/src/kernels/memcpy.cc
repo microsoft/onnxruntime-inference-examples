@@ -7,27 +7,28 @@
 
 namespace trt_ep {
 
-// static
-OrtStatus* MemcpyFromHost::Create(const OrtKernelInfo* info, void* state,
-                                  /*out*/ OrtKernelImpl*& kernel) {
+template <typename T>
+OrtStatus* MemcpyKernelBase::CreateImpl(const OrtKernelInfo* info, void* state,
+                                        /*out*/ OrtKernelImpl*& kernel) noexcept {
   try {
-    auto new_kernel = std::make_unique<MemcpyFromHost>(info, state, PrivateTag{});
-    kernel = new_kernel.release();
+    auto p = std::make_unique<T>(info, state, typename T::PrivateTag{});
+    kernel = p.release();
     return nullptr;
   } catch (const Ort::Exception& ex) {
     Ort::Status status(ex);
-    return status.release();
+    return status;
   } catch (const std::exception& ex) {
     Ort::Status status(ex.what(), ORT_EP_FAIL);
-    return status.release();
+    return status;
+  } catch (...) {
+    Ort::Status status("Unknown exception in MemcpyKernelBase::Create", ORT_EP_FAIL);
+    return status;
   }
 }
 
-MemcpyFromHost::MemcpyFromHost(const OrtKernelInfo* info, void* state, PrivateTag)
-    : OrtKernelImpl {}, info_(info), state_(state) {
-  ort_version_supported = ORT_API_VERSION;
-  Compute = ComputeImpl;
-  Release = ReleaseImpl;
+template <typename T>
+static void MemcpyKernelBase::ReleaseImpl(OrtKernelImpl* this_ptr) noexcept {
+  delete static_cast<T*>(this_ptr);
 }
 
 OrtStatus* MemcpyFromHost::ComputeImpl(OrtKernelImpl* this_ptr, OrtKernelContext* kernel_ctx) noexcept {
@@ -81,36 +82,11 @@ OrtStatus* MemcpyFromHost::ComputeImpl(OrtKernelImpl* this_ptr, OrtKernelContext
     return nullptr;
   } catch (const Ort::Exception& ex) {
     Ort::Status status(ex);
-    return status.release();
+    return status;
   } catch (const std::exception& ex) {
     Ort::Status status(ex.what(), ORT_EP_FAIL);
-    return status.release();
+    return status;
   }
-}
-
-// MemcpyToHost implementation
-
-// static
-OrtStatus* MemcpyToHost::Create(const OrtKernelInfo* info, void* state,
-                                /*out*/ OrtKernelImpl*& kernel) {
-  try {
-    auto new_kernel = std::make_unique<MemcpyToHost>(info, state, PrivateTag{});
-    kernel = new_kernel.release();
-    return nullptr;
-  } catch (const Ort::Exception& ex) {
-    Ort::Status status(ex);
-    return status.release();
-  } catch (const std::exception& ex) {
-    Ort::Status status(ex.what(), ORT_EP_FAIL);
-    return status.release();
-  }
-}
-
-MemcpyToHost::MemcpyToHost(const OrtKernelInfo* info, void* state, PrivateTag)
-    : OrtKernelImpl{}, info_(info), state_(state) {
-  ort_version_supported = ORT_API_VERSION;
-  Compute = ComputeImpl;
-  Release = ReleaseImpl;
 }
 
 OrtStatus* MemcpyToHost::ComputeImpl(OrtKernelImpl* this_ptr, OrtKernelContext* kernel_ctx) noexcept {
@@ -158,10 +134,10 @@ OrtStatus* MemcpyToHost::ComputeImpl(OrtKernelImpl* this_ptr, OrtKernelContext* 
     return nullptr;
   } catch (const Ort::Exception& ex) {
     Ort::Status status(ex);
-    return status.release();
+    return status;
   } catch (const std::exception& ex) {
     Ort::Status status(ex.what(), ORT_EP_FAIL);
-    return status.release();
+    return status;
   }
 }
 
