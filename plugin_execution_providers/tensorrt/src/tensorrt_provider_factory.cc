@@ -1,4 +1,7 @@
+#define ORT_API_MANUAL_INIT
 #include "onnxruntime_cxx_api.h"
+#undef ORT_API_MANUAL_INIT
+
 #include "tensorrt_provider_factory.h"
 #include "tensorrt_execution_provider.h"
 #include "tensorrt_execution_provider_kernel_registration.h"
@@ -310,6 +313,9 @@ EXPORT_SYMBOL OrtStatus* CreateEpFactories(const char* registration_name, const 
   const OrtApi* ort_api = ort_api_base->GetApi(ORT_API_VERSION);
   const OrtEpApi* ort_ep_api = ort_api->GetEpApi();
   const OrtModelEditorApi* model_editor_api = ort_api->GetModelEditorApi();
+
+  // Manual init for the C++ API
+  Ort::InitApi(ort_api);
 
   // Factory could use registration_name or define its own EP name.
   std::unique_ptr<OrtEpFactory> factory = std::make_unique<trt_ep::TensorrtExecutionProviderFactory>(registration_name, *default_logger, ApiPtrs{*ort_api, *ort_ep_api, *model_editor_api});
