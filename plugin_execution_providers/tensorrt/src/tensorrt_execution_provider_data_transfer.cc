@@ -24,8 +24,11 @@ bool ORT_API_CALL TRTEpDataTransfer::CanCopyImpl(const OrtDataTransferImpl* this
   auto dst_vendor_id = impl.ep_api.MemoryDevice_GetVendorId(dst_memory_device);
 
   // 0x10DE is the PCI vendor ID for NVIDIA
-  if ((src_type == OrtMemoryInfoDeviceType_GPU && src_vendor_id != 0x10DE) ||
-      (dst_type == OrtMemoryInfoDeviceType_GPU && dst_vendor_id != 0x10DE)) {
+  constexpr uint32_t nvidia_vendor_id = 0x10DE;
+
+  // Reject if GPU device is not NVIDIA
+  if ((src_type == OrtMemoryInfoDeviceType_GPU && src_vendor_id != nvidia_vendor_id) ||
+      (dst_type == OrtMemoryInfoDeviceType_GPU && dst_vendor_id != nvidia_vendor_id)) {
     return false;
   }
 

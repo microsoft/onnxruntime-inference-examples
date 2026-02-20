@@ -3,8 +3,6 @@
 
 #pragma once
 
-#include <vector>
-
 #include "ep_utils.h"
 
 namespace trt_ep {
