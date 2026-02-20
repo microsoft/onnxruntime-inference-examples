@@ -1,8 +1,8 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-#include "memcpy.h"
 #include "utils.h"
+#include "memcpy.h"
 #include <cuda_runtime.h>
 
 namespace trt_ep {
@@ -16,13 +16,13 @@ OrtStatus* MemcpyKernelBase::CreateImpl(const OrtKernelInfo* info, void* state,
     return nullptr;
   } catch (const Ort::Exception& ex) {
     Ort::Status status(ex);
-    return status;
+    return status.release();
   } catch (const std::exception& ex) {
     Ort::Status status(ex.what(), ORT_EP_FAIL);
-    return status;
+    return status.release();
   } catch (...) {
     Ort::Status status("Unknown exception in MemcpyKernelBase::Create", ORT_EP_FAIL);
-    return status;
+    return status.release();
   }
 }
 
@@ -82,10 +82,10 @@ OrtStatus* MemcpyFromHost::ComputeImpl(OrtKernelImpl* this_ptr, OrtKernelContext
     return nullptr;
   } catch (const Ort::Exception& ex) {
     Ort::Status status(ex);
-    return status;
+    return status.release();
   } catch (const std::exception& ex) {
     Ort::Status status(ex.what(), ORT_EP_FAIL);
-    return status;
+    return status.release();
   }
 }
 
@@ -134,10 +134,10 @@ OrtStatus* MemcpyToHost::ComputeImpl(OrtKernelImpl* this_ptr, OrtKernelContext* 
     return nullptr;
   } catch (const Ort::Exception& ex) {
     Ort::Status status(ex);
-    return status;
+    return status.release();
   } catch (const std::exception& ex) {
     Ort::Status status(ex.what(), ORT_EP_FAIL);
-    return status;
+    return status.release();
   }
 }
 

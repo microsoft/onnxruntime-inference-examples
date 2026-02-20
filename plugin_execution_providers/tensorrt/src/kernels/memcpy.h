@@ -1,7 +1,10 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-#include "ep_utils.h"
+struct OrtKernelImpl;
+struct OrtKernelInfo;
+struct OrtKernelContext;
+struct OrtStatus;
 
 namespace trt_ep {
 

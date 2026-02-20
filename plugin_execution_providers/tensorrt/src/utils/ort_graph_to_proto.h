@@ -123,7 +123,9 @@
 
 #include <functional>
 #include <optional>
+#define ORT_API_MANUAL_INIT
 #include "onnxruntime_cxx_api.h"
+#undef ORT_API_MANUAL_INIT
 #include "onnx/onnx_pb.h"
 
 namespace OrtEpUtils {
