@@ -1,0 +1,6 @@
+huggingface-hub
+numpy
+pillow
+requests
+torch
+transformers
