@@ -1,0 +1,145 @@
+name: Extended PR validation
+
+on:
+  pull_request_target:
+    branches: [main, 'rel-*']
+    types: [opened, synchronize, reopened, ready_for_review]
+  workflow_dispatch:
+    inputs:
+      source_ref:
+        description: Git ref to validate
+        required: true
+        default: refs/heads/main
+      source_commit:
+        description: Expected commit for the ref
+        required: false
+
+concurrency:
+  group: extended-pr-validation-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  dispatch:
+    if: github.event_name == 'workflow_dispatch' || !github.event.pull_request.draft
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    env:
+      ADO_ORGANIZATION: ${{ secrets.ADO_PR_ORGANIZATION }}
+      ADO_PROJECT: ${{ secrets.ADO_PR_PROJECT }}
+      ADO_PIPELINE_ID: ${{ secrets.ADO_PR_PIPELINE_ID }}
+      ADO_TOKEN: ${{ secrets.ADO_PR_DISPATCH_TOKEN }}
+
+    steps:
+      - name: Select pull request revision
+        id: revision
+        if: github.event_name == 'pull_request_target'
+        shell: bash
+        env:
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          MERGE_COMMIT: ${{ github.event.pull_request.merge_commit_sha }}
+        run: |
+          set -euo pipefail
+          if [[ -z "$MERGE_COMMIT" ]]; then
+            echo "GitHub did not create a merge commit for this pull request." >&2
+            exit 1
+          fi
+          echo "source_ref=refs/pull/${PR_NUMBER}/merge" >> "$GITHUB_OUTPUT"
+          echo "source_commit=${MERGE_COMMIT}" >> "$GITHUB_OUTPUT"
+
+      - name: Select manual revision
+        id: manual_revision
+        if: github.event_name == 'workflow_dispatch'
+        shell: bash
+        env:
+          SOURCE_REF: ${{ inputs.source_ref }}
+          SOURCE_COMMIT: ${{ inputs.source_commit }}
+        run: |
+          set -euo pipefail
+          echo "source_ref=${SOURCE_REF}" >> "$GITHUB_OUTPUT"
+          echo "source_commit=${SOURCE_COMMIT}" >> "$GITHUB_OUTPUT"
+
+      - name: Dispatch and monitor private validation
+        shell: bash
+        env:
+          PR_SOURCE_REF: ${{ steps.revision.outputs.source_ref || steps.manual_revision.outputs.source_ref }}
+          PR_SOURCE_COMMIT: ${{ steps.revision.outputs.source_commit || steps.manual_revision.outputs.source_commit }}
+        run: |
+          set -euo pipefail
+
+          for variable in ADO_ORGANIZATION ADO_PROJECT ADO_PIPELINE_ID ADO_TOKEN; do
+            if [[ -z "${!variable:-}" ]]; then
+              echo "Required dispatcher configuration is unavailable." >&2
+              exit 1
+            fi
+          done
+
+          organization="${ADO_ORGANIZATION%/}"
+          project="$(jq -rn --arg value "$ADO_PROJECT" '$value | @uri')"
+          runs_api="${organization}/${project}/_apis/pipelines/${ADO_PIPELINE_ID}/runs"
+          build_api="${organization}/${project}/_apis/build/builds"
+          run_id=""
+
+          cancel_build() {
+            if [[ -n "$run_id" ]]; then
+              curl --silent --output /dev/null \
+                --user ":${ADO_TOKEN}" \
+                --request PATCH \
+                --header 'Content-Type: application/json' \
+                --data '{"status":"cancelling"}' \
+                "${build_api}/${run_id}?api-version=7.1" || true
+            fi
+          }
+          trap cancel_build INT TERM
+
+          payload="$(jq -n \
+            --arg source_ref "$PR_SOURCE_REF" \
+            --arg source_commit "$PR_SOURCE_COMMIT" \
+            '{
+              resources: {repositories: {self: {refName: "refs/heads/main"}}},
+              templateParameters: {
+                sourceRef: $source_ref,
+                sourceCommit: $source_commit
+              }
+            }')"
+
+          status_code="$(curl --silent --output response.json --write-out '%{http_code}' \
+            --user ":${ADO_TOKEN}" \
+            --request POST \
+            --header 'Content-Type: application/json' \
+            --data "$payload" \
+            "${runs_api}?api-version=7.1")"
+
+          if [[ "$status_code" -lt 200 || "$status_code" -ge 300 ]]; then
+            echo "Azure DevOps rejected the validation request (HTTP ${status_code})." >&2
+            exit 1
+          fi
+
+          run_id="$(jq -er '.id' response.json)"
+          rm response.json
+          echo "Private validation was queued."
+
+          while true; do
+            status_code="$(curl --silent --output response.json --write-out '%{http_code}' \
+              --user ":${ADO_TOKEN}" \
+              "${runs_api}/${run_id}?api-version=7.1")"
+
+            if [[ "$status_code" -lt 200 || "$status_code" -ge 300 ]]; then
+              echo "Unable to read validation status (HTTP ${status_code})." >&2
+              exit 1
+            fi
+
+            state="$(jq -er '.state' response.json)"
+            if [[ "$state" == "completed" ]]; then
+              result="$(jq -er '.result' response.json)"
+              rm response.json
+              echo "Private validation completed with result: ${result}."
+              [[ "$result" == "succeeded" ]]
+              exit
+            fi
+
+            rm response.json
+            sleep 30
+          done
