@@ -91,7 +91,6 @@ jobs:
 
           organization="${ADO_ORGANIZATION%/}"
           project="$(jq -rn --arg value "$ADO_PROJECT" '$value | @uri')"
-          runs_api="${organization}/${project}/_apis/pipelines/${ADO_PIPELINE_ID}/runs"
           build_api="${organization}/${project}/_apis/build/builds"
           run_id=""
 
@@ -119,10 +118,12 @@ jobs:
           trap cancel_build INT TERM
 
           payload="$(jq -n \
+            --arg pipeline_id "$ADO_PIPELINE_ID" \
             --arg source_ref "$PR_SOURCE_REF" \
             --arg source_commit "$PR_SOURCE_COMMIT" \
             '{
-              resources: {repositories: {self: {refName: "refs/heads/main"}}},
+              definition: {id: ($pipeline_id | tonumber)},
+              sourceBranch: "refs/heads/main",
               templateParameters: {
                 sourceRef: $source_ref,
                 sourceCommit: $source_commit
@@ -134,7 +135,7 @@ jobs:
             --request POST \
             --header 'Content-Type: application/json' \
             --data "$payload" \
-            "${runs_api}?api-version=7.1")"
+            "${build_api}?api-version=7.1")"
 
           if [[ "$status_code" -lt 200 || "$status_code" -ge 300 ]]; then
             report_http_error "Azure DevOps rejected the validation request" "$status_code"
@@ -148,14 +149,14 @@ jobs:
           while true; do
             status_code="$(curl --silent --output response.json --write-out '%{http_code}' \
               --header "Authorization: Bearer ${ado_token}" \
-              "${runs_api}/${run_id}?api-version=7.1")"
+              "${build_api}/${run_id}?api-version=7.1")"
 
             if [[ "$status_code" -lt 200 || "$status_code" -ge 300 ]]; then
               report_http_error "Unable to read validation status" "$status_code"
               exit 1
             fi
 
-            state="$(jq -er '.state' response.json)"
+            state="$(jq -er '.status' response.json)"
             if [[ "$state" == "completed" ]]; then
               result="$(jq -er '.result' response.json)"
               rm response.json
