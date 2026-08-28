@@ -38,7 +38,7 @@ jobs:
         with:
           client-id: ${{ secrets.ADO_PR_CLIENT_ID }}
           tenant-id: ${{ secrets.ADO_PR_TENANT_ID }}
-          subscription-id: ${{ secrets.ADO_PR_SUBSCRIPTION_ID }}
+          allow-no-subscriptions: true
 
       - name: Select pull request revision
         id: revision
