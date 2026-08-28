@@ -20,6 +20,7 @@ concurrency:
 
 permissions:
   contents: read
+  id-token: write
 
 jobs:
   dispatch:
@@ -30,9 +31,15 @@ jobs:
       ADO_ORGANIZATION: ${{ secrets.ADO_PR_ORGANIZATION }}
       ADO_PROJECT: ${{ secrets.ADO_PR_PROJECT }}
       ADO_PIPELINE_ID: ${{ secrets.ADO_PR_PIPELINE_ID }}
-      ADO_TOKEN: ${{ secrets.ADO_PR_DISPATCH_TOKEN }}
 
     steps:
+      - name: Sign in for private validation
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.ADO_PR_CLIENT_ID }}
+          tenant-id: ${{ secrets.ADO_PR_TENANT_ID }}
+          subscription-id: ${{ secrets.ADO_PR_SUBSCRIPTION_ID }}
+
       - name: Select pull request revision
         id: revision
         if: github.event_name == 'pull_request_target'
@@ -69,12 +76,18 @@ jobs:
         run: |
           set -euo pipefail
 
-          for variable in ADO_ORGANIZATION ADO_PROJECT ADO_PIPELINE_ID ADO_TOKEN; do
+          for variable in ADO_ORGANIZATION ADO_PROJECT ADO_PIPELINE_ID; do
             if [[ -z "${!variable:-}" ]]; then
               echo "Required dispatcher configuration is unavailable." >&2
               exit 1
             fi
           done
+
+          ado_token="$(az account get-access-token \
+            --resource 499b84ac-1321-427f-aa17-267ca6975798 \
+            --query accessToken \
+            --output tsv)"
+          echo "::add-mask::${ado_token}"
 
           organization="${ADO_ORGANIZATION%/}"
           project="$(jq -rn --arg value "$ADO_PROJECT" '$value | @uri')"
@@ -85,7 +98,7 @@ jobs:
           cancel_build() {
             if [[ -n "$run_id" ]]; then
               curl --silent --output /dev/null \
-                --user ":${ADO_TOKEN}" \
+                --header "Authorization: Bearer ${ado_token}" \
                 --request PATCH \
                 --header 'Content-Type: application/json' \
                 --data '{"status":"cancelling"}' \
@@ -106,7 +119,7 @@ jobs:
             }')"
 
           status_code="$(curl --silent --output response.json --write-out '%{http_code}' \
-            --user ":${ADO_TOKEN}" \
+            --header "Authorization: Bearer ${ado_token}" \
             --request POST \
             --header 'Content-Type: application/json' \
             --data "$payload" \
@@ -123,7 +136,7 @@ jobs:
 
           while true; do
             status_code="$(curl --silent --output response.json --write-out '%{http_code}' \
-              --user ":${ADO_TOKEN}" \
+              --header "Authorization: Bearer ${ado_token}" \
               "${runs_api}/${run_id}?api-version=7.1")"
 
             if [[ "$status_code" -lt 200 || "$status_code" -ge 300 ]]; then
