@@ -95,6 +95,17 @@ jobs:
           build_api="${organization}/${project}/_apis/build/builds"
           run_id=""
 
+          report_http_error() {
+            local description="$1"
+            local status_code="$2"
+            local error_type
+            error_type="$(jq -r '.typeKey // "UnclassifiedResponse"' response.json 2>/dev/null || true)"
+            if [[ ! "$error_type" =~ ^[A-Za-z0-9_.]+$ ]]; then
+              error_type="UnclassifiedResponse"
+            fi
+            echo "${description} (HTTP ${status_code}, type ${error_type})." >&2
+          }
+
           cancel_build() {
             if [[ -n "$run_id" ]]; then
               curl --silent --output /dev/null \
@@ -126,7 +137,7 @@ jobs:
             "${runs_api}?api-version=7.1")"
 
           if [[ "$status_code" -lt 200 || "$status_code" -ge 300 ]]; then
-            echo "Azure DevOps rejected the validation request (HTTP ${status_code})." >&2
+            report_http_error "Azure DevOps rejected the validation request" "$status_code"
             exit 1
           fi
 
@@ -140,7 +151,7 @@ jobs:
               "${runs_api}/${run_id}?api-version=7.1")"
 
             if [[ "$status_code" -lt 200 || "$status_code" -ge 300 ]]; then
-              echo "Unable to read validation status (HTTP ${status_code})." >&2
+              report_http_error "Unable to read validation status" "$status_code"
               exit 1
             fi
 
