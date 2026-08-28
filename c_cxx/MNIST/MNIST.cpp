@@ -5,6 +5,7 @@
 #include <windows.h>
 
 // C++20 Standard Library
+#include <algorithm>
 #include <array>
 #include <cmath>
 #include <format>
