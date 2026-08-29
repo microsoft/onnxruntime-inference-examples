@@ -50,8 +50,16 @@ jobs:
           MERGE_COMMIT: ${{ github.event.pull_request.merge_commit_sha }}
         run: |
           set -euo pipefail
+
           if [[ -z "$MERGE_COMMIT" ]]; then
-            echo "GitHub did not create a merge commit for this pull request." >&2
+            for attempt in {1..6}; do
+              MERGE_COMMIT="$(git ls-remote "https://github.com/${GITHUB_REPOSITORY}.git" "refs/pull/${PR_NUMBER}/merge" | awk '{print $1}')"
+              [[ -n "$MERGE_COMMIT" ]] && break
+              sleep 5
+            done
+          fi
+          if [[ -z "$MERGE_COMMIT" ]]; then
+            echo "GitHub did not create a merge ref for this pull request." >&2
             exit 1
           fi
           echo "source_ref=refs/pull/${PR_NUMBER}/merge" >> "$GITHUB_OUTPUT"
