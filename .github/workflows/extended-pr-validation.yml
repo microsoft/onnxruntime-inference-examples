@@ -47,17 +47,15 @@ jobs:
         shell: bash
         env:
           PR_NUMBER: ${{ github.event.pull_request.number }}
-          MERGE_COMMIT: ${{ github.event.pull_request.merge_commit_sha }}
         run: |
           set -euo pipefail
 
-          if [[ -z "$MERGE_COMMIT" ]]; then
-            for attempt in {1..6}; do
-              MERGE_COMMIT="$(git ls-remote "https://github.com/${GITHUB_REPOSITORY}.git" "refs/pull/${PR_NUMBER}/merge" | awk '{print $1}')"
-              [[ -n "$MERGE_COMMIT" ]] && break
-              sleep 5
-            done
-          fi
+          MERGE_COMMIT=""
+          for attempt in {1..6}; do
+            MERGE_COMMIT="$(git ls-remote "https://github.com/${GITHUB_REPOSITORY}.git" "refs/pull/${PR_NUMBER}/merge" | awk '{print $1}')"
+            [[ -n "$MERGE_COMMIT" ]] && break
+            sleep 5
+          done
           if [[ -z "$MERGE_COMMIT" ]]; then
             echo "GitHub did not create a merge ref for this pull request." >&2
             exit 1
@@ -136,7 +134,7 @@ jobs:
                 "${build_api}/${run_id}?api-version=7.1" || true
             fi
           }
-          trap cancel_build INT TERM
+            trap cancel_build EXIT INT TERM
 
           payload="$(jq -n \
             --arg pipeline_id "$ADO_PIPELINE_ID" \
@@ -182,6 +180,7 @@ jobs:
               result="$(jq -er '.result' response.json)"
               rm response.json
               echo "Private validation completed with result: ${result}."
+              run_id=""
               [[ "$result" == "succeeded" ]]
               exit
             fi
