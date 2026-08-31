@@ -47,6 +47,7 @@ jobs:
         shell: bash
         env:
           PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
         run: |
           set -euo pipefail
 
@@ -57,11 +58,13 @@ jobs:
             sleep 5
           done
           if [[ -z "$MERGE_COMMIT" ]]; then
-            echo "GitHub did not create a merge ref for this pull request." >&2
-            exit 1
+            echo "GitHub did not create a merge ref; validating the pull request head instead."
+            echo "source_ref=refs/pull/${PR_NUMBER}/head" >> "$GITHUB_OUTPUT"
+            echo "source_commit=${PR_HEAD_SHA}" >> "$GITHUB_OUTPUT"
+          else
+            echo "source_ref=refs/pull/${PR_NUMBER}/merge" >> "$GITHUB_OUTPUT"
+            echo "source_commit=${MERGE_COMMIT}" >> "$GITHUB_OUTPUT"
           fi
-          echo "source_ref=refs/pull/${PR_NUMBER}/merge" >> "$GITHUB_OUTPUT"
-          echo "source_commit=${MERGE_COMMIT}" >> "$GITHUB_OUTPUT"
 
       - name: Select manual revision
         id: manual_revision
