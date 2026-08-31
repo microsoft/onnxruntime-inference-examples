@@ -53,7 +53,7 @@ jobs:
 
   WhisperLocalAndroid:
     name: Whisper Local Android
-    runs-on: ["self-hosted", "1ES.Pool=onnxruntime-examples-Ubuntu2204-CPU"]
+    runs-on: ubuntu-22.04
     steps:
       - name: Checkout repository
         uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
@@ -94,7 +94,7 @@ jobs:
 
   WhisperAzureAndroid:
     name: Whisper Azure Android
-    runs-on: ["self-hosted", "1ES.Pool=onnxruntime-examples-Ubuntu2204-CPU"]
+    runs-on: ubuntu-22.04
     steps:
       - name: Checkout repository
         uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
@@ -209,7 +209,7 @@ jobs:
 
   ObjectDetectionAndroid:
     name: Object Detection Android
-    runs-on: ["self-hosted", "1ES.Pool=onnxruntime-examples-Ubuntu2204-CPU"]
+    runs-on: ubuntu-22.04
     steps:
       - name: Checkout repository
         uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
@@ -250,7 +250,7 @@ jobs:
 
   ImageClassificationAndroid:
     name: Image Classification Android
-    runs-on: ["self-hosted", "1ES.Pool=onnxruntime-examples-Ubuntu2204-CPU"]
+    runs-on: ubuntu-22.04
     strategy:
       matrix: 
         ModelFormat: [onnx, ort]
@@ -302,7 +302,7 @@ jobs:
 
   SuperResolutionAndroid:
     name: Super Resolution Android
-    runs-on: ["self-hosted", "1ES.Pool=onnxruntime-examples-Ubuntu2204-CPU"]
+    runs-on: ubuntu-22.04
     steps:
       - name: Checkout repository
         uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
@@ -364,7 +364,7 @@ jobs:
 
   QuestionAnsweringAndroid:
     name: Question Answering Android
-    runs-on: ["self-hosted", "1ES.Pool=onnxruntime-examples-Ubuntu2204-CPU"]
+    runs-on: ubuntu-22.04
     steps:
       - name: Checkout repository
         uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0

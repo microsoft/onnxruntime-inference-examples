@@ -18,6 +18,13 @@ runs:
       shell: bash
       run: sudo apt-get update -y && sudo apt-get install -y coreutils ninja-build
 
+    - name: Enable KVM access
+      shell: bash
+      run: |
+        if [[ -e /dev/kvm ]]; then
+          sudo chmod 666 /dev/kvm
+        fi
+
     - name: Install Android NDK
       shell: bash
       run: |
