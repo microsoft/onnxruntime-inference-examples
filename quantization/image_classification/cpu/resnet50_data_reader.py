@@ -46,16 +46,16 @@ class ResNet50DataReader(CalibrationDataReader):
         (_, _, height, width) = session.get_inputs()[0].shape
 
         # Convert image to input data
-        self.nhwc_data_list = _preprocess_images(
+        self.nchw_data_list = _preprocess_images(
             calibration_image_folder, height, width, size_limit=0
         )
         self.input_name = session.get_inputs()[0].name
-        self.datasize = len(self.nhwc_data_list)
+        self.datasize = len(self.nchw_data_list)
 
     def get_next(self):
         if self.enum_data is None:
             self.enum_data = iter(
-                [{self.input_name: nhwc_data} for nhwc_data in self.nhwc_data_list]
+                [{self.input_name: nchw_data} for nchw_data in self.nchw_data_list]
             )
         return next(self.enum_data, None)
 
