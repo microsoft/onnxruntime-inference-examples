@@ -42,7 +42,7 @@ jobs:
           npm i -g @microsoft/sarif-multitool && mkdir b && cd b && cmake ../c_cxx -DCMAKE_C_FLAGS="/MP /analyze:external- /external:anglebrackets /DWIN32 /D_WINDOWS /DWINVER=0x0A00 /D_WIN32_WINNT=0x0A00 /DNTDDI_VERSION=0x0A000000 /W4 /Ob0 /Od /RTC1 /analyze:autolog:ext .sarif" -DCMAKE_CXX_FLAGS="/EHsc /MP /analyze:external- /external:anglebrackets /DWIN32 /D_WINDOWS /DWINVER=0x0A00 /D_WIN32_WINNT=0x0A00 /DNTDDI_VERSION=0x0A000000 /W4 /Ob0 /Od /RTC1 /analyze:autolog:ext .sarif" -A x64 -T host=x64 -DONNXRUNTIME_ROOTDIR=${{ github.workspace }}\onnxruntimebin && cmake --build . --config Debug && npx @microsoft/sarif-multitool merge *.sarif --recurse --output-directory=${{ github.workspace }}\output --output-file=MergeResult.sarif
 
       - name: Upload SARIF to GitHub
-        uses: github/codeql-action/upload-sarif@db488ddef3bf6cb639b32c2e9a7c0a7ea8271d28 # v4.37.8
+        uses: github/codeql-action/upload-sarif@cdf488f595d80d6e07e03d4674febd5ab45fa938 # v4.37.9
         continue-on-error: true
         with:
           sarif_file: ${{ github.workspace }}\output\MergeResult.sarif
