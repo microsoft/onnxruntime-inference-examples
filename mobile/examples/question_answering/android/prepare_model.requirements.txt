@@ -1,5 +1,5 @@
 onnxruntime
 onnxruntime-extensions
 onnx
-transformers==4.38.0
+transformers==5.10.1
 torch==2.2.0
