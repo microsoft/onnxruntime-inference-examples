@@ -14,3 +14,7 @@ These samples show very minimal API usage that is not execution provider specifi
 ## AzureML
  
 [Question answering with BERT on AzureML](https://github.com/microsoft/onnxruntime-inference-examples/tree/main/python/azureml)
+
+## Models
+
+[grounding_dino](https://github.com/microsoft/onnxruntime-inference-examples/tree/main/python/models/grounding_dino).
