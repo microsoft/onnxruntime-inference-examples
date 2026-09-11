@@ -5,6 +5,8 @@
 This is a basic Object Detection sample application for [ONNX Runtime](https://github.com/microsoft/onnxruntime) on Android with [Ort-Extensions](https://github.com/microsoft/onnxruntime-extensions) support for pre/post processing. The demo app accomplishes the task of detecting objects from a given image.
 
 The model used here is from source: [Yolov8 in extensions](https://github.com/microsoft/onnxruntime-extensions/blob/64f20828ce0291394886e277c23529cd1d11320d/tutorials/yolo_e2e.py#L37) and with pre/post processing support.
+The default output model with onnxruntime-extension tools wouldn't include 'scaled_box_out_next' which is used in this example for displaying class-lable and confidence. One more step is required to get that.
+Please Add a `Debug()` on top of [`onnxruntime-extensions/onnxruntime_extensions/tools/add_pre_post_processing_to_model.py:270`](https://github.com/microsoft/onnxruntime-extensions/blob/981cb049ff956a1c99ab178b36ffc83664a678f2/onnxruntime_extensions/tools/add_pre_post_processing_to_model.py#L270).
 
 This model (Yolov8n) can be fed with image bytes directly and outputs the detected objects with bounding boxes.
 
