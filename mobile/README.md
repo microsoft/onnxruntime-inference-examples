@@ -49,6 +49,12 @@ The example app uses object detection which is able to continuously detect the o
 - [iOS Object Detection](examples/object_detection/ios)
 - [Android Object Detection](examples/object_detection/android)
 
+### Object Detection using yolov8
+
+This example app use yolov8 model to identify objects in images and provides bounding boxes, identified class and score.
+
+- [iOS Object Detection (yolov8)](examples/object_detection_yolov8/ios)
+
 ### Xamarin VisionSample
 
 The [Xamarin.Forms](https://dotnet.microsoft.com/apps/xamarin/xamarin-forms) example app demonstrates the use of several vision-related models, from the ONNX Model Zoo collection.
