@@ -13,7 +13,7 @@ on:
 jobs:
   validation:
     name: "Validation"
-    runs-on: ["self-hosted", "1ES.Pool=onnxruntime-examples-Ubuntu2204-CPU"]
+    runs-on: ["self-hosted", "1ES.Pool=onnxruntime-examples-Ubuntu2204-CPU", "1ES.ImageOverride=onnxruntime-ubuntu2404-nvme-x64"]
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: gradle/actions/wrapper-validation@9c971963bec38e04b3d30dcc455b5382be2fdbfb # v6.3.0
