@@ -39,7 +39,7 @@ To build nuget packages of onnxruntime with openvino flavour
          1. Open the Visual C# Project file (.csproj) using VS22.
          2. Right click on project, navigate to manage Nuget Packages.
          3. Install SixLabors.ImageSharp, SixLabors.Core, SixLabors.Fonts and SixLabors.ImageSharp.Drawing Packages from nuget.org.
-         4. Install Microsoft.ML.OnnxRuntime.Managed and Microsoft.ML.OnnxRuntime.Openvino from your build directory nuget-artifacts.
+         4. Install Microsoft.ML.OnnxRuntime.Managed and Intel.ML.OnnxRuntime.OpenVino from nuget.org (or from your build directory nuget-artifacts).
      * Using cmd
          ```
          mkdir [source-folder]
@@ -47,11 +47,8 @@ To build nuget packages of onnxruntime with openvino flavour
          dotnet add package SixLabors.ImageSharp
          dotnet add package SixLabors.Fonts
          dotnet add package SixLabors.ImageSharp.Drawing
-         ```
-         Add Microsoft.ML.OnnxRuntime.Managed and Microsoft.ML.OnnxRuntime.Openvino packages.
-         ```
-         nuget add [path-to-nupkg] -Source [source-path]
-         dotnet add package [nuget=package-name] -v [package-version] -s [source-path]
+         dotnet add package Microsoft.ML.OnnxRuntime.Managed
+         dotnet add package Intel.ML.OnnxRuntime.OpenVino
          ```
 
 4. Compile the sample
