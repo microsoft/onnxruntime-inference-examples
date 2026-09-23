@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 /**
- * This example demonstrates how to batch process data using the experimental C++ API.
+ * This example demonstrates how to batch process data using the C++ API.
  *
  * This example is based on the model-explorer.cpp example except it demonstrates how to
  * batch process data. Please start by checking out model-explorer.cpp first.
@@ -14,7 +14,7 @@
  *  1) The onnx model has 1 input node and 1 output node
  *  2) The onnx model has a symbolic first dimension (i.e. -1x3x224x224)
  *
- * 
+ *
  * In this example, we do the following:
  *  1) read in an onnx model
  *  2) print out some metadata information about inputs and outputs that the model expects
@@ -28,66 +28,77 @@
  * model = onnx.load_model('model.onnx')
  * model.graph.input[0].type.tensor_type.shape.dim[0].dim_param = 'None'
  * onnx.save_model(model, 'model-symbolic.onnx')
- * 
+ *
  */
 
 #include <algorithm>  // std::generate
-#include <assert.h>
+#include <cassert>
+#include <cstddef>
+#include <cstdint>
 #include <iostream>
 #include <sstream>
+#include <string>
 #include <vector>
-#include <experimental_onnxruntime_cxx_api.h>
+#include <onnxruntime_cxx_api.h>
 
 // pretty prints a shape dimension vector
-std::string print_shape(const std::vector<int64_t>& v) {
+std::string print_shape(const std::vector<std::int64_t>& v) {
   std::stringstream ss("");
-  for (size_t i = 0; i < v.size() - 1; i++)
-    ss << v[i] << "x";
+  for (std::size_t i = 0; i < v.size() - 1; i++) ss << v[i] << "x";
   ss << v[v.size() - 1];
   return ss.str();
 }
 
-int calculate_product(const std::vector<int64_t>& v) {
+// XXX: this function does not handle integer overflow
+int calculate_product(const std::vector<std::int64_t>& v) {
   int total = 1;
-  for (auto& i : v) total *= i;
+  for (auto& i : v) total *= static_cast<int>(i);
   return total;
 }
 
-using namespace std;
+template <typename T>
+Ort::Value vec_to_tensor(std::vector<T>& data, const std::vector<std::int64_t>& shape) {
+  Ort::MemoryInfo mem_info =
+      Ort::MemoryInfo::CreateCpu(OrtAllocatorType::OrtArenaAllocator, OrtMemType::OrtMemTypeDefault);
+  auto tensor = Ort::Value::CreateTensor<T>(mem_info, data.data(), data.size(), shape.data(), shape.size());
+  return tensor;
+}
 
-int main(int argc, char** argv) {
+#ifdef _WIN32
+int wmain(int argc, ORTCHAR_T* argv[]) {
+#else
+int main(int argc, ORTCHAR_T* argv[]) {
+#endif
   if (argc != 2) {
-    cout << "Usage: ./onnx-api-example <onnx_model.onnx>" << endl;
+    std::cout << "Usage: ./batch-model-explorer <onnx_model.onnx>" << std::endl;
     return -1;
   }
 
-#ifdef _WIN32
-  std::string str = argv[1];
-  std::wstring wide_string = std::wstring(str.begin(), str.end());
-  std::basic_string<ORTCHAR_T> model_file = std::basic_string<ORTCHAR_T>(wide_string);
-#else
-  std::string model_file = argv[1];
-#endif
+  std::basic_string<ORTCHAR_T> model_file = argv[1];
 
   // onnxruntime setup
   Ort::Env env(ORT_LOGGING_LEVEL_WARNING, "batch-model-explorer");
   Ort::SessionOptions session_options;
-  Ort::Experimental::Session session = Ort::Experimental::Session(env, model_file, session_options);
+  Ort::Session session = Ort::Session(env, model_file.c_str(), session_options);
 
   // print name/shape of inputs
-  auto input_names = session.GetInputNames();
-  auto input_shapes = session.GetInputShapes();
-  cout << "Input Node Name/Shape (" << input_names.size() << "):" << endl;
-  for (size_t i = 0; i < input_names.size(); i++) {
-    cout << "\t" << input_names[i] << " : " << print_shape(input_shapes[i]) << endl;
+  Ort::AllocatorWithDefaultOptions allocator;
+  std::vector<std::string> input_names;
+  std::vector<std::int64_t> input_shapes;
+  std::cout << "Input Node Name/Shape (" << session.GetInputCount() << "):" << std::endl;
+  for (std::size_t i = 0; i < session.GetInputCount(); i++) {
+    input_names.emplace_back(session.GetInputNameAllocated(i, allocator).get());
+    input_shapes = session.GetInputTypeInfo(i).GetTensorTypeAndShapeInfo().GetShape();
+    std::cout << "\t" << input_names.at(i) << " : " << print_shape(input_shapes) << std::endl;
   }
 
   // print name/shape of outputs
-  auto output_names = session.GetOutputNames();
-  auto output_shapes = session.GetOutputShapes();
-  cout << "Output Node Name/Shape (" << output_names.size() << "):" << endl;
-  for (size_t i = 0; i < output_names.size(); i++) {
-    cout << "\t" << output_names[i] << " : " << print_shape(output_shapes[i]) << endl;
+  std::vector<std::string> output_names;
+  std::cout << "Output Node Name/Shape (" << session.GetOutputCount() << "):" << std::endl;
+  for (std::size_t i = 0; i < session.GetOutputCount(); i++) {
+    output_names.emplace_back(session.GetOutputNameAllocated(i, allocator).get());
+    auto output_shapes = session.GetOutputTypeInfo(i).GetTensorTypeAndShapeInfo().GetShape();
+    std::cout << "\t" << output_names.at(i) << " : " << print_shape(output_shapes) << std::endl;
   }
 
   // Assume model has 1 input node and 1 output node.
@@ -95,40 +106,53 @@ int main(int argc, char** argv) {
 
   int batch_size = 5;
   int num_batches = 3;
-  auto input_shape = input_shapes[0];
-  assert(input_shape[0] == -1);  // symbolic dimensions are represented by a -1 value
+  auto input_shape = input_shapes;
+  assert(input_shape[0] < 0);  // symbolic dimensions are represented by a negative value (typically -1)
   input_shape[0] = batch_size;
   int num_elements_per_batch = calculate_product(input_shape);
 
+  // Prepare input and output name char arrays for session.Run()
+  std::vector<const char*> input_names_char(input_names.size(), nullptr);
+  std::transform(std::begin(input_names), std::end(input_names), std::begin(input_names_char),
+                 [&](const std::string& str) { return str.c_str(); });
+
+  std::vector<const char*> output_names_char(output_names.size(), nullptr);
+  std::transform(std::begin(output_names), std::end(output_names), std::begin(output_names_char),
+                 [&](const std::string& str) { return str.c_str(); });
+
   // process multiple batches
   for (int i = 0; i < num_batches; i++) {
-    cout << "\nProcessing batch #" << i << endl;
+    std::cout << "\nProcessing batch #" << i << std::endl;
 
     // Create an Ort tensor containing random numbers
     std::vector<float> batch_input_tensor_values(num_elements_per_batch);
-    std::generate(batch_input_tensor_values.begin(), batch_input_tensor_values.end(), [&] { return rand() % 255; });  // generate random numbers in the range [0, 255]
+    std::generate(batch_input_tensor_values.begin(), batch_input_tensor_values.end(),
+                  [&] { return static_cast<float>(rand() % 255); });
     std::vector<Ort::Value> batch_input_tensors;
-    batch_input_tensors.push_back(Ort::Experimental::Value::CreateTensor<float>(batch_input_tensor_values.data(), batch_input_tensor_values.size(), input_shape));
+    batch_input_tensors.emplace_back(vec_to_tensor<float>(batch_input_tensor_values, input_shape));
 
     // double-check the dimensions of the input tensor
     assert(batch_input_tensors[0].IsTensor() &&
            batch_input_tensors[0].GetTensorTypeAndShapeInfo().GetShape() == input_shape);
-    cout << "batch_input_tensor shape: " << print_shape(batch_input_tensors[0].GetTensorTypeAndShapeInfo().GetShape()) << endl;
+    std::cout << "batch_input_tensor shape: "
+              << print_shape(batch_input_tensors[0].GetTensorTypeAndShapeInfo().GetShape()) << std::endl;
 
     // pass data through model
     try {
-      auto batch_output_tensors = session.Run(input_names, batch_input_tensors, output_names);
+      auto batch_output_tensors = session.Run(Ort::RunOptions{nullptr}, input_names_char.data(), batch_input_tensors.data(),
+                                              input_names_char.size(), output_names_char.data(), output_names_char.size());
       // double-check the dimensions of the output tensors
-      // NOTE: the number of output tensors is equal to the number of output nodes specifed in the Run() call
+      // NOTE: the number of output tensors is equal to the number of output nodes specified in the Run() call
       assert(batch_output_tensors.size() == output_names.size() &&
              batch_output_tensors[0].IsTensor() &&
              batch_output_tensors[0].GetTensorTypeAndShapeInfo().GetShape()[0] == batch_size);
-      cout << "batch_output_tensor_shape: " << print_shape(batch_output_tensors[0].GetTensorTypeAndShapeInfo().GetShape()) << endl;
+      std::cout << "batch_output_tensor_shape: "
+                << print_shape(batch_output_tensors[0].GetTensorTypeAndShapeInfo().GetShape()) << std::endl;
     } catch (const Ort::Exception& exception) {
-      cout << "ERROR running model inference: " << exception.what() << endl;
+      std::cout << "ERROR running model inference: " << exception.what() << std::endl;
       exit(-1);
     }
   }
-  cout << "\nDone" << endl;
+  std::cout << "\nDone" << std::endl;
   return 0;
 }

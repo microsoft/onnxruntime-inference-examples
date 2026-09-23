@@ -2,8 +2,8 @@
 // Licensed under the MIT License.
 
 /**
- * This sample application demonstrates how to use components of the experimental C++ API
- * to query for model inputs/outputs and how to run inferrence on a model.
+ * This sample application demonstrates how to use components of the C++ API
+ * to query for model inputs/outputs and how to run inference on a model.
  *
  * This example is best run with one of the ResNet models (i.e. ResNet18) from the onnx model zoo at
  *   https://github.com/onnx/models
