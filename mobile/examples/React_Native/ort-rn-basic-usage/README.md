@@ -81,15 +81,9 @@ The following steps were done in this sample for using onxnruntime-react-native.
 
 3. Generate Android and iOS directories native code to run your React Native app.
     
-    In this sample project, it generates the native code automatically by using package `onnxruntime-react-native` as an Expo plugin. (Recommended approach.)
-    
-    - In `<PROJECT_ROOT>/app.json`, add the following line to section `expo`:
-        ```
-        "plugins": ["onnxruntime-react-native"],
-        ```
-        Note: The plugin is added by default in `app.json` in the sample.
+    `onnxruntime-react-native` is linked automatically via React Native autolinking during `expo prebuild`. It is a native React Native module, not an Expo config plugin, so no plugin entry is required in `app.json`.
 
-    - Run the following command in `<PROJECT_ROOT>` to generate Android and iOS project: More info about [Expo CLI Prebuild](https://docs.expo.dev/workflow/prebuild/).
+    - Run the following command in `<PROJECT_ROOT>` to generate the Android and iOS project: More info about [Expo CLI Prebuild](https://docs.expo.dev/workflow/prebuild/).
         ```sh
         expo prebuild
         ```
