@@ -23,11 +23,15 @@ export default {
         },
     },
     plugins: [
-        // Copy .wasm files to dist folder
+        // Copy .wasm and .mjs files to dist folder
         new CopyWebpackPlugin({
             patterns: [
                 {
                     from: 'node_modules/onnxruntime-web/dist/*.wasm',
+                    to: 'dist/[name][ext]'
+                },
+                {
+                    from: 'node_modules/onnxruntime-web/dist/*.mjs',
                     to: 'dist/[name][ext]'
                 },
             ],
