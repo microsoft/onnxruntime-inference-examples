@@ -21,16 +21,24 @@ this generates the bundle file `./dist/bundle.min.js`
 ### Create an ONNX Model
 To create an optimized end-to-end ONNX model from the original OpenAI Whisper model, follow these steps:
 
-1. Goto: https://github.com/microsoft/Olive/tree/main/examples/whisper and follow the instructions. 
+1. Install Olive:
+```sh
+pip install olive-ai[cpu]
+```
 
-2. Run the following commands
+2. Go to the Olive Whisper example at https://github.com/microsoft/Olive/tree/v0.6.0/examples/whisper and install the example requirements:
+```sh
+pip install -r requirements.txt
+```
+
+3. Run the following Olive commands to optimize the Whisper model:
 ```sh
 python prepare_whisper_configs.py --model_name openai/whisper-tiny.en --no_audio_decoder
 python -m olive.workflows.run --config whisper_cpu_int8.json --setup
 python -m olive.workflows.run --config whisper_cpu_int8.json
 ```
 
-3. Move the resulting model from models/whisper_cpu_int8_0_model.onnx to the same directory as this code.
+4. Move the resulting model from `models/whisper_cpu_int8_0_model.onnx` into `js/ort-whisper/`.
 
 ### Start a web server
 Use NPM package `light-server` to serve the current folder at http://localhost:8888/.
