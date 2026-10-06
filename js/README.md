@@ -52,3 +52,5 @@ Click links for README of each examples.
 
 * [Phi-3-mini-4k-instruct](chat) - demonstrates how to run [Phi-3-mini-4k-instruct](https://huggingface.co/microsoft/Phi-3-mini-4k-instruct) in your browser using [onnxruntime-web](https://github.com/microsoft/onnxruntime/js) with webgpu.
 
+
+* [Qwen3.8-27B INT4](qwen38-webgpu) - demonstrates community-converted Qwen3.8-27B text generation with ONNX Runtime WebGPU, JSPI external-data loading and recurrent-state caching.

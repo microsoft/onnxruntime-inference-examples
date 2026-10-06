@@ -1,0 +1,69 @@
+{
+  "date": "2026-10-06",
+  "chrome": "154.0.8037.93",
+  "runtime": "1.31.0-dev.20260914-8d85527a0",
+  "hardware": {
+    "vendor": "apple",
+    "architecture": "metal-3",
+    "device": "",
+    "description": "",
+    "isFallbackAdapter": false,
+    "adapterFeatures": [
+      "depth32float-stencil8",
+      "rg11b10ufloat-renderable",
+      "texture-formats-tier1",
+      "bgra8unorm-storage",
+      "texture-compression-bc",
+      "dual-source-blending",
+      "core-features-and-limits",
+      "float32-filterable",
+      "indirect-first-instance",
+      "texture-compression-astc-sliced-3d",
+      "float32-blendable",
+      "subgroup-size-control",
+      "texture-compression-astc",
+      "texture-compression-etc2",
+      "depth-clip-control",
+      "texture-compression-bc-sliced-3d",
+      "shader-f16",
+      "texture-formats-tier2",
+      "clip-distances",
+      "timestamp-query",
+      "primitive-index",
+      "texture-component-swizzle",
+      "subgroups"
+    ],
+    "deviceFeatures": [
+      "core-features-and-limits",
+      "shader-f16",
+      "subgroups"
+    ],
+    "deviceLimits": {
+      "maxBufferSize": 4294967292,
+      "maxStorageBufferBindingSize": 4294967292
+    }
+  },
+  "packBytes": 15256750346,
+  "downloadBytes": 15235781067,
+  "loadMs": 18399.5,
+  "sessionCreateMs": 7218,
+  "cacheTensorCount": 128,
+  "cpuFallbackDisabled": true,
+  "success": true,
+  "tests": [
+    {
+      "text": "156",
+      "completionTokens": 4,
+      "firstTokenMs": 1457.4000000022352,
+      "tokensPerSecondAfterFirst": 6.684491978654013,
+      "allStatesOnGpu": true
+    },
+    {
+      "text": "Utrecht\u2019s urban layout was fundamentally defined by its canal system, which created a distinctive concentric ring structure. These waterways facilitated trade and transportation, allowing the",
+      "completionTokens": 32,
+      "firstTokenMs": 496.80000000074506,
+      "tokensPerSecondAfterFirst": 10.018744748241053,
+      "allStatesOnGpu": true
+    }
+  ]
+}

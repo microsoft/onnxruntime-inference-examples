@@ -1,0 +1,12 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>Qwen3.8 27B · ONNX WebGPU</title></head>
+<body>
+<h1>Qwen3.8 27B · ONNX Runtime WebGPU</h1>
+<p>Text generation on your GPU. Model download: approximately 15.26 GB. Tested on a 48 GiB Mac with Chrome; other hardware and long contexts are unvalidated.</p>
+<button id="load">Load model</button><button id="unload" disabled>Unload model</button>
+<p><textarea id="prompt" rows="4" cols="70">What is 12 * 13? Answer with the number only.</textarea></p>
+<button id="generate" disabled>Generate 32 tokens (greedy)</button>
+<pre id="status">Download the model pack first; see README.md. Use current Chrome or Edge on localhost with hardware WebGPU and JSPI support.</pre>
+<pre id="output"></pre><details><summary>Measurements</summary><pre id="metrics"></pre></details>
+<script type="module" src="/src/main.js"></script>
+</body></html>

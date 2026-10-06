@@ -1,0 +1,23 @@
+{
+  "name": "qwen38-27b-onnx-webgpu",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1",
+    "build": "vite build",
+    "test:browser": "node test-browser.mjs",
+    "download:model": "node download-model.mjs"
+  },
+  "dependencies": {
+    "@huggingface/transformers": "4.3.0",
+    "onnxruntime-web": "1.31.0-dev.20260914-8d85527a0"
+  },
+  "devDependencies": {
+    "vite": "7.3.6",
+    "playwright": "1.63.0"
+  },
+  "engines": {
+    "node": ">=20.19"
+  }
+}

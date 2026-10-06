@@ -1,0 +1,6 @@
+node_modules/
+dist/
+.models/
+results/
+.env
+.DS_Store

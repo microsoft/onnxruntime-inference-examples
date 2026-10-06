@@ -1,0 +1,142 @@
+{
+  "id": "Qwen3.8-27B-GenAI-WebGPU-INT4",
+  "repo": "Ruurd/Qwen3.8-27B-ONNX-WebGPU-INT4",
+  "revision": "1030027de90ff1d54cefc66a23f253667723a938",
+  "files": [
+    {
+      "name": "LICENSE",
+      "bytes": 11544,
+      "sha256": "bbedc3fda3305820b977265f01b8619d87570a6739de3a5582c3464840f1e57a"
+    },
+    {
+      "name": "NOTICE",
+      "bytes": 1096,
+      "sha256": "4bc0702ac73ce597a7ac2d25d5d9593b48c736e8ccb4212b5c4166f88c160f67"
+    },
+    {
+      "name": "README.md",
+      "bytes": 4458,
+      "sha256": "e1ded046cd423aed8cd49496016064e479ee9482b9de469f226803858b783ffd"
+    },
+    {
+      "name": "SHA256SUMS",
+      "bytes": 2108,
+      "sha256": "76afd85e80a46a3b60a96af22fe159aeceb68642b404bef58ae7b4f2a0139935"
+    },
+    {
+      "name": "browser-adaptation.json",
+      "bytes": 1124,
+      "sha256": "304421d2b3fdc54eb76cebb9c7039655924198f151ba3ad778bdc6e7b79700eb"
+    },
+    {
+      "name": "chat_template.jinja",
+      "bytes": 8952,
+      "sha256": "c3cf9e34abf4f9e36c2d72165aa9c132d3e2a725b6c2586aaa3a8af9d7a81041"
+    },
+    {
+      "name": "genai_config.json",
+      "bytes": 2173,
+      "sha256": "ac9543ac591ee1471a728a7fbeb120d06ea1174d6f1eb5ffb4790122c0494797"
+    },
+    {
+      "name": "manifest.json",
+      "bytes": 218401,
+      "sha256": "d366474182d88ae15a47f0cc93b9baea2a3a8a097ff9814559ef716de7747c9e"
+    },
+    {
+      "name": "model.browser.onnx",
+      "bytes": 963019,
+      "sha256": "451ed1a88c5ed901aed2efbc528197a6017b821383b82635bf0a2505f4df680b"
+    },
+    {
+      "name": "model.onnx",
+      "bytes": 966226,
+      "sha256": "b89aab881977645fa4dce3553eafa2e84ac539f18476ea4869e5be99533f218a"
+    },
+    {
+      "name": "model.onnx.data_000",
+      "bytes": 1045463040,
+      "sha256": "eb0fb83ff03b03cf92a7578a0e9a5dc59e814e6ad408699bd1508ec0e735620e"
+    },
+    {
+      "name": "model.onnx.data_001",
+      "bytes": 1070530560,
+      "sha256": "435e4a756d6b522f8f1c748fde103a903a609ecdc542f1f79f9015c569ecb11c"
+    },
+    {
+      "name": "model.onnx.data_002",
+      "bytes": 1064632320,
+      "sha256": "aba624cbf26c09ade578e6ad49627011c41a25dceb992e87abf8b26a462c55ce"
+    },
+    {
+      "name": "model.onnx.data_003",
+      "bytes": 1070530560,
+      "sha256": "8afa21d25dbc18567dda5e6b6a584e9bed63ae73975e28580f1e806cad8468ef"
+    },
+    {
+      "name": "model.onnx.data_004",
+      "bytes": 1070530560,
+      "sha256": "fe6ee327be43d16ba57b8c14574f35027bfd0dc2be501e44217788ef075192e3"
+    },
+    {
+      "name": "model.onnx.data_005",
+      "bytes": 1070530560,
+      "sha256": "852a0322f1be70c71c4ed4f439cb5dbf743375c6ddf3091093599d78ad1ffe7d"
+    },
+    {
+      "name": "model.onnx.data_006",
+      "bytes": 1064632320,
+      "sha256": "ab02ba6ef850cafd2ff155b9e26b47bd6f2ffde5ad341dacc8136a39539a848e"
+    },
+    {
+      "name": "model.onnx.data_007",
+      "bytes": 1070530560,
+      "sha256": "f85375e8e18c2e5fe155355a06a173c3e227a044abc1528a7cac752d4b92ad08"
+    },
+    {
+      "name": "model.onnx.data_008",
+      "bytes": 1070530560,
+      "sha256": "151b6dc1d97aaaf0c1e19a795be6e67bf1c756a90a058be3577d9d33b7cd6ff0"
+    },
+    {
+      "name": "model.onnx.data_009",
+      "bytes": 1070530560,
+      "sha256": "2e3e90070d2ae7cbf0924e8307bbced2737110f00c3353668f3ec6db6d67b0c5"
+    },
+    {
+      "name": "model.onnx.data_010",
+      "bytes": 1064632320,
+      "sha256": "d3437f3cd78a14ca8d566504664229ccf72041566b5860a37a664c1852d2c498"
+    },
+    {
+      "name": "model.onnx.data_011",
+      "bytes": 1070530560,
+      "sha256": "fd0010a73b25e54acc4d4f4a4c6b67f63c60a733ac5fcbe83b8d513119b761ca"
+    },
+    {
+      "name": "model.onnx.data_012",
+      "bytes": 1070530560,
+      "sha256": "2ef25f57544afa1b284e4bbd5492fb5440b2365212fa5f75e9753436cc674110"
+    },
+    {
+      "name": "model.onnx.data_013",
+      "bytes": 524943360,
+      "sha256": "f12f01e346adb0ab37596a2a71da252afebf7a297ccf688014196f0e08fbffbc"
+    },
+    {
+      "name": "model.onnx.data_014",
+      "bytes": 835739648,
+      "sha256": "18667e7b2ac51e38a4c0fd435ec8d5b8459b2476770ba28fee59f9089b2cdbcf"
+    },
+    {
+      "name": "tokenizer.json",
+      "bytes": 19989339,
+      "sha256": "a5cd9732badce41de57e6efce8302930ded1c1188c5f81feb2bd6c24c4a1941f"
+    },
+    {
+      "name": "tokenizer_config.json",
+      "bytes": 1465,
+      "sha256": "004893c9690cd050e617619eef34e6a13fe58ac4a3f4174f38eed5e408a89636"
+    }
+  ]
+}
