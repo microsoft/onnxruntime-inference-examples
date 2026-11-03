@@ -20,13 +20,19 @@ concurrency:
 
 permissions:
   contents: read
-  id-token: write
 
 jobs:
   dispatch:
-    if: github.event_name == 'workflow_dispatch' || !github.event.pull_request.draft
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'pull_request_target' &&
+      !github.event.pull_request.draft &&
+      github.event.pull_request.head.repo.full_name == github.repository)
     runs-on: ubuntu-latest
     timeout-minutes: 360
+    permissions:
+      contents: read
+      id-token: write
     env:
       ADO_ORGANIZATION: ${{ secrets.ADO_PR_ORGANIZATION }}
       ADO_PROJECT: ${{ secrets.ADO_PR_PROJECT }}
@@ -75,8 +81,19 @@ jobs:
           SOURCE_COMMIT: ${{ inputs.source_commit }}
         run: |
           set -euo pipefail
+
+          resolved_commit="$(git ls-remote "https://github.com/${GITHUB_REPOSITORY}.git" "$SOURCE_REF" | awk 'NR == 1 {print $1}')"
+          if [[ -z "$resolved_commit" ]]; then
+            echo "The requested ref does not exist in ${GITHUB_REPOSITORY}: ${SOURCE_REF}" >&2
+            exit 1
+          fi
+          if [[ -n "$SOURCE_COMMIT" && "$SOURCE_COMMIT" != "$resolved_commit" ]]; then
+            echo "The requested commit does not match the current ref revision." >&2
+            exit 1
+          fi
+
           echo "source_ref=${SOURCE_REF}" >> "$GITHUB_OUTPUT"
-          echo "source_commit=${SOURCE_COMMIT}" >> "$GITHUB_OUTPUT"
+          echo "source_commit=${resolved_commit}" >> "$GITHUB_OUTPUT"
 
       - name: Dispatch and monitor private validation
         shell: bash
