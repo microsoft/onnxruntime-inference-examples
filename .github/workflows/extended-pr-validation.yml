@@ -20,13 +20,19 @@ concurrency:
 
 permissions:
   contents: read
-  id-token: write
 
 jobs:
   dispatch:
-    if: github.event_name == 'workflow_dispatch' || !github.event.pull_request.draft
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'pull_request_target' &&
+      !github.event.pull_request.draft &&
+      github.event.pull_request.head.repo.full_name == github.repository)
     runs-on: ubuntu-latest
     timeout-minutes: 360
+    permissions:
+      contents: read
+      id-token: write
     env:
       ADO_ORGANIZATION: ${{ secrets.ADO_PR_ORGANIZATION }}
       ADO_PROJECT: ${{ secrets.ADO_PR_PROJECT }}
@@ -71,12 +77,59 @@ jobs:
         if: github.event_name == 'workflow_dispatch'
         shell: bash
         env:
+          GITHUB_TOKEN: ${{ github.token }}
           SOURCE_REF: ${{ inputs.source_ref }}
           SOURCE_COMMIT: ${{ inputs.source_commit }}
         run: |
           set -euo pipefail
+
+          case "$SOURCE_REF" in
+            refs/heads/*|refs/tags/*) ;;
+            refs/pull/*/head|refs/pull/*/merge)
+              if [[ ! "$SOURCE_REF" =~ ^refs/pull/([1-9][0-9]*)/(head|merge)$ ]]; then
+                echo "source_ref is not a valid pull request ref: ${SOURCE_REF}" >&2
+                exit 1
+              fi
+              pr_number="${BASH_REMATCH[1]}"
+              pr_head_repository="$(curl --fail-with-body --silent --show-error \
+                --header "Authorization: Bearer ${GITHUB_TOKEN}" \
+                --header 'X-GitHub-Api-Version: 2022-11-28' \
+                "${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/pulls/${pr_number}" |
+                jq -er '.head.repo.full_name')"
+              if [[ "$pr_head_repository" != "$GITHUB_REPOSITORY" ]]; then
+                echo "Manual validation is limited to pull requests from ${GITHUB_REPOSITORY}." >&2
+                exit 1
+              fi
+              ;;
+            *)
+              echo "source_ref must be a fully qualified branch, tag, or pull request ref." >&2
+              exit 1
+              ;;
+          esac
+          if ! git check-ref-format "$SOURCE_REF"; then
+            echo "source_ref is not a valid Git ref: ${SOURCE_REF}" >&2
+            exit 1
+          fi
+
+          verification_repo="$(mktemp -d)"
+          trap 'rm -rf "$verification_repo"' EXIT
+          git -C "$verification_repo" init --quiet
+          if ! git -C "$verification_repo" fetch --quiet --depth=1 \
+            "https://github.com/${GITHUB_REPOSITORY}.git" "$SOURCE_REF"; then
+            echo "The requested ref does not exist in ${GITHUB_REPOSITORY}: ${SOURCE_REF}" >&2
+            exit 1
+          fi
+          if ! resolved_commit="$(git -C "$verification_repo" rev-parse --verify 'FETCH_HEAD^{commit}' 2>/dev/null)"; then
+            echo "The requested ref does not resolve to a commit: ${SOURCE_REF}" >&2
+            exit 1
+          fi
+          if [[ -n "$SOURCE_COMMIT" && "$SOURCE_COMMIT" != "$resolved_commit" ]]; then
+            echo "The requested commit does not match the current ref revision." >&2
+            exit 1
+          fi
+
           echo "source_ref=${SOURCE_REF}" >> "$GITHUB_OUTPUT"
-          echo "source_commit=${SOURCE_COMMIT}" >> "$GITHUB_OUTPUT"
+          echo "source_commit=${resolved_commit}" >> "$GITHUB_OUTPUT"
 
       - name: Dispatch and monitor private validation
         shell: bash
