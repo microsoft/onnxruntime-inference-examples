@@ -82,8 +82,25 @@ jobs:
         run: |
           set -euo pipefail
 
-          resolved_commit="$(git ls-remote "https://github.com/${GITHUB_REPOSITORY}.git" "$SOURCE_REF" | awk 'NR == 1 {print $1}')"
-          if [[ -z "$resolved_commit" ]]; then
+          case "$SOURCE_REF" in
+            refs/heads/*|refs/tags/*) ;;
+            *)
+              echo "source_ref must be a fully qualified branch or tag ref." >&2
+              exit 1
+              ;;
+          esac
+          if ! git check-ref-format "$SOURCE_REF"; then
+            echo "source_ref is not a valid Git ref: ${SOURCE_REF}" >&2
+            exit 1
+          fi
+
+          remote_refs="$(git ls-remote \
+            "https://github.com/${GITHUB_REPOSITORY}.git" \
+            "$SOURCE_REF" "${SOURCE_REF}^{}")"
+          direct_commit="$(awk -v expected="$SOURCE_REF" '$2 == expected {print $1; exit}' <<< "$remote_refs")"
+          peeled_commit="$(awk -v expected="${SOURCE_REF}^{}" '$2 == expected {print $1; exit}' <<< "$remote_refs")"
+          resolved_commit="${peeled_commit:-$direct_commit}"
+          if [[ -z "$direct_commit" || -z "$resolved_commit" ]]; then
             echo "The requested ref does not exist in ${GITHUB_REPOSITORY}: ${SOURCE_REF}" >&2
             exit 1
           fi
